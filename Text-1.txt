@@ -1,0 +1,37 @@
+August 6, 2015:
+I just realized Google"s chrome has a problem with the stylesheet "object" when using the desktop version.  This causes an error and the ColorSpace Lab is unable to update the hue-range-handle (which can omly be done via a stylesheet).
+If we update the  JS_toolbox/Stylesheet.js  file to this:
+
+SoftMoon.WebWare.Stylesheet=function(ss)  { var i;
+	if (typeof ss == 'number')  ss=document.styleSheets[ss];
+	else if (typeof ss == 'string')  for (i=0; i<document.styleSheets.length; i++)  {
+    console.log("stylesheet["+i+"] title = “"+ document.styleSheets[i].title + "” looking for “"+ss+"”");
+		if (document.styleSheets[i].title===ss)  {ss=document.styleSheets[i];  break;}  }
+	this.ss=ss;
+	var r=this.getRules();
+	console.log((typeof this.ss.cssRules) +"\n"+ (typeof this.ss.rules) +"\n"+ (typeof r));
+	this.initLength=this.ss.cssRules.length;  }
+
+SoftMoon.WebWare.Stylesheet.prototype.getRules=function()  {return  this.ss.cssRules || this.ss.rules;}
+
+
+
+we get this on Google Chrome's console:
+
+stylesheet[0] title = “MasterColorPicker” looking for “MasterColorPicker”
+object
+object
+object
+Uncaught TypeError: Cannot read property 'length' of null
+
+
+
+
+if we use this line instead, we get the same console messages:
+	this.initLength=this.ss.rules.length;  }
+
+When embedded in the instructions page and served by a local or remote server, this problem with Chrome does not exist; see my website:
+http://softmoon-webware.com/MasterColorPicker_instructions.php
+
+
+Firefox does not have this problem at all.  It does seem to have the same layout issues as MSIE9 (which has even more real CSS issues with the current desktop version that I need to address) meaning the problem is more with my CSS than the browser, so I would say Firefox browser is now the champ at making this project work correctly...

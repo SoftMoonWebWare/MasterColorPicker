@@ -1,0 +1,925 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name='description' content='MasterColorPicker: a JavaScript color-picker delivering all the color you can handle.' />
+<meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker' />
+<meta name='author' content='Joe Golembieski, SoftMoon-WebWare' />
+<meta name='copyright' content='Copyright © 2013, 2014, 2015 Joe Golembieski, SoftMoon-WebWare' />
+<title>MasterColorPicker Instructions from SoftMoon WebWare</title>
+<style type="text/css">
+body, section, header, footer, div, h1, h2, h4, h5, img, ul, ol, dl, menu, li {
+	margin: 0;
+	padding: 0; }
+mark {
+	background-color: inherit; }
+body {
+	min-width: 800px;
+	font-family: Times, "Times New Roman", serif;
+	color: #000000;
+	background: #FFDEAD url(images/SoftMoon.repeat-y.png) repeat-y; }
+
+#top {
+	position: relative;
+	height: 700px;
+	min-height: 42em;
+	background: #FFDEAD url(images/SoftMoon.repeat-x.png) repeat-x; }
+#top, .content, footer {
+	min-width: 62em;
+	opacity: .62;
+	-moz-opacity: .62;
+	filter: alpha(opacity=62); }
+#top h1:first-child {
+	font-size: 1.618em;
+	font-weight: bold;
+	font-family: "Cooper Black", serif;
+	padding: .618em 0 0 1em; }
+#top h1 span {
+	padding: 0 0 0 2.618em;
+	font-size: .764em }  /* ≈ Φ + ((1-Φ) - (1-Φ)*Φ) */
+#top h1:last-child {
+	position: absolute;
+	bottom: 17px;
+	left: 0px;
+	text-align: center;
+	width: 100%; }
+#top figure {
+	position: absolute;
+	top: 2.618em;
+	left: 1em; }
+#logo {
+	font-size: 1.618em; /*for alt text*/
+	font-weight: bold;
+	line-height: 150%; }
+#top figcaption {
+	font-size: 1.382em;
+	font-weight: bold;
+	text-align: center;
+	width: 27em; }
+#top h1 span,
+#top figcaption span {
+	display: block;
+	font-style: oblique; }
+#top figcaption span em {
+	text-transform: uppercase;
+	font-weight: bold }
+
+body > header + div {
+	position: relative;
+	min-width: 62em;
+	height: 0px; }
+kbd span {
+	display: inline-block;
+	position: static;
+	border: 1px solid #8080FF;
+	border-bottom: 2px solid #404080;
+	border-right: 2px solid #404080;
+	border-radius: 1.618em / 2em;
+	color: white;
+	background-color: #202040;
+	text-align: center;
+	margin: 0 .382em;
+	padding: 0 .618em;  }
+p kbd span {
+	font-size: 85.4%;  }
+
+
+nav {
+	position: absolute;
+	right: .618em;
+	left: auto;
+	width: 9.618em;
+	z-index: 62;
+	text-align: center;
+	font-size: 1.162em; }
+nav menu {
+	list-style-type: none;
+	text-align: right; }
+nav a {
+	display: inline-block;
+	text-indent: -1em;
+	white-space: normal;
+	text-align: justify; }
+
+
+.content {
+	width: 100%;	/* fix MS and IE: crash 'n' trash	(yet another "hasLayout" bug?) */
+	background: #FFDEAD;
+	text-align: center;
+	z-index: 1; }
+.content > p,
+.content dl {
+	text-align: justify;
+	text-indent: -.618em;
+	font-size: 1.236em;
+	width: 27em;
+	margin: 0 auto 0 auto;
+	padding: 0 1em 1em 1em; }
+.content > p *,
+.content dl * {
+	text-indent: 0; }
+.content > p:first-letter {
+	font-size: 1.618em;
+	font-weight: bold;
+	color: #000040; }
+.content ol {
+	font-size: 1.236em;
+	width: 27em;
+	margin: -1em auto 0 auto;
+	padding-left: 1.618em;
+	list-style-type: circle;
+	text-align: left; }
+.content code + p,
+.content ol + p {
+	text-indent: 0; }
+.content code + p:first-letter,
+.content ol + p:first-letter {
+	font-size: inherit;
+	font-weight: normal;
+	color: inherit; }
+.content dt {
+	text-align: left;
+	font-weight: bold; }
+.content dd {
+	text-indent: .618em;
+	margin: 0 .618em 0 .618em;  }
+.content code, .content a, .word {
+	white-space: nowrap; }
+.content p code {
+	display: inline-block;
+	text-align: left; }
+.content > code {
+	display: block;
+	text-align: left;
+	white-space: pre;
+	width: 37em;
+	margin: -.618em auto 0 auto;
+	font-size: 1.236em;
+ }
+.content h3 {
+	float: right;
+	position: relative;
+	top: -1em;
+	width: 10.618em;
+	margin-right: .618em; }
+.content > ul {
+	list-style-type: none;
+	margin: 0 11.618em;
+	font-size: 1.236em; }
+.content > ul > li {
+	margin-bottom: .618em; }
+.content > ul ul {
+	display: inline-block;
+	list-style-type: disc;
+	list-style-position: outside;
+	margin-left: 1.618em;
+	max-width: 37em;
+	text-align: left; }
+.content > ul ul ul {
+	list-style-type: circle; }
+
+
+footer {
+	position: relative;
+	height: 100px;
+	background: #FFDEAD url(images/SoftMoon.footer.back.png) repeat-x bottom; }
+footer p {
+	position: absolute;
+	left: 1.618em;
+	bottom: .618em;
+	font-size: .78em;
+	font-weight: bold; }
+footer .notice {
+	white-space: nowrap;
+	margin-right: 7.618em; }
+.numerance {
+	font-size: .618em;
+	vertical-align: .618em;
+	line-height: 100%; }
+.macronym {
+	display: inline;
+	font-size: .763924em;
+	vertical-align: .236076em;
+	line-height: 100%; }
+acronym.macronym {
+	font-size: .382em;
+	vertical-align: 1.1618em;
+	border-bottom: none; }
+code {
+	font-family: "consolas", "monospace"; }
+code.filename,
+code .filename {
+	color: #0066FF; }
+.attention {color: red;}
+big {
+	font-size: 1.382em;
+	line-height: .618em; }
+strong em {
+	text-transform: uppercase; }
+#tester, #tester2 {
+	position: fixed;
+	bottom: 0;
+	right: 1em;
+	width: 10em;
+	height: 1em;
+	z-index: 1618;
+	background-color: black;
+	color: white; }
+#tester2 {
+	right: 12em; }
+</style>
+</head>
+<body>
+<header id='top'>
+<h1>Custom Web Software Development for the 21<mark class='numerance'>st</mark> Century<acronym class='macronym' title="service mark">SM</acronym></h1>
+<figure>
+<img id='logo' src="images/SoftMoon.gif" alt="SoftMoon WebWare" />
+<figcaption><acronym>PHP</acronym>, <acronym>SQL</acronym>s, JavaScript<mark class='macronym'>™</mark>, <acronym>Ajax</acronym>, <acronym>HTML5</acronym>, <acronym>XHTML</acronym>, &amp; <acronym>CSS3</acronym>:
+<span>Innovative Enterprise level Scripting for interactive sites, <acronym title='software as a service'>SaaS</acronym>, &amp; cross-platform desktop apps</span></figcaption>
+</figure>
+<h1>MasterColorPicker<mark class='macronym'>™</mark>
+<span>all the color you can handle<acronym class='macronym' title="service mark">SM</acronym></span></h1>
+</header>
+
+<div>
+<nav>
+on this page:
+<menu>
+	<li><a href='#desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</a></li>
+	<li><a href='#named-colors'>Named-color tables</a></li>
+	<li><a href='#using_MasterColorPicker'>Using MasterColorPicker</a></li>
+	<li><a href='#using_picker'>Using the Picker</a></li>
+	<li><a href='#using_swatch'>“color swatches”</a></li>
+	<li><a href='#'>Targets beyond <code>&lt;input&gt;</code></a></li>
+	<li><a href='#your_structure'>Structuring your own <acronym>HTML</acronym> and <acronym>CSS</acronym></a></li>
+	<li><a href='#add_rmv_pckr'>Adding &amp; removing color-pickers</a></li>
+	<li><a href='#building pickers'>Building your own color-pickers</a></li>
+	<li><a href='#about_options'>The “options” panel</a></li>
+</menu>
+</nav>
+</div>
+
+<section id='content' class='content'>
+<p>SoftMoon WebWare’s MasterColorPicker package delivers five JavaScript<mark class='macronym'>™</mark> powered professional quality
+interactive graphical color-pickers, plus a named-color-table based color-picker framework with seven
+named-color database files included: Brewer, common, Crayola, <acronym>HTML</acronym>, OpenOffice, universal, &amp; X11.&nbsp;
+Your chosen colors can be returned in the most popular color-space models including hexadecimal-<acronym>RGB</acronym>,
+<acronym title='red, green, blue'>RGB</acronym>,
+<acronym title='hue, saturation, lightness'>HSL</acronym>,
+<acronym title='hue, saturation, brightness; also known as HSV: hue, saturation, value'>HSB</acronym>,
+<acronym title='hue, chroma, gray'>HCG</acronym>, or
+<acronym title='cyan, magenta, yellow, black;  used when printing with inks'>CMYK</acronym>,
+or when using named-colors their names can also be returned.&nbsp;
+The different graphical color-pickers each look at the different available color-spaces in a different way,
+giving you complete intuitive control over finding the exact color you want.&nbsp;
+Best of all, you can work with one color-space graphically,
+while outputting the corresponding conversion value from another color-space.&nbsp;
+The five interactive graphical color-pickers included are:</p>
+<dl>
+	<dt>RainbowMaestro Harmonic Color Picker<mark class='macronym'>™</mark></dt>
+		<dd>Specializes in color-harmony, shows light/dark shades (monochromatic) of a selected hue and its complement,
+				triadic complements, split-complements, and analogous colors, all in one color-wheel.
+				Includes a “websafe colors” setting;&nbsp;
+				Colorblind assistant shows protan, deutan, &amp; tritan simulations of the palette and selected color.</dd>
+	<dt>Spectral Progressive Color Picker<mark class='macronym'>™</mark></dt>
+		<dd>Shows the progression of colors in steps based on the <acronym>RGB</acronym> color-space.&nbsp;
+				Works with browsers as far back as Internet Exploder 6.</dd>
+	<dt>BeezEye Color Picker<mark class='macronym'>™</mark></dt>
+		<dd>Classic color-wheel shows <acronym>HSL</acronym>, <acronym>HSB</acronym>, <acronym>HCG</acronym>,
+				and <acronym>CMYK</acronym> color-spaces (one at a time) with user-controlled Lightness/Brightness/Gray/Black.</dd>
+	<dt>Simple² Color Picker<mark class='macronym'>™</mark></dt>
+		<dd>Works with the <acronym>HSL</acronym> and <acronym>HSB</acronym> color-spaces (both at once) to bring you
+				simple access to the shades of any color from the color to →black, →white, and →gray.</dd>
+	<dt>YinYang NíHóng Color Picker<mark class='macronym'>™</mark></dt>
+		<dd>Another classic style, delivers all of the 11,777,216 colors your 24-bit monitor can show within two easy clicks
+				using either the <acronym>HSL</acronym>, <acronym>HSB</acronym> or <acronym>HCG</acronym> color-spaces.</dd>
+</dl>
+<p>All these graphical color pickers, except for the YinYang NíHóng color picker, are designed to
+show colors in definite “steps” of progression, allowing you to easily work with gradients (see our Rainbow-Maker projects)
+and find “matching” colors from other hues/shades.&nbsp; The number of steps, or variety of colors,
+is user-controllable in real-time, from just a few to “high resolution”.</p>
+
+<p>¡As of <del>late October 2014</del> August 2015, I have pre-released MasterColorPicker version 2.0.01-alpha.&nbsp;
+This version now will <del>almost</del> completely work with newer versions of Firefox (39+) (see below),
+and also gives the user the ability to drag &amp; drop the “picker panels”
+around the window and/or <acronym>HTML</acronym> page the MasterColorPicker is embedded in
+(<abbr title='also known as'>a.k.a.</abbr> “sticky panels” because the user can “stick” them back-and-forth to either
+the window (<code>position: fixed</code>) or page (<code>position: absolute</code>) in real-time).&nbsp;
+In addition, several new auxiliary panels are included in the <acronym>HTML</acronym> front-end
+showing off the features that will be included when
+version 2.0-beta is complete and ready to be released.&nbsp;
+Only the “color-filter,” “color-space lab,” and “myPalette” features have any integrated working functionality (and “myPalette” is still incomplete),
+but this release shows off the latest update to the <code>Picker</code> class which is the
+supporting framework for the MasterColorPicker project.&nbsp;
+The MasterColorPicker code-set remains largely unchanged at the low-level, however, at a higher level,
+the <code>x-ColorPicker</code> class is no longer a simple static-functional class, rather it now
+constructs “color picker” objects; this will be necessary to integrate the planned enhancements.&nbsp;
+One minor annoyance bug was fixed with the “RainbowMaestro” picker: when you manually type in the
+focal-hue degree and press <kbd><span>Enter</span></kbd> and then click on a color it is now recognized,
+whereas before this click needlessly updated the <code>&lt;canvas&gt;</code> as focus was taken from the
+focal-hue input, so the <code>onClick</code> event never could occur since the old <code>&lt;canvas&gt;</code>
+was discarded before the event could trigger.&nbsp;
+For now, if you want to use the <code>MasterColorPicker.php</code> file,
+you will want to manually remove the new panels and hide their supporting options in the “options panel”
+if you include this update in your own project — see the<acronym>HTML</acronym> comments in the file.&nbsp;
+The <code>MasterColorPicker_desktop.htm</code> file already has this done.&nbsp;
+Also note this update requires updated <code>UniDOM.js</code> and <code>Picker.js</code> files,
+and in particular, <code>UniDOM</code> has been completed, updated, and bug-fixed, and is now
+a very useful &amp; powerful project in its own right, not merely an included support file of some common functions.&nbsp;
+I’m still not sure when I will find time to finish MasterColorPicker 2.0-beta, (but hopefully soon)
+so I’m releasing 2.0-alpha just to keep up with the current browser changes, minimal bug-fixes and enhancements.&nbsp;
+Note this latest August 2015 release also requires 3 additional files:
+<code class='filename'>JS_toolbox/SoftMoon-WebWare/FormFieldGenie.js</code>,
+<code class='filename'>JS_toolbox/Math+++.js</code> &amp;
+<code class='filename'>JS_toolbox/Stylesheet.js</code>.</p>
+
+<p>Now these ain’t your grandpa’s color pickers, mind you.&nbsp;
+The MasterColorPicker project is of a cutting-edge design
+that relies on a modern computer that can process the JavaScript<mark class='macronym'>™</mark> fast enough,
+and a modern browser with <acronym>HTML5</acronym> <code>&lt;canvas&gt;</code> tag support and
+<a href='http://caniuse.com/#feat=forms' target='aux_page'><acronym>HTML5</acronym> forms support</a>
+for the slider controls to work (sliders are the only real way for this to work well for users in real time).&nbsp;
+At the time of the first MasterColorPicker release, only
+Google’s<mark class='macronym'>®</mark> Chrome<mark class='macronym'>®</mark>,
+Apple’s<mark class='macronym'>®</mark> Safari<mark class='macronym'>®</mark>,
+the Opera<mark class='macronym'>®</mark> browser,
+and Microsoft’s<mark class='macronym'>®</mark> Internet Exploder 10 had this capability natively.&nbsp;
+With earlier versions of Mozilla’s<mark class='macronym'>®</mark> Firefox<mark class='macronym'>®</mark>, you were completely lost;&nbsp;
+most of the problem resided with bugs in Firefox<mark class='macronym'>®</mark>, but there was also a bug in the supporting UniDOM file
+(it was rushed out and not fully developed or debugged).
+At this time of writing (Oct 2014) Firefox<mark class='macronym'>®</mark> version 33 is out, and although it won’t function at all on my computer
+(I get a blank black screen, with nothing in the title-bar or menu-bar of the Firefox<mark class='macronym'>®</mark> window),
+version 32 (and maybe some earlier) supports input sliders and displays the table <acronym>HTML</acronym> correctly,
+and with the latest (complete &amp; debugged) version of UniDOM, you can pick colors in most of the pickers;&nbsp;
+however, ealier Firefox<mark class='macronym'>®</mark> still has problems delivering the correct <code>{x,y}</code> position of the mouse on the screen
+when it is over a “bounding box” of a <code>transform: rotate</code>d Element and therefore
+the “BeezEye” &amp; “Simple²” pickers still don’t work correctly (note the “bounding box” is larger
+than the displayed rotated Element, and is based on the displayed position as well as “untransformed” position).&nbsp;
+<del>I’m hoping the folks at Mozilla<mark class='macronym'>®</mark> get their act together soon, and get a fully working browser up and out,
+but in the meantime, you might restyle these two pickers and/or completely rewrite their <acronym>HTML</acronym> to get them to work.</del>&nbsp;
+Now (Aug 2015) that Firefox<mark class='macronym'>®</mark> 39 is out (I had to hover-over or right-click and choose “properties” on the
+<code class='filename'>firefox.exe</code> file in the “programs” folder to find the version number!) the only bug I find
+is that the <code>event.detail</code> property =1 during <code>mousemove</code> events following a <code>click</code>
+event when the specs on the Mozilla<mark class='macronym'>®</mark> Developers Page says it should be =0.&nbsp;
+This did cause a bug, but I overcame it, and now Firefox<mark class='macronym'>®</mark> seems to be in the lead for full support of MasterColorPicker,
+excepting some minor <acronym title='cascading style sheet'>CSS</acronym> layout discrepencies
+(I’ll worry about them in the final stages of development if Mozilla<mark class='macronym'>®</mark> hasn’t fixed them first).&nbsp;
+Opera<mark class='macronym'>®</mark> 12.16 (out when MasterColorPicker first was released), and  as usual has no known bugs
+(that couldn’t be overcome with a bit more <acronym>CSS</acronym>),
+applied styling looks the most elegant overall,
+and has the best overall performance tied with older Chrome<mark class='macronym'>®</mark>,
+in terms of speed of page load &amp; color-picker rendering being acceptably fast with an average modern computer.&nbsp;
+(Just don’t trust it to keep your bookmarks if you update,
+so turn <strong>off</strong> auto-update and backup, backup, backup!
+With the last update happening automatically and again clearing out my bookmarks, I removed Opera from my computer…F them!)&nbsp;
+Old versions of Google’s<mark class='macronym'>®</mark> Chrome<mark class='macronym'>®</mark> get you there, but it’s still a bit
+quirky; don’t try to scroll the main page while the color-picker is displayed in a fixed position!&nbsp;
+For that reason, you may want to use JavaScript<mark class='macronym'>™</mark> to feed
+old Chrome<mark class='macronym'>®</mark> the same <acronym>CSS</acronym> patch file that
+<acronym title='Microsoft’s Internet Exploder 9'>MSIE9</acronym> uses — or better, simply demand that your users update.&nbsp;
+And old Chrome<mark class='macronym'>®</mark> insists that rotated <code>&lt;input type='range' /&gt;</code> tags
+be rendered with a white background, even with inline styles set; not a “problem” just less elegant looking.&nbsp;
+With the new Opera<mark class='macronym'>®</mark> (currently version 25) and
+Chrome<mark class='macronym'>®</mark> (currently version 38) (Oct 2014) now joining forces
+to use the new “Blink” browser foundation, both browsers display the default <acronym>HTML</acronym> correctly
+and work correctly, however, Chrome<mark class='macronym'>®</mark> is now the fastest of all browsers.&nbsp;
+August 2015 note: I ditched Opera<mark class='macronym'>®</mark> since they deleted all my bookmarks, so no comment there, but
+Chrome<mark class='macronym'>®</mark> works except for it does not update the
+<acronym title='cascading style sheet'>CSS</acronym> <code>:hover</code> conditions as the mouse moves over the page
+with the button held down when dragging colors in the “myPalette” panel.&nbsp;
+
+With Safari<mark class='macronym'>®</mark> on an Apple<mark class='macronym'>®</mark> Mac<mark class='macronym'>®</mark>
+(untested using Safari<mark class='macronym'>®</mark> on Windows<mark class='macronym'>®</mark>)
+(also untested on any newer (2014) versions — I don’t (won’t) have an Apple)
+<code>&lt;input type='range' /&gt;</code> tags
+are rendered only in solid black with a transparent background.&nbsp;
+(¡¡New 2014 note: I finally found instructions on how to style a range-bar in <acronym>CSS</acronym>!!&nbsp;
+But as noted, I don’t have an Apple to test this.&nbsp;
+By the time I release MasterColorPicker 2.0 beta, I should have this problem worked out for sure.)&nbsp;
+The black-on-black rendered by Safari<mark class='macronym'>®</mark> is then invisible.&nbsp;
+I chose black as the background for the color-pickers because it shows the colors better,
+and provides a stark contrast with most web-pages, giving the “pop-up” more of a “panel” feel.&nbsp;
+Solutions include wrapping every <code>&lt;input type='range' /&gt;</code> tag with a <code>&lt;span&gt;</code>
+and then styling the <code>&lt;span&gt;</code> with a background; forcing Safari<mark class='macronym'>®</mark>
+to use the FD-slider package that <acronym>MSIE9</acronym>
+needs (see below); or using JavaScript<mark class='macronym'>™</mark> to feed in another stylesheet
+to alter the color-styling of the “<code>mainPanel</code>”.&nbsp;
+I don’t care for superfluous <acronym>HTML</acronym> tags added simply for visual styling — that goes against the
+principle of separation of content from styling.&nbsp;
+But Safari leaves little choice, as a background other that black simply does not seem to work well in the overall picture.&nbsp;
+My solution is to use JavaScript<mark class='macronym'>™</mark> targeted only for Safari<mark class='macronym'>®</mark> to
+add in all those superfluous <code>&lt;span&gt;</code> tags wrapped around each <code>&lt;input type='range' /&gt;</code>
+on the <code>mainPanel</code> (fix in version 1.0.4).&nbsp;
+With Microsoft’s<mark class='macronym'>®</mark> Internet Exploder 9,
+even though color-picker rendering is slower than molasses in winter when adjusting values,
+you might be able to use a JavaScript<mark class='macronym'>™</mark> package like the one from
+Brian McAllister of frequency-decoder (the FD-slider)
+to add the needed <code>&lt;input type='range' /&gt;</code> capabilities; but note that package only works under some
+conditions on some browsers.&nbsp;
+I <a href='http://softmoon-webware.com/FD-slider_SM-enhanced_instructions.htm'>enhanced it</a> to work better
+with more complicated layouts, and also added the ability to work with rotated sliders,
+and included its basics with the MasterColorPicker files.&nbsp;
+Never-the-less, it does <em>not</em> work with the basic supplied server-based <acronym>CSS</acronym> file which
+places the pickers in a fixed-position format in the top-right of the browser window,
+but there is a supplied patch-file, that works with <em>some</em> overall page structures
+(where you place the MasterColorPicker in the document, and what the parent element is,
+and what else it contains, and how you style that parent and the rest of the document),
+which you can target to <acronym>MSIE9</acronym>.&nbsp;
+(see the simple fix which you should target to that browser in the section on
+<a href='#using_MasterColorPicker'>using the MasterColorPicker</a> below).&nbsp;
+But these color-pickers are completely flexible and don’t rely on any specific <acronym>CSS</acronym> styling.&nbsp;
+In fact, except for the Spectral Progressive color-picker and the named-color tables,
+the <acronym>HTML</acronym> is flexible too: use whatever tags you want/need, with only minimal restriction
+on placing tag <abbr title='identification attributes'>id</abbr>s on appropriate wrapper elements.&nbsp;
+With all that said, there is even a hack that skips the <code>&lt;input type='range' /&gt;</code> for browsers with at
+least <code>&lt;canvas&gt;</code> support, but it’s more of an unfriendly work-around for both users and programmers…
+See below for technical details on the <acronym>HTML</acronym>
+<a href='#picker_requirements'>requirements</a> for each individual color-picker,
+and the section on <a href='#registering_interfaces'>registering interface elements</a>.&nbsp;
+Finally, if you must have support for older browsers, maybe either the
+<a href='http://raphaeljs.com/'>Raphaël—JavaScript Library</a>
+(the way I would go as <acronym>SVG</acronym> is even more powerful and universal) or
+<a href='http://flashcanvas.net/'>http://flashcanvas.net/</a>
+(I would avoid as Flash<mark class='macronym'>®</mark> is on its way out!)
+can help: but you will at least need to modify <code class='filename'>MasterColorPicker.js</code>,
+a bit more than I have time for right now as I’m looking forward not backward <big>☺</big></p>
+
+<h3 id='desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</h3>
+
+<p>The package includes two versions: desktop and server-based.&nbsp;
+The desktop version can be placed in a folder on your personal computer and used to find the colors of your dream’s desire.&nbsp;
+But while the desktop version can also be incorporated into your own web page and served from your server, you guessed it,
+the server-based version requires a server such as Apache for example
+(you can always put a server on your home machine, of course, and use the server version on your desktop).&nbsp;
+But the server-based version is much more convenient to use if you plan on adding or deleting
+named-color database tables on a regular basis.&nbsp;
+For instance, you might use the server-based package to allow customers to choose the color they want based on
+the product they are interested in, one table for each product line, and your product line may be dynamic.&nbsp;
+With the server-based version, you simply create the named-color database file and add it to the proper folder; that’s it.&nbsp;
+Remove it from the folder when you are done with it.&nbsp;
+With the desktop version, you must manually add and remove links to each of the named-color tables,
+whether served with your web-pages, or simply using the desktop tool.</p>
+
+<p>There is another factor in deciding whether to use the desktop or server version when incorporating the
+MasterColorPicker into your own website.&nbsp; The named-colors database files are <acronym>JSON</acronym> formatted.&nbsp;
+With the server based version, these files are loaded using JavaScript<mark class='macronym'>™</mark>
+to make HTTP calls back to the server (think ajax), whereas with the desktop version,
+they are themselves JavaScript<mark class='macronym'>™</mark> files loaded with an <acronym>HTML</acronym>
+<code>&lt;script src='colors-filename.js'&gt;</code> tag.&nbsp;
+This means that the server version can interpret the files,
+whereas in the desktop version the database files are required to be legal JavaScript<mark class='macronym'>™</mark>.&nbsp;
+And this means that the server version has database files that can be used easier with server-side languages,
+such as <acronym>PHP</acronym>.&nbsp;
+<acronym>PHP</acronym> has a function, <code>json_decode()</code> that quickly and simply converts
+<acronym>JSON</acronym>-encoded text-strings.&nbsp; But the desktop version requires that the
+<acronym>JSON</acronym> Object is <em>assigned</em> to something right there in the database file itself, and
+<acronym>PHP</acronym> can not natively read this.&nbsp; Of course, with a little ingenuity, you could strip off
+the “assignment” within the JavaScript<mark class='macronym'>™</mark>-based-database file and then parse it
+natively using <acronym>PHP</acronym>;
+more overhead on overworked servers is never a good thing, though, however small.</p>
+
+<h3 id='named-colors'>Named-color tables</h3>
+
+<p>Because the named-color database tables are required to be in only slightly different formats,
+and many of the files are very long, these database files only come packaged in one format: for the desktop version.&nbsp;
+There is an included <acronym>PHP</acronym> powered converter which will convert all the files to the server version format.&nbsp;
+There is also an instruction file which explains the details on how to do this using the included converter,
+and also how to do this by hand.&nbsp;
+These two files, <code class='filename'>convert_palette_formats.php</code> and <code class='filename'>converting_palette_formats.rtf</code>,&nbsp;
+can be found in the <code class='filename'>color_palettes</code> folder.</p>
+
+<p>Building your own named-color-tables is simple to do using any basic text-editor.&nbsp;
+Complete instructions on how to do this can be found in the <code class='filename'>README.rtf</code> file
+in the <code class='filename'>color_palettes</code> folder.&nbsp;</p>
+
+<h3 id='using_MasterColorPicker'>Using MasterColorPicker in your own project</h3>
+
+<p>It’s very easy to incorporate the MasterColorPicker (or even any of its individual pickers) into your own project.&nbsp;
+To limit download size, but maximize ease of use, two different but similar files are included.&nbsp;
+The desktop version is built with pure <acronym>HTML</acronym> (file name <code class='filename'>MasterColorPicker_desktop.htm</code>),
+while the server version is built with embedded <acronym>PHP</acronym> (file name <code class='filename'>MasterColorPicker.php</code>).&nbsp;
+The desktop file is a complete <acronym>HTML</acronym> page with a head and body, while the server version only contains
+the needed <acronym>HTML</acronym> for the MasterColorPicker project itself.&nbsp;
+The <acronym>PHP</acronym> generated <acronym>HTML</acronym> is essentially the same as the pure <acronym>HTML</acronym>,
+except the <acronym>PHP</acronym> can keep track of the settings on the individual pickers, and keep them set the
+way the user sets them, in between page invocations.&nbsp;
+Doing this requires that the color-pickers <acronym>HTML</acronym> be either enclosed within a <code>&lt;form method='post'&gt;</code>
+tag, or otherwise “attached” to a form, and submitted back to the server.&nbsp;
+Generally, if you are picking a color, you will be sending form data anyway.&nbsp;
+But you do not need to use the <acronym>PHP</acronym> file with the rest of the server version.&nbsp;
+(What defines the server-version is the way named-color tables are used:
+see <a href='#desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</a>).
+Simply “cut out” the proper section of <acronym>HTML</acronym> from the desktop version file
+(the file is commented so you can tell what to cut), and either make it a new file: <code class='filename'>MasterColorPicker.htm</code>
+or simply paste it into your own web-page file; either way you then incorporate the MaterColorPicker <acronym>HTML</acronym>
+at whatever place in your document you desire.&nbsp;
+To use the <acronym>PHP</acronym> file with your <acronym>PHP</acronym> webpage, simply place
+<code>&lt;?php include "color-pickers/SoftMoon-WebWare/MasterColorPicker.php"; ?&gt;</code> in your document at the
+appropriate place.&nbsp;
+Or you can use your own <acronym>HTML</acronym>, with no restriction on the tags used, and minimal requirements on the
+structure: just place a few <abbr title='identification attributes'>id</abbr>s on appropriate wrapper elements.&nbsp;
+You can use and/or modify the supplied <acronym>CSS</acronym> files, or write your own
+(see <a href='#your_structure'>customizing MasterColorPicker</a> below).
+</p>
+
+<p>Link the main <code class='filename'>MasterColorPicker.css</code> file in the head of your document if you plan on using it.&nbsp;
+If you want to use this file with Internet Exploder 9, you will need conditional comments to load in the
+<code class='filename'>fd-slider_SM-enhanced.js</code> file and its stylesheet.&nbsp;
+At this point you should simply also be able to
+link the <code class='filename'>MasterColorPicker_MSIE9-patch.css</code> file; however, this is Microsoft.&nbsp;
+They give you a lame hack requiring conditional comments to overcome their lack of commitment to
+working <acronym>CSS</acronym>, and then that hack they specifically recommend doesn’t work half the time.&nbsp;
+<acronym>CSS</acronym> means “<em>cascading</em> style sheets”, yet Microsoft developers don’t know how to apply a
+simple cascade, even in <acronym>IE9</acronym>, 15 years after the concept was introduced.&nbsp;
+Open the <kbd><span>F12</span></kbd> developers tools, and it <em>shows</em> as all being there………&nbsp;
+If you don’t place the MasterColorPicker <acronym>HTML</acronym> within the “right” overall page structure
+(don’t ask for a definitive answer on what that means or entails!…this is Microsoft!),
+or even if you simply add a <code>title</code> attribute to the <code>&lt;link&gt;</code> tag
+(a basic standard <acronym>DOM</acronym> attribute
+which is supposed to give you an easy &amp; definitive interface handle within JavaScript<mark class='macronym'>™</mark>
+to each individual stylesheet, or your code must otherwise “know” the stylesheets’ file names or which order they are linked,
+which means hard-coding the answer – bad practice!)
+rules may simply be ignored in the patch file.&nbsp;
+<strong>So</strong>, if you find that to be the case, you must manually copy and paste the text of the patch file in to
+<code>&lt;style&gt;</code> tags embedded in the head of the document.&nbsp; Low and behold!&nbsp; They now apply!</p>
+
+<code style='width: 47em;'>&#60;!--[if lt IE 10]&#62;
+&#60;link rel=&#34;stylesheet&#34; type=&#34;text/css&#34; media=&#34;screen, projection&#34; href=&#34;JS_toolbucket/freqdec-fd-slider-01084d3/css/fd-slider_SM-enhanced-compatible.css&#34; /&#62;
+&#60;script type='text/javascript' src=&#34;JS_toolbucket/freqdec-fd-slider-01084d3/js/fd-slider_SM-enhanced.js&#34;&#62;&#60;/script&#62;
+&#60;link rel=&#34;stylesheet&#34; type=&#34;text/css&#34; media=&#34;screen, projection&#34; href=&#34;color-pickers/SoftMoon-WebWare/MasterColorPicker_MSIE9-patch.css&#34; /&#62;
+&#60;style type='text/css'&#62;
+………if linking doesn’t work insert copied CSS <span class='attention'>(¡not linked!)</span> file here (<span class='filename'>MasterColorPicker_MSIE9-patch.css</span>)………
+………and remove the link just above…
+&#60;/style&#62;
+&#60;![endif]--&#62;
+
+&#60;!--[if gte IE 10]&#62;
+&#60;style type=&#34;text/css&#34;&#62;
+#MasterColorPicker_mainPanel,
+#MasterColorPicker_options {margin-right&#58; 1em&#59;}
+&#60;/style&#62;
+&#60;![endif]--&#62;
+
+&#60;!--[if IE]&#62;
+&#60;style type=&#34;text/css&#34;&#62;
+#MasterColorPicker_options.activePickerPanel &#62; div div {display&#58; block&#59;}
+
+#MasterColorPicker_mainPanel table {border-top&#58; none&#59;}
+#MasterColorPicker_mainPanel table caption {
+	border&#58; 1px solid&#59;
+	border-bottom&#58; none&#59; }
+#MasterColorPicker_mainPanel table#BeezEye caption {
+	border-right&#58; none&#59; }
+
+legend {color&#58; inherit&#59;}
+&#60;/style&#62;
+&#60;![endif]--&#62;</code>
+
+<p>You should also fix the way <acronym>MSIE</acronym> handles
+table captions and fieldset legends in general as shown above.&nbsp;
+For MSIE10, (¡oh no! another nightmare browser for developers!&nbsp; And they were doing so good with MSIE9…
+And Windows<mark class='macronym'>®</mark> 8 takes the cake for user-<strong><em>un</em></strong>friendliness)
+you need to take in account that the browser-window’s scrollbar may randomly appear on the right side of the screen,
+covering the browser-window’s content,
+whenever Windows<mark class='macronym'>®</mark> decides the user wants to scroll
+(why the user can’t decide this I don’t know, other than the folks at Microsoft are just so arrogant as to think
+that <em><strong>they</strong></em> should be in control of your computer,
+and you are just a data-mine of personal info and usage statistics).&nbsp;
+Without a margin, any scrollbar for the “mainPanel” can be covered by a “ghost” scrollbar for the whole window,
+leaving the user unable to control what it is they are trying to scroll.&nbsp;
+And of last note, again <acronym>MSIE</acronym> fails to apply cascades correctly, and fails to handle
+<acronym>CSS</acronym> <code>:hover</code> directives correctly,
+when you try to use the color-space output <code>&lt;select&gt;</code>.&nbsp;
+The attempted hack to fix this at least preserves the pull-down menu!&nbsp;
+But the rest of the options panel, including the main body of the <code>&lt;select&gt;</code> disappears
+when you hover the mouse over this pull-down!&nbsp;
+So sad that leaders of the Human Race do so with make-up and mirrors,
+not true leadership or intelligence or even by attempting basic working solutions.&nbsp;
+But as the Tao says, nothing lasts…
+Anyway, depending on your overall page layout,
+you may want to reposition the options panel and/or keep it visible when the MasterColorPicker is active
+by modifying the supplied main <acronym>CSS</acronym> file instead of cascading with additional styles.</p>
+
+<p>Your <acronym>HTML</acronym> (web page) file <strong>must</strong> be encoded in <acronym>UTF-8</acronym>.&nbsp;
+You should already be using this encoding in all your web page files anyway.&nbsp;
+JavaScript<mark class='macronym'>™</mark> is required to be encoded in <acronym>UTF-8</acronym>,
+and this project uses a character set beyond the standard <acronym>ASCII</acronym> characters.&nbsp;
+Remember, <acronym>UTF-8</acronym> is <em>the</em> #1 international choice for character encoding;&nbsp;
+it even helps protect your site against
+<a href="http://webdesign.about.com/od/metatags/qt/meta-charset.htm">cross-site scripting</a>
+(<abbr title='versus'>vs.</abbr> the default <acronym>UTF-7</acronym>).</p>
+
+<h3 id='using_picker'>Using the Picker interface</h3>
+<p>MasterColorPicker is built on an instance of SoftMoon-WebWare’s Picker interface,
+which creates a new input “type:” picker.&nbsp;
+Using this interface is easy.&nbsp;
+The most simple way to use this project is to place anywhere within your document any number of
+<code>&lt;input type='MasterColorPicker' /&gt;</code> tags and/or
+<code>&lt;input type='text' pickerType='MasterColorPicker' /&gt;</code> tags.&nbsp;
+The MasterColorPicker will find them when the document is fully loaded and automatically “register them,” i.e.
+add the necessary event-handlers to interface with the Picker.&nbsp;
+Using <code>&lt;input type='color' pickerType='MasterColorPicker' /&gt;</code> tags can work with the MasterColorPicker
+also, and with browsers that already support this natively, you will get the native color-picker plus the MasterColorPicker;&nbsp;
+but caution:&nbsp; the <acronym>W3C</acronym> specs say that <code>&lt;input type='color' /&gt;</code> should limit
+the user’s input to basic ways of defining colors, which means that your MasterColorPicker implementation should limit
+its output to hexadecimal <acronym>RGB</acronym> with a leading <code>#</code> symbol.</p>
+
+<p>If you don’t like non-standard tag attributes, or you otherwise want to link an input tag to the MasterColorPicker,
+after the <code class='filename'>MasterColorPicker.js</code> file is loaded, you can use JavaScript<mark class='macronym'>™</mark> to
+link the input tag something like this:
+</p>
+<code>&#60;script type='text/javascript'&#62;
+myInput=document.getElementById('myMasterColorPickerInput')&#59;
+MasterColorPicker.registerTargetElement(myInput)&#59;
+&#60;/script&#62;</code>
+
+<p>A registered target element activates the Picker when the user clicks on it, or it otherwise receives “focus”.&nbsp;</p>
+
+
+<h3 id="using_swatch">Using the “color swatches”</h3>
+
+<p>When a color is clicked on, the target element’s value is changed to the color-value-text.&nbsp;
+Also, the associated “color swatch” has its background-color changed to the user-selected color,
+while its foreground-color becomes either black or white, opposing the background-color’s brightness.&nbsp;
+The “color swatch” is either the target element itself when <code>MasterColorPicker.showSwatchAs='background'</code>,
+or when <code>MasterColorPicker.showSwatchAs='swatch'</code> the color swatch
+is determined by the first valid condition in this list:</p>
+<ol>
+	<li>If the target is as such: <code>&lt;input swatchId='myDocumentId' /&gt;</code>
+			then the swatch is a document element with an <abbr title='identification attribute'>id</abbr>
+			that matches “myDocumentId” if it exists.</li>
+	<li>If the target-object has a JavaScript<mark class='macronym'>™</mark> property “swatch,”
+			then the swatch is that property’s value.</li>
+	<li>If the JavaScript<mark class='macronym'>™</mark> Object property <code>MasterColorPicker.swatch</code> is set,
+			then the swatch is that property’s value.</li>
+	<li>The document Element that follows the target-input.</li>
+</ol>
+<p>Be sure to read the end of the file <code class='filename'>MasterColorPicker.js</code>
+for more details on using the “color swatch”.</p>
+
+<h3 id="your_target">Targets other than text <code>&lt;input&gt;</code>s.</h3>
+
+<p>You don’t need to use an <code>&lt;input type='text' /&gt;</code> with MasterColorPicker.&nbsp;
+<code>&lt;textarea&gt;</code>s, <code>&lt;select&gt;</code>s, <code>&lt;input type='text' list='datalistID' /&gt;</code>s,
+and even document text-nodes are automatically recognized by the <code>MasterColorPicker.pick()</code> method.&nbsp;
+By default, the JavaScript<mark class='macronym'>™</mark> value of
+<code>MasterColorPicker.dataTarget.value</code> is set when a color is picked.&nbsp;
+If no <code>dataTarget</code> is set then the <code>MasterColorPicker.masterDataTarget</code> is used, if any.&nbsp;
+The <code>dataTarget</code> and <code>masterDataTarget</code> each may be any
+JavaScript<mark class='macronym'>™</mark> Object.&nbsp;
+Or they may be <code>&lt;input type='hidden'&gt;</code> if you don't care to show the user the dirty color-code,
+but want to send the value back to the server with a form-submittal.&nbsp;
+To supplement this functionality, add a JavaScript<mark class='macronym'>™</mark> function to the
+Array of <code>MasterColorPicker.pickFilters</code>.&nbsp;
+To replace this functionality, replace the <code>MasterColorPicker.pick</code> method with your own function.&nbsp;
+See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> for more details.</p>
+
+
+
+<h3 id='your_structure'>Structuring your own <acronym>HTML</acronym> and <acronym>CSS</acronym></h3>
+
+<p>The visual presentation of the individual color-pickers is up to you.&nbsp;
+There are a few comments within the supplied <acronym>HTML</acronym>/<acronym>PHP</acronym> files
+which will not be repeated here; you should read them.&nbsp;
+One general consideration concerns the <code>&lt;canvas&gt;</code> tag widths &amp; heights;&nbsp;
+you may modify them, keeping in mind that the color-pickers build their palettes based on the given width
+of the <code>&lt;canvas&gt;</code>, so it is best to keep the width/height of the canvases equal
+(excepting some of the canvases in the Simple² &amp; YinYang NíHóng pickers).&nbsp;
+The important requirements to follow are listed below for each of the color-pickers in the MasterColorPicker project:
+</p>
+<ul id='picker_requirements'>
+<li><h4>RainbowMaestro Harmonic Color Picker<mark class='macronym'>™</mark></h4>
+	<h5><acronym>HTML</acronym> requirements:</h5>
+	<ul>
+	<li>There must be a “wrapper” tag with an <code>id='RainbowMaestro'</code> containing:
+			<ul>
+			<li>4 <code>&lt;canvas&gt;</code> tags</li>
+			<li>all the corresponding <code>&lt;input /&gt;</code> tags found in the supplied files.</li>
+			<li>4 tags with <code>class='subpalette_swatch'</code>.&nbsp;
+					They will show the color of the hovered-over color for each individual <code>&lt;canvas&gt;</code>.&nbsp;</li>
+			</ul></li>
+	<li>Each <code>&lt;canvas&gt;</code> tag must be wrapped in its own “wrapper” tag.</li>
+	<li>The <code>&lt;input /&gt;</code> tags in your file must have the same names, types, &amp; values found in the supplied files.</li>
+	<li>There should be a tag with <code>id='RainbowMaestro_indicator'</code>.&nbsp;
+			It will show the text-output for the hovered-over color.&nbsp;
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+	<li>There should be a “wrapper” tag with <code>id='RainbowMaestro_hueIndicator'</code>.&nbsp;
+			The last tag within this wrapper will show the hovered-over hue as a value in degrees.&nbsp;</li>
+	<li>There should be a tag with <code>id='RainbowMaestro_swatch'</code>.&nbsp;
+			It will show the color-output for the hovered-over color that matches the text-output.&nbsp;</li>
+	</ul>
+	<h5><acronym>CSS</acronym> requirements:</h5>
+	none.
+</li>
+<li><h4>Spectral Progressive Color Picker<mark class='macronym'>™</mark></h4>
+	<h5><acronym>HTML</acronym> requirements:</h5>
+	Do not alter the <acronym>HTML</acronym> for this picker.
+	<h5><acronym>CSS</acronym> requirements:</h5>
+	none.
+</li>
+<li><h4>BeezEye Color Picker<mark class='macronym'>™</mark></h4>
+	<h5><acronym>HTML</acronym> requirements:</h5>
+	<ul>
+	<li>There must be a “wrapper” tag with an <code>id='BeezEye'</code> containing:
+			<ul>
+			<li>A <code>&lt;canvas&gt;</code> tag</li>
+			<li>all the corresponding <code>&lt;input /&gt;</code> tags found in the supplied files.</li>
+			</ul></li>
+	<li>The <code>&lt;input /&gt;</code> tags in your file must have the same names, types, &amp; values found in the supplied files.</li>
+	<li>There should be a tag with <code>id='BeezEye_indicator'</code>.&nbsp;
+			It will show the text-output for the hovered-over color.&nbsp;
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+	<li>There should be a tag with <code>id='BeezEye_swatch'</code>.&nbsp;
+			It will show the color-output for the hovered-over color that matches the text-output.&nbsp;</li>
+	</ul>
+	<h5><acronym>CSS</acronym> requirements:</h5>
+	none.
+</li>
+<li><h4>Simple² Color Picker<mark class='macronym'>™</mark></h4>
+	<h5><acronym>HTML</acronym> requirements:</h5>
+	<ul>
+	<li>Your file <strong>must</strong> be encoded in <acronym>UTF-8</acronym>.</li>
+	<li>There must be a “wrapper” tag with an <code>id='Simple²'</code> containing:
+			<ul>
+			<li>5 <code>&lt;canvas&gt;</code> tags</li>
+			<li>all the corresponding <code>&lt;input /&gt;</code> tags found in the supplied files.</li>
+			</ul></li>
+	<li>The <code>&lt;input /&gt;</code> tags in your file must have the same names, types, &amp; values found in the supplied files.</li>
+	<li>Each <code>&lt;canvas&gt;</code> tag must be wrapped in its own “wrapper” tag, and each
+			wrapper tag must have an id corresponding/matching the ones wrapping the canvas tags in the supplied files;&nbsp;
+			be <em>sure</em> to use the proper combinations of caps/lowercase.&nbsp;
+			Note some canvases are filled vertically, others horizontally, so set their height/width appropriately.</li>
+	<li>There should be a tag with <code>id='Simple²hue'</code>.&nbsp;
+			It will show the hue in degrees for the displayed colors.&nbsp;
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+	<li>There should be a tag with <code>id='Simple²saturation'</code>.&nbsp;
+			It will show the saturation level for the displayed colors.&nbsp;
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+	<li>There should be a tag with <code>id='Simple²lvl'</code>.&nbsp;
+			It will show the Brightness/Value/Lightness level for the displayed colors.&nbsp;
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+	<li>There should be a tag with <code>id='Simple²_indicator'</code>.&nbsp;
+			It will show the text-output for the hovered-over color.&nbsp;
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+	<li>There should be a tag with <code>id='Simple²_swatch'</code>.&nbsp;
+			It will show the color-output for the hovered-over color that matches the text-output.&nbsp;</li>
+	</ul>
+	<h5><acronym>CSS</acronym> requirements:</h5>
+	none.
+</li>
+<li><h4>YinYang NíHóng Color Picker<mark class='macronym'>™</mark></h4>
+	<h5><acronym>HTML</acronym> requirements:</h5>
+	<ul>
+	<li>Your file <strong>must</strong> be encoded in <acronym>UTF-8</acronym>.</li>
+	<li>There must be a “wrapper” tag with an <code>id='YinYangNíHóng'</code> containing:
+			<ul>
+			<li>3 <code>&lt;canvas&gt;</code> tags</li>
+			<li>all the corresponding <code>&lt;input /&gt;</code> tags found in the supplied files.</li>
+			</ul></li>
+	<li>The <code>&lt;input /&gt;</code> tags in your file must have the same names, types, &amp; values found in the supplied files.</li>
+	<li>The first <code>&lt;canvas&gt;</code> tag is the background with the rainbow-ring and main section of the Yin-Yang.&nbsp;
+			The second <code>&lt;canvas&gt;</code> tag is the “hue swathes” (the animated disks of the Yin-Yang).&nbsp;
+			The third <code>&lt;canvas&gt;</code> tag is the monochromatic gradient (the central part of the color-picker).&nbsp;
+			For best results, if you modify the width/height of these canvases, keep them proportional in size to what is
+			given in the supplied files.&nbsp;
+			Also pay heed to the <acronym>CSS</acronym> positioning of these canvases, one over the other.&nbsp;</li>
+	<li>There should be a tag with <code>id='YinYangNíHóng_indicator'</code>.&nbsp;
+			It will show the text-output for the hovered-over color.&nbsp;
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+	<li>There should be a tag with <code>id='YinYangNíHóng_swatch'</code>.&nbsp;
+			It will show the color-output for the hovered-over color that matches the text-output.&nbsp;</li>
+	</ul>
+	<h5><acronym>CSS</acronym> requirements:</h5>
+	<ul>
+	<li>Pay heed to the <acronym>CSS</acronym> positioning of the 3 canvases, one over the other, based on their size.</li>
+	</ul>
+</ul>
+
+<p>When the user clicks on a registered target element or it otherwise receives “focus,”
+the MasterColorPicker is activated.&nbsp;
+When activated, the MasterColorPicker “main panel” and “options panel” (see the <acronym>HTML</acronym>),
+as well as the currently selected color-picker,
+all receive the classname “activePicker”.&nbsp;
+There are other classnames added to various <acronym>HTML</acronym> elements in the MasterColorPicker under other various conditions.&nbsp;
+For more detailed info on what classnames are applied and when, please see the comments in the
+<code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> file.&nbsp;
+To modify these used classnames, modify the values of the JavaScript<mark class='macronym'>™</mark>
+properties of <code>MasterColorPicker.classnames</code>.&nbsp;
+By understanding when and why these classnames are applied,
+you can create your own <acronym>CSS</acronym> file to control the dynamic display of the MasterColorPicker.</p>
+
+<h3 id='add_rmv_pckr'>Adding &amp; removing color-pickers</h3>
+
+<p>You may add your own color-pickers to, or remove individual color-pickers from the MasterColorPicker framework.&nbsp;
+To remove one or more of the included color-pickers, simply remove its <acronym>HTML</acronym>
+and JavaScript<mark class='macronym'>™</mark> from the given files.&nbsp;
+The sections are clearly deliminated with comments.&nbsp;
+The <code>x_ColorPicker</code> JavaScript<mark class='macronym'>™</mark> Class is universal to
+all color-pickers in the MasterColorPicker framework, and should remain.&nbsp;
+Don’t forget to lighten the weight of the <acronym>CSS</acronym> file, but that is not a requirement.&nbsp;<p>
+
+<p>Adding your own (or someone else’s) color-picker is easy.&nbsp;
+Its <acronym>HTML</acronym> should be included within the <code>MasterColorPicker_mainPanel</code> (see the supplied files),
+and its <abbr title='identification attribute'>id</abbr> should match the choice offered in the <code>palette_select</code>.&nbsp;
+You should of course add this choice to the <code>palette_select</code>.&nbsp;
+The <code>palette_select</code> choice may have spaces to match the “display name” of your added color-picker,
+and these will be removed when matching an <abbr title='identification attribute'>id</abbr>;&nbsp;
+for example a choice of “YinYang NíHóng” corresponds to <abbr title='identification attribute'>id</abbr> “YinYangNíHóng”.&nbsp;
+
+<p>To interface another color-picker with the MasterColorPicker framework is easy,
+but as powerful things go, this process has details that must be understood to fully utilize.&nbsp;
+Most simply, when a color is selected, using JavaScript<mark class='macronym'>™</mark>,
+simply call <code>MasterColorPicker.pick(<var>……colorChoiceText……</var>)</code>;&nbsp;
+however this bypasses the central <code>x_ColorPicker</code> framework which can
+convert the choice to the user’s color-space preferences,
+and set the color of “color swatches”.&nbsp;</p>
+
+<p>Using the <code>x_ColorPicker</code> framework is a bit different, as it is “event” oriented.&nbsp;
+Please read the comments in the <code>MasterColorPicker.js</code> file regarding the <code>x_ColorPicker</code> framework,
+but here are some basic additional notes.&nbsp;
+The <code>x_ColorPicker</code> framework offers
+a <code>handleMouse</code> method for onmouseover, onmousemove, and onmouseout events,
+and a <code>handleClick</code> method for onclick events.&nbsp;
+They require two arguments passed in, yet browsers only pass in the first by default: the <code>event</code> object.&nbsp;
+So you must either use your own event handler which calls these <code>x_ColorPicker</code> methods,
+or, more conveniently, use the <code>UniDOM</code> framework that is included with this package to add these methods
+as event handlers.&nbsp;
+Take a close look (in the <code class='filename'>MasterColorPicker.js</code> file at the end of each color-picker’s section)
+at how the supplied color-pickers add their event handlers using the
+<code>UniDOM</code> framework, and how the <code>args</code> object is passed on to the <code>x_ColorPicker</code> methods
+by adding it as a final argument passed to <code>UniDOM.addEventHandler(………)</code>.&nbsp;</p>
+
+<h3 id='building pickers'>Building your own color-pickers</h3>
+
+<p id='registering_interfaces'>SoftMoon-WebWare’s Picker Class framework
+on which the MasterColorPicker is based is a powerful tool that creates
+an <code>&lt;input /&gt;</code> “type = picker”.&nbsp;
+Your color-picker can be as complex as you need it to be, with multiple “interface panels,”
+interactive inputs that modify the picker and/or its choices, etc.&nbsp;
+Please carefully read the <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> file and its comments
+about “registering” these interface panels and interface elements.&nbsp;
+Registering them adds the necessary event handlers for them to work correctly with the MasterColorPicker framework.&nbsp;
+All <acronym>HTML</acronym> elements that require keyboard “focus”
+(such as <code>&lt;input type='text|file|number|<var>etc.</var>' /&gt;</code> <code>&lt;select&gt;</code> <code>&lt;textarea&gt;</code>)
+that are part of your picker must be registered
+using <code>MasterColorPicker.registerInterfaceElement(<var>……element……</var>)</code>.&nbsp;
+Note how you can use this feature to replace the <code>&lt;input type='range' /&gt;</code> elements in the supplied files
+with <code>&lt;input type='text' /&gt;</code> elements if you register them.&nbsp;
+This will allow users to enter illegal or overwhelmingly large values, so to get this to work properly,
+you should also add a plethora of JavaScript<mark class='macronym'>™</mark> keyboard filters
+to make sure that, say, the variety value on the RainbowMaestro isn’t set for 10,000 which would lock up the
+display for a few minutes or so (multiply by 5 for <acronym title='Microsoft’s Internet Exploder'>MSIE</acronym>)
+while the millions upon millions of calculations are done.&nbsp;
+</p>
+
+<h3 id='about_options'>The “options” panel</h3>
+
+<p>The <acronym>HTML</acronym> options panel may offer your users more control of the returned color than you need them to have.&nbsp;
+You may only want values returned as hexadecimal-<acronym>RGB</acronym>, or whatever.&nbsp;
+The color-pickers included in the MasterColorPicker project all rely on
+SoftMoon-WebWare’s JavaScript<mark class='macronym'>™</mark> <code>rgb</code> Class for all their
+color-space conversion needs.&nbsp;
+This class has several flags that you can set
+(see the comments in the <code class='filename'>JS_toolbox/SoftMoon-WebWare/rgb.js</code> file),
+and simply remove the options from the <acronym>HTML</acronym> options panel.&nbsp;
+The <code>palette_mode</code> must remain in the <acronym>HTML</acronym> somewhere
+(to work with the <code>x_ColorPicker</code> framework),
+but it can be reduced to something like:
+<code>&lt;input type='hidden' id='palette_mode' value='hex' /&gt;</code>.&nbsp;
+If you do remove options from the options panel, you may remove some, most, or all of the file
+<code class='filename'>color-pickers/SoftMoon-WebWare/color-space_autoReformatter.js</code>.</p>
+
+<p>The <code>MasterColorPicker_optionsPanel</code> may be moved into the
+<code>MasterColorPicker_mainPanel</code> (see the comments in the file) and if using the supplied <acronym>CSS</acronym> file,
+it will pop-up and pop-down with the main panel, or if you know <acronym>CSS</acronym>,
+it’s a simple modification to the <acronym>CSS</acronym> file to achieve the same result.&nbsp;</p>
+
+
+</section><!-- close .content -->
+<footer>
+<p>All content found on this page &amp; site Copyright © 2010, 2012, 2013 by SoftMoon WebWare and its owner,
+all rights reserved, unless otherwise specifically noted.&nbsp;
+Trademarks and Service-Marks are property of SoftMoon WebWare and its owner,
+all rights reserved, unless otherwise specifically noted.<br />
+
+<span class='notice'>“JavaScript<mark class='macronym'>™</mark>” is a trademark of Sun Microsystems.</span>
+
+<span class='notice'>“Google<mark class='macronym'>®</mark>” &amp;
+“Chrome<mark class='macronym'>®</mark>” are trademarks of Google, Inc.</span>
+
+<span class='notice'>“Opera<mark class='macronym'>®</mark>” &amp;
+“Opera<mark class='macronym'>®</mark> Mobile<mark class='macronym'>®</mark>” are trademarks of Opera Software ASA.</span>
+
+<span class='notice'>“Apple<mark class='macronym'>®</mark>” &amp;
+“Safari<mark class='macronym'>®</mark>” are trademarks of Apple, Inc.</span>
+
+<span class='notice'>“Mozilla<mark class='macronym'>®</mark>” &amp;
+“Firefox<mark class='macronym'>®</mark>” are trademarks of Mozilla, Inc.</span>
+
+<span class='notice'>“Microsoft<mark class='macronym'>®</mark>” &amp;
+“Internet Explorer<mark class='macronym'>®</mark>” are trademarks of Microsoft, Inc.</span>
+
+<span class='notice'>“Flash<mark class='macronym'>®</mark>” is a trademark of Adobe Systems Incorporated.</span></p>
+</footer>
+</body>
+</html>
