@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.3  (Win32)">
+	<META NAME="CREATED" CONTENT="0;0">
+	<META NAME="CHANGED" CONTENT="0;0">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR" STYLE="border: none; padding: 0in">
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">You
+may add your own palettes to this folder ( </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">color_palettes/</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+), and they will be recognized and utilized by SoftMoon WebWare&rsquo;s
+JavaScript and PHP code base, as long as they follow the formatting
+rules below:</SPAN></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>Note
+the basic Json structure in the existing palette files, and copy it,
+with the following cautions and possibilities:</FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">.txt
+files (or similar) should be in &ldquo;loose&rdquo; Json format, that
+is, they may contain whitespace.  All property identifiers </SPAN></FONT><FONT SIZE=4><SPAN LANG="en"><B>including
+numerical identifiers</B></SPAN></FONT><FONT SIZE=4><SPAN LANG="en">
+and any of their values that are strings, </SPAN></FONT><FONT SIZE=4><SPAN LANG="en"><B>must</B></SPAN></FONT><FONT SIZE=4><SPAN LANG="en">
+be quoted with &quot;strait&quot; double quotes (no single quotes or 
+&ldquo;curly&rdquo; quotes).  If the quoted identifiers or values
+must contain a strait double-quote, then it must be escaped with a </SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">\</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+character like this:</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">&quot;property&quot;:
+&quot;my </SPAN></FONT></FONT><FONT COLOR="#ff0000"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en"><B>\&quot;</B></SPAN></FONT></FONT></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">value</SPAN></FONT></FONT><FONT COLOR="#ff0000"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en"><B>\&quot;</B></SPAN></FONT></FONT></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">
+of this property&quot;</SPAN></FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>If
+you need to use the \ character, it must be escaped using itself like
+this:</FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">&quot;property&quot;:
+&quot;the path to my file is: C:myFolder</SPAN></FONT></FONT><FONT COLOR="#ff0000"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en"><B>\\</B></SPAN></FONT></FONT></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">myFile.php&quot;</SPAN></FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>You
+may not escape any other characters with the \ character.</FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">Palette
+names may be </SPAN></FONT><FONT SIZE=4><SPAN LANG="en"><U>almost</U></SPAN></FONT><FONT SIZE=4><SPAN LANG="en">
+anything </SPAN></FONT><FONT SIZE=4><SPAN LANG="en"><U>except</U></SPAN></FONT><FONT SIZE=4><SPAN LANG="en">
+&ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">_user_palettes</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">&rdquo;
+capitalized exactly this way.  &ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">_User_Palettes</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">,&rdquo;
+&ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">_User_palettes</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">,&rdquo;
+and &ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">_user_Palettes</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">,&rdquo;
+for example, would be acceptable.</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"> <FONT SIZE=4><SPAN LANG="en">Palette
+names may not contain either character </SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en"><B>
+:  (</B></SPAN></FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>but
+color names may contain any including those characters.</FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">Color
+names may be anything </SPAN></FONT><FONT SIZE=4><SPAN LANG="en"><U>except</U></SPAN></FONT><FONT SIZE=4><SPAN LANG="en">
+&ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">getColor</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">&rdquo;
+capitalized exactly this way.  &ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">GetColor</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">,&rdquo;
+&ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">getcolor</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">,&rdquo;
+and &ldquo;</SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en">Getcolor</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">,&rdquo;
+for example, would be acceptable.</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">Color
+names that are either &bull;prefixed with whitespace or &bull;enclosed
+within the characters found in the Array in the property
+</SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">SoftMoon.WebWare.buildPaletteTable.refColorHTML</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+are valid names of reference, but when displayed by the
+&ldquo;buildPaletteTable&rdquo; function, it is the color&rsquo;s
+definition listed, not the color&rsquo;s name.  These enclosing
+characters are by default </SPAN></FONT><FONT COLOR="#ff0000"><FONT SIZE=4><SPAN LANG="en"><B>&laquo;
+&raquo;</B></SPAN></FONT></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">Similarly,
+color definitions that are either &bull;prefixed with whitespace or
+&bull;enclosed within the characters found in the Array in the
+property </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">SoftMoon.WebWare.buildPaletteTable.refColorHTML</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+ are added into the table structure created by the
+&ldquo;buildPaletteTable&rdquo; function, but instead of replacing
+the color name, the definition text is placed within a &lt;div&gt;&lt;/div&gt;
+inside the color swatch &lt;td&gt;&lt;/td&gt; (the first column).</SPAN></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><BR><BR>
+</P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">The
+colors may be defined any way that SoftMoon WebWare&rsquo;s </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">rgb()</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+function can interpret (see the comments and documentation of that
+file) which may be a string or an array of decimal RGB values.  This
+allows you to create palettes with a format that is most usable for
+your other custom code projects.  This includes defining colors as
+other colors:</SPAN></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">{&quot;myPalette&quot;:
+{&quot;palette&quot;: {</FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">&quot;My
+Favorite Color&quot;: &quot;blue&quot;,</FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">&quot;My
+Favorite Specific Color&quot;: &quot;X11: Turquoise1&quot;,</FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">&quot;My
+Favorite Alias Color&quot;: &quot;myPalette: My Favorite Specific
+Color&quot;</FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">}
+} }</FONT></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">Note
+in the first color of the example above, &ldquo;blue&rdquo; is looked
+for in the &ldquo;default palette&rdquo;, which is initially (by
+default) the &ldquo;HTML&rdquo; palette.  (The default palette name
+in JavaScript is found in the following property: 
+</SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">SoftMoon.defaultPalette</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+)</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">You
+may chain color definitions (defining colors as other colors)
+multiple times from one color to the next, through the same palette
+or multiple palettes, but it must end at some point with a
+non-palette color-model recognized by the </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">rgb()</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+function (hex, RGB, CMYK, etc...)</SPAN></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><BR><BR>
+</P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>The
+palette name(s) should be property(ies) at the top level of the
+defined Json object.  (You may define more than one palette per
+file.)  The value(s) of these property(ies) should be objects with
+the following recognized properties:</FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0in"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">palette:
+{}</FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0in"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">requireSubindex:
+(&quot;true&quot;  || &quot;false&quot;)</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">header:
+(&quot;headerText&quot; || [&quot;headerText1&quot;,&quot;headerText2&quot;,</SPAN></FONT></FONT><FONT SIZE=4 STYLE="font-size: 16pt">&hellip;</FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">])
+ </SPAN></FONT></FONT>
+</P>
+<P STYLE="margin-bottom: 0in"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">footer:
+(&quot;footerText&quot; || [&quot;footerText1&quot;,&quot;footerText2&quot;,</SPAN></FONT></FONT><FONT SIZE=4 STYLE="font-size: 16pt">&hellip;</FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">])</SPAN></FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0in"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">getColor:
+function() {}</FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0in"><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt">buildPaletteHTML:
+function() {}</FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0in"><BR>
+</P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>The
+&ldquo;palette&rdquo; value is the data object for the palette and
+will be copied into the Palette Object created internally.  This
+&ldquo;palette&rdquo; property is the only required property of the
+palette definition.  Each data member, each a property of the
+&ldquo;palette&rdquo; data object, has a property name corresponding
+to either the color name, or the name of another sub-palette. 
+Sub-palettes may contain more colors or sub-palettes.</FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">The
+&ldquo;requireSubindex&rdquo; property controls whether or not the
+names of sub-palettes are required to find the proper color.  If all
+the colors on a palette and the sub-palettes therein have different
+names, the names of the sub palettes are irrelevant, and may be
+ignored (as in the Crayola palette</SPAN></FONT><FONT COLOR="#ff0000"><SUP><FONT SIZE=4><SPAN LANG="en">&Dagger;</SPAN></FONT></SUP></FONT><FONT SIZE=4><SPAN LANG="en">).
+ If colors in different sub-palettes have the same name (as in the
+Brewer palette) the sub-palette name is required.  If the
+&ldquo;requireSubindex&rdquo; property is &ldquo;true&rdquo; then the
+standard </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">getColor()</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+method requires sub-indexing color names, and the generated event
+handlers on the HTML table return full sub-palette indexing; and
+logically the opposite is true for &ldquo;false&rdquo;.  By default,
+if no value is passed for &ldquo;requireSubindex&rdquo;, the
+sub-palette name(s) is(are) not required by </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">getColor()</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+to be indexed (conflicting sub-indexes will produce the value from
+the first one created), but the HTML table&rsquo;s event handlers
+will return fully indexed color names.</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">(</SPAN></FONT><FONT COLOR="#ff0000"><SUP><FONT SIZE=4><SPAN LANG="en">&Dagger;</SPAN></FONT></SUP></FONT><FONT SIZE=4><SPAN LANG="en">You
+may want to modify the Crayola palette file and remove the line
+setting &ldquo;requireSubindex&rdquo; to &ldquo;false&rdquo;.  As
+noted, this will cause clicking on the colors to include sub-index
+info, but if you type in a Crayola color without the sub-index, it
+will still be recognized.)</SPAN></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>Headers
+and footers may be a single string of HTML or an array of these
+strings.  These will each get their own row within a &lt;thead&gt; or
+&lt;tfoot&gt; section of the JavaScript-generated HTML table.</FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">If
+you want to create a palette with data that is arranged in a
+different way, you may define your own JavaScript &ldquo;getColor&rdquo;
+function through the </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">.getColor()</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+property of the palette, and also your own &ldquo;buildPaletteHTML&rdquo;
+function.  The former should return a color value that is
+interpretable by SoftMoon WebWare&rsquo;s JavaScript </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">rgb()</SPAN></FONT></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4><SPAN LANG="en">
+</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">function, while the
+latter should return a DOM element that can be inserted into the
+document.  This DOM element should be complete with event handlers
+ready to go.  The DOM element passed back should have a non-standard
+(user-defined) method named </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">.set$styles()</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+which is called after the element is inserted into the document; it
+can set the inline style attributes to color palette swatches, or
+whatever (inline styles will not take effect unless the DOM element
+is part of the document).</SPAN></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>Since
+PHP may not accept a Json file including embedded JavaScript 
+functions as valid Json, you have two options:  </FONT>
+</P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">(1)
+PHP need not worry about that palette, so its filename should end
+with .js and PHP will ignore it.  Only the JavaScript </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">rgb()</SPAN></FONT></FONT><FONT SIZE=4 STYLE="font-size: 15pt"><SPAN LANG="en">
+</SPAN></FONT><FONT SIZE=4><SPAN LANG="en">function will utilize it.</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">(2)
+You want PHP to utilize it, so it must be encapsulated in a PHP file
+(with a .php filename extension).  This file when called should echo
+the Json format, unless needed by PHP and called with the
+</SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">$_GET['noEcho']==TRUE</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+parameter set like this:
+</SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">color_palettes/myNonstandardPalette.json_palette.php?noEcho=true</SPAN></FONT></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4>When
+needed by PHP and called this way, your custom palette file should
+add to the existing array of SoftMoon WebWare&rsquo;s palettes the
+new palette and its data as an implementation of the PHP &ldquo;Palette
+Class&rdquo; Object  which contains the proper &ldquo;getColor&rdquo;
+method.</FONT></P>
+<P STYLE="margin-bottom: 0.14in; line-height: 115%"><FONT SIZE=4><SPAN LANG="en">You
+may therefore utilize the Palette Object code-structure as a
+color-modeler.  Your palette data need be only an empty object, and
+the suppled &ldquo;getColor&rdquo; function may accept the color
+passed in as data to be manipulated or otherwise processed, and pass
+back the proper rgb array (or any format recognized by the </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">rgb()</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+functions). Do note, though, that the </SPAN></FONT><FONT FACE="Courier, monospace"><FONT SIZE=4 STYLE="font-size: 16pt"><SPAN LANG="en">SoftMoon.WebWare.rgb.from.</SPAN></FONT></FONT><FONT SIZE=4><SPAN LANG="en">
+object is specifically for color-space-modelers; your cuctom code is
+best to define additional color-modelers there (remember to always
+name them in lowercase if so), but it may be more dynamic and
+flexible to utilize the palette-oriented structure.</SPAN></FONT></P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><BR><BR>
+</P>
+<P LANG="en" STYLE="margin-bottom: 0.14in; line-height: 115%"><BR><BR>
+</P>
+</BODY>
+</HTML>
