@@ -1,55 +1,107 @@
-//  JavaScript needs (1) constants, and (2) true UTF8 support for variable names…
-if (typeof _ !== 'object')  _=new Array();  // can't think of why this should be an array, but why limit ourselves in the future?
-_['12°']=Math.PI/30;
-_['24°']=Math.PI/15;
-_['30°']=Math.PI/6;
-_['60°']=Math.PI/3;
-_['90°']=Math.PI/2;
-_['360°']=Math.PI*2;
-_['π×2']=Math.PI*2;
-_['π']  =Math.PI;
-_['π÷2']=Math.PI/2;
-_['π×3÷2']=Math.PI*3/2;
-_['1÷3']=1/3;
+// charset=UTF-8
+//  Math+++.js
+//	February 2, 2019
+
+//  JavaScript needs true UTF-8 support for variable & constant names…
+
+Math['+++angleDefiners']={
+	'12°':   {enumerable: true,  value: Math.PI/30  },
+	'24°':   {enumerable: true,  value: Math.PI/15  },
+	'30°':   {enumerable: true,  value: Math.PI/6   },
+	'60°':   {enumerable: true,  value: Math.PI/3   },
+	'90°':   {enumerable: true,  value: Math.PI/2   },
+	'180°':  {enumerable: true,  value: Math.PI     },
+	'270°':  {enumerable: true,  value: Math.PI*3/2 },
+	'360°':  {enumerable: true,  value: Math.PI*2   },
+	'π×2':   {enumerable: true,  value: Math.PI*2   },
+	'π×3÷2': {enumerable: true,  value: Math.PI*3/2 },
+	'π':     {enumerable: true,  value: Math.PI     },
+	'π÷2':   {enumerable: true,  value: Math.PI/2   }  };
+
+if (typeof Math.Trig !== 'object')  Math.Trig={};
+else console.log('Math.Trig already exists');
+
+Object.defineProperties(Math.Trig, Math['+++angleDefiners']);
+
+const
+	_=  Object.defineProperties(new Array, Math['+++angleDefiners']), // can't think of why this should be an array, but why limit ourselves in the future?
+	_12deg=    Math.PI/30 ,
+	_24deg=    Math.PI/15 ,
+	_30deg=    Math.PI/6  ,
+	_60deg=    Math.PI/3  ,
+	_90deg=    Math.PI/2  ,
+	_180deg=   Math.PI    ,
+	_270deg=   Math.PI*3/2,
+	_360deg=   Math.PI*2  ,
+	_2PI=      Math.PI*2  ,
+	_3PI_2=    Math.PI*3/2,
+	_PI=       Math.PI    ,
+	_PI_2=     Math.PI/2  ;
+
+delete Math['+++angleDefiners'];
+
 
 //rounds  x  to  dp  decimal places.
 if (typeof Math.roundTo !== 'function')
 	Math.roundTo=function(x, dp)  {return Math.round(x*Math.pow(10,dp))/Math.pow(10,dp);}
+else console.log('Math.roundTo already exists');
 
-// a “sawtooth” in the sense below is the infinite set of numbers from 0 to p.
-// The Math.sawtooth() periodic function below will return the same result as x%p (a.k.a. x modulus p)
-//  when both x and p are positive or negative.
-// However, opposing signs:  sawtooth(-x,p)  or  sawtooth(x,-p)  do NOT equal the equivelent modulus
-// Instead, the sawtooth ALWAYS progresses in the “direction” of p (does not reverse direction for negative numbers),
-//  so:   Math.sawtooth(-10,360) = 350   and   Math.sawtooth(-850, 360) = 230
-//  whereas:   (-10 % 360) = -10         and        (-850 % 360) = -130
-if (typeof Math.sawtooth !== 'function')
-	Math.sawtooth=function(x,p)  {return x-Math.floor(x/p)*p;}
 
 if (typeof Math._2hex !== 'function')
 	Math._2hex=function(d)  {return ((Math.round(d)<16) ? "0" : "") + Math.round(d).toString(16).toUpperCase();}
+else console.log('Math._2hex already exists');
 
-if (typeof Math.Trig !== 'object')  Math.Trig={};
 
 Math.Trig.getAngle=function(x, y, hwRatio)  { var angle;
 	if (typeof hwRatio !== 'number')  hwRatio=1;
-	if (x==0)  angle=Math.PI/2;
+	if (x==0)  {
+		if (y==0) return 0;
+		else angle=_PI_2;  }
 	else  angle=Math.atan( Math.abs(y/x) / hwRatio );
-	if (x<0  &&  y>0)  return  Math.PI-angle;
-	if (x<=0  &&  y<=0)  return  Math.PI+angle;
-	if (x>=0  &&  y<0)  return  _['π×2']-angle;
+	if (x<0  &&  y>0)  return  _PI-angle;
+	if (x<=0  &&  y<=0)  return  _PI+angle;
+	if (x>=0  &&  y<0)  return  _2PI-angle;
 	return angle;  }
+
+
+
+// a “sawtooth” in the sense below is the infinite set of numbers from 0 (inclusive) to p (noninclusive).
+// The Math.sawtooth(p,x) periodic function below will return the
+//  same result as x%p (a.k.a. x modulus p) (excepting round-off errors)
+//  when both x and p are positive or negative.
+// However, opposing signs:  sawtooth(p,-x)  or  sawtooth(-p,x)  do NOT equal the equivalent modulus
+// Instead, the sawtooth ALWAYS progresses in the “direction” of p (does not reverse direction for negative numbers),
+//  so:   Math.sawtooth(360, -10) = 350  and   Math.sawtooth(360, -850) = 230
+//  whereas:   (-10 % 360) = -10         and        (-850 % 360) = -130
+
+
+if (typeof Math.sawtooth !== 'function')  Math.sawtooth=function(p,x)  {return x-Math.floor(x/p)*p;};
+else console.log('Math.sawtooth already exists');
+
+if (typeof Math.deg !== 'function')  Math.deg=Math.sawtooth.bind(Math, 360);
+else console.log('Math.deg already exists');
+
+if (typeof Math.rad !== 'function')  Math.rad=Math.sawtooth.bind(Math, _2PI);
+else console.log('Math.rad already exists');
+/*
+
+if (typeof Math.sawtoothAt !== 'function')  Math.sawtoothAt=function(s,e,x) {return Math.sawtooth(e-s, x-s)+s};
+else console.log('Math.sawtoothAt already exists');
+
+ */
+
+
 
 // In a circle, if you divide the circumference into 360 equal segments, each segment corresponds to 1 degree (1°).
 // This is not so with an ellipse.  This method will adjust the angle passed in ($a) accordingly based on the value
-//  of the height/width ratio ($hw) of the ellipse.
-Math.Trig.scrunchAngle=function($a, $hw)  { with (Math)  {
-	$a=sawtooth($a, _['360°']);
-//	if (sawtooth($a, _['π÷2'])==0)  return $a;
-	if ($a===0)  return $a;
-	if (_['π×3÷2'] < $a)  return  _['π×2'] - atan(tan(_['π×2'] - $a) * $hw);
-	if (_['π'] < $a)  return  _['π'] + atan(tan($a - _['π']) * $hw);
-	if (_['π÷2'] < $a)  return  _['π'] - atan(tan(_['π'] - $a) * $hw);
-	return  atan(tan($a) * $hw);  }  }
+//  of the height/width ratio ($hw) of a symmetrical ellipse (a.k.a. an oval).
+Math.Trig.ovalizeAngle=function($a, $hw)  {  // $a is given in radians;  value returned is in radians
+	if (($a=Math.rad($a))===0)  return 0;
+	if (_3PI_2 < $a)  return  _2PI - Math.atan(Math.tan(_2PI - $a) * $hw);
+	if (_PI < $a)  return  _PI + Math.atan(Math.tan($a - _PI) * $hw);
+	if (_PI_2 < $a)  return  _PI - Math.atan(Math.tan(_PI - $a) * $hw);
+	return  Math.atan(Math.tan($a) * $hw);  }
 
-Math.Trig.polarToCartesian=function(r, a)  {a=Math.sawtooth(a, _['360°']);  return {x: r*Math.cos(a),  y: r*Math.sin(a)};}
+
+Math.Trig.polarToCartesian=function(r, a)  {a=Math.rad(a);  return {x: r*Math.cos(a),  y: r*Math.sin(a)};}
+
