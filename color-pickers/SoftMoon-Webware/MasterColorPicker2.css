@@ -1,4 +1,7 @@
-﻿body.MCP_init {
+﻿/*	charset=UTF-8
+ * for MasterColorPicker release 2.0.02  February 13, 2019  by SoftMoon-WebWare
+ */
+body.MCP_init {
 	cursor: wait; }
 
 body.MCP_drag {
@@ -11,7 +14,9 @@ body.MCP_dragMyPaletteColor {
 #MasterColorPicker {
 	font-family: serif;
 	font-size: 16px; }  /*lock down the font-size*/
-#MasterColorPicker input {
+#MasterColorPicker input,
+#MasterColorPicker select,
+#MasterColorPicker button {
 	font-family: "consolas", monospace;
 	font-size: 13px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
 
@@ -28,7 +33,8 @@ span.MCP_fix_Safari {
 /*------*/
 #MasterColorPicker input[type="range"] {
     /*removes default webkit styles*/
-    -webkit-appearance: none; }
+    -webkit-appearance: none;
+		background-color: transparent; }
 #MasterColorPicker input[type="range"]::-webkit-slider-runnable-track {
 /*    width: 12em; */
     height: 5px;
@@ -84,7 +90,16 @@ span.MCP_fix_Safari {
 #MasterColorPicker button {
 	background-color: lightSkyBlue;
   font-variant: small-caps;
-	border-radius: .618em / 1em;  }
+	border-radius: .618em / 1em;
+	font-size: 15px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
+
+#MasterColorPicker mark {
+	background-color: inherit; }
+#MasterColorPicker .macronym {
+	display: inline;
+	font-size: .763924em;
+	vertical-align: .236076em;
+	line-height: 100%; }
 
 #MasterColorPicker span.swatch {
 	display: inline-block;
@@ -119,9 +134,14 @@ span.MCP_fix_Safari {
 #MasterColorPicker .pickerPanelZLevel5 {z-index: 3146;}  /* …and so on… for each new panel you register */
 #MasterColorPicker .pickerPanelZLevel6 {z-index: 3147;}  /* …and so on… for each new panel you register */
 #MasterColorPicker .pickerPanelZLevel7 {z-index: 3148;}  /* …and so on… for each new panel you register */
+#MasterColorPicker .pickerPanelZLevel8 {z-index: 3149;}  /* …and so on… for each new panel you register */
 
-#MasterColorPicker .pickerPanel:hover  {z-index: 6180;}
-#MasterColorPicker .pickerPanel.dragging  {z-index: 7000;}
+#MasterColorPicker .pickerPanel.pseudoHover,  /*applied dynamically by JavaScript. If the CSS ~ combinator matched previous siblings as well as following siblings, we wouldn’t need this*/
+#MasterColorPicker_options.pickerPanel:hover ~ #MasterColorPicker_mainPanel,  /*these two panels work together as one in this layout*/
+#MasterColorPicker_mainPanel.pickerPanel:hover ~ #MasterColorPicker_options {z-index: 6179;}
+#MasterColorPicker .pickerPanel:hover {z-index: 6180;}
+#MasterColorPicker .pickerPanel.activeInterface.activePickerPanel  {z-index: 6420 !important;}
+#MasterColorPicker .pickerPanel.dragging  {z-index: 7000 !important;}
 
 
 #MasterColorPicker input.activeInterface,
@@ -154,11 +174,13 @@ span.MCP_fix_Safari {
 	position: absolute;  }
 
 /* “expanding” panels have no set max-height based on the dynamically expanding HTML */
-#MasterColorPicker .pickerPanel.expanding {
+#MasterColorPicker .pickerPanel.expanding  {
 	overflow: auto;
-	max-height: 85.4%;  /*  ≈ Φ + (1-Φ)*Φ;  for default position-fixed (floating) */  }
+	max-height: 85.4%;  /*  ≈ Φ - (1-Φ)×Φ  for default position-fixed (floating) */  }
 #MasterColorPicker .pickerPanel.expanding.scrollable {
 	max-height: 1080px;  /* max height of most monitors */ }
+
+
 
 
 /*  the <span>s are the “drag handles” for most panels (the auxilary panels).  Most stick up like file-tabs so all panels may cluster in the top-right corner… */
@@ -197,6 +219,77 @@ span.MCP_fix_Safari {
 	border-color: red; }
 
 
+#MasterColorPicker kbd {
+	display: inline-block;  }
+#MasterColorPicker kbd span {
+	display: inline-block;
+	position: relative;
+	border: 1px solid #8080FF;
+	border-bottom: 2px solid #404080;
+	border-right: 2px solid #404080;
+	border-radius: 1.618em / 2em;
+	color: white;
+	background-color: #202040;
+	text-align: center;
+	margin: 0 .382em;
+	padding: 0 .618em;
+	font-size: 85.4%;
+	line-height: .854em;
+	vertical-align: center; }
+
+#MasterColorPicker_Help {
+	margin-top: 2em;
+	margin-top: calc(2em + 2px);
+	top: 0;
+	right: 11.618em;
+	bottom: auto;
+	left: auto; }
+#MasterColorPicker_Help h2 span {
+	left: 0; }
+#MasterColorPicker_Help h2,
+#MasterColorPicker_Help h4,
+#MasterColorPicker_Help h5,
+#MasterColorPicker_Help li {
+	margin: 0;
+	padding: 0; }
+#MasterColorPicker_Help > div {
+	width: 38.2em;
+	height: 38.2em;
+	overflow: auto;
+	margin: 0;
+	padding: 0 .618em .618em .618em;
+	text-align: left;
+	border-radius: .618em; }
+#MasterColorPicker_Help ul,
+#MasterColorPicker_Help dl {
+	list-style-type: disc;
+	list-style-position: outside;
+	padding: 0;
+	margin: 0 1.618em; }
+#MasterColorPicker_Help ul ul {
+	list-style-type: circle;
+	margin-right: 0; }
+#MasterColorPicker_Help ul ul.keybrd {
+	list-style-type: none;
+	margin-left: 0; }
+#MasterColorPicker_Help p {
+	margin: 0;
+	padding: 0; }
+#MasterColorPicker_Help p + p {
+	margin-top: .618em; }
+#MasterColorPicker_Help dd {
+	margin: 0 1.168em; }
+#MasterColorPicker_Help li:nth-child(3) ul:first-child li kbd {
+	/* text shows XYZ limits */
+	padding-left: 1.382em; }
+
+#MasterColorPicker p.underConstruction {
+	color: red !important;
+	text-align: center !important;
+}
+#MasterColorPicker p.underConstruction span {
+	display: block;
+	font-size: 1.162em; }
 
 #MasterColorPicker_options.pickerPanel,
 #MasterColorPicker_options.pickerPanel.activeInterface,
@@ -289,27 +382,31 @@ select#palette_select {
 	border-radius: .618em / 1em;
 	border-top-right-radius: 0;
 	z-index: 1; }
+
 #MasterColorPicker_options > div:hover div,
-#MasterColorPicker_options > div.activeInterface div {
+/* the  div.activeInterface classname (below) is added by MasterColorPicker2.js and is therefore HTML & CSS dependent. */
+#MasterColorPicker_options.activeInterface.activePickerPanel > div.activeInterface div {
 	display: block; }
-/*
-#MasterColorPicker_options > div label {
+/*  this is a better solution that unlinks .js and the HTML layout, but not for MS browsers!
+#MasterColorPicker_options > div:hover div,
+#MasterColorPicker_options.activeInterface.activePickerPanel > div div {
 	display: block; }
-#MasterColorPicker_options > div div label {
-	display: inline-block; }
- */
-#MasterColorPicker_options > div div p,
-#MasterColorPicker_options > div div label span {
+#MasterColorPicker_options.activeInterface.activePickerPanel > label:focus-within ~ div div { /*ignored by MSIE & Edge*
+	display: none; }
+*/
+
+
+
+#MasterColorPicker_options p {
 	display: none;  }
-#MasterColorPicker_options.activePicker > div div label:hover p,
-#MasterColorPicker_options.activePicker > div div fieldset:hover > p,
-#MasterColorPicker_options.activePicker > div div div:hover > p,
-#MasterColorPicker_options > div div label:hover span {
+#MasterColorPicker_options.activePicker label:hover > p,
+#MasterColorPicker_options.activePicker fieldset:hover > p {
+/* all popups */
 	display: block;
 	position: absolute;
-	bottom: 100%;
-	top: auto;
-	width: 10.618em;
+	top: 100%;
+	bottom: auto;
+	width: auto;
 	margin: 0;
 	padding: .618em;
 	font-size: inherit;
@@ -317,65 +414,44 @@ select#palette_select {
 	background-color: white;
 	color: black;
 	border: 1px solid red;
-	border-bottom: none; }
-#MasterColorPicker_options.activePicker > div div fieldset:hover > p,
-#MasterColorPicker_options.activePicker > div div label:hover p {
-	top: 100%;
-	bottom: auto;
-	right: -1px;
-	left: -1px;
-	width: auto;
-	border-bottom: 1px solid red;
 	border-top: none; }
-#MasterColorPicker_options > div div div {
-	position: relative;
-	padding: 0;
-	margin: .618em 0;
-	border: none; }
-#MasterColorPicker_options.activePicker > div div div:hover > p {
-	top: -0.382em;
-	left: -18.618em;
-	bottom: -0.618em;
+#MasterColorPicker_options.activePicker fieldset:hover > p:first-child {
+/* Hue Angle Units notice popup */
+	bottom: 100%;
+	top: auto;
+	border-top: 1px solid red;
+	border-bottom: none; }
+#MasterColorPicker_options.activePicker fieldset.pickerOptions:hover > p {
+/* flaoting panels notice popup */
+	top: -0.162em;
+	left: -19.162em;
+	bottom: auto;
+	bottom: -0.162em;
 	width: 17.618em;
 	padding-top: .162em;
+	padding-bottom: .162em;
 	line-height: 1.162em;
 	border: 1px solid red;
 	border-right: none; }
-#MasterColorPicker_options > div div fieldset label:first-child {
-	position: relative;
-	z-index: 1; }
 #MasterColorPicker_options > div div fieldset {
 	z-index: 2;
 	display: block;
+	position: relative;
 	margin: .618em 0;
 	padding: 0;
 	border: none; }
-#MasterColorPicker_options > div div div fieldset:last-child {
-	margin-bottom: 0; }
-#MasterColorPicker_options > div div fieldset:hover,
-#MasterColorPicker_options > div div fieldset label:first-child:hover,
-#MasterColorPicker_options > div div fieldset:first-child label:nth-child(3):hover {
+#MasterColorPicker_options > div div fieldset:hover {
 	z-index: 3; }
 #MasterColorPicker_options > div div fieldset label {
 	display: block;
 	margin: 0; }
 #MasterColorPicker_options .disabled {
 	opacity: .27; }
-#MasterColorPicker_options > div div fieldset {
-	position: relative; }
-#MasterColorPicker_options > div div fieldset:first-child {
+#MasterColorPicker_options > div div fieldset#x_ColorPicker_options {
 	border: 1px solid;
 	margin: 0 -.854em 1em -.854em;
-	padding: .382em;
-	white-space: nowrap;
-	opacity: .27; }
-#MasterColorPicker_options.activePicker > div div fieldset:first-child {
-	opacity: 1; }
-#MasterColorPicker_options > div div fieldset:first-child > label:nth-child(2),
-#MasterColorPicker_options > div div fieldset:first-child > label:nth-child(3) {
-	display: inline; }
-#MasterColorPicker_options > div div fieldset:first-child > label:nth-child(3) {
-	margin-left: .2em; }
+	padding: 0 .382em .382em .382em;
+	white-space: nowrap; }
 #MasterColorPicker_options > div div fieldset:first-child legend {
 	font-size: 1.01618em;
 	font-weight: bold; }
@@ -386,32 +462,37 @@ select#palette_select {
 	margin: 0 .382em;
 	padding: 0;
 	display: inline-block; }
-#MasterColorPicker_options > div div fieldset fieldset label {
-	margin: 0 .618em; }
 #MasterColorPicker_options > div div fieldset:first-child fieldset label {
 	margin: 0; }
-#MasterColorPicker_options > div div fieldset:first-child > label:last-child {
+#MasterColorPicker_options > div div fieldset#x_ColorPicker_options > label#MasterColorPicker_applyToAll {
 	position: absolute;
-	top: 0;
+	top: -1.25em;
 	right: .382em;
 	left: auto;
+	margin: 0;
+	padding: 0;
 	color: black;
 	background-color: white; }
-#MasterColorPicker_options p span {
-/*	display: inline-block; */
-	white-space: noWrap;  }
+#MasterColorPicker_options > div div > fieldset:nth-child(2) > label:nth-child(1),
+#MasterColorPicker_options > div div > fieldset:nth-child(2) > label:nth-child(2) {
+	display: inline; }
+#MasterColorPicker_options > div div > fieldset:nth-child(2) > label:nth-child(2) {
+	margin-left: .2em; }
+#MasterColorPicker_options > div div > fieldset:nth-child(3) > label {
+	line-height: 1.2em;  }
 
 
 
 #MasterColorPicker_MyPalette.pickerPanel {
 	margin: 0;
 	top: 2em;
+	top: calc(2em + 2px);
 	bottom: auto;
 	right: 19.618em;
 	left: auto;
 	padding: .382em 1.618em .382em .382em; }
 #MasterColorPicker_MyPalette h2 {
-	margin-left: .382em;
+	margin: 0 0 0 .382em;
 	text-align: left; }
 #MasterColorPicker_MyPalette h2 span {
 	position: absolute;
@@ -458,6 +539,8 @@ body.MCP_dragMyPaletteColor #MasterColorPicker_MyPalette tr:hover td,
 body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th {
 	/*Blink/(Webkit?) browsers: the hover state does not change until the button is released - so this does not work properly*/
 	border-top: 2px solid red; }
+#MasterColorPicker_MyPalette .isBeingDragged {
+	background-color: #FF7777; }
 #MasterColorPicker_MyPalette tr:hover .dragHandle {
 	color: red; }
 #MasterColorPicker_MyPalette .dragHandle {
@@ -522,9 +605,13 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 	margin-top: 2em;
 	margin-top: calc(2em + 2px);
 	top: 0;
-	right: 18em; }
+	right: 18.37em;
+	text-align: center; }
 #MasterColorPicker_Filter h2 span {
-	right: 5em; }
+	right: 4.62em; }
+#MasterColorPicker_Filter p {
+	max-width: 27.618em;
+	margin: 0 auto; }
 #MasterColorPicker_Filter fieldset {
 	border: none;
 	padding: 0 .162em;
@@ -585,9 +672,9 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 #MasterColorPicker_Lab table {
 	border: 1px solid;
 	margin: 0 0 .618em; }
-#MasterColorPicker_Lab caption acronym:first-child {
+#MasterColorPicker_Lab caption abbr:first-child {
 	margin-right: 1.618em; }
-#MasterColorPicker_Lab caption acronym:last-child {
+#MasterColorPicker_Lab caption abbr:last-child {
 	margin-left: 1.618em; }
 #MasterColorPicker_Lab td {
 	padding: 0;}
@@ -598,8 +685,12 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 	border-top: 1px solid; }
 #MasterColorPicker_Lab input {
 	padding: 0 .162em; }
-#MasterColorPicker_Lab input[type="number"] {
+#MasterColorPicker_Lab input[type="numeric"],
+#MasterColorPicker_Lab input[type="number"],
+#MasterColorPicker_Lab input[type="text"] {
 	width: 5.618em; }
+#MasterColorPicker_Lab input[base="16"] {
+	width: auto; }
 #MasterColorPicker_Lab input[type="range"] {
 	width: 16.18em; }
 #MasterColorPicker_Lab .primaries input[type="range"]::-webkit-slider-runnable-track {
@@ -777,11 +868,25 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 #MasterColorPicker_Gradientor canvas { border: 1px solid black; }
 
 
+#MasterColorPicker_Gradientor p.underConstruction,
+#MasterColorPicker_Thesaurus p.underConstruction {
+	position: absolute;
+	font-size: 1.618em;
+	background-color: #FFFFFFA0;
+	top: 2em;
+	left: 1em;
+	rotate: 337deg;
+	transform: rotate(337deg);
+	-webkit-transform: rotate(337deg);
+	-ms-transform: rotate(337deg);
+	z-index: 20; }
+
+
 #MasterColorPicker_Thesaurus {
 	margin-top: 2em;
 	margin-top: calc(2em + 2px);
 	top: 0;
-	right: 20em;
+	right: 17.472em;
 	width: 28em; }
 #MasterColorPicker_Thesaurus h2 span {
 	right: auto;
@@ -1115,24 +1220,43 @@ table#RainbowMaestro div.subpalette_swatch {
 	border-radius: 53px;
 	z-index: 1; }
 #RainbowMaestro_hueIndicator {
-	position: relative; }
+	position: relative;}
 #RainbowMaestro_hueIndicator input {
 	width: 6.618em;
 	margin-left: .618em; }
-#RainbowMaestro_hueIndicator span {
-	display: none;
+#RainbowMaestro_hueIndicator span.hueIndicator {
+	display: none; }
+#RainbowMaestro_hueIndicator span.hueIndicator.active {
+	display: inline-block;
 	position: absolute;
 	right: 0;
 	bottom: -.2em;
 	left: auto;
 	top: auto;
-	width: 6.618em;
+	width: 6.18em;
 	padding: .2em 0 .2em 0;
 	font-family: "consolas", monospace;
 	font-weight: bold;
 	font-size: 1.0618em;
 	color: white;
 	background-color: black; }
+#RainbowMaestro_hueIndicator p {
+	display: none; }
+#RainbowMaestro_hueIndicator:hover p {
+  display: block;
+	position: absolute;
+	top: 100%;
+	right: 0;
+	bottom: auto;
+	left: auto;
+	color: white;
+	background-color: black;
+	border: 3px double red;
+	border-top: none;
+}
+#RainbowMaestro_hueIndicator:hover p span.hueAngleUnit {
+	font-weight: bold;
+}
 td#RainbowMaestro_swatch  {
 	text-align: center;
 	height: 2em;  }
@@ -1142,7 +1266,8 @@ span#RainbowMaestro_indicator {
 	font-family: "consolas", monospace;
 	font-weight: bold;
 	font-size: 1.27em; }
-
+#RainbowMaestro tfoot span.thanks {
+	white-space: pre-wrap; }
 
 
 table#Simple² {
@@ -1267,6 +1392,8 @@ table#YinYangNíHóng tfoot {
 table#YinYangNíHóng tfoot dfn {
 	font-weight: bold; }
 
+
+/*
 div#paletteLoadingAlert {
 	position: fixed;
 	min-width: 27.618em;
@@ -1279,35 +1406,55 @@ div#paletteLoadingAlert {
 	background-color: white;
 	color: black;
 	z-index: 7000; }
+ */
+div#paletteLoadingAlert {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: none;
+	text-align: center;
+	z-index: 7000; }
 div#paletteLoadingAlert.disabled {
 	display: none; }
+div#paletteLoadingAlert > div {
+	display: inline-block;
+	margin: 6.18em auto;
+	padding: .618em;
+	text-align: left;
+	border: 1px solid;
+	background-color: white;
+	color: black; }
 div#paletteLoadingAlert h3 {
 	color: black;
 	text-align: center;
 	padding: 0;
 	margin: 0; }
-div#paletteLoadingAlert > div {
-	max-width: 19.618em;
+div#paletteLoadingAlert  p {
+	max-width: 16.18em;
 	font-size: 1.618em;
 	font-weight: bold;
 	color: red;
 	padding-top: .618em;
 	text-align: center;  }
-div#paletteLoadingAlert > div span {
-	display: block;
-	font-size: .618em; }
+div#paletteLoadingAlert  h3+p {
+	max-width: none;  }
 div#paletteLoadingAlert strong {
 	font-variant: small-caps;
 	text-decoration: underline; }
-div#paletteLoadingAlert pre {
-	font-size: .72em;
-	min-height: 10em; }
-div#paletteLoadingAlert pre .loaded {
+div#paletteLoadingAlert div ul {
+	margin: 0 0 0 1em; }
+div#paletteLoadingAlert div li {
+	margin: 0;
+	padding: 0;
+	font-family: monospace; }
+div#paletteLoadingAlert div .loaded {
 	color: green;
 	font-weight: bold; }
-div#paletteLoadingAlert pre .reload {
+div#paletteLoadingAlert div .reload {
 	color: orange;
 	font-weight: bold; }
-div#paletteLoadingAlert pre .failed {
+div#paletteLoadingAlert div .failed {
 	color: red;
 	font-weight: bold; }
