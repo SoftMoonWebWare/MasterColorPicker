@@ -1,49 +1,49 @@
-﻿<!--  MasterColorPicker 2  Copyright © 2012, 2013 Joe Golembieski, SoftMoon-WebWare
+﻿
+<!--  You may move these support scripts to the document head, especially if you plan on using them with other code  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
+<script type='text/javascript' src='JS_toolbucket/HTTP.js' defer></script><!-- ESSENTIAL for server version, NOT for desktop use -->
+<!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/Math+++.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!-- supports RainbowMaestro -->
+<script type="text/javascript" src="JS_Toolbucket/skratchdot.Wickline.colorbilnd_converter.js" defer></script><!-- supports RainbowMaestro -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
+
+<!-- div id='MasterColorPicker_debugLog'></div>
+<button onclick="MasterColorPicker.debug.clear();" style='position: relative; z-index: 10000'>Clear Log</button><!--  -->
+
+<section id='MasterColorPicker' charset='UTF-8'>
+<meta charset='UTF-8' />
+<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019 Joe Golembieski, SoftMoon-WebWare
       release x.x
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
 
-<!--  You may move these support scripts to the document head, especially if you plan on using them with other code  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/HTTP.js' defer></script><!-- ESSENTIAL for server version, NOT for desktop use -->
-<!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/Math+++.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/rgb.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type="text/javascript" src="color-pickers/Rigden_colorblind-convert_table.js" defer></script><!-- supports RainbowMaestro -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
-<script type='text/javascript' src='JS_toolbucket/Stylesheet.js' defer></script><!-- supports ColorFilter -->
-
-<!-- div id='MasterColorPicker_debugLog'></div>
-<button onclick="MasterColorPicker.debug.clear();" style='position: relative; z-index: 10000'>Clear Log</button><!--  -->
-
-<section id='MasterColorPicker'>
 
 <div id='MasterColorPicker_options' class='pickerPanel'>
 <header><h1>MasterColorPicker™</h1> by <address>SoftMoon-WebWare</address></header>
 
+<script type="text/javascript">//<![CDATA[  capture the sent palette name in case it was a color-names-table - their names are not known here as these are built dynamically using JavaScript with data from HTTP, or from other JavaScript files
+	if (typeof SoftMoon != 'object')  SoftMoon=new Object;
+	if (typeof SoftMoon._POST != 'object')  SoftMoon._POST=new Object;
+	<?php if ($_POST['palette_select']) echo 'SoftMoon._POST["palette_select"]="',$_POST['palette_select'],'"'; ?>
+//]]></script>
+<label for='palette_select'>palette: <select id='palette_select' name='palette_select' tabToTarget='true'>
+<option<?php if ($_POST['palette_select']==='RainbowMaestro'  or  $_POST['palette_select']=="")  echo " selected='selected'"?>>RainbowMaestro</option>
+<option<?php if ($_POST['palette_select']==='Spectral')  echo " selected='selected'"?>>Spectral</option>
+<option<?php if ($_POST['palette_select']==='BeezEye')  echo " selected='selected'"?>>BeezEye</option>
+<option<?php if ($_POST['palette_select']==='Simple²')  echo " selected='selected'"?>>Simple²</option>
+<option<?php if ($_POST['palette_select']==='YinYang NíHóng')  echo " selected='selected'"?>>YinYang NíHóng</option>
+</select></label>
+
+
 <div><h3>Options▼</h3>
 <div>
 <fieldset id='x_ColorPicker_options' class='pickerOptions'><legend><?php echo $_POST['palette_select'] ? $_POST['palette_select'] : 'RainbowMaestro';  ?> mode:</legend>
-	<label>output<select id='MasterColorPicker_outputMode' name='MasterColorPicker_outputMode'>
-	<option<?php if (!in_array($_POST['MasterColorPicker_outputMode'], array('RGB', 'native', 'HSV', 'HSL', 'HCG', 'CMYK'), true))  echo " selected='selected'"; ?>>hex</option>
-	<option<?php if ($_POST['MasterColorPicker_outputMode']==='RGB')  echo " selected='selected'"; ?> title='Red, Green, Blue'>RGB</option>
-	<option<?php if ($_POST['MasterColorPicker_outputMode']==='native')  echo " selected='selected'"; ?>>native</option>
-	<option<?php if ($_POST['MasterColorPicker_outputMode']==='HSV')  echo " selected='selected'"; ?>>HSB</option>
-	<option<?php if ($_POST['MasterColorPicker_outputMode']==='HSL')  echo " selected='selected'"; ?>>HSL</option>
-	<option<?php if ($_POST['MasterColorPicker_outputMode']==='HCG')  echo " selected='selected'"; ?>>HCG</option>
-	<option<?php if ($_POST['MasterColorPicker_outputMode']==='CMYK')  echo " selected='selected'"; ?>>CMYK</option>
-	</select></label>
-	<label>¿<input type='checkbox' id='keepPrecision' name='keepPrecision' value='true' <?php
-	if ($_POST['keepPrecision']=='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>
-	onchange='SoftMoon.WebWare.rgb.keepPrecision=this.checked;' />keep precision?
-	<p>Hex and RGB values are calculated from the native format, and others are calculated from the RGB values.&nbsp;
-			RGB values may be rounded off to integers in the process yielding differences that are especially noticeable in Hue values.&nbsp;
-			(More minor round off errors will always be possible due to floating-point mathematics used by computers.)&nbsp;
-			Note RGB values will always be shown as integers, and are always used internally by the computer’s hardware
-			as integers, so by <strong>not</strong> keeping precision, resulting conversions from the RGB values reflect
-			the “used RGB” values.</p></label>
+	<p class='underConstruction'><span>Under Construction:</span> no functionality</p>
 	<fieldset id='MasterColorPicker_showLocator'>
 		<label>¿<input type='checkbox' name='MasterColorPicker_showLocator' value='true' <?php
 				if ($_POST['MasterColorPicker_showLocator']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show locator?</label>
@@ -64,15 +64,62 @@ but to retain the settings this file may be included inside an existing web <for
 					if ($_POST['MasterColorPicker_locatorColor']==='transforming'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>transforming rainbow</label>
 		</fieldset>
 	</fieldset>
-	<label id='MasterColorPicker_interlink'
-			title='Choosing a color points to the same color in all interlinked palettes.'>¿<input
+	<label id='MasterColorPicker_interlink'>¿<input
 			type='checkbox' name='MasterColorPicker_doInterlink' value='true' <?php
-			if ($_POST['MasterColorPicker_doInterlink']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>interlink?</label>
+			if ($_POST['MasterColorPicker_doInterlink']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>interlink?
+			<p>Choosing a color points to the same color in all interlinked palettes.</p></label>
 	<label id='MasterColorPicker_applyToAll'>¿<input type='checkbox' name='MasterColorPicker_applyToAll' value='true' <?php
 			if ($_POST['MasterColorPicker_applyToAll']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>apply to all?</label>
 </fieldset>
 
-<div>
+<fieldset class='pickerOptions'>
+	<label>output: <select id='MasterColorPicker_outputMode' name='MasterColorPicker_outputMode'>
+	<option<?php if (!in_array($_POST['MasterColorPicker_outputMode'], array('RGB', 'native', 'HSV', 'HSL', 'HCG', 'CMYK'), true))  echo " selected='selected'"; ?>>hex</option>
+	<option<?php if ($_POST['MasterColorPicker_outputMode']==='RGB')  echo " selected='selected'"; ?> title='Red, Green, Blue'>RGB</option>
+	<option<?php if ($_POST['MasterColorPicker_outputMode']==='native')  echo " selected='selected'"; ?>>native</option>
+	<option<?php if ($_POST['MasterColorPicker_outputMode']==='HSV')  echo " selected='selected'"; ?>>HSV</option>
+	<option<?php if ($_POST['MasterColorPicker_outputMode']==='HSB')  echo " selected='selected'"; ?>>HSB</option>
+	<option<?php if ($_POST['MasterColorPicker_outputMode']==='HSL')  echo " selected='selected'"; ?>>HSL</option>
+	<option<?php if ($_POST['MasterColorPicker_outputMode']==='HCG')  echo " selected='selected'"; ?>>HCG</option>
+	<option<?php if ($_POST['MasterColorPicker_outputMode']==='CMYK')  echo " selected='selected'"; ?>>CMYK</option>
+	</select></label>
+	<label>¿<input type='checkbox' id='MasterColorPicker_keepPrecision' name='MasterColorPicker_keepPrecision' value='true' <?php
+	if ($_POST['MasterColorPicker_keepPrecision']=='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>
+	onchange='MasterColorPicker.keepPrecision=this.checked;' />keep precision?
+	<p>Hex/RGB values are calculated from the native format, and others are calculated from the RGB values.&nbsp;
+			RGB values may be rounded off to integers in the process yielding differences that are especially noticeable in Hue values.&nbsp;
+			(More minor round off errors will always be possible due to floating-point mathematics used by computers.)&nbsp;
+			Note RGB values will always be shown as integers, and are always used internally by the computer’s hardware
+			as integers, so by <strong>not</strong> keeping precision, resulting conversions from the RGB values reflect
+			the “actual RGB values used” by the computer to display the color selected.</p></label>
+	<label>¿<input type='checkbox' id='MasterColorPicker_useHexSymbol' name='MasterColorPicker_useHexSymbol' value='true' <?php
+	if ($_POST['MasterColorPicker_usehexSymbol']=='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>
+	onchange='MasterColorPicker.useHexSymbol=this.checked;' />use # Hex symbol?</label>
+	<!--  label>¿<input type='checkbox' name='MasterColorPicker_selectInputboxText' value='true' <?php
+			if (false  and  $_POST['MasterColorPicker_selectInputboxText']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>select choice in inputboxes?</label   -->
+	<label>¿<input type='checkbox' name='MasterColorPicker_copyColorToClipboard' value='true' onchange='MaterColorPicker.copyToClipboard=this.checked;' <?php
+			if ($_POST['MasterColorPicker_copyColorToClipboard']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>copy selected color to system clipboard?</label>
+</fieldset>
+
+<fieldset class='pickerOptions'>
+<label>¿<input type='checkbox' name='MasterColorPicker_showHelp' id='MasterColorPicker_showHelp' value='false'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Help"), !this.checked);' <?php
+		if ($_POST['MasterColorPicker_showhelp']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show ☺ Help ☺? <kbd><span>F1</span></kbd></label>
+<label>¿<input type='checkbox' name='MasterColorPicker_showMyPalette' id='MasterColorPicker_showMyPalette' value='true'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_MyPalette"), !this.checked);'
+		<?php if ($_POST['MasterColorPicker_showFilter']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show/use MyPalette? <kbd><span>F2</span></kbd></label>
+<label>¿<input type='checkbox' name='MasterColorPicker_showLab' id='MasterColorPicker_showLab' value='true'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Lab"), !this.checked);' <?php
+		if ($_POST['MasterColorPicker_showLab']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show Color-Space Lab? <kbd><span>F3</span></kbd></label>
+<label>¿<input type='checkbox' name='MasterColorPicker_showFilter' id='MasterColorPicker_showFilter' value='true'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Filter"), !this.checked);' <?php
+		if ($_POST['MasterColorPicker_showFilter']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show/use Color-Filter?</label>
+<label>¿<input type='checkbox' name='MasterColorPicker_showGradientor' id='MasterColorPicker_showGradientor' value='true'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor"), !this.checked);' <?php
+		if ($_POST['MasterColorPicker_showGradientor']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show Gradientor?</label>
+<label>¿<input type='checkbox' name='MasterColorPicker_showThesaurus' id='MasterColorPicker_showThesaurus' value='true'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Thesaurus"), !this.checked);' <?php
+		if ($_POST['MasterColorPicker_showThesaurus']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show color Thesaurus? <kbd><span>F4</span></kbd></label>
 <p id='MasterColorPicker_returnPanelsOn3'>Drag panels by their handles.&nbsp;
 Triple-click on panel handles (or this message) to return the panel(s) to home position.&nbsp;
 <!--[if IE gt 9] -->
@@ -80,77 +127,53 @@ Right-click or Shift-click to: pin a panel to the page when it is pinned to the 
 or pin it to the window when it is pinned to the page.
 <!--[endif] -->
 </p>
-<fieldset class='pickerOptions'>
-<label>¿<input type='checkbox' name='MasterColorPicker_showMyPalette' id='MasterColorPicker_showMyPalette' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_MyPalette"), !this.checked);'
-		<?php if ($_POST['MasterColorPicker_showFilter']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show/use MyPalette?</label>
-<label>¿<input type='checkbox' name='MasterColorPicker_showFilter' id='MasterColorPicker_showFilter' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Filter"), !this.checked);' <?php
-		if ($_POST['MasterColorPicker_showFilter']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show/use Color-Filter?</label>
-<label>¿<input type='checkbox' name='MasterColorPicker_showLab' id='MasterColorPicker_showLab' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Lab"), !this.checked);' <?php
-		if ($_POST['MasterColorPicker_showLab']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show Color-Space Lab?</label>
-<label>¿<input type='checkbox' name='MasterColorPicker_showGradientor' id='MasterColorPicker_showGradientor' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor"), !this.checked);' <?php
-		if ($_POST['MasterColorPicker_showGradientor']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show Gradientor?</label>
-<label>¿<input type='checkbox' name='MasterColorPicker_showThesaurus' id='MasterColorPicker_showThesaurus' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Thesaurus"), !this.checked);' <?php
-		if ($_POST['MasterColorPicker_showThesaurus']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>show Librarian/Thesaurus?</label>
 </fieldset>
-</div>
 
 <fieldset>
-	<label>¿<input type='checkbox' name='RGB_autoconvert' id='RGB_autoconvert' value='true' <?php
-			if ($_POST['RGB_autoconvert']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>auto-convert?
-		<span> Clicking a choice below can auto-convert your selected colors to the chosen color-space-model format.</span></label>
-	<fieldset id='RGB_by'><legend>Enter <acronym>RGB</acronym> color-space values as:</legend>
-		<label><input type='radio' name='RGB_by' value='byte' onclick='SoftMoon.WebWare.rgb.valuesAsByte= this.checked' <?php
-			if ($_POST['RGB_by']!=='factor')  echo 'checked="checked" '; ?>/>Byte value (integer 0↔255)</label>
-		<label><input type='radio' name='RGB_by' value='factor' onclick='SoftMoon.WebWare.rgb.valuesAsByte= !this.checked' <?php
-			if ($_POST['RGB_by']==='factor')  echo 'checked="checked" '; ?>/>Percent or Factor</label>
-		<p>All <acronym>RGB</acronym> values entered between <span>0↔0.999…</span> when the default mode is “byte” will be considered factors.</p>
-	</fieldset>
-	<fieldset id='RGB_convertFrom'><legend>Enter color-space values as:</legend>
-		<label><input type='radio' name='RGB_convertFrom' value='percent' onclick='SoftMoon.WebWare.rgb.valuesAsPercent= this.checked' <?php
-			if ($_POST['RGB_convertFrom']!=='factor')  echo 'checked="checked" '; ?>/>Percent (0.0%↔100.0%)</label>
-		<label><input type='radio' name='RGB_convertFrom' value='factor' onclick='SoftMoon.WebWare.rgb.valuesAsPercent= !this.checked' <?php
-			if ($_POST['RGB_convertFrom']==='factor')  echo 'checked="checked" '; ?>/>Factor (0.0↔1.0)</label>
-		<p>Percent values may be forced using values <span>0.0%↔100.0%</span> entered with a trailing “percent” sign.</p>
-	</fieldset>
-	<fieldset id='RGB_convertHue'><legend>Enter Hue values as:</legend>
-		<label><input type='radio' name='RGB_convertHue' value='degrees' onclick='SoftMoon.WebWare.rgb.huesByDegrees= this.checked' <?php
-			if ($_POST['RGB_convertHue']!=='factor')  echo 'checked="checked" '; ?>/>Degrees (0.0°↔360.0°)</label>
-		<label><input type='radio' name='RGB_convertHue' value='factor' onclick='SoftMoon.WebWare.rgb.huesByDegrees= !this.checked' <?php
-			if ($_POST['RGB_convertHue']==='factor')  echo 'checked="checked" '; ?>/>Percent or Factor</label>
-		<p>Hue values may be forced to degrees using values <span>0.0°↔360.0°</span> entered with a trailing “degrees” sign or by using the three letters “deg”.</p>
-	</fieldset>
+	<p>Hue angle unit values may be forced at any time when entered with a trailing unit; for example a “degrees” ° sign or by using the three letters “deg”.</p>
+	<label>Hue Angle Unit:
+	<select name='MasterColorPicker_hue_angle_unit'>
+		<optgroup label='degrees (360)'>
+			<option>deg</option>
+			<option>°</option>
+		</optgroup>
+		<optgroup label='radians (2π ≈6.2831853)'>
+			<option>rad</option>
+			<option>ʳ</option>
+		</optgroup>
+		<optgroup label='gradians (400)'>
+			<option>grad</option>
+		</optgroup>
+		<optgroup label='percent of a turn (100)'>
+			<option>%</option>
+		</optgroup>
+		<optgroup label='turn (1)'>
+			<option>turn</option>
+			<option>●</option>
+		</optgroup>
+	</select></label>
 </fieldset>
+
+<fieldset>
+	<label>Color-blind filter provider:
+	<select name='MasterColorPicker_colorblind_provider'>
+	</select></label>
+	<p>Color-blind simulations are approximate, and may vary between individuals and monitors</p>
+</fieldset>
+
 </div></div>
-
-<label>palette: <select id='palette_select' name='palette_select' tabToTarget='true'>
-<option<?php if ($_POST['palette_select']==='RainbowMaestro'  or  $_POST['palette_select']=="")  echo " selected='selected'"?>>RainbowMaestro</option>
-<option<?php if ($_POST['palette_select']==='Spectral')  echo " selected='selected'"?>>Spectral</option>
-<option<?php if ($_POST['palette_select']==='BeezEye')  echo " selected='selected'"?>>BeezEye</option>
-<option<?php if ($_POST['palette_select']==='Simple²')  echo " selected='selected'"?>>Simple²</option>
-<option<?php if ($_POST['palette_select']==='YinYang NíHóng')  echo " selected='selected'"?>>YinYang NíHóng</option>
-</select></label>
-<script type="text/javascript">//<![CDATA[  capture the sent palette name in case it was a color-names-table - their names are not known here as these are built dynamically using JavaScript with data from HTTP, or from other JavaScript files
-	if (typeof SoftMoon != 'object')  SoftMoon=new Object;
-	if (typeof SoftMoon._POST != 'object')  SoftMoon._POST=new Object;
-	<?php if ($_POST['palette_select']) echo 'SoftMoon._POST["palette_select"]="',$_POST['palette_select'],'"'; ?>
-//]]></script>
-
 </div><!--  close  MasterColorPicker_options  -->
 
 
 
 <div id='MasterColorPicker_MyPalette' class='pickerPanel expanding'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>MyPalette</span></h2>
+<h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F2 for shortcut">MyPalette</span></h2>
+<p class='underConstruction'><span>Under Construction:</span> only partial functionality</p>
 <p>(choose color(s) using any color-picker or type directly)</p>
 <fieldset>
 <button name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
 <button name='MasterColorPicker_MyPalette_delete'>delete selected</button>
-<button name='MasterColorPicker_MyPalette_save'>save palette</button>
+<button name='MasterColorPicker_MyPalette_save' title='Under Construction: no functionality'>save palette</button>
 <label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette'>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='double-click')  echo " selected='selected'"; ?>>double-click</option>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='shift-click')  echo " selected='selected'"; ?>>shift-click</option>
@@ -204,6 +227,7 @@ or pin it to the window when it is pinned to the page.
 
 <div id='MasterColorPicker_Filter' class='pickerPanel'>
 <h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Color-Filter</span></h2>
+<p>The colors selected within this tool will mix with future colors selected from the color palettes.</p>
 <p>(choose color(s) using any color-picker or type directly)</p>
 	<fieldset>
 	  <label><span>¿Average all filter-colors and apply the result, or apply each filter-color individually and progressively?</span>
@@ -236,74 +260,74 @@ or pin it to the window when it is pinned to the page.
 
 
 <div id='MasterColorPicker_Lab' class='pickerPanel'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Color-Space Lab</span></h2>
+<h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F3 for shortcut">Color-Space Lab</span></h2>
 <table class='primaries'><caption><acronym>RGB</acronym></caption>
 <tr><th>primary</th><th>byte value</th><th>#hex</th><th>percent%</th><td></td></tr>
 <tr class='red'><th><label for='MasterColorPicker_Rgb_byte' style="color:red">Red:</label></th>
-		<td><input type='number' name='MasterColorPicker_Rgb_byte' min='0' max='255' value='0' /></td>
-		<td><input type='text' class='hex' name='MasterColorPicker_Rgb_hex' maxlength='2' size='2' value='00' /></td>
-		<td><input type='number' name='MasterColorPicker_Rgb_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_Rgb_byte' min='0' max='255' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_Rgb_hex' class='hex' base='16' maxlength='2' size='2' value='00' /></td>
+		<td><input type='numeric' name='MasterColorPicker_Rgb_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_Rgb_range' min='0' max='255' value='0' style="color:red" tabindex='-1' /></td>
 </tr>
 <tr class='green'><th><label for='MasterColorPicker_rGb_byte' style="color:green">Green:</label></th>
-		<td><input type='number' name='MasterColorPicker_rGb_byte' min='0' max='255' value='0' /></td>
-		<td><input type='text' class='hex' name='MasterColorPicker_rGb_hex' maxlength='2' size='2' value='00' /></td>
-		<td><input type='number' name='MasterColorPicker_rGb_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_rGb_byte' min='0' max='255' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_rGb_hex' class='hex' base='16' maxlength='2' size='2' value='00' /></td>
+		<td><input type='numeric' name='MasterColorPicker_rGb_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_rGb_range' min='0' max='255' value='0' style="color:lime" tabindex='-1' /></td>
 </tr>
 <tr class='blue'><th><label for='MasterColorPicker_rgB_byte' style="color:blue">Blue:</label></th>
-		<td><input type='number' name='MasterColorPicker_rgB_byte' min='0' max='255' value='0' /></td>
-		<td><input type='text' class='hex' name='MasterColorPicker_rgB_hex' maxlength='2' size='2' value='00' /></td>
-		<td><input type='number' name='MasterColorPicker_rgB_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_rgB_byte' min='0' max='255' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_rgB_hex' class='hex' base='16' maxlength='2' size='2' value='00' /></td>
+		<td><input type='numeric' name='MasterColorPicker_rgB_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_rgB_range' min='0' max='255' style="color:blue" tabindex='-1' value='0' /></td>
 </tr>
 </table>
 
-<table><caption><acronym>HSL</acronym> <acronym>HSB</acronym>/<acronym>HSV</acronym> <acronym>HCG</acronym></caption>
-<tr><th></th><th>degrees°</th><th>percent%</th><td></td></tr>
+<table><caption><acronym>HSL</acronym> <acronym>HSV</acronym>/<acronym>HSB</acronym> <acronym>HCG</acronym></caption>
+<tr><th></th><th id='MasterColorPicker_Lab_hueUnitText'>degrees°</th><th>percent%</th><td></td></tr>
 <tr class='hue'>
 		<th><label for='MasterColorPicker_Hue_degrees'>Hue:</label></th>
-		<td><input type='number' name='MasterColorPicker_Hue_degrees' min='0' max='360'step='any' value='0' /></td>
-		<td><input type='number' name='MasterColorPicker_Hue_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_Hue_degrees' step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_Hue_percent' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_Hue_range' min='0' max='360' value='0' tabindex='-1' /></td>
 </tr>
 
 <tr class='even'>
 		<th><label for='MasterColorPicker_hSl_percent'>Saturation:</label></th>
 		<td></td>
-		<td><input type='number' name='MasterColorPicker_hSl_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_hSl_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_hSl_range' min='0' max='100' value='0' tabindex='-1' /></td>
 </tr>
 <tr>
 		<th><label for='MasterColorPicker_hsL_percent'>Lightness:</label></th>
 		<td></td>
-		<td><input type='number' name='MasterColorPicker_hsL_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_hsL_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_hsL_range' min='0' max='100' value='0' tabindex='-1' /></td>
 </tr>
 
 <tr class='even'>
-		<th><label for='MasterColorPicker_hSb_percent'>Saturation:</label></th>
+		<th><label for='MasterColorPicker_hSv_percent'>Saturation:</label></th>
 		<td></td>
-		<td><input type='number' name='MasterColorPicker_hSb_percent' min='0' max='100'step='any' value='0' /></td>
-		<td><input type='range' name='MasterColorPicker_hSb_range' min='0' max='100' value='0' tabindex='-1' /></td>
+		<td><input type='numeric' name='MasterColorPicker_hSv_percent' min='0' max='100' step='any' value='0' /></td>
+		<td><input type='range' name='MasterColorPicker_hSv_range' min='0' max='100' value='0' tabindex='-1' /></td>
 </tr>
 <tr>
-		<th><label for='MasterColorPicker_hsB_percent'>Brightness:</label></th>
+		<th><label for='MasterColorPicker_hsV_percent'>Value:</label></th>
 		<td></td>
-		<td><input type='number' name='MasterColorPicker_hsB_percent' min='0' max='100'step='any' value='0' /></td>
-		<td><input type='range' name='MasterColorPicker_hsB_range' min='0' max='100' value='0' tabindex='-1' /></td>
+		<td><input type='numeric' name='MasterColorPicker_hsV_percent' min='0' max='100' step='any' value='0' /></td>
+		<td><input type='range' name='MasterColorPicker_hsV_range' min='0' max='100' value='0' tabindex='-1' /></td>
 </tr>
 
 <tr class='even'>
 		<th><label for='MasterColorPicker_hCg_percent'>Chroma:</label></th>
 		<td></td>
-		<td><input type='number' name='MasterColorPicker_hCg_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_hCg_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_hCg_range' min='0' max='100' value='0' tabindex='-1' /></td>
 </tr>
 <tr>
 		<th><label for='MasterColorPicker_hcG_percent'>Gray:</label></th>
 		<td></td>
-		<td><input type='number' name='MasterColorPicker_hcG_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_hcG_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_hcG_range' min='0' max='100' value='0' tabindex='-1' /></td>
 </tr>
 </table>
@@ -312,26 +336,27 @@ or pin it to the window when it is pinned to the page.
 <tr><th>primary</th><th>percent%</th><td></td></tr>
 <tr class='cyan'>
 		<th><label for='MasterColorPicker_Cmyk_percent' style="color:cyan">Cyan</label></th>
-		<td><input type='number' name='MasterColorPicker_Cmyk_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_Cmyk_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_Cmyk_range' min='0' max='100' value='0' style="color:cyan" tabindex='-1' /></td>
 </tr>
 <tr class='magenta'>
 		<th><label for='MasterColorPicker_cMyk_percent' style="color:magenta">Magenta</label></th>
-		<td><input type='number' name='MasterColorPicker_cMyk_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_cMyk_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_cMyk_range' min='0' max='100' value='0' style="color:magenta" tabindex='-1' /></td>
 </tr>
 <tr class='yellow'>
 		<th><label for='MasterColorPicker_cmYk_percent' style="color:yellow">Yellow</label></th>
-		<td><input type='number' name='MasterColorPicker_cmYk_percent' min='0' max='100'step='any' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_cmYk_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_cmYk_range' min='0' max='100' value='0' style="color:yellow" tabindex='-1' /></td>
 </tr>
 <tr class='black'>
 		<th><label for='MasterColorPicker_cmyK_percent' style="color:black">Black</label></th>
-		<td><input type='number' name='MasterColorPicker_cmyK_percent' min='0' max='100'step='any' value='100' tabToTarget='true' /></td>
+		<td><input type='numeric' name='MasterColorPicker_cmyK_percent' min='0' max='100' step='any' value='100' tabToTarget='true' /></td>
 		<td><input type='range' name='MasterColorPicker_cmyK_range' min='0' max='100' value='100' style="color:black" tabindex='-1' /></td>
 </tr>
 </table>
 <label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnMouseMove' checked='checked' />update on Mouse move?</label>
+<label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnKeystroke' checked='checked' />update on Keystroke?</label>
 <span class='swatch'>Click here to Choose</span>
 </div><!--  close  MasterColorPicker_Lab  -->
 
@@ -339,6 +364,7 @@ or pin it to the window when it is pinned to the page.
 
 <div id='MasterColorPicker_Gradientor' class='pickerPanel'>
 <h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Gradientor</span></h2>
+<p class='underConstruction'><span>Under Construction:</span> no functionality</p>
 <fieldset><legend>(choose colors using any color-picker or type directly)</legend>
  <label>color 1
 	<input type='text' name='MasterColorPicker_Gradientor_color1'
@@ -372,7 +398,8 @@ tri-color?</label>
 
 
 <div id='MasterColorPicker_Thesaurus' class='pickerPanel'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Librarian/Thesaurus</span></h2>
+<h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F7 for shortcut">Thesaurus</span></h2>
+<p class='underConstruction'><span>Under Construction:</span> no functionality</p>
 <p>This tool can help you identify the name of the closest color(s) in the chosen color-space geometry.</p>
 <fieldset><legend>(choose color using any color-picker or type directly)</legend>
  <label>color:
@@ -460,8 +487,8 @@ tri-color?</label>
 		<dl>
 			<dt>CMYK</dt>
 				<dd>Cyan, Magenta, Yellow, Black</dd>
-			<dt>HSB / HSV</dt>
-				<dd>Hue, Saturation, Brightness a.k.a Value</dd>
+			<dt>HSV / HSB</dt>
+				<dd>Hue, Saturation, Value&nbsp;<abbr title='also known as'>a.k.a.</abbr>&nbsp;Brightness</dd>
 			<dt>HSL</dt>
 				<dd>Hue, Saturation, Lightness</dd>
 			<dt>HCG</dt>
@@ -473,7 +500,7 @@ tri-color?</label>
 		</dl>
 		<label><input type='radio' name='BeezEye_model' value='cmyk'
 			backtabTo="document.getElementById('BeezEye_twist').checked ? undefined : MasterColorPicker.dataTarget" />CMYK</label>
-		<label><input type='radio' name='BeezEye_model' value='hsb' />HSB / HSV</label>
+		<label><input type='radio' name='BeezEye_model' value='hsv' />HSV / HSB</label>
 		<label><input type='radio' name='BeezEye_model' value='hsl' checked='checked' />HSL</label>
 		<label><input type='radio' name='BeezEye_model' value='hcg' />HCG</label>
 		<label>¿<input type='checkbox' name='BeezEye_curve' value='curve' />curve?</label>
@@ -496,7 +523,6 @@ tri-color?</label>
 	<td><label>Hue Variety<input type='range' name='BeezEye_variety' value='15' min='5' max='89' step='2' /></label></td>
 	<td rowspan='2' id='BeezEye_swatch'></td>
 </tr>
-<!--  tr><td><label>Eye size<input type='range' name='BeezEye_size' value='360' min='160' max='720' step='12' /></label></td></tr  -->
 <tr><td id='BeezEye_indicator'> </td></tr>
 </tbody>
 </table>
@@ -508,15 +534,17 @@ tri-color?</label>
 	<tr><td colspan='2'>
 	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked='checked' backtabTotarget='true' />websafe</label>
 	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true' />split-compliments</label>
-	<label><input type='checkbox' name='RainbowMaestro_lock' value='true' />lock focal hue</label>
 	<label><input type='checkbox' name='RainbowMaestro_colorblind' value='true' checked='checked' />colorblind assist<mark class='footmark'>‡</mark></label>
+	<label><input type='checkbox' name='RainbowMaestro_lock' value='true' />lock focal hue</label>
 	</td></tr>
 	<tr><td colspan='2'>
 	<label>variety<input type='range' name='RainbowMaestro_variety' value='6' min='6' max='32' /></label>
-	<label>¿focals only<input type='checkbox' name='RainbowMaestro_focalsOnly' value='true' />?</label>
-	 <input type='hidden' name='RainbowMaestro_focalHue' value='<?php echo ($_POST['RainbowMaestro_focalHue']) ? $_POST['RainbowMaestro_focalHue'] : '0'; /*radians*/ ?>' />
-	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='number' name='RainbowMaestro_focalHue_degrees' value='<?php echo ($_POST['RainbowMaestro_focalHue_degrees']) ? $_POST['RainbowMaestro_focalHue_degrees'] : '0';
-	 ?>' min='0' max='360' step='any' size='13' maxlength='9' title='Hue given in degrees (0.0°–360.0°).' tabToTarget='true' /><span>&nbsp;</span></label>
+	<label><input type='checkbox' name='RainbowMaestro_focalsOnly' value='true' />focals only</label>
+	 <!--  input type='hidden' name='RainbowMaestro_focalHue' value='<?php //echo ($_POST['RainbowMaestro_focalHue']) ? $_POST['RainbowMaestro_focalHue'] : '0'; /*radians*/ ?>' /  -->
+	<!--  label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue_degrees' value='<?php //echo ($_POST['RainbowMaestro_focalHue_degrees']) ? $_POST['RainbowMaestro_focalHue_degrees'] : '0';
+	 ?>' step='any' title='Hue given in degrees (0.0°–360.0°).' tabToTarget='true' /><span>&nbsp;</span></label  -->
+	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue' value='<?php echo ($_POST['RainbowMaestro_focalHue']) ? $_POST['RainbowMaestro_focalHue'] : '0';
+	 ?>' step='any' tabToTarget='true' /><span class='hueIndicator'>&nbsp;</span><p>Hue given in <span class='hueAngleUnit'>degrees (0.0°–359.99°)</span>.</p></label>
 	</td></tr>
 	<tr><td colspan='2' id='RainbowMaestro_swatch'><span id='RainbowMaestro_indicator'>&nbsp;</span></td><tr>
 </thead>
@@ -532,10 +560,11 @@ tri-color?</label>
 </tbody>
 <tfoot>
 	<tr class='colorblind'><td colspan='2'><mark class='footmark'>‡</mark>simulations are approximate, and may vary between individuals and monitors</td></tr>
-	<tr class='colorblind'><td colspan='2'><mark class='footmark'>‡</mark>special thanks to: &nbsp;
-		http://safecolours.rigdenage.com/colours2.html</td></tr>
+	<tr class='colorblind'><td colspan='2'><mark class='footmark'>‡</mark><span class='thanks'></span></td></tr>
 </tfoot>
 </table>
+
+
 
 
 <table class='picker palette' id='Simple²'><caption><h6>Simple² Color Picker™</h6>click to choose</caption>
@@ -564,7 +593,7 @@ tri-color?</label>
 <td rowspan='5'  style='border-bottom: 1px solid' valign='bottom'
 		><label for='Simple²_lock'>← lock ↑</label><input type='checkbox' name='Simple²_lock' value='locked' tabToTarget='true' /></td>
 <td   style='border-left: 1px solid'><div>HSL</div></td>
-<td   style='border-left: 1px solid'><div>HSB</div></td>
+<td   style='border-left: 1px solid'><div>HSV</div></td>
 <td    style='border: 1px solid; border-top: none'>Gray=0</td><td   style='border: 1px solid; border-top: none'>Gray=1</td>
 <td id="Simple²swatch" colspan='2' rowspan='6' style='border: 1px solid white'></td>
 </tr>
@@ -599,7 +628,7 @@ tri-color?</label>
 
 <table class='picker palette' id='YinYangNíHóng'><caption><h6>YinYang NíHóng<span>the Tao of Color Pickers™</span></h6>click to choose</caption>
 <thead><tr>
-<td><label><input type='radio' name='YinYang NíHóng' value='HSB' backtabToTarget='true' />HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
+<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabToTarget='true' />HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
 <td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked='checked' />HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
 <td><label><input type='radio' name='YinYang NíHóng' value='HCG' tabToTarget='true' />HCG<dfn>Hue, Chroma, Gray</dfn></label></td>
 </tr></thead>
@@ -621,27 +650,143 @@ tri-color?</label>
 </div><!-- close MasterColorPicker_mainPanel -->
 
 
-<div id='paletteLoadingAlert'>
- <h3>Loading Palettes:</h3>
- <div>Please Wait
-<!--[if lt IE 10]>
-	<br />Microsoft’s Internet Exploder takes quite a bit longer… … …
-	<span>(and please be patient when changing color-picker settings)</span>
-	<span>(or just use a <strong>real</strong> modern browser: Firefox, Chrome, Safari)</span>
-<![endif]-->
+
+<div id='MasterColorPicker_Help' class='pickerPanel help'>
+ <h2>MasterColorPicker<mark class='macronym'>™</mark><span title="press F1 for shortcut">☺Help☺</span></h2>
+ <div>
+	<h4>Valid values for colors include:</h4>
+	<ul>
+		<li>RGB values in hexadecimal (<acronym title='also known as'>a.k.a.</acronym> <abbr>hex</abbr>) with or without the leading <kbd>#</kbd> symbol.</li>
+		<li>RGB values as:
+			<ul>
+				<li>integer byte values (<kbd>0—255</kbd>)</li>
+				<li>percent ratios (<kbd>0%—100%</kbd> – be sure to use the percent <kbd>%</kbd> symbol)</li>
+			</ul>
+				<p>Each value may be separated by spaces/commas/semicolons.&nbsp;
+				You may wrap() or prefix: the values with <kbd>rgb( )</kbd> or <kbd>rgb:</kbd> but that is not necessary.</p></li>
+		<li>various different color-space models including:
+			<ul>
+				<li>CMYK</li>
+				<li>CMY</li>
+				<li>HSV / HSB</li>
+				<li>HSL</li>
+				<li>HCG</li>
+				<li>Hue ←&nbsp; define only a hue-angle-value and see the full-color (fully chromatic) shade of the hue.</li>
+				<li>XYZ →&nbsp; (Observer = 2°, Illuminant = D65) <kbd>0 ≤ X ≤ 95.047</kbd>, <kbd>0 ≤ Y ≤ 100</kbd>, <kbd>0 ≤ Z ≤ 108.883</kbd></li>
+			</ul>
+				<p>Use models by wrapping() or prefixing: their given values.&nbsp;
+				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %);
+				except Hue values are given in angular values (starting at 3:00 and going counter-clockwise) using one of the following units:
+				(the default unit used when none is specified is found on the MasterColorPicker “options” panel)</p>
+			<ul>
+				<li>in degrees (<kbd>0°—360°</kbd> ← postfixed using the <kbd>°</kbd> symbol or “<kbd>deg</kbd>”).</li>
+				<li>in radians (<kbd>0ʳ—2π≈6.28319ʳ</kbd> ← postfixed using the <kbd>ʳ</kbd> symbol or “<kbd>rad</kbd>”).</li>
+				<li>in gradians (<kbd>0grad—400grad</kbd> ← postfixed using “<kbd>grad</kbd>”).</li>
+				<li>in % of a turn (<kbd>0%—100%</kbd> ← postfixed using the <kbd>%</kbd> symbol).</li>
+				<li>of a turn (<kbd>0●—1●</kbd> ← postfixed using the <kbd>●</kbd> symbol or “<kbd>turn</kbd>”).</li>
+			</ul>
+			<ul class='keybrd'>
+				<li>The “degrees” <kbd>°</kbd> symbol may be entered by typing <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>5%</span></kbd></li>
+				<li>The “radians” <kbd>ʳ</kbd> symbol may be entered by typing <kbd><span>CTRL</span>+<span>R</span></kbd></li>
+				<li>The “turn” <kbd>●</kbd> symbol may be entered by typing <kbd><span>CTRL</span>+<span>1!</span></kbd></li>
+			</ul></li>
+		<li>Any of the available color-table colors.&nbsp;
+				Colors should be prefixed: or wrapped() with the appropriate color-table name.&nbsp;
+				<acronym>HTML</acronym>–<acronym>CSS</acronym> colors do not need to be wrapped or prefixed.</li>
+	</ul>
+	<h4>Keyboard shortcuts:</h4>
+	<p>See also the Hue-Angle Symbols shortcuts above.</p>
+	<dl>
+		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>CTRL</span>+<span>.></span></kbd></dt>
+		<dd>Tab to the first input box in the top panel or next panel.</dd>
+
+		<dt><kbd><span>F1</span></kbd></dt>
+		<dd>Shows the ☺Help☺ panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.</dd>
+
+		<dt><kbd><span>F2</span></kbd></dt>
+		<dd>Shows the MyPalette panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
+				If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F2</span></kbd>
+				copies that color to the next open MyPalette entry.</dd>
+
+		<dt><kbd><span>F3</span></kbd></dt>
+		<dd>Shows the Color-Space Lab panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
+				If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F3</span></kbd>
+				syncs the Color-Space Lab with that color.</dd>
+
+		<dt><kbd><span>F4</span></kbd></dt>
+		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.</dd>
+
+		<dt><kbd><span>CTRL</span>+<span>F7</span></kbd></dt>
+		<dd>If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F7</span></kbd>
+				syncs the Thesaurus with that color.</dd>
+
+	</dl>
+	<h5>Examples:</h5>
+	<ul>
+		<li>These all give the same <span style='color: red;'>red</span> color:
+			<ul>
+				<li><kbd>255 0 0</kbd></li>
+				<li><kbd>rgb (255 0 0)</kbd></li>
+				<li><kbd>rgb(255, 0; 0)</kbd></li>
+				<li><kbd>#FF000</kbd></li>
+				<li><kbd>ff0000</kbd></li>
+				<li><kbd>HCG(0deg, 100, 50)</kbd></li>
+				<li><kbd>HSL: 0°, 100%, 50%</kbd></li>
+				<li><kbd>HSV: 0° 100% 100</kbd></li>
+				<li><kbd>red</kbd></li>
+				<li><kbd>HTML: red</kbd></li>
+				<li><kbd>X11( RED )</kbd></li>
+			</ul>
+		</li>
+		<li>These all give the same <span style='color: lightSkyBlue;'>blueish</span> color:
+			<ul>
+				<li><kbd>135; 206; 250</kbd></li>
+				<li><kbd>RGB (135, 206 250)</kbd></li>
+				<li><kbd>RGB: 135; 206; 250</kbd></li>
+				<li><kbd>#87cefa</kbd></li>
+				<li><kbd>87ceFA</kbd></li>
+				<li><kbd>hcg(202.96deg, 45.098% 96.429%)</kbd></li>
+				<li><kbd>hsl:56.3768%,92,75.49</kbd></li>
+				<li><kbd>hsv ( .563768turn ; 46% ; 98.039% )</kbd></li>
+				<li><kbd>lightSkyBlue</kbd></li>
+				<li><kbd>html (LiGHTSKyBLue)</kbd></li>
+				<li><kbd>X11:lIghtskYblUE</kbd></li>
+			</ul>
+		</li>
+	</ul>
+	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
+	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019 by Joe Golembieski, SoftMoon-WebWare
+		 ( <kbd>http://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
+	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1998
+		 ( <kbd>http://safecolours.rigdenage.com/</kbd> ).&nbsp;
+		 The Websafe-Color Interpolator color-blind filter function
+		 Copyright © 2019 by Joe Golembieski, SoftMoon-WebWare.</p>
+	<p>The Wickline Color Blindness Simulation algorithmic filter function is
+     Copyright © 2000-2001 by Matthew Wickline and the
+     Human-Computer Interaction Resource Network.&nbsp;
+     It is used with the permission of Matthew Wickline and <abbr>HCIRN</abbr>,
+     and is freely available for non-commercial use.&nbsp; For commercial use, please
+     contact the Human-Computer Interaction Resource Network ( <kbd>http://hcirn.com/</kbd> ).</p>
  </div>
-<pre></pre></div><!--  do not separate or modify this line  -->
+</div><!--  close  help  -->
+
+
+
+<div id='paletteLoadingAlert'><div>
+ <h3>Loading Palettes:</h3>
+ <p>Please Wait</p>
+<div></div></div></div><!--  do not separate or modify this line  -->
 
 
 </section><!--  close  MasterColorPicker  HTML  -->
 
 
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer='true'></script>
-<script type="text/javascript" src="color-pickers/SoftMoon-WebWare/color-space_autoReformatter.js" defer='true'></script>
+<!--  script type="text/javascript" src="color-pickers/SoftMoon-WebWare/color-space_autoReformatter.js" defer='true'></script  -->
 <script type="text/javascript">
 window.addEventListener('load', function()  {
-	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);  //see files:  MasterColorPicker2.js → rgb.js
-	SoftMoon.WebWare.activateColorSpaceFormatConverters(function() {return MasterColorPicker.registeredTargets});  //see file: color-space_autoReformatter.js
+	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);  //see files:  MasterColorPicker2.js → RGB_Calc.js
+	//SoftMoon.WebWare.activateColorSpaceFormatConverters(function() {return MasterColorPicker.registeredTargets});  //see file: color-space_autoReformatter.js
 /*@cc_on
 	@if (@_jscript)
 		if (parseInt(navigator.userAgent.match( /MSIE ([0-9]+)[^0-9]/ )[1]) < 10)
