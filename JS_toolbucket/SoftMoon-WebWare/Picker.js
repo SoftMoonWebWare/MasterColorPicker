@@ -1,5 +1,7 @@
-﻿// SoftMoon.WebWare.Picker.js Beta-2.5.0 release 1.6.0  March-26-2015  by SoftMoon-WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015 Joe Golembieski, SoftMoon-WebWare
+﻿//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
+
+// SoftMoon.WebWare.Picker.js Beta-2.6.0 release 1.7.0  January 21, 2019  by SoftMoon-WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -14,8 +16,6 @@
 
 		You should have received a copy of the GNU General Public License
 		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
-
-//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
 // requires SoftMoon-WebWare’s UniDOM package.
 
@@ -169,8 +169,11 @@ SoftMoon.WebWare.Picker.CLASSNAMES={
 SoftMoon.WebWare.Picker.prototype.setTopPanel=function(panel, rotate)  {
 	if (panel===this.panels[this.panels.length-1])  return;
 	if (rotate)  {rotate=this.panels.pop();  this.panels.unshift(rotate);}
-	var i=0, tc, rc=RegExp('\\b(' + this.classNames.panelLevel + '[0-9]+|' + this.classNames.topPanel + '|' + this.classNames.activePanel + ')\\b', 'g');
-	if (panel)  {
+	var i, tc, rc=RegExp('\\b(' + this.classNames.panelLevel + '[0-9]+|' + this.classNames.topPanel + '|' + this.classNames.activePanel + ')\\b', 'g');
+	for (i=0; i<this.panels.length; i++)  {
+		UniDOM.generateEvent(this.panels[i], 'onPickerLevelChange',
+			{canBubble: false,  userArgs: {Picker: this, newTopPanel: panel, rotate: rotate}});  }
+	if (panel)  { i=0;
 		while (panel!==this.panels[i]  &&  i<this.panels.length)  {i++;}
 		this.panels.splice(i, 1);  this.panels.push(panel);  }  // note that if “panel” was never registered, it will be added to the “panels” array
 	for (i=0; i<this.panels.length; i++)  {
