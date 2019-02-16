@@ -8,7 +8,7 @@
 <script type='text/javascript' src='JS_toolbucket/Math+++.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!-- supports RainbowMaestro -->
-<script type="text/javascript" src="JS_Toolbucket/skratchdot.Wickline.colorbilnd_converter.js" defer></script><!-- supports RainbowMaestro -->
+<script type="text/javascript" src="JS_Toolbucket/skratchdot.Wickline.colorblind_converter.js" defer></script><!-- supports RainbowMaestro -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
 
 <!-- div id='MasterColorPicker_debugLog'></div>
