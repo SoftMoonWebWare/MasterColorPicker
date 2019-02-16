@@ -1,3 +1,6 @@
+February 2019:
+same bug, different error message:
+
 August 6, 2015:
 I just realized Google"s chrome has a problem with the stylesheet "object" when using the desktop version.  This causes an error and the ColorSpace Lab is unable to update the hue-range-handle (which can omly be done via a stylesheet).
 If we update the  JS_toolbox/Stylesheet.js  file to this:
