@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// RGB_Calc.js  release 1.0.0  December 26, 2018  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.1.1  August 31, 2019  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018 Joe Golembieski, SoftMoon WebWare
 
@@ -98,7 +98,7 @@ RegExp.hexa4= new window.RegExp( /^\s*#?([0-9A-F]{4})\s*$/i );
 
 
 ;(function()  {
-var sep='[, \t]';
+var sep='[,; \t]';
 
 //var f='\\s*0*((?:0|1|\\.[0-9]+)|(?:(?:100|[0-9]{1,2}(?:\\.[0-9]*)?|\\.[0-9]+)%))\\s*';    //no leading zeros in factors <1  (extras truncated)
 	var f='\\s*0*?((?:0|1|0?\\.[0-9]+)|(?:(?:100|[0-9]{1,2}(?:\\.[0-9]*)?|\\.[0-9]+)%))\\s*';  //one leading zero allowed in factors <1  (extras truncated)
@@ -219,7 +219,7 @@ SoftMoon.WebWare.loadPalettes=function(   // ←required  ↓all optional on nex
 				connector.getFile(files[i]);  }  }
 		$onIndexLoad(files, paletteIndex, this.responseText);  };
 	paletteIndexConnection.loadError=$loadError;
-	paletteIndexConnection.onmultiple=$onMultiple;
+	paletteIndexConnection.onMultiple=$onMultiple;
 	connector.getFile(paletteIndexConnection);
 	return files;  }
 
@@ -358,10 +358,16 @@ ColorWheel_Color.prototype.toString=function(format)  {
 			hueAngleUnit=this.config.hueAngleUnit;
 	if (s=format.match( /deg|°|g?rad|ʳ|%|turn|●|factor/ ))  hueAngleUnit=s[0];
 	if (hueAngleUnit==='factor')  hueAngleUnit='turn';
-	if (this.config.useAngleUnitSymbol  &&  hueAngleUnit.match( /deg|rad|turn/ ))  switch (hueAngleUnit)  {
-		case 'deg':  hueAngleUnit="°";  break;
-		case 'rad':  hueAngleUnit="ʳ"; break;
-		case 'turn': hueAngleUnit="●";  }
+	if (typeof this.config.useAngleUnitSymbol === 'boolean')
+		switch (hueAngleUnit)  {
+		case 'deg':
+		case "°":  hueAngleUnit= this.config.useAngleUnitSymbol ? "°" : 'deg';
+		break;
+		case 'rad':
+		case "ʳ":  hueAngleUnit= this.config.useAngleUnitSymbol ? "ʳ" : 'rad';
+		break;
+		case 'turn':
+		case "●":  hueAngleUnit= this.config.useAngleUnitSymbol ? "●" : 'turn';  }
 	s=Math.roundTo(this.hue*hueAngleUnitFactors[hueAngleUnit], hueUnitPrecision[hueAngleUnit]) + hueAngleUnit + ", ";
 	if (format.match( /factor/ )  &&  !format.match( /percent.*factor/ ) )
 		s+=Math.roundTo(arr[1], 3) + ', ' + Math.roundTo(arr[2], 3);
@@ -584,7 +590,7 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 // • as three distinct RGB values passed in as an array indexed 0,1,2 (see note above)
 // • as a string representing the 6-digit hexadecimal RGB color value (with or without the leading #)
 // • as a string of three comma-separated RGB values "v¹, v², v³" (see RegExp section at top)
-// • as a string of four comma-separated CMYK values "v¹, v², v³, v4" (see RegExp section at top)
+// • as a string of four comma-separated RGBA values "v¹, v², v³, v4" (see RegExp section at top)
 // • as a string — standard formats for naming colors using color-models or Palettes (see RegExp section at top)
 // • as a string specifying a color name on found the default Palette (the default Palette must be loaded)
 //    (note that the HTML palette is the initial (default) “default Palette”)
@@ -685,7 +691,7 @@ RGB_Calc.ConfigStack.prototype={
 //  you may output hues with a:
 //   • symbol: (0° - 359.999…°)  ← when applicable for the hue-angle-unit
 //   • textual suffix: (0deg - 359.999deg)
-	useAngleUnitSymbol: true,
+	useAngleUnitSymbol: null,
 
 //  when outputting RGB Hex values, this flag determines the format:  A1B2C3  or  #A1B2C3
 	useHexSymbol: true,
