@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// MasterColorPicker2.js   ~release ~2.0.02-alpha   February 13, 2019   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.0.03-alpha   August 31, 2019   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -278,7 +278,7 @@ SoftMoon.WebWare.x_ColorPicker.pickFilter=function(x_Colors)  {
 			format={
 		stringFormat: {value:this.outputFormat},
 		hueAngleUnit: {value:this.hueAngleUnit},
-		useAngleUnitSymbol: {value:false}  };
+		useAngleUnitSymbol: {value:null}  };
 	if (x_Colors[mode]  &&  x_Colors[mode].config)  x_Colors[mode].config.push(format);
 	switch (mode)  {
 		case 'HEX':  x_Colors.RGB.config.useHexSymbol=this.useHexSymbol;
@@ -311,9 +311,9 @@ SoftMoon.WebWare.x_ColorPicker.toSystemClipboard=function(colorText, event)  {
 		try {navigator.clipboard.writeText(colorText);}
 		catch(e) {
 			var inp=this.interfaceTarget || this.dataTarget;
-			setTimeout(
-				function() {inp.select();  document.execCommand("copy");  inp.setSelectionRange(imp.value.length, inp.value.length);},
-				0);  }  }
+			inp.value=colorText;  inp.select();
+			document.execCommand("copy");
+			inp.setSelectionRange(inp.value.length, inp.value.length);  }  }
 	return colorText;  }
 
 
@@ -743,7 +743,7 @@ SoftMoon.WebWare.BeezEyeColor=function(h, s, v)  { // degrees, percent, percent 
 	this.model=model;
 	h/=360;  s/=100;  v/=100;
 	MasterColorPicker.RGB_calc.config.push({inputAsFactor: {value: true}});
-	SoftMoon.WebWare.HSV_Color.config.CMYKFactory=MasterColorPicker.RGB_calc.config.CMYKfactory;
+	SoftMoon.WebWare.HSV_Color.config.CMYKFactory=SoftMoon.WebWare.CMYK_Color;
 	if (model==='CMYK')  {
 		this.CMYK=SoftMoon.WebWare.HSV_Color.to_CMYK([h, s, v]);
 		this.RGB=MasterColorPicker.RGB_calc.from.cmyk(this.CMYK.cmyk);  }
