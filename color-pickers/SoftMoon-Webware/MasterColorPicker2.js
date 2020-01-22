@@ -1,7 +1,7 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// MasterColorPicker2.js   ~release ~2.0.03-alpha   August 31, 2019   by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019 Joe Golembieski, SoftMoon WebWare
+// MasterColorPicker2.js   ~release ~2.0.04-alpha   January 22, 2020   by SoftMoon WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -168,6 +168,8 @@ var userOptions;
 			var p=userOptions.palette_select.getSelected();
 			if (!(p instanceof Array))
 				SoftMoon.WebWare.x_ColorPicker.registeredPickers[p.value].putOptions();  });
+
+		Object.defineProperty(MasterColorPicker, "userOptions_HTML", {value: userOptions});
 
   });  //close  window onload
 
@@ -741,10 +743,10 @@ SoftMoon.WebWare.BeezEyeColor=function(h, s, v)  { // degrees, percent, percent 
 	for (i=0; i<settings.model.length; i++)  {
 		if (settings.model[i].checked)  {model=settings.model[i].value.toUpperCase();  break;}  }
 	this.model=model;
-	h/=360;  s/=100;  v/=100;
+	h/=360; s/=100;  v/=100;
 	MasterColorPicker.RGB_calc.config.push({inputAsFactor: {value: true}});
-	SoftMoon.WebWare.HSV_Color.config.CMYKFactory=SoftMoon.WebWare.CMYK_Color;
 	if (model==='CMYK')  {
+		SoftMoon.WebWare.HSV_Color.config.CMYKFactory=SoftMoon.WebWare.CMYK_Color;
 		this.CMYK=SoftMoon.WebWare.HSV_Color.to_CMYK([h, s, v]);
 		this.RGB=MasterColorPicker.RGB_calc.from.cmyk(this.CMYK.cmyk);  }
 	else  {
@@ -1977,9 +1979,10 @@ SoftMoon.WebWare.ColorSpaceLab.getColor=function()  {return new SoftMoon.WebWare
 SoftMoon.WebWare.SpaceLab_Colors=function()  {
 	this.RGB= new SoftMoon.WebWare.RGBA_Color(settings.Rgb_byte.value, settings.rGb_byte.value, settings.rgB_byte.value, {useHexSymbol:true});
 	this.model='RGB';
-	this.HSL= new SoftMoon.WebWare.HSL_Color(parseFloat(settings.Hue_degrees.value), parseFloat(settings.hSl_percent.value)/100, parseFloat(settings.hsL_percent.value)/100);
-	this.HSV= new SoftMoon.WebWare.HSV_Color(parseFloat(settings.Hue_degrees.value), parseFloat(settings.hSv_percent.value)/100, parseFloat(settings.hsV_percent.value)/100);
-	this.HCG= new SoftMoon.WebWare.HCG_Color(parseFloat(settings.Hue_degrees.value), parseFloat(settings.hCg_percent.value)/100, parseFloat(settings.hcG_percent.value)/100);
+	var haf=SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors[SoftMoon.WebWare.ColorSpaceLab.hueAngleUnit];
+	this.HSL= new SoftMoon.WebWare.HSL_Color(parseFloat(settings.Hue_degrees.value)/haf, parseFloat(settings.hSl_percent.value)/100, parseFloat(settings.hsL_percent.value)/100);
+	this.HSV= new SoftMoon.WebWare.HSV_Color(parseFloat(settings.Hue_degrees.value)/haf, parseFloat(settings.hSv_percent.value)/100, parseFloat(settings.hsV_percent.value)/100);
+	this.HCG= new SoftMoon.WebWare.HCG_Color(parseFloat(settings.Hue_degrees.value)/haf, parseFloat(settings.hCg_percent.value)/100, parseFloat(settings.hcG_percent.value)/100);
 	this.CMYK= new SoftMoon.WebWare.CMYK_Color(parseFloat(settings.Cmyk_percent.value)/100, parseFloat(settings.cMyk_percent.value)/100, parseFloat(settings.cmYk_percent.value)/100, parseFloat(settings.cmyK_percent.value)/100);
 	}
 
@@ -2000,16 +2003,11 @@ SoftMoon.WebWare.ColorSpaceLab.setColor=function(CLR, space)  {
 		settings.Rgb_byte.value= settings.Rgb_range.value= Math.roundTo(CLR.RGB.red, SoftMoon.WebWare.ColorSpaceLab.rgbPrecision);
 		settings.rGb_byte.value= settings.rGb_range.value= Math.roundTo(CLR.RGB.green, SoftMoon.WebWare.ColorSpaceLab.rgbPrecision);
 		settings.rgB_byte.value= settings.rgB_range.value= Math.roundTo(CLR.RGB.blue, SoftMoon.WebWare.ColorSpaceLab.rgbPrecision);
-/*
-		if (window.fdSlider)  {
-			fdSlider.updateSlider('MasterColorPicker_Rgb_range');
-			fdSlider.updateSlider('MasterColorPicker_rGb_range');
-			fdSlider.updateSlider('MasterColorPicker_rgB_range');  }
-*/
+
 		settings.Rgb_percent.value=Math.roundTo(CLR.RGB.red/2.55, 5);
 		settings.rGb_percent.value=Math.roundTo(CLR.RGB.green/2.55, 5);
 		settings.rgB_percent.value=Math.roundTo(CLR.RGB.blue/2.55, 5);
-		settings.Rgb_hex.value=(CLR.RGB.hex).substr(1,2);
+		settings.Rgb_hex.value=CLR.RGB.hex.substr(1,2);
 		settings.rGb_hex.value=CLR.RGB.hex.substr(3,2);
 		settings.rgB_hex.value=CLR.RGB.hex.substr(5,2);  }
 
@@ -2022,38 +2020,22 @@ SoftMoon.WebWare.ColorSpaceLab.setColor=function(CLR, space)  {
 			Math.roundTo(CLR.HSV.hue*SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors[hau], SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau]);
 		settings.Hue_range.value=
 			Math.roundTo(CLR.HSV.hue*360, SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['deg']);
-//		if (window.fdSlider)  fdSlider.updateSlider('MasterColorPicker_Hue_range');
 
 		settings.Hue_percent.value= Math.roundTo(parseFloat(CLR.HSV.hue)*100, SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['%']);  }
 
 	if (space!=='hsb' && space!=='hsv')  {
 		settings.hSv_percent.value= settings.hSv_range.value= Math.roundTo(CLR.HSV.saturation*100, 5);
 		settings.hsV_percent.value= settings.hsV_range.value= Math.roundTo(CLR.HSV.value*100, 5);  }
-/*
-		if (window.fdSlider)  {
-			fdSlider.updateSlider('MasterColorPicker_hSv_range');
-			fdSlider.updateSlider('MasterColorPicker_hsV_range');  }  }
-*/
 
 	if (space!=='hsl')  {
 		if (!CLR.HSL)  CLR.HSL=RGB_Calc.to.hsl(CLR.RGB.rgb);
 		settings.hSl_percent.value= settings.hSl_range.value= Math.roundTo(CLR.HSL.saturation*100, 5);
 		settings.hsL_percent.value= settings.hsL_range.value= Math.roundTo(CLR.HSL.lightness*100, 5);  }
-/*
-		if (window.fdSlider)  {
-			fdSlider.updateSlider('MasterColorPicker_hSl_range');
-			fdSlider.updateSlider('MasterColorPicker_hsL_range');  }  }
-*/
 
 	if (space!=='hcg')  {
 		if (!CLR.HCG)  CLR.HCG=RGB_Calc.to.hcg(CLR.RGB.rgb);
 		settings.hCg_percent.value= settings.hCg_range.value= Math.roundTo(CLR.HCG.chroma*100, 5);
 		settings.hcG_percent.value= settings.hcG_range.value= Math.roundTo(CLR.HCG.gray*100, 5);  }
-/*
-		if (window.fdSlider)  {
-			fdSlider.updateSlider('MasterColorPicker_hCg_range');
-			fdSlider.updateSlider('MasterColorPicker_hcG_range');  }  }
-*/
 
 	if (space!=='cmyk')  {
 		if (!CLR.CMYK)  CLR.CMYK=RGB_Calc.to.cmyk(CLR.RGB.rgb);
@@ -2061,13 +2043,6 @@ SoftMoon.WebWare.ColorSpaceLab.setColor=function(CLR, space)  {
 		settings.cMyk_percent.value= settings.cMyk_range.value= Math.roundTo(CLR.CMYK.magenta*100, 5);
 		settings.cmYk_percent.value= settings.cmYk_range.value= Math.roundTo(CLR.CMYK.yellow*100, 5);
 		settings.cmyK_percent.value= settings.cmyK_range.value= Math.roundTo(CLR.CMYK.black*100, 5);  }
-/*
-		if (window.fdSlider)  {
-			fdSlider.updateSlider('MasterColorPicker_Cmyk_range');
-			fdSlider.updateSlider('MasterColorPicker_cMyk_range');
-			fdSlider.updateSlider('MasterColorPicker_cmYk_range');
-			fdSlider.updateSlider('MasterColorPicker_cmyK_range');  }  }
-*/
 
 	RGB_Calc.config.pop();
 	SoftMoon.WebWare.ColorSpaceLab.update_Hue_rangeHandle();
