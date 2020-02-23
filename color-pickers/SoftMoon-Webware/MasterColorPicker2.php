@@ -9,15 +9,15 @@
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!-- supports RainbowMaestro -->
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline.colorblind_converter.js" defer></script><!-- supports RainbowMaestro -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.4.0.js' defer></script><!-- supports MyPalette & ColorFilter -->
 
 <!-- div id='MasterColorPicker_debugLog'></div>
 <button onclick="MasterColorPicker.debug.clear();" style='position: relative; z-index: 10000'>Clear Log</button><!--  -->
 
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
-<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019 Joe Golembieski, SoftMoon-WebWare
-      release x.x
+<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
+      release x.x  Feb 22, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -97,8 +97,8 @@ but to retain the settings this file may be included inside an existing web <for
 	onchange='MasterColorPicker.useHexSymbol=this.checked;' />use # Hex symbol?</label>
 	<!--  label>¿<input type='checkbox' name='MasterColorPicker_selectInputboxText' value='true' <?php
 			if (false  and  $_POST['MasterColorPicker_selectInputboxText']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>select choice in inputboxes?</label   -->
-	<label>¿<input type='checkbox' name='MasterColorPicker_copyColorToClipboard' value='true' onchange='MaterColorPicker.copyToClipboard=this.checked;' <?php
-			if ($_POST['MasterColorPicker_copyColorToClipboard']==='true'  or  !isset($_POST['palette_select']))  echo 'checked="checked" '; ?>/>copy selected color to system clipboard?</label>
+	<label>¿<input type='checkbox' name='MasterColorPicker_copyColorToClipboard' value='true' onchange='MasterColorPicker.copyToClipboard=this.checked;' <?php
+			if ($_POST['MasterColorPicker_copyColorToClipboard']==='true')  echo 'checked="checked" '; ?>/>copy selected color to system clipboard?</label>
 </fieldset>
 
 <fieldset class='pickerOptions'>
@@ -173,7 +173,7 @@ or pin it to the window when it is pinned to the page.
 <fieldset>
 <button name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
 <button name='MasterColorPicker_MyPalette_delete'>delete selected</button>
-<button name='MasterColorPicker_MyPalette_save' title='Under Construction: no functionality'>save palette</button>
+<button name='MasterColorPicker_MyPalette_port' title='Under Construction: no functionality'>import/export palette</button>
 <label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette'>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='double-click')  echo " selected='selected'"; ?>>double-click</option>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='shift-click')  echo " selected='selected'"; ?>>shift-click</option>
@@ -182,13 +182,41 @@ or pin it to the window when it is pinned to the page.
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='never')  echo " selected='selected'"; ?>>never</option>
 	</select></label>
 </fieldset>
+<fieldset class='portDialog' disabled='disabled'>
+	<fieldset class='portMode'>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_portMode' value='import' />Import a palette to “MyPalette”</label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_portMode' value='export' />Export this “MyPalette”</label>
+	</fieldset>
+	<fieldset class='port'><legend><span class='import'>import from:</span><span class='export'>save to:</span></legend>
+		<script type='text/javascript'> if (window.location.protocol==='http:')  document.writeln(
+		"<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='server' />" +
+			(window.location.hostname==='localhost' ? "your local server (“localhost”)" : (window.location.host+" —(i.e. “the cloud”)")) + "</label>"  );
+		</script>
+		<fieldset>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='local' />this computer’s local file system</label>
+		<label class='import local' disabled='disabled'><input type='file' name='MasterColorPicker_MyPalette_import' disabled='disabled' />← drag files here</label>
+		</fieldset>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='browser' />this browser’s private storage <span><strong>¡Note</strong> the browser may delete it at any time!</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='current' />a current Palette Table <span><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</span></label>
+	</fieldset>
+	<fieldset class='paletteMeta export' disabled='disabled'>
+		<label>Palette Name: <input type='text' name='MasterColorPicker_MyPalette_name' /></label>
+		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoload' disabled='disabled' /> auto-load this palette when MasterColorPicker starts?</label>
+		<fieldset><legend>palette headers:</legend>
+		<textarea name='MasterColorPicker_MyPalette_headers[0]' rows='1' cols='50'></textarea>
+		</fieldset>
+		<fieldset><legend>palette footers:</legend>
+		<textarea name='MasterColorPicker_MyPalette_footers[0]' rows='1' cols='50'></textarea>
+		</fieldset>
+	</fieldset>
+</fieldset>
 <table>
 	<thead>
 	<tr><th></th>
 		<th><label for='MasterColorPicker_MyPalette_[0][0][definition]'>color definition:</label></th>
 		<th><label for='MasterColorPicker_MyPalette_[0][0][name]'>name:</label></th></tr>
 	</thead>
-	<tbody>
+	<tbody class='mainPalette'>
 	<tr>
 		<th colspan='3'>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll' />select all</label>
@@ -215,13 +243,24 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' /></td></tr>
 	</tbody>
 </table>
-<ul class="MyPalette_ColorGenieMenu">
-	<li>insert new color</li>
-	<li>copy to:<ul><li>new clip</li></ul></li>
-	<li>cut to:<ul><li>new clip</li></ul></li>
-	<li>paste from:<ul><li>all clips</li></ul></li>
-	<li>delete</li>
-</ul>
+<menu class='MyPalette_ColorGenieMenu' standardItems='genie' title="">
+<!--  The JavaScript is greatly dependent on the structure and text-content in this section.
+			You may safely modify the content of the ‹span› tag  -->
+	<li>insert:
+		<span class='genie'>new color</span>
+		<ul>
+			<li class='genie'>all clips</li>
+		</ul>
+	</li>
+	<li>copy to:<ul>
+		<li class='genie'>new clip</li></ul></li>
+	<li>cut to:<ul>
+		<li class='genie'>new clip</li></ul></li>
+	<li>paste from:<ul>
+		</ul></li>
+	<li title='triple-click'>delete</li>
+	<li title='triple-click'>clear clipboard</li>
+</menu>
 </div><!--  close  MyPalette  -->
 
 
@@ -244,7 +283,7 @@ or pin it to the window when it is pinned to the page.
 	</tr>
 	</thead>
 	<tbody>
-	<tr>
+	<tr class='filterColor'>
 		<td><input type='text' name='MasterColorPicker_Filter_color[0]'
 			interfaceTarget='true' swatch='this.nextSibling' value='<?php
 			echo ($_POST['MasterColorPicker_Filter_Color'][0]!="") ? $_POST['MasterColorPicker_Filter_Color'][0] : ""; ?>' /><span class='swatch'></span></td>
@@ -757,7 +796,7 @@ tri-color?</label>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
 	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019 by Joe Golembieski, SoftMoon-WebWare
 		 ( <kbd>http://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
-	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1998
+	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
 		 ( <kbd>http://safecolours.rigdenage.com/</kbd> ).&nbsp;
 		 The Websafe-Color Interpolator color-blind filter function
 		 Copyright © 2019 by Joe Golembieski, SoftMoon-WebWare.</p>

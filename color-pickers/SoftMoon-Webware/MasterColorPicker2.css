@@ -1,5 +1,5 @@
 ﻿/*	charset=UTF-8
- * for MasterColorPicker release 2.0.02  February 13, 2019  by SoftMoon-WebWare
+ * for MasterColorPicker release 2.0.03  February 22, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -282,6 +282,17 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help li:nth-child(3) ul:first-child li kbd {
 	/* text shows XYZ limits */
 	padding-left: 1.382em; }
+/* the browsers insist on inserting a line break before this <address> element, so I’m not using it; <kbd> instead */
+/* the element-inspector console shows them as inline-static ………? */
+/* note they do not do that for the  #MasterColorPicker_options header address  */
+#MasterColorPicker_Help address {
+	display: inline;
+	position: static;
+	margin: 0;
+	padding: 0;
+	font-family: "consolas", monospace;
+	font-style:  normal;
+	font-variant: normal; }
 
 #MasterColorPicker p.underConstruction {
 	color: red !important;
@@ -504,15 +515,62 @@ select#palette_select {
 	transform: rotate(270deg);
 	-webkit-transform: rotate(270deg);
 	-ms-transform: rotate(270deg); }
-#MasterColorPicker_MyPalette fieldset,
+#MasterColorPicker_MyPalette > fieldset,
 #MasterColorPicker_MyPalette p {
 	margin-left: 1.618em; }
-#MasterColorPicker_MyPalette fieldset label {
+#MasterColorPicker_MyPalette p+fieldset label {
 	display: block;
 	padding-top: 0.382em;
 	text-align: right; }
 #MasterColorPicker_MyPalette button {
 	margin-left: .618em; }
+#MasterColorPicker_MyPalette .portDialog:disabled,
+#MasterColorPicker_MyPalette .portDialog .import,
+#MasterColorPicker_MyPalette .portDialog .export,
+#MasterColorPicker_MyPalette .portDialog .browser,
+#MasterColorPicker_MyPalette .portDialog .local,
+#MasterColorPicker_MyPalette .portDialog .server,
+#MasterColorPicker_MyPalette .portDialog .current {
+	display: none; }
+#MasterColorPicker_MyPalette .portDialog.import .import,
+#MasterColorPicker_MyPalette .portDialog.export .export {
+	display: block; }
+#MasterColorPicker_MyPalette .portMode label {
+	display: inline; }
+#MasterColorPicker_MyPalette .port label {
+	display: block;
+	position: relative;
+	z-index: 1; }
+#MasterColorPicker_MyPalette .port label:hover {
+	z-index: 2; }
+#MasterColorPicker_MyPalette .port label span {
+	display: none; }
+#MasterColorPicker_MyPalette .port label:hover span {
+	display: block;
+	position: absolute;
+	top: 100%;
+	left: 38.2%;
+	padding: 0 1em .618em 1em;
+	background-color: maroon;
+	color: white; }
+#MasterColorPicker_MyPalette .port fieldset {
+	margin: 0;
+	padding: 0;
+	border: none; }
+#MasterColorPicker_MyPalette .portDialog.import .port .local,
+#MasterColorPicker_MyPalette .portDialog.export .paletteMeta .browser,
+#MasterColorPicker_MyPalette .portDialog.export .paletteMeta .server {
+	display: none; }
+#MasterColorPicker_MyPalette .portDialog.import.local .port .local,
+#MasterColorPicker_MyPalette .portDialog.export.browser .paletteMeta .browser,
+#MasterColorPicker_MyPalette .portDialog.export.server .paletteMeta .server {
+	display: block;  }
+#MasterColorPicker_MyPalette .port .local input[type="file"] {
+	border: 2px solid blue; }
+#MasterColorPicker_MyPalette .paletteMeta	textarea {
+	display:block;
+	max-width: 32em;
+	max-height: 7em; }
 #MasterColorPicker_MyPalette table {
 	margin: 0;
 	padding: 0;
@@ -537,7 +595,7 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody button {
 	cursor: n-resize; }
 body.MCP_dragMyPaletteColor #MasterColorPicker_MyPalette tr:hover td,
 body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th {
-	/*Blink/(Webkit?) browsers: the hover state does not change until the button is released - so this does not work properly*/
+	/*{{now OK in 2020?}} → Blink/(Webkit?) browsers: the hover state does not change until the button is released - so this does not work properly*/
 	border-top: 2px solid red; }
 #MasterColorPicker_MyPalette .isBeingDragged {
 	background-color: #FF7777; }
@@ -579,7 +637,13 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 	border: 1px solid; }
 #MasterColorPicker_MyPalette td input[type="text"] {
 	width: 17em; }
-#MasterColorPicker_MyPalette .dragHandle ul {
+#MasterColorPicker_MyPalette .dragHandle {
+	padding-left: .382em;
+	padding-right: .382em;
+	font-weight: bold; }
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu ul {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -588,16 +652,20 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 	list-style-type: none;
 	cursor: default;
 	padding: .162em .27em;
-	z-index: 13; }
-#MasterColorPicker_MyPalette .dragHandle ul ul {
+	z-index: 13;
 	display: none; }
-#MasterColorPicker_MyPalette .dragHandle ul li:hover {
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li {
 	position: relative; }
-#MasterColorPicker_MyPalette .dragHandle ul li:hover ul {
-	display: block;
-	position: absolute;
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu ul {
 	top: -.162em;
 	left: 100%; }
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span+ul {
+	top: 100%; }
+#MasterColorPicker_MyPalette .dragHandle:hover .MyPalette_ColorGenieMenu,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover span,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover ul {
+	display: block; }
 
 
 
