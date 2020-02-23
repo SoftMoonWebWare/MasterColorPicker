@@ -33,32 +33,6 @@ p img {
 	display: block; }
 </style>
 
-<!--[if lt IE 10]>
-<script type='text/javascript' src="JS_toolbucket/freqdec-fd-slider-01084d3/js/fd-slider_SM-enhanced.js"></script>
-<link rel="stylesheet" type="text/css" media="screen, projection" href="JS_toolbucket/freqdec-fd-slider-01084d3/css/fd-slider_SM-enhanced-compatible.css" />
-<link rel="stylesheet" type="text/css" media="screen, projection" href="color-pickers/SoftMoon-WebWare/MasterColorPicker_MSIE9-patch.css" />
-<style type="text/css">
-#MasterColorPicker_mainPanel {
-	top: 2.618em;
-	padding-top: 0; }
-</style>
-<![endif]-->
-
-<!--[if IE]>
-<style type="text/css">
-#MasterColorPicker_options.activePickerPanel > div div {display: block;}
-
-#MasterColorPicker_mainPanel table {border-top: none;}
-#MasterColorPicker_mainPanel table caption {
-	border: 1px solid;
-	border-bottom: none; }
-#MasterColorPicker_mainPanel table#BeezEye caption {
-	border-right: none; }
-
-legend {color: inherit;}
-</style>
-<![endif]-->
-
 
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM.js'></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js'></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
@@ -69,7 +43,7 @@ legend {color: inherit;}
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js'></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js"></script><!--  supports RainbowMaestro  -->
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline.colorblind_converter.js"></script><!--  supports RainbowMaestro  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js'></script><!--  supports MyPalette & ColorFilter  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.4.0.js'></script><!--  supports MyPalette & ColorFilter  -->
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js"></script>
 
 <!--  use the scripts below if don’t want to use the server-version for palette table files  -->
@@ -95,7 +69,6 @@ window.addEventListener('load', function()  {
 </head>
 
 
-
 <body>
 <input type='MasterColorPicker' id='color-picker_input' />
 <p>created by:
@@ -108,8 +81,8 @@ window.addEventListener('load', function()  {
 
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
-<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.02
+<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
+      release 2.0.04 alpha  February 22, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -257,13 +230,41 @@ or pin it to the window when it is pinned to the page.
 	<option>never</option>
 	</select></label>
 </fieldset>
+<fieldset class='portDialog' disabled='disabled'>
+	<fieldset class='portMode'>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_portMode' value='import' />Import a palette to “MyPalette”</label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_portMode' value='export' />Export this “MyPalette”</label>
+	</fieldset>
+	<fieldset class='port'><legend><span class='import'>import from:</span><span class='export'>save to:</span></legend>
+		<script type='text/javascript'> if (window.location.protocol==='http:')  document.writeln(
+		"<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='server' />" +
+			(window.location.hostname==='localhost' ? "your local server (“localhost”)" : (window.location.host+" —(i.e. “the cloud”)")) + "</label>"  );
+		</script>
+		<fieldset>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='local' />this computer’s local file system</label>
+		<label class='import local' disabled='disabled'><input type='file' name='MasterColorPicker_MyPalette_import' disabled='disabled' />← drag files here</label>
+		</fieldset>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='browser' />this browser’s private storage <span><strong>¡Note</strong> the browser may delete it at any time!</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='current' />a current Palette Table <span><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</span></label>
+	</fieldset>
+	<fieldset class='paletteMeta export' disabled='disabled'>
+		<label>Palette Name: <input type='text' name='MasterColorPicker_MyPalette_name' /></label>
+		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoload' disabled='disabled' /> auto-load this palette when MasterColorPicker starts?</label>
+		<fieldset><legend>palette headers:</legend>
+		<textarea name='MasterColorPicker_MyPalette_headers[0]' rows='1' cols='50'></textarea>
+		</fieldset>
+		<fieldset><legend>palette footers:</legend>
+		<textarea name='MasterColorPicker_MyPalette_footers[0]' rows='1' cols='50'></textarea>
+		</fieldset>
+	</fieldset>
+</fieldset>
 <table>
 	<thead>
 	<tr><th></th>
 		<th><label for='MasterColorPicker_MyPalette_[0][0][definition]'>color definition:</label></th>
 		<th><label for='MasterColorPicker_MyPalette_[0][0][name]'>name:</label></th></tr>
 	</thead>
-	<tbody>
+	<tbody class='mainPalette'>
 	<tr>
 		<th colspan='3'>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll' />select all</label>
@@ -290,13 +291,24 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' /></td></tr>
 	</tbody>
 </table>
-<ul class="MyPalette_ColorGenieMenu">
-	<li>insert new color</li>
-	<li>copy to:<ul><li>new clip</li></ul></li>
-	<li>cut to:<ul><li>new clip</li></ul></li>
-	<li>paste from:<ul><li>all clips</li></ul></li>
-	<li>delete</li>
-</ul>
+<menu class='MyPalette_ColorGenieMenu' standardItems='genie' title="">
+<!--  The JavaScript is greatly dependent on the structure and text-content in this section.
+			You may safely modify the content of the ‹span› tag  -->
+	<li>insert:
+		<span class='genie'>new color</span>
+		<ul>
+			<li class='genie'>all clips</li>
+		</ul>
+	</li>
+	<li>copy to:<ul>
+		<li class='genie'>new clip</li></ul></li>
+	<li>cut to:<ul>
+		<li class='genie'>new clip</li></ul></li>
+	<li>paste from:<ul>
+		</ul></li>
+	<li title='triple-click'>delete</li>
+	<li title='triple-click'>clear clipboard</li>
+</menu>
 </div><!--  close  MyPalette  -->
 
 
@@ -319,9 +331,9 @@ or pin it to the window when it is pinned to the page.
 	</tr>
 	</thead>
 	<tbody>
-	<tr>
-		<td><input type='text' name='MasterColorPicker_Filter_color[0]'
-			interfaceTarget='true' swatch='this.nextSibling' value='' /><span class='swatch'></span></td>
+	<tr class='filterColor'>
+		<td><input type='text' name='MasterColorPicker_Filter_color[0]' value=''
+			interfaceTarget='true' swatch='this.nextSibling' /><span class='swatch'></span></td>
 		<td><input type='text' name='MasterColorPicker_Filter_factor[0]' title='factor (0.0-1.0) or percent (0%-100%)' value='50%'
 			tabTo='s=this.parentNode.parentNode.lastElementChild.firstChild,  (s.disabled && s.getAttribute("tabToTarget")==="true") ? MasterColorPicker.dataTarget : ""' /></td>
 		<td><select name='MasterColorPicker_Filter_apply[0]' tabToTarget='true'><option selected='selected'>add to</option><option>grade to</option><option>sub from</option></select></td>
@@ -822,7 +834,7 @@ tri-color?</label>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
 	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019 by Joe Golembieski, SoftMoon-WebWare
 		 ( <kbd>http://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
-	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1998
+	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
 		 ( <kbd>http://safecolours.rigdenage.com/</kbd> ).&nbsp;
 		 The Websafe-Color Interpolator color-blind filter function
 		 Copyright © 2019 by Joe Golembieski, SoftMoon-WebWare.</p>
