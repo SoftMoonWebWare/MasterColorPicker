@@ -1,3 +1,9 @@
+February 2020:
+this problem described below is now a "feature" of browsers (Chrome, Firefox; etc?), and is not a "bug".
+It is a SecurityError.
+It has become a problem for the desktop version that needs to be remedied.  Likely there will be no work around, and the hue-range-handle will need to be white on the desktop version.
+
+
 February 2019:
 same bug, different error message:
 
@@ -36,5 +42,5 @@ if we use this line instead, we get the same console messages:
 When embedded in the instructions page and served by a local or remote server, this problem with Chrome does not exist; see my website:
 http://softmoon-webware.com/MasterColorPicker_instructions.php
 
-
+now outdated (2-22-2020):
 Firefox does not have this problem at all.  It does seem to have the same layout issues as MSIE9 (which has even more real CSS issues with the current desktop version that I need to address) meaning the problem is more with my CSS than the browser, so I would say Firefox browser is now the champ at making this project work correctly...
