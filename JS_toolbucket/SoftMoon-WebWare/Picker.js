@@ -1,7 +1,7 @@
 ﻿//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// SoftMoon.WebWare.Picker.js Beta-2.6.0 release 1.7.0  January 21, 2019  by SoftMoon-WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019 Joe Golembieski, SoftMoon-WebWare
+// SoftMoon.WebWare.Picker.js Beta-2.6.1 release 1.7.1  February 22, 2020  by SoftMoon-WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -306,7 +306,7 @@ SoftMoon.WebWare.Picker.prototype.registerTargetElement=function(element, Picker
 	UniDOM.addEventHandler(element, 'onfocus', function()  {
 		PickerInstance.dataTargetTabOut=false;
 		PickerInstance.setActivePickerState(true, this);  });
-	UniDOM.addEventHandler(element, 'onTabIn', function()  {
+	UniDOM.addEventHandler(element, 'tabIn', function()  {
 		this.focus();  });
 	UniDOM.addEventHandler(element, 'onblur', function()  {
 /*
@@ -335,21 +335,29 @@ SoftMoon.WebWare.Picker.prototype.registerTargetElement=function(element, Picker
 
 
 
-	//private members for registering “inputs” (TargetElements & InterfaceElements) - to be used with UniDOM.getElements()
+	//private members for registering “inputs” (TargetElements & InterfaceElements) - to be used with UniDOM’s DOM-crawling methods
 	function isInput(e)  {
 		return ( e.nodeType===1  &&  e.type!=='hidden'
 					 &&  (e.nodeName==='INPUT' || e.nodeName==='SELECT' || e.nodeName==='TEXTAREA' || e.nodeName==='BUTTON') );  }
 	function isTabStop(e)  {
 		var ti,
-				isI=( isInput(e)  &&  !e.disabled  &&  (!(ti=e.getAttribute('tabIndex')) || parseInt(ti)>=0) );
-		goDeep.doContinue=!isI;
+				isI=( isInput(e)
+						 &&  !e.disabled
+						 &&  (!(ti=e.getAttribute('tabIndex')) || parseInt(ti)>=0) );
+		if (isI)  goDeep.doContinue=false;
 		return isI;  }
 	function goDeep(e)  { return ( //avoids inputs on non-active pickers
-		arguments.callee.doContinue  // note that getElements() uses this property to completely terminate further searching
-		&&  !e.disabled              // see UniDOM.disable()
-		&&  ( e.id==""  ||  !arguments.callee.picker_select  ||  !UniDOM.hasClass(e, arguments.callee.className)
-			||  arguments.callee.picker_select.isChosenPicker(e) ) );  }
+		goDeep.doContinue  // note that UniDOM’s DOM-crawling methods use this property to completely terminate further searching
+		&&  !e.disabled  // see UniDOM.disable()
+		&&  ( e.id==""  ||  !goDeep.picker_select  ||  !UniDOM.hasClass(e, goDeep.className)
+			||  goDeep.picker_select.isChosenPicker(e) ) );  }
 	function outDisabled(e) {return !e.disabled}
+
+//The functionality of the above private members is exposed here for your convenience as static functions of the Picker Class,
+// but changing these Picker properties will not effect the Picker's performance.
+SoftMoon.WebWare.Picker.isInput=isInput;
+SoftMoon.WebWare.Picker.isTabStop=isTabStop;
+SoftMoon.WebWare.Picker.goDeep=goDeep;
 
 
 /* If you want to use an input or select that requires “focus” as an interface control for your picker (i.e., your
@@ -441,7 +449,7 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel);
 		PickerInstance.event=false;
 		tabbedOut= enterKeyed= selectPan= false;  } );
-	UniDOM.addEventHandler(element, 'onTabIn', function(event) {
+	UniDOM.addEventHandler(element, 'tabIn', function(event) {
 		//an element must be displayed to receive focus, so we get a bit redundant
 		PickerInstance.setActiveInterfaceState(true, this,
 			((actions && actions.interfaceTarget  &&  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget)!=='false')
@@ -451,7 +459,7 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel, event.rotatePanels);
 		setTimeout(function() {newFocus.focus();}, 0);  });  }
  else
-	UniDOM.addEventHandler(element, 'onTabIn', function(event) {
+	UniDOM.addEventHandler(element, 'tabIn', function(event) {
 		PickerInstance.setActiveInterfaceState(true, this);
 		var newFocus=this,
 				thisPanel=UniDOM.getAncestorByClass(this, PickerInstance.classNames.pickerPanel);
@@ -475,8 +483,8 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 			&&  (tabTo= ((PickerInstance.panels.length<2) ?  PickerInstance.dataTarget  :  PickerInstance.panels.slice(0, -1)))//.filter(outDisabled)))
 			&&  ( isTabStop(tabTo)                              //  ←  see private members above  ↓                          ↓          ↓
 				 || (tabTo=UniDOM.ElementWrapperArray(shifted ? tabTo : tabTo.reverse())._.filter(outDisabled)._.getElements(isTabStop, goDeep)[0]) ) )  {
-				UniDOM.generateEvent(tabTo, 'onTabIn', {canBubble:false, userArgs:{rotatePanels: !shifted}});
-				UniDOM.generateEvent(this, 'onTabOut', {canBubble:false});
+				UniDOM.generateEvent(tabTo, 'tabIn', {canBubble:false, userArgs:{rotatePanels: !shifted}});
+				UniDOM.generateEvent(this, 'tabOut', {canBubble:false});
 				return;  }
 			if ((!shifted
 					&&  (tabTo=((this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabTo)==null  &&  actions  &&  actions.tabTo)
@@ -485,15 +493,16 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 					&&  (tabTo=((this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabTo)==null  &&  actions  &&  actions.backtabTo)
 										||  (this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabTo))))))
 				try {
-					if (typeof tabTo == 'string')
+					if (typeof tabTo == 'string')  {
+						if (tabTo==='{none}')  return;
 						tabTo=( this.ownerDocument.getElementById(tabTo)
-								 || (new Function('event', 'actions', 'return ('+tabTo+');')).call(this, event, actions) );
+								 || (new Function('event', 'actions', 'return ('+tabTo+');')).call(this, event, actions) );  }
 					else if (typeof tabTo == 'function')  tabTo=tabTo(event);
 					if (UniDOM.isElementNode(tabTo))  {
-						UniDOM.generateEvent(tabTo, 'onTabIn', {canBubble:false});
-						UniDOM.generateEvent(this, 'onTabOut', {canBubble:false});
+						UniDOM.generateEvent(tabTo, 'tabIn', {canBubble:false});
+						UniDOM.generateEvent(this, 'tabOut', {canBubble:false});
 						return;  }  }
-				catch(e) {console.log("Custom tab expression failed in SoftMoon.WebWare.Picker’s “interfaceElement.onKeyDown” handler:\n"+e.message);};
+				catch(e) {console.debug("Custom tab expression failed in SoftMoon.WebWare.Picker’s “interfaceElement.onKeyDown” handler:\n"+e.message);};
 			if ((!shifted
 					&&  ((actions  &&  actions.tabToTarget  &&  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)!=='false')
 							||  (this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)==='true')))
@@ -501,16 +510,17 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 					&&  ((actions  &&  actions.backtabToTarget  &&  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget)!=='false')
 							||  (this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget)==='true'))))
 				try {
-					UniDOM.generateEvent(this, 'onTabOut', {canBubble:false});
+					UniDOM.generateEvent(this, 'tabOut', {canBubble:false});
 					PickerInstance.dataTarget.focus();
 					return;  }
 				catch(e) {};
 			if (tabTo=( shifted ? UniDOM.getElders(this, isTabStop, goDeep)[0] : UniDOM.getJuniors(this, isTabStop, goDeep)[0]))  {
-				UniDOM.generateEvent(tabTo, 'onTabIn', {canBubble:false});
-				UniDOM.generateEvent(this, 'onTabOut', {canBubble:false});  }  }
+				UniDOM.generateEvent(tabTo, 'tabIn', {canBubble:false});
+				UniDOM.generateEvent(this, 'tabOut', {canBubble:false});  }  }
 		if (enterKeyed)  {
 			if (actions && actions.enterKeyed && actions.enterKeyed(event))  return;
-			if (this.nodeName!=='SELECT')  {
+			if (this.nodeName!=='SELECT'  &&  this.nodeName!=='TEXTAREA'
+			&&  (this.nodeName!=='INPUT'  ||  (this.type!=='button'  &&  this.type!=='checkbox'  &&  this.type!=='radio')) )  {
 				event.preventDefault();
 				//note below we want to allow other user-added event-handlers to be executed as well…
 				UniDOM.generateEvent(this, 'onchange', {canBubble: false, userArgs: {flag: true}});
@@ -543,7 +553,7 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 		&& !PickerInstance.mouseOverPickerPanel && !PickerInstance.mouseOverInterfaceElement && !PickerInstance.mouseOverDataTarget)
 			PickerInstance.setActivePickerState(false);  } );
  else
-	UniDOM.addEventHandler(element, ['onblur'], function(event)  {   // , 'onTabOut'
+	UniDOM.addEventHandler(element, ['onblur'], function(event)  {   // , 'tabOut'
 		PickerInstance.event=false;
 		PickerInstance.setActiveInterfaceState(false, this);  } );  }
 // Note we do NOT set the “activePickerState” to false because by default the Picker is designed to work as follows:
@@ -552,10 +562,10 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 // BUT these conditions are not required.
 // If you individually register interfaceElements that are off of a pickerPanel without appropriate “(back)tabTo”
 // attributes, and/or otherwise allow them to tab from/to other off-picker form elements,
-// then you should be sure to manually generate an "onTabIn" event from off-picker form elements as appropriate,
-// and/or add an additional "onTabOut" to this interfaceElement as similar follows:
+// then you should be sure to manually generate an "tabIn" event from off-picker form elements as appropriate,
+// and/or add an additional "tabOut" to this interfaceElement as similar follows:
 /*
-	UniDOM.addEventHandler(element, 'onTabOut', function() {PickerInstance.setActivePickerState(false, this);});
+	UniDOM.addEventHandler(element, 'tabOut', function() {PickerInstance.setActivePickerState(false, this);});
 */
 
 

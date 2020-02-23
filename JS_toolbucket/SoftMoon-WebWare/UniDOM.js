@@ -1,5 +1,5 @@
-﻿/*  UniDOM 2.2  February 11, 2019
- *  copyright © 2013, 2014, 2015, 2018, 2019 Joe Golembieski, SoftMoon-WebWare
+﻿/*  UniDOM 2.4  February 18, 2020
+ *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
  *  http://softmoon-webware.com/UniDOM_instructions.htm
  *
 		This program is free software: you can redistribute it and/or modify
@@ -214,7 +214,7 @@ UniDOM.addEventHandler=function(element, eventType, handler, useCapture)  {
 						if (typeof handler[j]['on'+event.type] == 'function')  handler[j]['on'+event.type].apply(handler[j], pass);
 						else if (typeof handler[j].handleEvent == 'function')  handler[j].handleEvent.apply(handler[j], pass);
 						else  handler[j].apply(element, pass);  }  }
-				if (capturerFired  ||  (is_customEvent  &&  event.canBubble  &&  !captured))  {
+				if (capturerFired  ||  (is_customEvent  &&  event.bubbles  &&  !captured))  {
 					event.captured=capturerFired;
 					event.eventPhase=3;
 					getAllEventsInWindow((element.ownerDocument  ||  element.document  ||  element).defaultView, false);
@@ -422,7 +422,7 @@ UniDOM.removeAllEventHandlers._apply_=Function.prototype.apply;
 //  only old-MSIE ‖or‖ Standards may be triggered if UniDOM.addEventHandler.retroMSIE9=Boolean(true‖false)
 UniDOM.generateEvent=function(element, eventType, eSpecs)  {  var i, j, p, d, eT, event;
 	element=xElement(element);
-	if (typeof eSpecs !== 'object')  eSpecs={canBubble: false};  //new Object;
+	if (typeof eSpecs !== 'object')  eSpecs={bubbles: false};  //new Object;
 	eventType=arrayify(eventType);
 	for (i=0; i<eventType.length; i++)  {
 		eT=getEventType(eventType[i]);
@@ -435,7 +435,7 @@ UniDOM.generateEvent=function(element, eventType, eSpecs)  {  var i, j, p, d, eT
 				case 'click':
 					if (typeof MouseEvent === 'function')  event=new MouseEvent(eT, eSpecs); //allow newer properties when possible
 					else  { event=document.createEvent('MouseEvent');
-						event.initMouseEvent(eT, eSpecs.canBubble, eSpecs.cancelable,
+						event.initMouseEvent(eT, eSpecs.bubbles, eSpecs.cancelable,
 							eSpecs.view, eSpecs.detail,
 							eSpecs.screenX, eSpecs.screenY, eSpecs.clientX, eSpecs.clientY,
 							eSpecs.ctrlKey, eSpecs.altKey, eSpecs.shiftKey, eSpecs.metaKey,
@@ -451,20 +451,20 @@ UniDOM.generateEvent=function(element, eventType, eSpecs)  {  var i, j, p, d, eT
 				case 'scroll':
 					if (typeof UIEvent === 'function')  event=new UIEvent(eT, eSpecs);
 					else  { event=document.createEvent('UIEvent');
-						event.initUIEvent(eT, eSpecs.canBubble, eSpecs.cancelable,
+						event.initUIEvent(eT, eSpecs.bubbles, eSpecs.cancelable,
 							eSpecs.view, eSpecs.detail);  } //it is unclear what “detail” has to do with the keyboard, or how to set a key value except maybe through the eSpecs.userArgs
 				break;
 				default:  //Mouse & UI Events without user-defined eSpecs “should” auto-generate appropriate real-time values
-					if (eSpecs  &&  eSpecs.detail  &&  typeof CustomEvent === 'function')  event=new CustomEvent(eT, eSpecs);
+					if (eSpecs  &&  eSpecs.detail!==undefined  &&  typeof CustomEvent === 'function')  event=new CustomEvent(eT, eSpecs);
 					else
 					if (typeof Event === 'function')  event=new Event(eT, eSpecs);
 					else  { event=document.createEvent('Event');
-						event.initEvent(eT, eSpecs.canBubble, eSpecs.cancelable);  }  }
+						event.initEvent(eT, eSpecs.bubbles, eSpecs.cancelable);  }  }
 			//for (p in eSpecs)  {if (event[p] === undefined  &&  !event.hasOwnProperty(p))  event[p]=eSpecs[p];}
 			if (eSpecs.userArgs)  for (p in eSpecs.userArgs)  {event[p]=eSpecs.userArgs[p];}
 			element.dispatchEvent(event);  }
 		if (document.createEventObject  &&  (MS_exploder!==9  ||  UniDOM.addEventHandler.retroMSIE9!==false))  {  //old MSIE
-			event=document.createEventObject();  event.type=eT;  event.canBubble=eSpecs.canBubble;
+			event=document.createEventObject();  event.type=eT;  event.bubbles=eSpecs.bubbles;  // note that in reality, IE Events always bubble.  Here we just pass along a “request”.
 			if (eSpecs.userArgs)  for (p in eSpecs.userArgs)  {event[p]=eSpecs.userArgs[p];}
 			if (legacyEvents[eT])  element.fireEvent('on'+eT, event);
 			else  {  //old I.E. will choke on user-defined or modern event types
@@ -809,10 +809,15 @@ if (document.body.scrollWidth)  { // console.log('using dinosaur MSIE without a 
 
 	function useClass(c, b)  {  // c should be the string name of the class
 		if (b)  this.className=aClass(this.className, c);
-			else  this.className=xClass(this.className, c);  }
+		else  this.className=xClass(this.className, c);  }
 
+	function toggleClass(c)  {  // c should be the string name of the class
+		if (this.className.match(c))
+					this.className=xClass(this.className, c);
+		else  this.className=aClass(this.className, c);  }
 
-	function swapOutClass(xc, ac)  {  // xc=remove class   ac=add class
+	function swapOutClass(xc, ac, reverse)  {  // xc=remove class   ac=add class
+		if (reverse)  {reverse=xc;  xc=ac;  ac=reverse;}
 		var cn=xClass(this.className, xc);
 		this.className=aClass(cn, ac);  }
 

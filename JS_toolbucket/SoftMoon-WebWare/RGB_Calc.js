@@ -1,8 +1,8 @@
-//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
+//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.1.1  August 31, 2019  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.1.2  February 14, 2020  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2016, 2018 Joe Golembieski, SoftMoon WebWare
+/*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -194,15 +194,15 @@ SoftMoon.WebWare.Palette.defaultConfig={   // see  SoftMoon.WebWare.RGB_Calc.Con
 
 
 
-// This function will return an initially empty array.
+// This function will return an initially empty array, with two added properties:  connector,  paletteIndexConnection.
 // Once the index is asynchronously loaded via HTTP, the array will fill with HTTP-connect objects, one for each palette being loaded.
 // Each HTTP-connect object has a property  .trying  which will become false once that palette is loaded (or if loading fails)
-SoftMoon.WebWare.loadPalettes=function(   // ←required  ↓all optional on next line
-																			 $path, $onIndexLoad, $addPalette, $loadError, $onMultiple, $maxAttempts, $timeoutDelay)  {
+SoftMoon.WebWare.loadPalettes=function loadPalettes(   // ←required  ↓all optional on next line
+		$path, $onIndexLoad, $addPalette, $loadError, $onMultiple, $maxAttempts, $timeoutDelay)  {
 //If the server offers multiple choices for a file, this may require human interaction or otherwise.
 //You may pass in a custom function  $onMultiple  to handle that.  You may pass in  HTTP.handleMultiple  for basic human intervention.
 //See the SoftMoon.WebWare.HTTP file for more info.
-	if (typeof $path != 'string'  ||  $path==="")  $path='color_palettes/';
+	if (typeof $path != 'string'  ||  $path==="")  $path=loadPalettes.defaultPath;
 	if (typeof $addPalette != 'function')  $addPalette=SoftMoon.WebWare.addPalette;
 	var files=new Array,
 			connector=new SoftMoon.WebWare.HTTP($maxAttempts, $timeoutDelay),
@@ -220,9 +220,12 @@ SoftMoon.WebWare.loadPalettes=function(   // ←required  ↓all optional on nex
 		$onIndexLoad(files, paletteIndex, this.responseText);  };
 	paletteIndexConnection.loadError=$loadError;
 	paletteIndexConnection.onMultiple=$onMultiple;
+	files.connector=connector;
+	files.paletteIndexConnection=paletteIndexConnection;
 	connector.getFile(paletteIndexConnection);
 	return files;  }
 
+SoftMoon.WebWare.loadPalettes.defaultPath='color_palettes/';
 
 SoftMoon.WebWare.addPalette=function($json_palette)  {
 	var json_palette = this.responseText  ||  $json_palette;
@@ -624,11 +627,12 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 						matches[1]=matches[1].trim().toLowerCase();
 						if (typeof calc.from[matches[1]] === 'function')  {
 							return calc.from[matches[1]](matches[2]);       }
-						for (p in SoftMoon.palettes)  { if (p.toLowerCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
-							calc.config.push(SoftMoon.palettes[p].config);
-							matches=calc(SoftMoon.palettes[p].getColor(matches[2]));
-							calc.config.pop();
-							return matches;  }  }  }  }  }
+						for (p in SoftMoon.palettes)  {
+							if (p.toLowerCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
+								calc.config.push(SoftMoon.palettes[p].config);
+								matches=calc(SoftMoon.palettes[p].getColor(matches[2]));
+								calc.config.pop();
+								return matches;  }  }  }  }  }
 			return calc.from.rgba.apply(calc.from, arguments);  };
 
 		p=Object.getOwnPropertyNames(RGB_Calc.prototype);
@@ -1096,11 +1100,16 @@ function fromHex(h)  {
 	var _h
 	if (_h=h.match(RegExp.hex_a))  { //console.log(_h[6] ? "yes" : "no", "{"+_h[6]+"}");
 		return this.outputRGB(
-		parseInt(_h[3], 16),  parseInt(_h[4], 16),  parseInt(_h[5], 16),  _h[6] ? Math.floor(parseInt(_h[6], 16)/2) : undefined);  }
+			parseInt(_h[3], 16),
+			parseInt(_h[4], 16),
+			parseInt(_h[5], 16),
+			_h[6] ? Math.floor(parseInt(_h[6], 16)/2) : undefined);  }
 	if (this.config.useShortHex  &&  (_h=h.match(RegExp.hex_a4)))  { h=_h[1];
-//console.log('bugger');
-	return this.outputRGB(
-		parseInt(h[0]+h[0], 16),  parseInt(h[1]+h[1], 16),  parseInt(h[2]+h[2], 16),  h[3] ? Math.floor(parseInt(h[3]+h[3], 16)/2) : undefined);  }
+		return this.outputRGB(
+			parseInt(h[0]+h[0], 16),
+			parseInt(h[1]+h[1], 16),
+			parseInt(h[2]+h[2], 16),
+			h[3] ? Math.floor(parseInt(h[3]+h[3], 16)/2) : undefined);  }
 	return this.config.onError(h, 'Hex');  }
 
 
