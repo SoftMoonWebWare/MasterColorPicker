@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare' />
-<meta name='copyright' content='Copyright © 2013,2014,2015,2019 Joe Golembieski, SoftMoon-WebWare' />
+<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020 Joe Golembieski, SoftMoon-WebWare' />
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
-<link rel='stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' title='MasterColorPicker' />
-<style type="text/css">
+<link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' />
+<style type='text/css' id='MasterColorPicker_desktop_stylesheet'>
 body, section, div {
 	margin: 0;
 	padding: 0; }
@@ -31,6 +31,23 @@ body > input {
 
 p img {
 	display: block; }
+
+/******* These are a duplicate of rules found in the linked stylesheet *******/
+/* The thumb’s color of the Hue range is controlled with JavaScript.
+ * Since its color can not be directly scripted through the DOM, this stylesheet must be dynamically altered.
+ * Therefore, if you change the following CSS-descriptors, you must accordingly change the MasterColorPicker.js file.
+ * Also, the MasterColorPicker-desktop version (called with the file: protocol in the URL)
+ * has a duplicate of these rules that need to be directly included in the HTML-head itself,
+ * since JavaScript is not allowed to read any locally linked (including CSS) files
+ * that the end-user does not hand-select.
+/*******/
+#MasterColorPicker_Lab tr.hue input[type="range"]::-webkit-slider-thumb {
+	background-color: white; }
+#MasterColorPicker_Lab tr.hue input[type="range"]::-ms-thumb {
+	background-color: white; }
+#MasterColorPicker_Lab tr.hue input[type="range"]::-moz-range-thumb {
+	background-color: white; }
+/*******/
 </style>
 
 
@@ -43,7 +60,7 @@ p img {
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js'></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js"></script><!--  supports RainbowMaestro  -->
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline.colorblind_converter.js"></script><!--  supports RainbowMaestro  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.4.0.js'></script><!--  supports MyPalette & ColorFilter  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js'></script><!--  supports MyPalette & ColorFilter  -->
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js"></script>
 
 <!--  use the scripts below if don’t want to use the server-version for palette table files  -->
@@ -221,7 +238,7 @@ or pin it to the window when it is pinned to the page.
 <fieldset>
 <button name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
 <button name='MasterColorPicker_MyPalette_delete'>delete selected</button>
-<button name='MasterColorPicker_MyPalette_save' title='Under Construction: no functionality'>save palette</button>
+<button name='MasterColorPicker_MyPalette_port' title='Under Construction: no functionality'>import/export palette</button>
 <label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette'>
 	<option selected='selected'>double-click</option>
 	<option>shift-click</option>
