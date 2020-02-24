@@ -1,4 +1,4 @@
-﻿/*  UniDOM 2.4  February 18, 2020
+﻿/*  UniDOM 2.5  February 24, 2020
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
  *  http://softmoon-webware.com/UniDOM_instructions.htm
  *
@@ -1098,14 +1098,29 @@ Object.has=has;   //  myObject={};  myObject.has=Object.has;  flag=myObject.has(
 
 // ******************************************************************** \\
 
-// If you set the  title  attribute of the <link> that loads the styleSheet, you may pass in a string
-//  containing that title attrubute value to reference the styleSheet.
+// If you set the  id  attribute of the <link> that loads the styleSheet or the <style> tag that contains the stylesheet,
+//  you may pass in a string containing that id attrubute value to reference the styleSheet:
+//  ¡HOWEVER! ¡WARNING! if a linked stylesheet does not load, this will cause an error, and the wrong stylesheet will be returned;
+//  usually if a stylesheet fails, the web-page fails, but if this is a "feature' or you need to recoup,
+//  you can mitigate this problem with an onerror event in the link as shown below:
+//  <link rel='stylesheet' id='MyStylesheet' href='path/to/stylesheet.css' onerror='this.parentNode.removeChild(this)' />
+// If you set the  title  attribute of the <link> that loads the styleSheet or the <style> tag that contains the stylesheet,
+//  you may pass in a string containing that title attrubute value to reference the styleSheet.
+// Or you may pass in an array of “titles” and/or “names”, and the first one in the array found in the document will be used.
 // Or you may pass in the indexNumber of the styleSheet or simply the styleSheet itself.
 UniDOM.Stylesheet=function(ss)  { var i;
+	function getSSByName (ss)  { var id, j=0;
+		function isStyleSheetElement(e) {return e.nodeName==='STYLE' || (e.nodeName==='LINK' && e.rel==='stylesheet');}
+		if ((id=document.getElementById(ss))  &&  isStyleSheetElement(id))  {
+			getElders.call(id, function(e) {if (isStyleSheetElement(e))  j++;},	true);
+			return document.styleSheets[j];  }
+		for (; j<document.styleSheets.length; j++)  {
+			if (document.styleSheets[j].title===ss)  return document.styleSheets[j];  }  }
 	if (this===UniDOM)  throw new Error("UniDOM.Stylesheet is a constructor, not a function");
-	if (typeof ss == 'number')  ss=document.styleSheets[ss];
-	else if (typeof ss == 'string')  for (i=0; i<document.styleSheets.length; i++)  {
-		if (document.styleSheets[i].title===ss)  {ss=document.styleSheets[i];  break;}  }
+	if (typeof ss === 'number')  ss=document.styleSheets[ss];
+	else if (typeof ss === 'string')  ss=getSSByName(ss);
+	else if (typeof ss === 'object'  &&  ss instanceof Array)
+		for (i=0; i<ss.length; i++) {if (ss[i]=getSSByName(ss[i]))  {ss=ss[i];  break;}}
 	this.ss=ss;
 	this.initLength=this.getRules().length;  }
 
