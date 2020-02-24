@@ -1,5 +1,5 @@
-﻿/*	charset=UTF-8
- * for MasterColorPicker release 2.0.03  February 22, 2020  by SoftMoon-WebWare
+﻿/*  charset: UTF-8
+ * for: MasterColorPicker release 2.0.05  February 22, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -804,6 +804,10 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 /* The thumb’s color of the Hue range is controlled with JavaScript.
  * Since its color can not be directly scripted through the DOM, this stylesheet must be dynamically altered.
  * Therefore, if you change the following CSS-descriptors, you must accordingly change the MasterColorPicker.js file.
+ * Also, the MasterColorPicker-desktop version (called with the file: protocol in the URL)
+ * has a duplicate of these rules that need to be directly included in the HTML-head itself,
+ * since JavaScript is not allowed to read any locally linked (including CSS) files
+ * that the end-user does not hand-select.
 /*******/
 #MasterColorPicker_Lab tr.hue input[type="range"]::-webkit-slider-thumb {
 	background-color: white; }

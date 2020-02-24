@@ -9,7 +9,7 @@
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!-- supports RainbowMaestro -->
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline.colorblind_converter.js" defer></script><!-- supports RainbowMaestro -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.4.0.js' defer></script><!-- supports MyPalette & ColorFilter -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
 
 <!-- div id='MasterColorPicker_debugLog'></div>
 <button onclick="MasterColorPicker.debug.clear();" style='position: relative; z-index: 10000'>Clear Log</button><!--  -->
@@ -17,7 +17,7 @@
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release x.x  Feb 22, 2020
+      release x.x  Feb 24, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->

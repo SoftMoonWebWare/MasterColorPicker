@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// MasterColorPicker2.js   ~release ~2.0.04-alpha   February 22, 2020   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.0.05-alpha   February 24, 2020   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -2271,7 +2271,7 @@ UniDOM.addEventHandler(window, 'onload', function() {
   UniDOM.addEventHandler( SoftMoon.WebWare.ColorSpaceLab.swatch, 'onclick',
 		function(event)  {MasterColorPicker.pick(SoftMoon.WebWare.ColorSpaceLab.getColor(), event, "ColorSpace Lab");} );
 
-	MCP_stylesheet=new UniDOM.Stylesheet('MasterColorPicker'),
+	MCP_stylesheet=new UniDOM.Stylesheet(['MasterColorPicker_desktop_stylesheet', 'MasterColorPicker_stylesheet']),
 	MCP_stylesheet.hue_range_thumb_Indexes=MCP_stylesheet.getRuleIndexes( /^#MasterColorPicker_Lab tr.hue input\[type="range"\]::.+-thumb$/ );
 	SoftMoon.WebWare.ColorSpaceLab.update_Hue_rangeHandle();
 
