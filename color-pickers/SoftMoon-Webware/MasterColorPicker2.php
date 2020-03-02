@@ -1,6 +1,6 @@
 ﻿
 <!--  You may move these support scripts to the document head, especially if you plan on using them with other code  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
 <script type='text/javascript' src='JS_toolbucket/HTTP.js' defer></script><!-- ESSENTIAL for server version, NOT for desktop use -->
 <!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug -->
@@ -12,12 +12,12 @@
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
 
 <!-- div id='MasterColorPicker_debugLog'></div>
-<button onclick="MasterColorPicker.debug.clear();" style='position: relative; z-index: 10000'>Clear Log</button><!--  -->
+<button type='button' onclick="MasterColorPicker.debug.clear();" style='position: relative; z-index: 10000'>Clear Log</button><!--  -->
 
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release x.x  Feb 24, 2020
+      release 2.0.07  Feb 29, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -31,7 +31,7 @@ but to retain the settings this file may be included inside an existing web <for
 	if (typeof SoftMoon._POST != 'object')  SoftMoon._POST=new Object;
 	<?php if ($_POST['palette_select']) echo 'SoftMoon._POST["palette_select"]="',$_POST['palette_select'],'"'; ?>
 //]]></script>
-<label for='palette_select'>palette: <select id='palette_select' name='palette_select' tabToTarget='true'>
+<label for='MasterColorPicker_palette_select'>palette: <select id='MasterColorPicker_palette_select' name='palette_select' tabToTarget='true'>
 <option<?php if ($_POST['palette_select']==='RainbowMaestro'  or  $_POST['palette_select']=="")  echo " selected='selected'"?>>RainbowMaestro</option>
 <option<?php if ($_POST['palette_select']==='Spectral')  echo " selected='selected'"?>>Spectral</option>
 <option<?php if ($_POST['palette_select']==='BeezEye')  echo " selected='selected'"?>>BeezEye</option>
@@ -171,9 +171,9 @@ or pin it to the window when it is pinned to the page.
 <p class='underConstruction'><span>Under Construction:</span> only partial functionality</p>
 <p>(choose color(s) using any color-picker or type directly)</p>
 <fieldset>
-<button name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
-<button name='MasterColorPicker_MyPalette_delete'>delete selected</button>
-<button name='MasterColorPicker_MyPalette_port' title='Under Construction: no functionality'>import/export palette</button>
+<button type='button' name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
+<button type='button' name='MasterColorPicker_MyPalette_delete'>delete selected</button>
+<button type='button' name='MasterColorPicker_MyPalette_port' title='Under Construction: no functionality'>import/export palette</button>
 <label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette'>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='double-click')  echo " selected='selected'"; ?>>double-click</option>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='shift-click')  echo " selected='selected'"; ?>>shift-click</option>
@@ -220,7 +220,7 @@ or pin it to the window when it is pinned to the page.
 	<tr>
 		<th colspan='3'>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll' />select all</label>
-			<button name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
+			<button type='button' name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
 			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere' checked='checked' />Auto-add new Colors below</label></th></tr>
 	<tr class='MyColor'>
 		<td><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' value='true' /></td>
@@ -232,7 +232,7 @@ or pin it to the window when it is pinned to the page.
 	<tr>
 		<th colspan='3'>
 			<label>Sub-palette name: <input type='text' name='MasterColorPicker_MyPalette[0][subPalette][name]' /></label>
-			<button name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
+			<button type='button' name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll' />select all</label>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectThis' />select this</label>
 			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere' />Auto-add new Colors below</label></th></tr>

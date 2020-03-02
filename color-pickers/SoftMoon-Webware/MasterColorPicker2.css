@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.05  February 22, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.07  February 22, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -19,6 +19,10 @@ body.MCP_dragMyPaletteColor {
 #MasterColorPicker button {
 	font-family: "consolas", monospace;
 	font-size: 13px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
+#MasterColorPicker select,
+#MasterColorPicker select option {
+	color: black;
+	background-color: white; }
 
 #MasterColorPicker input[type="range"] {
 	vertical-align: middle;  /*fix Google’s Chrome*/
@@ -318,7 +322,7 @@ span.MCP_fix_Safari {
 	position: absolute;
 	top: .27em;
 	left: .618em; }
-select#palette_select {
+select#MasterColorPicker_palette_select {
 	color: black;
 	background-color: white;
 	position: relative; }
@@ -444,7 +448,9 @@ select#palette_select {
 	line-height: 1.162em;
 	border: 1px solid red;
 	border-right: none; }
+
 #MasterColorPicker_options > div div fieldset {
+/*	background-color: pink;  */
 	z-index: 2;
 	display: block;
 	position: relative;
@@ -467,6 +473,7 @@ select#palette_select {
 	font-size: 1.01618em;
 	font-weight: bold; }
 #MasterColorPicker_options > div div fieldset:first-child fieldset {
+/*	background-color: lightgreen;  */
 	margin: .382em 0;
 	padding: 0; }
 #MasterColorPicker_options > div div fieldset:first-child fieldset fieldset {
@@ -476,8 +483,8 @@ select#palette_select {
 #MasterColorPicker_options > div div fieldset:first-child fieldset label {
 	margin: 0; }
 #MasterColorPicker_options > div div fieldset#x_ColorPicker_options > label#MasterColorPicker_applyToAll {
-	position: absolute;
-	top: -1.25em;
+	position: absolute;  /* this has a different ref point for the offset parent in different browsers for an unknown reason */
+	top: -1.25em;  /* value for Firefox */
 	right: .382em;
 	left: auto;
 	margin: 0;
@@ -545,7 +552,7 @@ select#palette_select {
 	z-index: 2; }
 #MasterColorPicker_MyPalette .port label span {
 	display: none; }
-#MasterColorPicker_MyPalette .port label:hover span {
+#MasterColorPicker_MyPalette .portDialog.export .port label:hover span {
 	display: block;
 	position: absolute;
 	top: 100%;
