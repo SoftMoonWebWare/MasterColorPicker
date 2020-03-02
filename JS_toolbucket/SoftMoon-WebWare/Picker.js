@@ -1,6 +1,6 @@
 ﻿//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// SoftMoon.WebWare.Picker.js Beta-2.6.1 release 1.7.1  February 22, 2020  by SoftMoon-WebWare.
+// Picker.js Beta-2.6.2 release 1.7.2  February 29, 2020  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 		You should have received a copy of the GNU General Public License
 		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
 
-// requires SoftMoon-WebWare’s UniDOM package.
+// requires SoftMoon-WebWare’s UniDOM-2020 package.
 
 if (typeof SoftMoon !== 'object')  SoftMoon=new Object;
 if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
@@ -26,6 +26,7 @@ if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 								//  ↓    ↓  \\
 //  ********  be SURE to READ the comments on applied classNames just below the Picker constructor function  **********
 
+;(function() {  //wrap private members: for checking picker selection and for registering “inputs”
 
 //********* Picker constructor ************\\
 // the “mainPanel” should •be 1 or •wrap 1 or more
@@ -40,19 +41,19 @@ if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 //    by the Picker, unless picker is activated using  PickerInstance.setActivePickerState(true, dataTarget)
 //    and when this dataTarget relinquishes focus, the picker reverts back to using the “masterDataTarget”
 // “opts.classNames” optional - may be an Object with properties to replace the implementation level of
-//    the standard-default SoftMoon.WebWare.Picker.CLASSNAMES
+//    the standard-default Picker.CLASSNAMES
 // if “registerPanel” is not true, you can register individual “interfaceElements” before registering the “mainPanel”
 // (so you can set individual TAB-control and interfaceTarget properties without needing to touch the HTML markup)
 // but you must then be sure to register the mainPanel “manually” after registering the specific “interfaceElements”.
-SoftMoon.WebWare.Picker=function(mainPanel, opts)  {
-	if (this===SoftMoon.WebWare)  throw new Error("Picker is a constructor, not a function.");
+function Picker(mainPanel, opts)  {
+	if (!new.target)  throw new Error("Picker is a constructor, not a function.");
 	if (!UniDOM.isElementNode(mainPanel))  throw new Error("Picker mainPanel must be a DOM Element Node.");
 
 	var p, i, PickerInstance=this;
 
 	this.mainPanel=mainPanel;
-	this.panels=UniDOM.ElementWrapperArray(false, true);
-	this.pickers=UniDOM.ElementWrapperArray(false, true);
+	this.panels=new UniDOM.ElementArray(false);
+	this.pickers=new UniDOM.ElementArray(false);
 	this.pickerActiveFlag=false;
 	this.interfaceActiveFlag=false;
 	this.mouseOverPickerPanel=false;
@@ -64,12 +65,12 @@ SoftMoon.WebWare.Picker=function(mainPanel, opts)  {
 	this.dataTargetTabOut=false;
 	this.dataTarget=null;
 	this.masterTarget=null;
-	this.registeredTargets=UniDOM.ElementWrapperArray(false, true);
+	this.registeredTargets=new UniDOM.ElementArray(false);
 	this.pickFilters=new Array;
 	this.ATTRIBUTE_NAMES=new Object;
-	for (p in SoftMoon.WebWare.Picker.ATTRIBUTE_NAMES)  {this.ATTRIBUTE_NAMES[p]=SoftMoon.WebWare.Picker.ATTRIBUTE_NAMES[p];}
+	for (p in Picker.ATTRIBUTE_NAMES)  {this.ATTRIBUTE_NAMES[p]=Picker.ATTRIBUTE_NAMES[p];}
 	this.classNames=new Object;
-	for (p in SoftMoon.WebWare.Picker.CLASSNAMES)  {this.classNames[p]=SoftMoon.WebWare.Picker.CLASSNAMES[p];}
+	for (p in Picker.CLASSNAMES)  {this.classNames[p]=Picker.CLASSNAMES[p];}
 
 	if (typeof opts == 'object')  {
 
@@ -90,7 +91,7 @@ SoftMoon.WebWare.Picker=function(mainPanel, opts)  {
 					for (p=0; p<this.picker_select.options.length;  p++)  {
 						if (typeof this.picker_select.options[p].value === 'undefined')
 							this.picker_select.options[p].value=this.picker_select.options[p].text;  }  }
-				else  this.picker_select=UniDOM.ElementWrapperArray(opts.pickerSelect, false, true);
+				else  this.picker_select=(new UniDOM.ElementArray).concat(opts.pickerSelect);
 				UniDOM.addEventHandler(this.picker_select, 'onchange', function() {
 					PickerInstance.choosePicker(PickerInstance.classNames.activePicker, null, PickerInstance.pickerActiveFlag);
 					PickerInstance.choosePicker(PickerInstance.classNames.activePickerInterface, null, PickerInstance.interfaceActiveFlag);  });
@@ -112,7 +113,7 @@ SoftMoon.WebWare.Picker=function(mainPanel, opts)  {
 
 		if (opts.classNames)  { var c=0, errTxt="Picker “classNames” Object is invalid.";
 			if (typeof opts.classNames != 'object')  throw new Error(errTxt);
-			for (p in SoftMoon.WebWare.Picker.CLASSNAMES)  { if (typeof opts.classNames.p != 'undefined')  {
+			for (p in Picker.CLASSNAMES)  { if (typeof opts.classNames.p != 'undefined')  {
 				if (typeof opts.classNames[p] != 'string')  throw new Error(errTxt);
 				else  this.classNames[p]=opts.classNames[p];  }  }  }  }
 
@@ -128,7 +129,7 @@ SoftMoon.WebWare.Picker=function(mainPanel, opts)  {
 //Content within a pickerPanel including the Pickers themselves should not use scroll-bars;
 //  the mainPanel or other panels should scroll if necessary.
 //This is required to keep focus on the targetElement when the scroll-bars are clicked-on without blocking a click on the Picker.
-SoftMoon.WebWare.Picker.CLASSNAMES={
+Picker.CLASSNAMES={
 	picker: 'picker',/*see ‡NOTE‡ below*/      // ← the className that needs to be applied to all pickers in all panels
 	pickerPanel: 'pickerPanel',                // ← applied to the mainPanel and any other registered panels
 	selectedPicker: 'selectedPicker',          // ← applied to a picker when it is selected
@@ -156,28 +157,28 @@ SoftMoon.WebWare.Picker.CLASSNAMES={
 			// **when you have more than one panel (mainPanel + others)** clicking on a panel brings it to the top level.
 			// These ZLevel classNames are applied automatically to all panels when you:
 			//   • pass in a mainPanel with “registerNow=true” as you create a new PickerInstance
-			//   • register a panel (see: SoftMoon.WebWare.Picker.prototype.registerInterfacePanel below)
+			//   • register a panel (see: Picker.prototype.registerInterfacePanel below)
 			//   • click on any registered panel
 			// Initially, the mainPanel is at the top, and the sub-panels are arranged last-registered at the bottom.
 // ‡NOTE‡ all classNames must be simple strings
-//  EXCEPT:  “classNames.picker”  MAY BE ANY VALUE ↓ LEGAL FOR →  UniDOM.hasClass()
+//  EXCEPT:  “classNames.picker”  MAY BE ANY VALUE ↓ LEGAL FOR →  UniDOM.has$Class()
 //  • a string or a regular expression
 //  • a “logic” array of strings, regular expressions, and/or nested “logic” arrays
 
 
 
-SoftMoon.WebWare.Picker.prototype.setTopPanel=function(panel, rotate)  {
+Picker.prototype.setTopPanel=function(panel, rotate)  {
 	if (panel===this.panels[this.panels.length-1])  return;
 	if (rotate)  {rotate=this.panels.pop();  this.panels.unshift(rotate);}
 	var i, tc, rc=RegExp('\\b(' + this.classNames.panelLevel + '[0-9]+|' + this.classNames.topPanel + '|' + this.classNames.activePanel + ')\\b', 'g');
 	for (i=0; i<this.panels.length; i++)  {
 		UniDOM.generateEvent(this.panels[i], 'onPickerLevelChange',
-			{canBubble: false,  userArgs: {Picker: this, newTopPanel: panel, rotate: rotate}});  }
+			{bubbles:true,  userArgs: {Picker: this, newTopPanel: panel, rotate: rotate}});  }
 	if (panel)  { i=0;
 		while (panel!==this.panels[i]  &&  i<this.panels.length)  {i++;}
 		this.panels.splice(i, 1);  this.panels.push(panel);  }  // note that if “panel” was never registered, it will be added to the “panels” array
 	for (i=0; i<this.panels.length; i++)  {
-		UniDOM.swapOutClass(this.panels[i], rc, this.classNames.panelLevel+String(i+1));  }
+		UniDOM.swapOut$Class(this.panels[i], rc, this.classNames.panelLevel+String(i+1));  }
 	tc=[this.classNames.topPanel];
 	if (this.pickerActiveFlag  ||  this.interfaceActiveFlag)  tc.push(this.classNames.activePanel);
 	UniDOM.addClass(this.panels[i-1], tc);  }
@@ -186,7 +187,7 @@ SoftMoon.WebWare.Picker.prototype.setTopPanel=function(panel, rotate)  {
 
 // MSIE9 (and most likely previous versions) fail to trigger an onblur event for the target element under certain
 //  circumstances when you click on a scroll-bar within the picker.
-SoftMoon.WebWare.Picker.prototype.setActivePickerState=function(flag, target)  {
+Picker.prototype.setActivePickerState=function(flag, target)  {
 // when flag=true, target is:
 //                     • an object with a “focus()” method and a “value” property which becomes the “dataTarget”
 //                     • a flag when ===false → use the current “dataTarget”
@@ -209,12 +210,12 @@ SoftMoon.WebWare.Picker.prototype.setActivePickerState=function(flag, target)  {
 	for (var i=0, PickerInstance=this;  i<this.panels.length;  i++)  {
 		UniDOM.useClass(this.panels[i], this.classNames.activePicker, flag);
 		UniDOM.generateEvent(this.panels[i], 'onPickerStateChange',
-			{canBubble: false,  userArgs: {flag: flag,  oldState: wasActive,  Picker: PickerInstance,  currentDataTarget: target}});  }
+			{bubbles:true,  userArgs: {flag: flag,  oldState: wasActive,  Picker: PickerInstance,  currentDataTarget: target}});  }
 	if (this.onPickerStateChange)  this.onPickerStateChange(flag, wasActive, target);  }
 
 
 
-SoftMoon.WebWare.Picker.prototype.setActiveInterfaceState=function(flag, target, isInterfaceTarget)  {
+Picker.prototype.setActiveInterfaceState=function(flag, target, isInterfaceTarget)  {
 	if (flag && this.interfaceActiveFlag && target===this.interfaceElement)  return false;  //avoid wasting time
 	UniDOM.useClass(target, this.classNames.activeInterface, flag);
 	UniDOM.useClass(target, this.classNames.activeInterfaceTarget, flag && isInterfaceTarget);
@@ -227,15 +228,15 @@ SoftMoon.WebWare.Picker.prototype.setActiveInterfaceState=function(flag, target,
 	for (var i=0;  i<this.panels.length;  i++)  {
 		UniDOM.useClass(this.panels[i], this.classNames.activeInterface, flag);
 		UniDOM.generateEvent(this.panels[i], 'onInterfaceStateChange',
-			{canBubble: false,  userArgs: {flag: flag,  oldState: wasActive,  Picker: this,  currentDataTarget: target}});	}
+			{bubbles:true,  userArgs: {flag: flag,  oldState: wasActive,  Picker: this,  currentDataTarget: target}});	}
 	if (this.onInterfaceStateChange)  this.onInterfaceStateChange(flag, wasActive, target);  }
 
 
 
-SoftMoon.WebWare.Picker.prototype.choosePicker=function(activeClasses, pickerName, flag)  {
+Picker.prototype.choosePicker=function(activeClasses, pickerName, flag)  {
 	var i, j, chosen, temp, pickers=new Array;
 	for (i=0; i<this.panels.length; i++)  {
-		if (temp=UniDOM.getElementsByClass(this.panels[i], this.classNames.picker))  pickers=pickers.concat(temp);  }
+		if (temp=UniDOM.getElementsBy$Class(this.panels[i], this.classNames.picker))  pickers=pickers.concat(temp);  }
 	if (pickers.length)  {
 		if (activeClasses===undefined)  activeClasses=[this.classNames.activePicker];
 		else if (!(activeClasses instanceof Array))  activeClasses=[activeClasses];
@@ -247,11 +248,11 @@ SoftMoon.WebWare.Picker.prototype.choosePicker=function(activeClasses, pickerNam
 			chosen=flag && chosen;
 			for (j=0;  j<activeClasses.length;  j++)  {
 				UniDOM.useClass(pickers[i], activeClasses[j], chosen);  }
-			UniDOM.generateEvent(pickers[i], 'onPickerStateChange', {canBubble: false, userArgs: {flag: chosen, classes: activeClasses}});  }  }  }
+			UniDOM.generateEvent(pickers[i], 'onPickerStateChange', {bubbles:true, userArgs: {flag: chosen, classes: activeClasses}});  }  }  }
 
 
 
-SoftMoon.WebWare.Picker.prototype.pick=function(chosen)  {
+Picker.prototype.pick=function(chosen)  {
 	chosen=this.applyFilters.apply(this, arguments);
 	if (chosen===false)  return;
 	var currentTarget= this.interfaceTarget || this.dataTarget;
@@ -267,14 +268,14 @@ SoftMoon.WebWare.Picker.prototype.pick=function(chosen)  {
 											if (dl)  dl.options[dl.options.length]=chosen;
 		default:          currentTarget.value=chosen;  }
 	if (UniDOM.isElementNode(currentTarget))  {
-		try {UniDOM.generateEvent(currentTarget, 'onchange', {canBubble: false});}
-		catch(err) {console.log(err.getMessage());};
+		try {UniDOM.generateEvent(currentTarget, 'onchange', {bubbles:true});}
+		catch(err) {console.error(err.getMessage());};
 		try {currentTarget.focus();}
 		catch(err) {};  }  }
 
 
 
-SoftMoon.WebWare.Picker.prototype.applyFilters=function(chosen)  {
+Picker.prototype.applyFilters=function(chosen)  {
 	// note how “chosen” is a ☆reference☆ to the first member of “arguments” (a special type of array!)
 	//  so changing “chosen” modifies “arguments[0]” and visa-versa.
 	for (var i=0; i<this.pickFilters.length;  i++)  {
@@ -284,7 +285,7 @@ SoftMoon.WebWare.Picker.prototype.applyFilters=function(chosen)  {
 	return chosen;  }
 
 
-SoftMoon.WebWare.Picker.prototype.registerPicker=function(picker)  {
+Picker.prototype.registerPicker=function(picker)  {
 	var PickerInstance=this;
 	this.pickers.push(picker);
 	UniDOM.addEventHandler(picker, 'onmouseover', function() {PickerInstance.mouseOverPicker=this;});
@@ -292,7 +293,6 @@ SoftMoon.WebWare.Picker.prototype.registerPicker=function(picker)  {
 
 
 
-;(function() {  //wrap private members: for checking picker selection and for registering “inputs”
 
 
 //You may use this quick utility to register standard event handlers that activate the picker
@@ -300,7 +300,7 @@ SoftMoon.WebWare.Picker.prototype.registerPicker=function(picker)  {
 //pass in the <input> as the “element”
 //if you want the picker to “move” (pop-up, etc) with each <input> registered, include a “PickerContainer” that
 // the picker will be inserted into when the given <input> is activated
-SoftMoon.WebWare.Picker.prototype.registerTargetElement=function(element, PickerContainer)  {
+Picker.prototype.registerTargetElement=function(element, PickerContainer)  {
 	// the following two properties are meant to be attached to an <input>, <textarea> etc. (i.e. a “dataTarget”) as event handlers.
 	var PickerInstance=this;
 	UniDOM.addEventHandler(element, 'onfocus', function()  {
@@ -325,7 +325,7 @@ SoftMoon.WebWare.Picker.prototype.registerTargetElement=function(element, Picker
 		goDeep.picker_select=PickerInstance.picker_select;  //
 		if (event.ctrlKey  &&  (event.keyCode===9 || event.keyCode===190)  //TAB key  or  .> key
 		&&  (tabTo=( PickerInstance.picker_select
-							|| UniDOM.ElementWrapperArray(PickerInstance.panels.reverse())._.filter(outDisabled)._.getElements(isTabStop, goDeep)[0] )))  {
+							|| PickerInstance.panels.reverse().filter(outDisabled).getElements(isTabStop, goDeep)[0] )))  {
 			event.preventDefault();
 			PickerInstance.interfaceActiveFlag=true;
 			tabTo.focus();  }
@@ -337,7 +337,7 @@ SoftMoon.WebWare.Picker.prototype.registerTargetElement=function(element, Picker
 
 	//private members for registering “inputs” (TargetElements & InterfaceElements) - to be used with UniDOM’s DOM-crawling methods
 	function isInput(e)  {
-		return ( e.nodeType===1  &&  e.type!=='hidden'
+		return ( e.type!=='hidden'
 					 &&  (e.nodeName==='INPUT' || e.nodeName==='SELECT' || e.nodeName==='TEXTAREA' || e.nodeName==='BUTTON') );  }
 	function isTabStop(e)  {
 		var ti,
@@ -346,18 +346,19 @@ SoftMoon.WebWare.Picker.prototype.registerTargetElement=function(element, Picker
 						 &&  (!(ti=e.getAttribute('tabIndex')) || parseInt(ti)>=0) );
 		if (isI)  goDeep.doContinue=false;
 		return isI;  }
-	function goDeep(e)  { return ( //avoids inputs on non-active pickers
+	function goDeep(e)  {
+		return ( //avoids inputs on non-active pickers
 		goDeep.doContinue  // note that UniDOM’s DOM-crawling methods use this property to completely terminate further searching
-		&&  !e.disabled  // see UniDOM.disable()
-		&&  ( e.id==""  ||  !goDeep.picker_select  ||  !UniDOM.hasClass(e, goDeep.className)
+		&&  (!e.disabled)  // see UniDOM.disable()
+		&&  ( e.id==""  ||  !goDeep.picker_select  ||  !UniDOM.has$Class(e, goDeep.className)
 			||  goDeep.picker_select.isChosenPicker(e) ) );  }
 	function outDisabled(e) {return !e.disabled}
 
 //The functionality of the above private members is exposed here for your convenience as static functions of the Picker Class,
 // but changing these Picker properties will not effect the Picker's performance.
-SoftMoon.WebWare.Picker.isInput=isInput;
-SoftMoon.WebWare.Picker.isTabStop=isTabStop;
-SoftMoon.WebWare.Picker.goDeep=goDeep;
+Picker.isInput=isInput;
+Picker.isTabStop=isTabStop;
+Picker.goDeep=goDeep;
 
 
 /* If you want to use an input or select that requires “focus” as an interface control for your picker (i.e., your
@@ -408,7 +409,7 @@ SoftMoon.WebWare.Picker.goDeep=goDeep;
 								with values of 'true' or 'false'.
 	onchange:    «function» enhance the default action of the Picker onchange method, or prevent the default Picker action by returning true.
  */
-SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, actions)  {
+Picker.prototype.registerInterfaceElement=function(element, actions)  {
 	if (this.interfaceElements instanceof Array)  { for (var i=0; i<this.interfaceElements.length; i++)  {
 		if (this.interfaceElements[i]===element)  return;  }  } //prevent multiple-registration
 	else  this.interfaceElements=new Array;
@@ -445,7 +446,7 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 		PickerInstance.setActiveInterfaceState(true, this,
 			((actions && actions.interfaceTarget  &&  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget)!=='false')
 			 ||  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget)==='true') );
-		var thisPanel=UniDOM.getAncestorByClass(this, PickerInstance.classNames.pickerPanel);
+		var thisPanel=UniDOM.getAncestorBy$Class(this, PickerInstance.classNames.pickerPanel);
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel);
 		PickerInstance.event=false;
 		tabbedOut= enterKeyed= selectPan= false;  } );
@@ -455,15 +456,15 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 			((actions && actions.interfaceTarget  &&  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget)!=='false')
 			 ||  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget)==='true') );
 		var newFocus=this,
-				thisPanel=UniDOM.getAncestorByClass(this, PickerInstance.classNames.pickerPanel);
+				thisPanel=UniDOM.getAncestorBy$Class(this, PickerInstance.classNames.pickerPanel);
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel, event.rotatePanels);
 		setTimeout(function() {newFocus.focus();}, 0);  });  }
  else
 	UniDOM.addEventHandler(element, 'tabIn', function(event) {
 		PickerInstance.setActiveInterfaceState(true, this);
 		var newFocus=this,
-				thisPanel=UniDOM.getAncestorByClass(this, PickerInstance.classNames.pickerPanel);
-		if (thisPanel)  PickerInstance.setTopPanel(thisPanel, event.rotatePanels);
+				thisPanel=UniDOM.getAncestorBy$Class(this, PickerInstance.classNames.pickerPanel);
+		if (thisPanel) PickerInstance.setTopPanel(thisPanel, event.rotatePanels);
 		PickerInstance.event=false;
 		setTimeout(function() {newFocus.focus();}, 0);  });
 
@@ -480,11 +481,11 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 			goDeep.className=PickerInstance.classNames.picker;
 			goDeep.picker_select=PickerInstance.picker_select;
 			if (event.ctrlKey
-			&&  (tabTo= ((PickerInstance.panels.length<2) ?  PickerInstance.dataTarget  :  PickerInstance.panels.slice(0, -1)))//.filter(outDisabled)))
-			&&  ( isTabStop(tabTo)                              //  ←  see private members above  ↓                          ↓          ↓
-				 || (tabTo=UniDOM.ElementWrapperArray(shifted ? tabTo : tabTo.reverse())._.filter(outDisabled)._.getElements(isTabStop, goDeep)[0]) ) )  {
-				UniDOM.generateEvent(tabTo, 'tabIn', {canBubble:false, userArgs:{rotatePanels: !shifted}});
-				UniDOM.generateEvent(this, 'tabOut', {canBubble:false});
+			&&  (tabTo= ((PickerInstance.panels.length<2) ?  PickerInstance.dataTarget  :  PickerInstance.panels.slice(0, -1)))
+			&&  ( isTabStop(tabTo)  //  ← see private members above  ↓                         ↓          ↓
+				 || (tabTo=(shifted ? tabTo : tabTo.reverse()).filter(outDisabled).getElements(isTabStop, goDeep)[0]) ) )  {
+				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true, userArgs:{rotatePanels: !shifted}});
+				UniDOM.generateEvent(this, 'tabOut', {bubbles:true});
 				return;  }
 			if ((!shifted
 					&&  (tabTo=((this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabTo)==null  &&  actions  &&  actions.tabTo)
@@ -499,10 +500,10 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 								 || (new Function('event', 'actions', 'return ('+tabTo+');')).call(this, event, actions) );  }
 					else if (typeof tabTo == 'function')  tabTo=tabTo(event);
 					if (UniDOM.isElementNode(tabTo))  {
-						UniDOM.generateEvent(tabTo, 'tabIn', {canBubble:false});
-						UniDOM.generateEvent(this, 'tabOut', {canBubble:false});
+						UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true});
+						UniDOM.generateEvent(this, 'tabOut', {bubbles:true});
 						return;  }  }
-				catch(e) {console.debug("Custom tab expression failed in SoftMoon.WebWare.Picker’s “interfaceElement.onKeyDown” handler:\n"+e.message);};
+				catch(e) {console.error("Custom tab expression failed in Picker’s “interfaceElement.onKeyDown” handler:\n"+e.message);};
 			if ((!shifted
 					&&  ((actions  &&  actions.tabToTarget  &&  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)!=='false')
 							||  (this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)==='true')))
@@ -510,23 +511,30 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 					&&  ((actions  &&  actions.backtabToTarget  &&  this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget)!=='false')
 							||  (this.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget)==='true'))))
 				try {
-					UniDOM.generateEvent(this, 'tabOut', {canBubble:false});
+					UniDOM.generateEvent(this, 'tabOut', {bubbles:true});
 					PickerInstance.dataTarget.focus();
 					return;  }
 				catch(e) {};
 			if (tabTo=( shifted ? UniDOM.getElders(this, isTabStop, goDeep)[0] : UniDOM.getJuniors(this, isTabStop, goDeep)[0]))  {
-				UniDOM.generateEvent(tabTo, 'tabIn', {canBubble:false});
-				UniDOM.generateEvent(this, 'tabOut', {canBubble:false});  }  }
+				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true});
+				UniDOM.generateEvent(this, 'tabOut', {bubbles:true});  }  }
 		if (enterKeyed)  {
 			if (actions && actions.enterKeyed && actions.enterKeyed(event))  return;
-			if (this.nodeName!=='SELECT'  &&  this.nodeName!=='TEXTAREA'
+			if (this.nodeName!=='SELECT'  &&  this.nodeName!=='TEXTAREA'  &&  this.nodeName!=='BUTTON'
 			&&  (this.nodeName!=='INPUT'  ||  (this.type!=='button'  &&  this.type!=='checkbox'  &&  this.type!=='radio')) )  {
 				event.preventDefault();
 				//note below we want to allow other user-added event-handlers to be executed as well…
-				UniDOM.generateEvent(this, 'onchange', {canBubble: false, userArgs: {flag: true}});
+				UniDOM.generateEvent(this, 'change', {bubbles:true, userArgs: {flag: true}});
 				enterKeyed=false;
 				PickerInstance.event=false;
-				this.focus();  }  }  } );
+				this.focus();  }
+			else {
+				if (this.type==='checkbox'  ||  this.type==='radio')  {this.checked=!this.checked;  event.preventDefault();}
+				else if (this.nodeName==='BUTTON')  {
+					UniDOM.generateEvent(this, 'buttonpress', {bubbles:true});
+					event.preventDefault();  }
+				UniDOM.generateEvent(this, 'change', {bubbles: true});
+				UniDOM.generateEvent(this, 'tabIn', {bubbles:true}  ); }  }  } );
 
  if (isUserdataInputType)
 	UniDOM.addEventHandler(element, 'onchange', function(event)  {
@@ -570,7 +578,7 @@ SoftMoon.WebWare.Picker.prototype.registerInterfaceElement=function(element, act
 
 
 
-SoftMoon.WebWare.Picker.prototype.registerInterfacePanel=function(panel, actions)  {
+Picker.prototype.registerInterfacePanel=function(panel, actions)  {
 
 	UniDOM.addClass(panel, this.classNames.pickerPanel);
 	this.panels.unshift(panel);
@@ -589,14 +597,14 @@ SoftMoon.WebWare.Picker.prototype.registerInterfacePanel=function(panel, actions
 	UniDOM.addEventHandler(panel, 'onmouseout', function()  {
 		PickerInstance.mouseOverPickerPanel=false;  PickerInstance.mouseOverMainPanel=false;  });
 
-	var i, panelBody=panel.childNodes;
-	if (panelBody)  for (i=0; i<panelBody.length; i++)  { if (panelBody[i].nodeType===Node.ELEMENT_NODE)  {
+	var i, panelBody=panel.children;
+	if (panelBody)  for (i=0; i<panelBody.length; i++)  {
 		UniDOM.addEventHandler(panelBody[i], 'onmouseover', function()  {
 			PickerInstance.mouseOverPanelBody=this;  });
 		UniDOM.addEventHandler(panelBody[i], 'onmouseout', function()  {
-			PickerInstance.mouseOverPanelBody=false;  });  }  }
+			PickerInstance.mouseOverPanelBody=false;  });  }
 
-	var pickers=UniDOM.getElementsByClass(panel, this.classNames.picker);
+	var pickers=UniDOM.getElementsBy$Class(panel, this.classNames.picker);
 	for (i=0; i<pickers.length;  i++)  {this.registerPicker(pickers[i]);}
 
 	//Traverse the descendents of “panel” looking for elements that need registering, and collect them into an array-object.
@@ -611,6 +619,8 @@ SoftMoon.WebWare.Picker.prototype.registerInterfacePanel=function(panel, actions
 
 	return registered;  }
 
+
+SoftMoon.WebWare.Picker=Picker;
 
 })();  // close wrap private members for registering “inputs”
 
