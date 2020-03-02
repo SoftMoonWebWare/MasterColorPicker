@@ -1,6 +1,6 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.0 (February 22, 2020)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
+/* FormFieldGenie version 4.0 (February 29, 2020)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatable with early versions of MSIE =*=*=*
 
@@ -403,7 +403,7 @@ function dumpEmpties(elmnt)  {
 
 
 	// these are "private" variables "global" to this class
-	var self,
+	var thisGenie,
 			config,
 			checkOne=true, checkAll=false,
 			groupClass,
@@ -414,7 +414,7 @@ function dumpEmpties(elmnt)  {
 
 	function init(fieldNodeGroup, opts, addTo) {
 
-		self=this;
+		thisGenie=this;
 
 		if (opts)  this.config.push(opts);
 		config=this.config;
@@ -438,7 +438,7 @@ function dumpEmpties(elmnt)  {
 		if (!(fieldNode instanceof Element)  ||  fieldNode.nodeType!=Node.ELEMENT_NODE)  return null;
 		if (!fieldNode.hasChildNodes())  { switch (fieldNode.nodeName)  {
 				case "INPUT": { if (config.userDataInputTypes.indexOf(fieldNode.type) === -1)  return null;  }
-				case "TEXTAREA": { if (!self.isActiveField(fieldNode, config.cbParams))  return null;
+				case "TEXTAREA": { if (!thisGenie.isActiveField(fieldNode, config.cbParams))  return null;
 					return (check) ?  ((fieldNode.value.length==0)^(check=="isFull?"))  :  fieldNode;  }
 				default: return null;  }  }
 		else
@@ -447,7 +447,7 @@ function dumpEmpties(elmnt)  {
 				if (n.hasChildNodes())  {fields=fields.concat(arguments.callee(n));  continue;}
 				switch (n.nodeName)  {
 					case "INPUT": {if (config.userDataInputTypes.indexOf(n.type) === -1)  continue;}
-					case "TEXTAREA": {if (self.isActiveField(n, config.cbParams))  fields.push(n);}  }  }
+					case "TEXTAREA": {if (thisGenie.isActiveField(n, config.cbParams))  fields.push(n);}  }  }
 			return fields;
 		}(fieldNode);  //invoke the above function passing fieldNode as the value of fldNode
 		if (check)  {
@@ -561,7 +561,7 @@ function dumpEmpties(elmnt)  {
 
 
 	function deleteField(fieldNodeGroup, opts)  {
-		if ( typeof self.config.dumpEmpties === 'function'  &&  !self.config.dumpEmpties(fieldNodeGroup, true) )   return false;
+		if ( typeof thisGenie.config.dumpEmpties === 'function'  &&  !thisGenie.config.dumpEmpties(fieldNodeGroup, true) )   return false;
 		var nextNode=getNextGroup(fieldNodeGroup);
 		fieldNodeGroupFieldset.removeChild(fieldNodeGroup);
 		while (nextNode!==null) {updateGroupNames(nextNode, -1, false);  nextNode=getNextGroup(nextNode);}
@@ -712,7 +712,7 @@ FormFieldGenie.prototype.pasteField=function(fieldNodeGroup, opts)  {
 			if (typeof config.fieldsetCustomizer === 'function')  config.fieldsetCustomizer(fieldNodeGroupFieldset, 'paste-over', config.cbParams);
 			if (opts  &&  opts.doso)  {
 				o=opts.doso;  opts.doso=null;
-				popNewField.call(self, fieldNodeGroup, opts);
+				popNewField.call(thisGenie, fieldNodeGroup, opts);
 				opts.doso=o;  }
 			if (config.doFocus)  getField(newField).focus();  }, 0);
 		return true;  }
