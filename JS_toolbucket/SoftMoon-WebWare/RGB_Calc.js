@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.1.2  February 14, 2020  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.1.3  February 29, 2020  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020 Joe Golembieski, SoftMoon WebWare
 
@@ -422,19 +422,19 @@ function HSV_Color($H,$S,$V, $config, $model)  {
 	if (this===SoftMoon.WebWare)  throw new Error('SoftMoon.WebWare.HSV_Color is a constructor, not a function.');
 	$model= ((typeof $model === 'string') && ($model=$model.match( /HSV|HSB/i )) && $model[0].toUpperCase())  ||  'HSV';
 	//$model= $model || "HSV";
-	var hsv=new Array,  proto,  self;
+	var hsv=new Array,  proto,  thisClr;
 	if (this.config)
 		proto=this;
 	else
 		proto=new ColorWheel_Color($config);
 	Object.defineProperty(proto, "constructor", {value: HSV_Color});
-	self=Object.create(proto);
+	thisClr=Object.create(proto);
 	Object.defineProperties(hsv, {
 		0: {get: function() {return $H;},  set: function($h) {$H=$h;},  enumerable: true},
 		1: {get: function() {return $S;},  set: function($s) {$S=$s;},  enumerable: true},
 		2: {get: function() {return $V;},  set: function($v) {$V=$v;},  enumerable: true}  });
 	function readArr($arr)  {$H=$arr[0];  $S=$arr[1];  $V=$arr[2];}
-	Object.defineProperties(self, {
+	Object.defineProperties(thisClr, {
 		model: {value: $model,  enumerable: true},
 		hsv: {get: function() {return hsv;},  set: readArr,  enumerable: true},
 		hsb: {get: function() {return hsv;},  set: readArr,  enumerable: true},
@@ -447,8 +447,8 @@ function HSV_Color($H,$S,$V, $config, $model)  {
 		value:      {get: function() {return $V;},  set: function($v) {$V=$v;},  enumerable: true},
 		brightness: {get: function() {return $V;},  set: function($v) {$V=$v;},  enumerable: true},
 		to: {enumerable: true,  value: Object.defineProperty(new Object,
-			'cmyk', {get: HSV_to_CMYK.bind(self, hsv),  enumerable: true}  )}  });
-	return self;  };
+			'cmyk', {get: HSV_to_CMYK.bind(thisClr, hsv),  enumerable: true}  )}  });
+	return thisClr;  };
 
 
 Object.defineProperties(HSV_Color, {  //this provides a static globally accessible function unrelated to the HSV_Color class
@@ -481,19 +481,19 @@ function HSV_to_CMYK(hsv)  {
 SoftMoon.WebWare.HSL_Color=HSL_Color;
 function HSL_Color($H,$S,$L, $config)  {
 	if (this===SoftMoon.WebWare)  throw new Error('SoftMoon.WebWare.HSL_Color is a constructor, not a function.');
-	var hsl=new Array,  proto,  self;
+	var hsl=new Array,  proto,  thisClr;
 	if (this.config)
 		proto=this;
 	else
 		proto=new ColorWheel_Color($config);
 	Object.defineProperty(proto, "constructor", {value: HSL_Color});
-	self=Object.create(proto);
+	thisClr=Object.create(proto);
 	Object.defineProperties(hsl, {
 		0: {get: function() {return $H;},  set: function($h) {$H=$h;},  enumerable: true},
 		1: {get: function() {return $S;},  set: function($s) {$S=$s;},  enumerable: true},
 		2: {get: function() {return $L;},  set: function($l) {$L=$l;},  enumerable: true}  });
 	function readArr($arr)  {$H=$arr[0];  $S=$arr[1];  $L=$arr[2];}
-	Object.defineProperties(self, {
+	Object.defineProperties(thisClr, {
 		model: {value: "HSL",  enumerable: true},
 		hsl: {get: function() {return hsl;},  set: readArr,  enumerable: true},
 		h: {get: function() {return $H;},  set: function($h) {$H=$h;},  enumerable: true},
@@ -502,25 +502,25 @@ function HSL_Color($H,$S,$L, $config)  {
 		hue:        {get: function() {return $H;},  set: function($h) {$H=$h;},  enumerable: true},
 		saturation: {get: function() {return $S;},  set: function($s) {$S=$s;},  enumerable: true},
 		lightness:  {get: function() {return $L;},  set: function($l) {$L=$l;},  enumerable: true}  });
-	return self;  };
+	return thisClr;  };
 
 
 SoftMoon.WebWare.HCG_Color=HCG_Color;
 function HCG_Color($H,$C,$G, $config)  {
 	if (this===SoftMoon.WebWare)  throw new Error('SoftMoon.WebWare.HSL_Color is a constructor, not a function.');
-	var hcg=new Array,  proto,  self;
+	var hcg=new Array,  proto,  thisClr;
 	if (this.config)
 		proto=this;
 	else
 		proto=new ColorWheel_Color($config);
 	Object.defineProperty(proto, "constructor", {value: HCG_Color});
-	self=Object.create(proto);
+	thisClr=Object.create(proto);
 	Object.defineProperties(hcg, {
 		0: {get: function() {return $H;},  set: function($h) {$H=$h;},  enumerable: true},
 		1: {get: function() {return $C;},  set: function($c) {$C=$c;},  enumerable: true},
 		2: {get: function() {return $G;},  set: function($g) {$G=$g;},  enumerable: true}  });
 	function readArr($arr)  {$H=$arr[0];  $C=$arr[1];  $G=$arr[2];}
-	Object.defineProperties(self, {
+	Object.defineProperties(thisClr, {
 		model: {value: "HCG",  enumerable: true},
 		hcg: {get: function() {return hcg;},  set: readArr,  enumerable: true},
 		h: {get: function() {return $H;},  set: function($h) {$H=$h;},  enumerable: true},
@@ -529,7 +529,7 @@ function HCG_Color($H,$C,$G, $config)  {
 		hue:    {get: function() {return $H;},  set: function($h) {$H=$h;},  enumerable: true},
 		chroma: {get: function() {return $C;},  set: function($c) {$C=$c;},  enumerable: true},
 		gray:   {get: function() {return $G;},  set: function($g) {$G=$g;},  enumerable: true}  });
-	return self;  };
+	return thisClr;  };
 
 
 
@@ -725,7 +725,7 @@ RGB_Calc.ConfigStack.prototype={
 			var message= ct ?  ('Bad values for '+ct+' conversion: “'+clr+'”.')
 											:  ('The color “'+clr+'” is undefined.');
 		if (this.logErrors)
-			console.log(message);
+			console.error(message);
 		if (this.throwErrors)  {
 			if (this.resetConfigStackOnThrownError)  this.reset();
 			throw new Error(message);  }
@@ -782,7 +782,7 @@ function getHueFactor(h)  {
 	var m, unit=this.config.hueAngleUnit;
 	if (typeof h === 'string')  {
 		if (m=h.match( RegExp.Hue ))  {h=parseFloat(m[1]);  unit= (m=m[2]) || unit;}
-		else {console.log('bad hue:'+h+'  unit: '+unit);  return false;  }  }
+		else {console.error('bad hue:'+h+'  unit: '+unit);  return false;  }  }
 	if ((this.config.inputAsFactor  &&  !m   /* &&  h<=1  &&  h>=0 */)
 	||  unit==='turn'  ||  unit==="●")
 		return Math.sawtooth(1,h);
@@ -832,7 +832,7 @@ RGB_Calc.prototype.install= function(cSpace, provider)  {
 	var meta;
 	if (!(meta=RGB_Calc[cSpace+"Providers"][provider]))  {
 		var message="Cound not install "+cSpace+" provider: "+provider+" → not found.";
-		if (this.logErrors)  console.log(message);
+		if (this.logErrors)  console.error(message);
 		if (this.throwErrors)  throw new Error(message);
 		else return null;  }
 	if (this===RGB_Calc)  {
