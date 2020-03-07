@@ -1,6 +1,7 @@
 SoftMoon.loaded_palettes.push(
 {"HTML": {
 	"header": ["W3C specs for CSS3 and SVG", "This is a subset of X11 with notable differences."],
+	"alternatives": "lowercase",
 	"palette": {
 
 	"AliceBlue": "F0F8FF",

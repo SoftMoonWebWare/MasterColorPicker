@@ -1,5 +1,7 @@
 SoftMoon.loaded_palettes.push(
-{"X11": { "palette": {
+{"X11": {
+	"alternatives": "lowercase",
+	"palette": {
 	"AliceBlue": "F0F8FF",
 	"AntiqueWhite": "FAEBD7",
 	"AntiqueWhite1": "FFEFDB",

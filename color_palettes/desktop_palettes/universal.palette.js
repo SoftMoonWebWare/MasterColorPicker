@@ -1,6 +1,7 @@
 SoftMoon.loaded_palettes.push(
 { "universal": {
 	"footer": ["http://en.wikipedia.org/wiki/List_of_colors", "http://cloford.com/resources/colours/500col.htm", "http://www.color-ize.com/color-list.php"],
+	"alternatives": "lowercase",
 	"palette": {
 	"Air Force blue (RAF)": "5D8AA8",
 	"Air Force blue (USAF)": "00308F",
