@@ -17,7 +17,7 @@
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.07  Feb 29, 2020
+      release 2.0.08  March 7, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -26,12 +26,12 @@ but to retain the settings this file may be included inside an existing web <for
 <div id='MasterColorPicker_options' class='pickerPanel'>
 <header><h1>MasterColorPicker™</h1> by <address>SoftMoon-WebWare</address></header>
 
-<script type="text/javascript">//<![CDATA[  capture the sent palette name in case it was a color-names-table - their names are not known here as these are built dynamically using JavaScript with data from HTTP, or from other JavaScript files
+<script type="text/javascript">//  capture the sent palette name in case it was a color-names-table - their names are not known here as these are built dynamically using JavaScript with data from HTTP, or from other JavaScript files
 	if (typeof SoftMoon != 'object')  SoftMoon=new Object;
 	if (typeof SoftMoon._POST != 'object')  SoftMoon._POST=new Object;
-	<?php if ($_POST['palette_select']) echo 'SoftMoon._POST["palette_select"]="',$_POST['palette_select'],'"'; ?>
-//]]></script>
-<label for='MasterColorPicker_palette_select'>palette: <select id='MasterColorPicker_palette_select' name='palette_select' tabToTarget='true'>
+	<?php if ($_POST['MasterColorPicker_palette_select']) echo 'SoftMoon._POST["palette_select"]="',$_POST['MasterColorPicker_palette_select'],'"'; ?>
+</script>
+<label for='MasterColorPicker_palette_select'>palette: <select id='MasterColorPicker_palette_select' name='palette_select'><!--   tabToTarget='true'  -->
 <option<?php if ($_POST['palette_select']==='RainbowMaestro'  or  $_POST['palette_select']=="")  echo " selected='selected'"?>>RainbowMaestro</option>
 <option<?php if ($_POST['palette_select']==='Spectral')  echo " selected='selected'"?>>Spectral</option>
 <option<?php if ($_POST['palette_select']==='BeezEye')  echo " selected='selected'"?>>BeezEye</option>
@@ -196,17 +196,24 @@ or pin it to the window when it is pinned to the page.
 		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='local' />this computer’s local file system</label>
 		<label class='import local' disabled='disabled'><input type='file' name='MasterColorPicker_MyPalette_import' disabled='disabled' />← drag files here</label>
 		</fieldset>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='browser' />this browser’s private storage <span><strong>¡Note</strong> the browser may delete it at any time!</span></label>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='current' />a current Palette Table <span><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='browser' />this browser’s private storage
+			<span><strong>¡Note</strong> the browser may delete it at any time!</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='current' />a current MasterColorPicker™ Palette Table
+			<span><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</span></label>
+		<button type='button' name='MasterColorPicker_MyPalette_porter'><span class='export'>save</span><span class='import'>load</span></button>
 	</fieldset>
 	<fieldset class='paletteMeta export' disabled='disabled'>
 		<label>Palette Name: <input type='text' name='MasterColorPicker_MyPalette_name' /></label>
-		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoload' disabled='disabled' /> auto-load this palette when MasterColorPicker starts?</label>
 		<fieldset><legend>palette headers:</legend>
-		<textarea name='MasterColorPicker_MyPalette_headers[0]' rows='1' cols='50'></textarea>
+		<textarea name='MasterColorPicker_MyPalette_headers[0]' rows='1' cols='50' value=""></textarea>
 		</fieldset>
 		<fieldset><legend>palette footers:</legend>
-		<textarea name='MasterColorPicker_MyPalette_footers[0]' rows='1' cols='50'></textarea>
+		<textarea name='MasterColorPicker_MyPalette_footers[0]' rows='1' cols='50' value=""></textarea>
+		</fieldset>
+		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoload' disabled='disabled' /> auto-load this palette when MasterColorPicker starts?</label>
+		<fieldset class='filetype local'><legend>save as type:</legend>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="js" /> .js (for MasterColorPicker™—desktop auto-load use<span> see <strong>☺Help☺</strong> </span>)</label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="json" /> .json (for MasterColorPicker™—server or other use)</label>
 		</fieldset>
 	</fieldset>
 </fieldset>
@@ -223,7 +230,7 @@ or pin it to the window when it is pinned to the page.
 			<button type='button' name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
 			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere' checked='checked' />Auto-add new Colors below</label></th></tr>
 	<tr class='MyColor'>
-		<td><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' value='true' /></td>
+		<td><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' /></td><!-- value='true' -->
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][definition]'
 			interfaceTarget='true' swatch='this.parentNode.previousElementSibling' value='' /><span class='dragHandle' title='drag from here or right-click for menu'>↕</span></td>
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' /></td></tr>
@@ -237,7 +244,7 @@ or pin it to the window when it is pinned to the page.
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectThis' />select this</label>
 			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere' />Auto-add new Colors below</label></th></tr>
 	<tr class='MyColor'>
-		<td><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' value='true' /></td>
+		<td><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' /></td><!-- value='true' -->
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][definition]'
 			interfaceTarget='true' swatch='this.parentNode.previousElementSibling' value='' /><span class='dragHandle' title='drag from here or right-click for menu'>↕</span></td>
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' /></td></tr>
@@ -736,8 +743,11 @@ tri-color?</label>
 	<h4>Keyboard shortcuts:</h4>
 	<p>See also the Hue-Angle Symbols shortcuts above.</p>
 	<dl>
-		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>CTRL</span>+<span>.></span></kbd></dt>
+		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>CTRL</span>+<span>.&gt;</span></kbd></dt>
 		<dd>Tab to the first input box in the top panel or next panel.</dd>
+
+		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>CTRL</span>+<span>,&lt;</span></kbd></dt>
+		<dd>Tab to the first input box in the bottom panel or previous panel.</dd>
 
 		<dt><kbd><span>F1</span></kbd></dt>
 		<dd>Shows the ☺Help☺ panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.</dd>
@@ -793,6 +803,59 @@ tri-color?</label>
 			</ul>
 		</li>
 	</ul>
+
+	<h4>Using MyPalette</h4>
+	<p>You can use the “MyPalette” interface to create your own Color Palette Tables,
+	give each color a descriptive name if you choose (i.e. what you you it for in your project)
+	organize them into sub-palettes and give each sub-palette a descriptive name,
+	and save the Palette Table in various formats.&nbsp;
+	You can then later reload your saved Palette Table back into the “MyPalette” interface,
+	or as a standard MasterColorPicker™ “color-picker table” (automatically if you like).&nbsp;
+	This allows you to create projects that use the same color-set in many different images
+	(for logos and product branding, etc.), as well as having a reference to the colors
+	used in a design/image for later editing.&nbsp;
+	If you plan on creating final bit-map images with high-compression using a paletted-image
+	format (such as .png), you can begin by creating and saving your palette of choice colors
+	using MasterColorPicker’s™ MyPalette.</p>
+	<p>When you save the palette you create,
+	your colors and sub-palettes can be named or not or a mix,
+	and if named it must have unique names for each color
+	in the “main palette” as well each “sub-palette.”&nbsp;
+	Also, each “sub-palette” must have a unique name among “sub-palette names”
+	<em>as well as</em> a unique name among “main palette color names.”&nbsp;
+	Names that are duplicates will be (depending on options set) either:</p>
+	<ul><li>automatically appended with an index number</li>
+			<li>overwritten by colors later in the palette with the same name</li>
+			<li>notify you of the conflict</li></ul>
+	When the palette you create is loaded as a 	MasterColorPicker™ Palette Table,
+	colors that you leave un-named will show in the table with the
+	color-definition next to the color-swatch; whereas colors that you do name
+	show up in the table with the name next to the color swatch,
+	and the color definition will pop-up when the mouse-pointer hovers over
+	the swatch.</p>
+	<h6 id='MasterColorPicker_helpFor_MyPalette_autoload'>Auto-loading your palettes</h6>
+	<p>If you save your palette to your “localhost” server, the server cloud,
+	or in the browser’s private storage (when available),
+	it can be auto-loaded in the future when you use MasterColorPicker™.&nbsp;
+	Simply select that option when you save your palette, and that’s it.</p>
+	<p>If you are using MasterColorPicker™—desktop, save the file as type .js
+	and save the file in the same folder as the <code>MasterColorPicker_desktop.htm</code>
+	file or in a sub-folder, or the browser will prevent you from loading it.&nbsp;
+	Then open the <code>MasterColorPicker_desktop.htm</code> file in your favorite
+	text-editor and scroll down about a page or so to the bottom of the HTML document head
+	(see the line with: <code>&lt;/head&gt;</code> just above the line with: <code>&lt;body&gt;</code> ).&nbsp;
+	Just above the bottom of the head you will see multiple lines that begin with
+	<code>&lt;script type="… … …</code> — duplicate one of them and change the
+	<code>src="… … …"</code> so it’s filepath leads to the file you saved from “MyPalette.”&nbsp;
+	If it is in the same folder as <code>MasterColorPicker_desktop.htm</code>
+	you only need the filename: for example <code>src="<i>your_colors.palette.js</i>"</code>&nbsp;
+	If it is in a sub-folder, only include that subpath and filename: for example
+	<br /><code>src="<i>color_palettes/desktop_palettes/your_project/your_colors.palette.js</i>"</code>&nbsp;<br />
+	If you are using a Windows® system, don’t confuse folder seperators!&nbsp;
+	Browsers like forward-slashes /&nbsp;<br />
+	Then save the <code>MasterColorPicker_desktop.htm</code> file.</p>
+
+	<hr />
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
 	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019 by Joe Golembieski, SoftMoon-WebWare
 		 ( <kbd>http://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>

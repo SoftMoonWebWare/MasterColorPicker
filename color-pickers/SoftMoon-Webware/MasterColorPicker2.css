@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.07  February 22, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.08  March 7, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -253,9 +253,15 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help h2,
 #MasterColorPicker_Help h4,
 #MasterColorPicker_Help h5,
+#MasterColorPicker_Help h6,
 #MasterColorPicker_Help li {
 	margin: 0;
 	padding: 0; }
+#MasterColorPicker_Help h6 {
+	margin-left: 2.618em;
+	font-size: inherit; }
+
+
 #MasterColorPicker_Help > div {
 	width: 38.2em;
 	height: 38.2em;
@@ -544,15 +550,21 @@ select#MasterColorPicker_palette_select {
 	display: block; }
 #MasterColorPicker_MyPalette .portMode label {
 	display: inline; }
-#MasterColorPicker_MyPalette .port label {
+#MasterColorPicker_MyPalette .port,
+#MasterColorPicker_MyPalette .port label,
+#MasterColorPicker_MyPalette .paletteMeta label {
 	display: block;
 	position: relative;
 	z-index: 1; }
-#MasterColorPicker_MyPalette .port label:hover {
+#MasterColorPicker_MyPalette .port,
+#MasterColorPicker_MyPalette .port label:hover,
+#MasterColorPicker_MyPalette .paletteMeta label:hover {
 	z-index: 2; }
-#MasterColorPicker_MyPalette .port label span {
+#MasterColorPicker_MyPalette .port label span,
+#MasterColorPicker_MyPalette .paletteMeta label span {
 	display: none; }
-#MasterColorPicker_MyPalette .portDialog.export .port label:hover span {
+#MasterColorPicker_MyPalette .portDialog.export .port label:hover span,
+#MasterColorPicker_MyPalette .portDialog.export .paletteMeta label:hover span {
 	display: block;
 	position: absolute;
 	top: 100%;
@@ -560,24 +572,40 @@ select#MasterColorPicker_palette_select {
 	padding: 0 1em .618em 1em;
 	background-color: maroon;
 	color: white; }
+#MasterColorPicker_MyPalette .portDialog.export .paletteMeta label:hover span {
+	background-color: gold;
+	color: black; }
 #MasterColorPicker_MyPalette .port fieldset {
 	margin: 0;
 	padding: 0;
 	border: none; }
+#MasterColorPicker_MyPalette .port button {
+	position: absolute;
+	margin: 0;
+	right: .382em;
+	left: auto;
+	top: .382em;
+	bottom: auto;
+	z-index: 3; }
 #MasterColorPicker_MyPalette .portDialog.import .port .local,
+#MasterColorPicker_MyPalette .portDialog .port button.disabled,
 #MasterColorPicker_MyPalette .portDialog.export .paletteMeta .browser,
 #MasterColorPicker_MyPalette .portDialog.export .paletteMeta .server {
 	display: none; }
 #MasterColorPicker_MyPalette .portDialog.import.local .port .local,
 #MasterColorPicker_MyPalette .portDialog.export.browser .paletteMeta .browser,
-#MasterColorPicker_MyPalette .portDialog.export.server .paletteMeta .server {
-	display: block;  }
+#MasterColorPicker_MyPalette .portDialog.export.server .paletteMeta .server,
+#MasterColorPicker_MyPalette .portDialog.export.local .paletteMeta .local {
+	display: block; }
 #MasterColorPicker_MyPalette .port .local input[type="file"] {
 	border: 2px solid blue; }
 #MasterColorPicker_MyPalette .paletteMeta	textarea {
 	display:block;
 	max-width: 32em;
 	max-height: 7em; }
+#MasterColorPicker_MyPalette fieldset.filetype label {
+	display: block;
+	margin-right: .382em; }
 #MasterColorPicker_MyPalette table {
 	margin: 0;
 	padding: 0;
@@ -673,8 +701,16 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover span,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover ul {
 	display: block; }
-
-
+iframe#MasterColorPicker_MyPalette_local_filesaver {
+	/* this is not included in the default HTML,
+	   but is injected as the last-child of the body
+	   when saving a palette to the local file-system.
+	   If that causes layout issues (it does when this
+	   element is included in the default HTML)
+	   you should include this element in your HTML
+	   page at the point where it will not cause
+	   interference with your page layout. */
+	display: none; }
 
 #MasterColorPicker_Filter {
 	margin-top: 2em;
