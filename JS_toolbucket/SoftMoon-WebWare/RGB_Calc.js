@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.1.3  February 29, 2020  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.1.4  March 5, 2020  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020 Joe Golembieski, SoftMoon WebWare
 
@@ -202,7 +202,7 @@ SoftMoon.WebWare.loadPalettes=function loadPalettes(   // ←required  ↓all op
 //If the server offers multiple choices for a file, this may require human interaction or otherwise.
 //You may pass in a custom function  $onMultiple  to handle that.  You may pass in  HTTP.handleMultiple  for basic human intervention.
 //See the SoftMoon.WebWare.HTTP file for more info.
-	if (typeof $path != 'string'  ||  $path==="")  $path=loadPalettes.defaultPath;
+	if (typeof $path != 'string'  ||  $path==="")  $path=SoftMoon.colorPalettes_defaultPath;
 	if (typeof $addPalette != 'function')  $addPalette=SoftMoon.WebWare.addPalette;
 	var files=new Array,
 			connector=new SoftMoon.WebWare.HTTP($maxAttempts, $timeoutDelay),
@@ -225,7 +225,7 @@ SoftMoon.WebWare.loadPalettes=function loadPalettes(   // ←required  ↓all op
 	connector.getFile(paletteIndexConnection);
 	return files;  }
 
-SoftMoon.WebWare.loadPalettes.defaultPath='color_palettes/';
+if (!SoftMoon.colorPalettes_defaultPath)  SoftMoon.colorPalettes_defaultPath='color_palettes/';
 
 SoftMoon.WebWare.addPalette=function($json_palette)  {
 	var json_palette = this.responseText  ||  $json_palette;

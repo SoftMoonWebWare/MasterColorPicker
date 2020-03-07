@@ -1,4 +1,4 @@
-/*  UniDOM-2020  February 29, 2020
+/*  UniDOM-2020  version 1.1.0  March 4, 2020
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -599,7 +599,7 @@ function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 	function hasClass(cna, logic)  {  // cna may be the string name of the class or a RegExp;  or a “logic array” of these ← see above
 		if (typeof this.className !== 'string' || this.className==="")  return false;
 		if (!(cna instanceof Array))  cna=[cna];
-		cna.logic=logic;  // see function “has” (above) for legal values for “logic”
+		if (logic) cna.logic=logic;  // see function “has” (above) for legal values for “logic”
 		return has.call(this, cna, function(e, c)  { //is passed one className in the cna at a time
 			var not=false;
 			if (typeof c === 'function')  return c(e)^c.not;
@@ -690,7 +690,10 @@ UniDOM.remove$Class=function(element)  {return removeClass.apply(xElement(elemen
 UniDOM.useClass=function(element)  {return useClass.apply(xElement(element), aSlice.call(arguments, 1));};
 UniDOM.swapOut$Class=function(element)  {return swapOutClass.apply(xElement(element), aSlice.call(arguments, 1));};
 UniDOM.disable=function(element)  {return disable.apply(xElement(element), aSlice.call(arguments, 1));};
-
+UniDOM.getSelected=function(element)  { element=xElement(element)
+	return  element.nodeName==='SELECT' ?
+			getSelectedOptions(element)
+		: getElementsByName.apply(element, aSlice.call(arguments, 1)).getSelected();  };
 
 
 //constructor
@@ -733,7 +736,10 @@ ElementWrapper.prototype.useClass=function()  {useClass.apply(this.element, argu
 ElementWrapper.prototype.swapOut$Class=function()  {swapOutClass.apply(this.element, arguments);  return this};
 ElementWrapper.prototype.disable=function()  {disable.apply(this.element, arguments);  return this;};
 
-ElementWrapper.prototype.getSelected=function() {if (this.element.nodeName==='SELECT') return getSelectedOptions.call(this.element);};
+ElementWrapper.prototype.getSelected=function() {
+	return  this.element.nodeName==='SELECT' ?
+			getSelectedOptions.call(this.element)
+		: getElementsByName.apply(this.element, aSlice.call(arguments, 1)).getSelected();  };
 ElementWrapper.prototype.setSelected=function() {if (this.element.nodeName==='SELECT') return setSelected.apply(this.element, arguments);};
 
 
@@ -787,6 +793,13 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 
 	getSelected() {return getSelectedInputs.apply(this, arguments);}
 	setSelected() {return setSelected.apply(this, arguments);}
+	getValues(includeEmpty, goDeep) { var r=new Array, deep;
+		if (typeof goDeep !== 'function')  {deep=Boolean(goDeep);  goDeep=function(){return deep;}}
+		function gatherValue(e)  { //note we never gather any elements, just extract their data
+			if (includeEmpty || (('value' in e) && e.value!==undefined && e.value!==""))  r.push(e.value);
+			if (e.children.length  &&  goDeep(e))  getElements.call(e, gatherValue, false);  }
+		this.forEach(gatherValue);
+		return r;  }
 
 	objectify(filter, powerSelect) {objectify(this, filter, powerSelect);  return this;}
 

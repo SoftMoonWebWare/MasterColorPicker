@@ -1,6 +1,6 @@
 ﻿//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// Picker.js Beta-2.6.2 release 1.7.2  February 29, 2020  by SoftMoon-WebWare.
+// Picker.js Beta-2.7.0 release 1.8.0  March 3, 2020  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -169,14 +169,14 @@ Picker.CLASSNAMES={
 
 Picker.prototype.setTopPanel=function(panel, rotate)  {
 	if (panel===this.panels[this.panels.length-1])  return;
-	if (rotate)  {rotate=this.panels.pop();  this.panels.unshift(rotate);}
+	if (typeof rotate === 'number')  this.panels=this.panels.slice(rotate).concat(this.panels.slice(0, rotate));
 	var i, tc, rc=RegExp('\\b(' + this.classNames.panelLevel + '[0-9]+|' + this.classNames.topPanel + '|' + this.classNames.activePanel + ')\\b', 'g');
-	for (i=0; i<this.panels.length; i++)  {
-		UniDOM.generateEvent(this.panels[i], 'onPickerLevelChange',
-			{bubbles:true,  userArgs: {Picker: this, newTopPanel: panel, rotate: rotate}});  }
 	if (panel)  { i=0;
 		while (panel!==this.panels[i]  &&  i<this.panels.length)  {i++;}
 		this.panels.splice(i, 1);  this.panels.push(panel);  }  // note that if “panel” was never registered, it will be added to the “panels” array
+	for (i=0; i<this.panels.length; i++)  {
+		UniDOM.generateEvent(this.panels[i], 'pickerLevelChange',
+			{bubbles:true,  userArgs: {Picker: this, newTopPanel: panel, rotate: rotate}});  }
 	for (i=0; i<this.panels.length; i++)  {
 		UniDOM.swapOut$Class(this.panels[i], rc, this.classNames.panelLevel+String(i+1));  }
 	tc=[this.classNames.topPanel];
@@ -209,9 +209,9 @@ Picker.prototype.setActivePickerState=function(flag, target)  {
 	this.setTopPanel();
 	for (var i=0, PickerInstance=this;  i<this.panels.length;  i++)  {
 		UniDOM.useClass(this.panels[i], this.classNames.activePicker, flag);
-		UniDOM.generateEvent(this.panels[i], 'onPickerStateChange',
+		UniDOM.generateEvent(this.panels[i], 'pickerStateChange',
 			{bubbles:true,  userArgs: {flag: flag,  oldState: wasActive,  Picker: PickerInstance,  currentDataTarget: target}});  }
-	if (this.onPickerStateChange)  this.onPickerStateChange(flag, wasActive, target);  }
+	if (this.pickerStateChange)  this.pickerStateChange(flag, wasActive, target);  }
 
 
 
@@ -227,9 +227,9 @@ Picker.prototype.setActiveInterfaceState=function(flag, target, isInterfaceTarge
 	this.interfaceTarget= (flag && isInterfaceTarget) ? target : undefined;
 	for (var i=0;  i<this.panels.length;  i++)  {
 		UniDOM.useClass(this.panels[i], this.classNames.activeInterface, flag);
-		UniDOM.generateEvent(this.panels[i], 'onInterfaceStateChange',
+		UniDOM.generateEvent(this.panels[i], 'interfaceStateChange',
 			{bubbles:true,  userArgs: {flag: flag,  oldState: wasActive,  Picker: this,  currentDataTarget: target}});	}
-	if (this.onInterfaceStateChange)  this.onInterfaceStateChange(flag, wasActive, target);  }
+	if (this.interfaceStateChange)  this.interfaceStateChange(flag, wasActive, target);  }
 
 
 
@@ -248,7 +248,7 @@ Picker.prototype.choosePicker=function(activeClasses, pickerName, flag)  {
 			chosen=flag && chosen;
 			for (j=0;  j<activeClasses.length;  j++)  {
 				UniDOM.useClass(pickers[i], activeClasses[j], chosen);  }
-			UniDOM.generateEvent(pickers[i], 'onPickerStateChange', {bubbles:true, userArgs: {flag: chosen, classes: activeClasses}});  }  }  }
+			UniDOM.generateEvent(pickers[i], 'pickerStateChange', {bubbles:true, userArgs: {flag: chosen, classes: activeClasses}});  }  }  }
 
 
 
@@ -325,7 +325,7 @@ Picker.prototype.registerTargetElement=function(element, PickerContainer)  {
 		goDeep.picker_select=PickerInstance.picker_select;  //
 		if (event.ctrlKey  &&  (event.keyCode===9 || event.keyCode===190)  //TAB key  or  .> key
 		&&  (tabTo=( PickerInstance.picker_select
-							|| PickerInstance.panels.reverse().filter(outDisabled).getElements(isTabStop, goDeep)[0] )))  {
+							|| PickerInstance.panels.filter(outDisabled).reverse().getElements(isTabStop, goDeep)[0] )))  {
 			event.preventDefault();
 			PickerInstance.interfaceActiveFlag=true;
 			tabTo.focus();  }
@@ -475,16 +475,19 @@ Picker.prototype.registerInterfaceElement=function(element, actions)  {
 		var shifted=event.shiftKey  ||  (event.ctrlKey && event.keyCode===188);
 		enterKeyed=(event.keyCode===13);         //            === ↑                 === ↓
 		selectPan=(this.nodeName==='SELECT'  &&  (event.keyCode===38 || event.keyCode===40));
-		if (tabbedOut)  { var tabTo, panel;
+		if (tabbedOut)  { var tabTo, i;
 			if (actions && actions.tabbedOut && actions.tabbedOut(event))  return;
 			event.preventDefault();
 			goDeep.className=PickerInstance.classNames.picker;
 			goDeep.picker_select=PickerInstance.picker_select;
 			if (event.ctrlKey
-			&&  (tabTo= ((PickerInstance.panels.length<2) ?  PickerInstance.dataTarget  :  PickerInstance.panels.slice(0, -1)))
+			&&  ( tabTo= PickerInstance.panels.ctrlTabTo  // this property is entirely application controlled; it may be a tabStop or a UniDOM.ElementArray of panel(s) with a tabStop
+								||  ( (i=PickerInstance.panels.indexOf(UniDOM.getAncestorBy$Class(this, PickerInstance.classNames.pickerPanel))),
+											PickerInstance.panels.slice(i+1).concat(PickerInstance.panels.slice(0, i)) ) )
 			&&  ( isTabStop(tabTo)  //  ← see private members above  ↓                         ↓          ↓
-				 || (tabTo=(shifted ? tabTo : tabTo.reverse()).filter(outDisabled).getElements(isTabStop, goDeep)[0]) ) )  {
-				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true, userArgs:{rotatePanels: !shifted}});
+				 || (tabTo=(shifted ? tabTo : tabTo.reverse()).filter(outDisabled).getElements(isTabStop, goDeep)[0])
+				 || (isTabStop(PickerInstance.dataTarget)  &&  (tabTo=PickerInstance.dataTarget))  ) )  {
+				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true, userArgs:{rotatePanels: (shifted ? false : i )}});
 				UniDOM.generateEvent(this, 'tabOut', {bubbles:true});
 				return;  }
 			if ((!shifted
@@ -534,7 +537,7 @@ Picker.prototype.registerInterfaceElement=function(element, actions)  {
 					UniDOM.generateEvent(this, 'buttonpress', {bubbles:true});
 					event.preventDefault();  }
 				UniDOM.generateEvent(this, 'change', {bubbles: true});
-				UniDOM.generateEvent(this, 'tabIn', {bubbles:true}  ); }  }  } );
+				UniDOM.generateEvent(this, 'tabIn', {bubbles:true}); }  }  } );
 
  if (isUserdataInputType)
 	UniDOM.addEventHandler(element, 'onchange', function(event)  {
