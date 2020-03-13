@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.1.4  March 5, 2020  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.1.6  March 11, 2020  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020 Joe Golembieski, SoftMoon WebWare
 
@@ -198,32 +198,36 @@ SoftMoon.WebWare.Palette.defaultConfig={   // see  SoftMoon.WebWare.RGB_Calc.Con
 // Once the index is asynchronously loaded via HTTP, the array will fill with HTTP-connect objects, one for each palette being loaded.
 // Each HTTP-connect object has a property  .trying  which will become false once that palette is loaded (or if loading fails)
 SoftMoon.WebWare.loadPalettes=function loadPalettes(   // ←required  ↓all optional on next line
-		$path, $onIndexLoad, $addPalette, $loadError, $onMultiple, $maxAttempts, $timeoutDelay)  {
+		$path, $onIndexLoad, $addPalette, $loadError, $onMultiple, $maxAttempts, $timeoutDelay, $logError)  {
 //If the server offers multiple choices for a file, this may require human interaction or otherwise.
 //You may pass in a custom function  $onMultiple  to handle that.  You may pass in  HTTP.handleMultiple  for basic human intervention.
 //See the SoftMoon.WebWare.HTTP file for more info.
-	if (typeof $path != 'string'  ||  $path==="")  $path=SoftMoon.colorPalettes_defaultPath;
-	if (typeof $addPalette != 'function')  $addPalette=SoftMoon.WebWare.addPalette;
-	var files=new Array,
+	if (typeof $path !== 'string'  ||  $path==="")  $path=SoftMoon.colorPalettes_defaultPath;
+	if (typeof $addPalette !== 'function')  $addPalette=SoftMoon.WebWare.addPalette;
+	var connections=new Array,
 			connector=new SoftMoon.WebWare.HTTP($maxAttempts, $timeoutDelay),
-			paletteIndexConnection=SoftMoon.WebWare.HTTP.newConnection($path, 'Can not access color palettes: no HTTP service available.');
+			paletteIndexConnection=SoftMoon.WebWare.HTTP.Connection($path, 'Can not access color palettes: no HTTP service available.', $logError);
 	if (paletteIndexConnection === null)  return false;
 	paletteIndexConnection.onFileLoad=function()  {
-		if (typeof this.responseText != 'string'  ||  this.responseText=="")  files.noneGiven=true;
+		if (typeof this.responseText !== 'string'  ||  this.responseText==="")  connections.noneGiven=true;
 		else  for (var paletteIndex=this.responseText.split("\n"), i=0; i<paletteIndex.length; i++)  {
-			if (paletteIndex[i]!=="")  {
-				files[i]=SoftMoon.WebWare.HTTP.Connection(paletteIndex[i]);  // there should now be no reason we cannot create a new connection, so we don't check
-				files[i].onFileLoad=$addPalette;
-				files[i].loadError=$loadError;
-				files[i].onMultiple=$onMultiple;
-				connector.getFile(files[i]);  }  }
-		$onIndexLoad(files, paletteIndex, this.responseText);  };
+			if ( paletteIndex[i]!==""
+			&&  ( !paletteIndex[i].match(loadPalettes.userPaletteMask)
+				 ||  paletteIndex[i].match(loadPalettes.autoloadPaletteMask) ) )  {
+				connections[i]=SoftMoon.WebWare.HTTP.Connection(paletteIndex[i]);
+				connections[i].onFileLoad=$addPalette;
+				connections[i].loadError=$loadError;
+				connections[i].onMultiple=$onMultiple;
+				connector.commune(connections[i]);  }  }
+		$onIndexLoad(connections, paletteIndex, this.responseText);  };
 	paletteIndexConnection.loadError=$loadError;
 	paletteIndexConnection.onMultiple=$onMultiple;
-	files.connector=connector;
-	files.paletteIndexConnection=paletteIndexConnection;
-	connector.getFile(paletteIndexConnection);
-	return files;  }
+	connections.connector=connector;
+	connections.paletteIndexConnection=paletteIndexConnection;
+	connector.commune(paletteIndexConnection);
+	return connections;  }
+SoftMoon.WebWare.loadPalettes.userPaletteMask= /\/users\//
+SoftMoon.WebWare.loadPalettes.autoloadPaletteMask= /\/autoload\//
 
 if (!SoftMoon.colorPalettes_defaultPath)  SoftMoon.colorPalettes_defaultPath='color_palettes/';
 

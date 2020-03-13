@@ -357,8 +357,8 @@ function getElementOffset(element, scroll)  {
 			&&  element!==ancestor  &&  element.offsetParent)  {
 		if (s.position==='fixed')  {scrl=false;  fixed=true;}
 //								console.log("<"+element.nodeName+" id="+element.id+">  postion: "+s.position+";  offsetLeft: "+element.offsetLeft+";  offsetTop: "+element.offsetTop);
-		x+= element.offsetLeft;
-		y+= element.offsetTop;
+		x+= element.offsetLeft - (scrl? element.offsetParent.scrollLeft : 0);
+		y+= element.offsetTop - (scrl? element.offsetParent.scrollTop : 0);
 		element=element.offsetParent;  }
 	if (scrl)  {x-=UniDOM.getScrollX();  y-=UniDOM.getScrollY();}  //console.log('pageYOffset: '+window.pageYOffset);
 //	console.log('---');
