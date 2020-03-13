@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.08  March 7, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.09  March 12, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -536,7 +536,9 @@ select#MasterColorPicker_palette_select {
 	padding-top: 0.382em;
 	text-align: right; }
 #MasterColorPicker_MyPalette button {
-	margin-left: .618em; }
+	margin-left: .618em;
+	margin-right: 0;
+	break-before: avoid; }
 #MasterColorPicker_MyPalette .portDialog:disabled,
 #MasterColorPicker_MyPalette .portDialog .import,
 #MasterColorPicker_MyPalette .portDialog .export,
@@ -606,6 +608,17 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette fieldset.filetype label {
 	display: block;
 	margin-right: .382em; }
+#MasterColorPicker_MyPalette .uploading {
+	display: block;
+	background-color: lightyellow;
+	width: 30em;
+	white-space: pre-wrap;
+	overflow-wrap: break-word; }
+#MasterColorPicker_MyPalette .uploading span {
+	font-weight: bold;
+	font-family: monospace;  }
+#MasterColorPicker_MyPalette .uploading strong {
+	color: red;  }
 #MasterColorPicker_MyPalette table {
 	margin: 0;
 	padding: 0;

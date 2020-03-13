@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// MasterColorPicker2.js   ~release ~2.0.08-alpha   March 7, 2020   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.0.09-alpha   March 12, 2020   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -525,10 +525,11 @@ function MyPalette(HTML, PNAME)  {
 	UniDOM(HTML).getElementsBy$Name( /_delete/ )[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.onDelete();});
 	UniDOM(HTML).getElementsBy$Name( /_makeSub/ )[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.makeSub();});
 	UniDOM(HTML).getElementsBy$Name( /_port\]?$/ )[0].addEventHandler(['onclick', 'buttonpress'], function() {portHTML.disabled= !portHTML.disabled});
-	UniDOM(HTML).getElementsBy$Name( /_porter/ )[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.porter();});
+	UniDOM(HTML).getElementsBy$Name( /_porter/ )[0].addEventHandler(['onclick', 'buttonpress'], function(event) {thisPalette.porter(event);});
 
 	var _import  =UniDOM.getElementsBy$Name(portHTML, /_import/ )[0],  //the input type=file
 			_porter  =UniDOM.getElementsBy$Name(portHTML, /_porter/ )[0],  //the load/save button
+			_replace =UniDOM.getElementsBy$Name(portHTML, /_replace_file/ )[0],  //checkbox
 			_autoload=UniDOM.getElementsBy$Name(portHTML, /_autoload/ )[0],  //checkbox
 			_filetype=portHTML.querySelector('.filetype'),
 			activeClasses=[['import', 'export'], ['server', 'local', 'browser', 'current']];
@@ -552,6 +553,7 @@ function MyPalette(HTML, PNAME)  {
 		UniDOM.disable(_porter, !UniDOM.has$Class(portHTML, activeClasses)
 												 || (UniDOM.has$Class(portHTML, ['import', 'local']) && !_import.value)
 												 || (UniDOM.has$Class(portHTML, ['export', 'local']) && !UniDOM.getSelected(_filetype)) );
+		UniDOM.disable(_replace.parentNode, (event.target.value!=='browser' && event.target.value!=='server') );
 		UniDOM.disable(_autoload.parentNode, (event.target.value!=='browser' && event.target.value!=='server') );
 		UniDOM.disable(_filetype, (event.target.value!=='local') );
 		});
@@ -566,6 +568,7 @@ function MyPalette(HTML, PNAME)  {
 	UniDOM.disable(paletteMetaHTML, true);
 	UniDOM.disable(_import.parentNode, true);
 	UniDOM.disable(_porter, true);
+	UniDOM.disable(_replace.parentNode, true);
 	UniDOM.disable(_autoload.parentNode, true);
 	UniDOM.disable(_filetype, true);
 
@@ -612,7 +615,6 @@ function MyPalette(HTML, PNAME)  {
 
 SoftMoon.WebWare.x_ColorPicker.MyPalette_Color=MyPalette_Color;
 function MyPalette_Color(color)  {
-//	Object.setPrototypeOf(Object.getPrototypeOf(this), new SoftMoon.WebWare.x_ColorPicker.x_Color(color));  }
 	color=new SoftMoon.WebWare.x_ColorPicker.x_Color(color);
 	Object.getPrototypeOf(color).constructor=MyPalette_Color;  }
 
@@ -731,7 +733,11 @@ MyPalette.prototype.showMenu=function(event, handle)  {
 			xer=UniDOM.addEventHandler(handle, 'onMouseLeave', function()  {
 				xer.onMouseLeave.remove();
 				UniDOM.remove$Class(handle, "withMenu");
-				handle.removeChild(thisPalette.ColorGenie.HTML_clipMenu);  });
+				handle.removeChild(thisPalette.ColorGenie.HTML_clipMenu);  }),
+			xyPos=UniDOM.getElementOffset(handle, true);
+	this.ColorGenie.HTML_clipMenu.style.position= 'fixed';
+	this.ColorGenie.HTML_clipMenu.style.top= xyPos.y+'px';
+	this.ColorGenie.HTML_clipMenu.style.left=xyPos.x+'px';
 	handle.appendChild(this.ColorGenie.HTML_clipMenu);  }
 
 MyPalette.prototype.onMenuSelect=function(event)  {
@@ -800,28 +806,52 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 		palette: palette } };
 	return palette;  }
 
-MyPalette.prototype.porter=function()  {
+MyPalette.prototype.porter=function(event)  {
+	if (event.detail>1) return;
 	var portMode=UniDOM.getElementsBy$Name(this.HTML.querySelector(".portMode"), /_portMode/ ).getSelected().value;
 			port=UniDOM.getElementsBy$Name(this.HTML.querySelector(".port"), /_port\]?$/ ).getSelected().value;
 	switch (portMode)  {
 	case 'import':  switch (port)  {
 		case 'server':
 		case 'local':
-		case 'browser':
 		case 'current':
+		case 'browser':
 		default: console.log('porter:', portMode, port);  return;
 	}
 	case 'export':  switch (port)  {
 		case 'server':  this.uploadPalette();  return;
 		case 'local':   this.savePalette();  return;
+		case 'current': SoftMoon.WebWare.initLoadedPaletteTable(this.toJSON());  return;
 		case 'browser':
-		case 'current':
 		default: console.log('porter:', portMode, port);  return;
-	}  }
-}
+	}  }  }
 
-MyPalette.prototype.uploadPalette=function() {
-console.log(SoftMoon.colorPalettes_defaultPath);
+MyPalette.prototype.uploadPalette=function(JSON_Palette) {
+	console.log(' →→ Uploading palette to:',SoftMoon.colorPalettes_defaultPath);
+	var HTTP=SoftMoon.WebWare.HTTP,
+			palette=JSON_Palette || this.toJSON(),
+			connector=new HTTP(),
+			connection=HTTP.Connection(SoftMoon.colorPalettes_defaultPath, 'Can not upload Palette to server: no HTTP service available.'),
+			pName, div, portDialog=this.HTML.querySelector('.portDialog');
+  for (pName in palette)  {break;}
+	connection.onFileLoad=function() {console.log(' →→ Upload response:',this.responseText);
+		if (this.responseText.substr(0,10)==='¡Error! : ')  div.innerHTML= '<strong>' + this.responseText + '</strong>';
+		else  div.innerHTML= 'Successfully uploaded to:\n<span>' + document.URL.substring(0, document.URL.lastIndexOf("/")+1) + this.responseText + '</span>';  };
+	connection.loadError=function()  {console.log(' →→ Upload HTTP or server Error.');
+		div.innerHTML='<strong>¡Error! :\n problem with the HTTP connection or server.</strong>';  }
+  connection.requestHeaders={'Content-Type': 'application/x-www-form-urlencoded'};
+	connection.postData=HTTP.URIEncodeObject({
+		filename: pName+".palette.json",
+		palette: JSON.stringify(palette, undefined, "\t"),
+		replace_file: UniDOM.getElementsBy$Name(this.HTML, /replace_file/ )[0].checked.toString(),
+		autoload: UniDOM.getElementsBy$Name(this.HTML, /autoload/ )[0].checked.toString() });
+	connector.commune(connection);
+	if (div=portDialog.querySelector('.uploading'))  portDialog.removeChild(div);
+	div=document.createElement('div');
+	div.className='uploading';
+	div.innerHTML= 'Uploading <span>' + pName + '</span> to:\n<span>' +
+		document.URL.substring(0, document.URL.lastIndexOf("/")+1)+SoftMoon.colorPalettes_defaultPath + '</span>';
+	portDialog.insertBefore(div, portDialog.querySelector('.port'));
 }
 
 MyPalette.prototype.savePalette=function()  {
@@ -841,7 +871,9 @@ MyPalette.prototype.savePalette=function()  {
 	iframe.setAttribute('src', palette);
 	URL.revokeObjectURL(palette);  }
 
+MyPalette.prototype.commitToTable=function()  {
 
+}
 
 
 // =================================================================================================== \\
@@ -2101,11 +2133,12 @@ SoftMoon.WebWare.initLoadedPaletteTable=function(json_palette, whenLoaded)  {
 			slct=document.getElementById('MasterColorPicker_palette_select'),
 			wrap=document.getElementById('MasterColorPicker_paletteTables');
 	for (paletteName in json_palette)  {
-		if (typeof whenLoaded == 'function'  &&  whenLoaded(paletteName))  continue;
+		if (typeof whenLoaded === 'function'  &&  whenLoaded(paletteName))  continue;
 		MasterColorPicker.registerPicker( wrap.appendChild( (typeof json_palette[paletteName].buildPaletteHTML == 'function')  ?
 					json_palette[paletteName].buildPaletteHTML(paletteName)       // ← ↓ init: note custom init methods must add a “setStylez” method to the HTML -and- it should return the HTML
 				: SoftMoon.WebWare.buildPaletteTable(paletteName, json_palette[paletteName], 'color_chart picker') ).setStylez() );
 		o=document.createElement('option');
+		o.value=paletteName.replace( /\s/g, "_");
 		o.appendChild(document.createTextNode(paletteName));
 		o.selected=(SoftMoon._POST  &&  SoftMoon._POST.palette_select===paletteName);
 		slct.appendChild(o);  }  };
@@ -2151,7 +2184,7 @@ function buildPaletteTable(pName, pData, className)  {
 	x_CP.canIndexLocator=false;
 	tbl=document.createElement('table')
 	tbl.className=className  // 'color_chart'
-	tbl.id=pName
+	tbl.id=pName.replace( /\s/g , "_");
 	cpt=document.createElement('caption')
 	cpt.innerHTML= pData.caption  ||  SoftMoon.WebWare.buildPaletteTable.caption.replace( /{pName}/ , pName);
 	tbl.appendChild(cpt);

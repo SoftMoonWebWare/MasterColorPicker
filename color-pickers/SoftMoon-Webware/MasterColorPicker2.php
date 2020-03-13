@@ -2,7 +2,7 @@
 <!--  You may move these support scripts to the document head, especially if you plan on using them with other code  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
-<script type='text/javascript' src='JS_toolbucket/HTTP.js' defer></script><!-- ESSENTIAL for server version, NOT for desktop use -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!-- ESSENTIAL for server version, NOT for desktop use -->
 <!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/Math+++.js' defer></script><!--  !! ESSENTIAL !!  -->
@@ -17,7 +17,7 @@
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.08  March 7, 2020
+      release 2.0.09  March 11, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -210,6 +210,7 @@ or pin it to the window when it is pinned to the page.
 		<fieldset><legend>palette footers:</legend>
 		<textarea name='MasterColorPicker_MyPalette_footers[0]' rows='1' cols='50' value=""></textarea>
 		</fieldset>
+		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_replace_file' disabled='disabled' /> replace existing file?</label>
 		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoload' disabled='disabled' /> auto-load this palette when MasterColorPicker starts?</label>
 		<fieldset class='filetype local'><legend>save as type:</legend>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="js" /> .js (for MasterColorPicker™—desktop auto-load use<span> see <strong>☺Help☺</strong> </span>)</label>
