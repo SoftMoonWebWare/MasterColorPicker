@@ -1,4 +1,4 @@
-/*  UniDOM-2020  version 1.1.0  March 4, 2020
+/*  UniDOM-2020  version 1.2.0  March 15, 2020
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -368,19 +368,39 @@ function getElementOffset(element, scroll)  {
 UniDOM.isElementNode=isElementNode;
 function isElementNode(e)  {return  typeof e == 'object'  &&  (e instanceof Element  ||  (e instanceof Node  &&  e.nodeType===Node.ELEMENT_NODE));};
 
+UniDOM.isElement=isElement;
+function isElement(e, i) {return isElementNode(e)  &&   e===e.parentNode.children[i];}
+
+UniDOM.isNode=isNode;
+function isNode(n, i) {return (n instanceof Node)  &&  n===n.parentNode.childNodes[i];}
+
+UniDOM.isFirst=isFirst;
+function isFirst(e) {return e===e.parentNode.firstElementChild;}
+
+UniDOM.isFirstNode=isFirstNode;
+function isFirstNode(e) {return e===e.parentNode.firstChild;}
+
+UniDOM.isLast=isLast;
+function isLast(e) {return e===e.parentNode.lastElementChild;}
+
+UniDOM.isLastNode=isLastNode;
+function isLastNode(e) {return e===e.parentNode.lastChild;}
+
+
+
 UniDOM.isWindow=(Window  &&  (window instanceof Window)) ?
 	function(e)  {return  e instanceof Window;}
 : function(e)  {return  typeof e == 'object'  &&  ((e=e.toString()) && e.match( /wIndOw/i ));};
 
 
-UniDOM.addEventHandler(window, 'onload', function()  {  // support UniDOM’s legacy for crusty old fossil crutches
+window.addEventListener('load', function()  {  // support UniDOM’s legacy for crusty old fossil crutches
 
 //position of the browser window on the desktop:
-if (window.screenLeft)  {  //  standard
+if (window.screenLeft)  {
 	UniDOM.getScreenX=function(w)  {return  (w  ||  window).screenLeft;};
 	UniDOM.getScreenY=function(w)  {return  (w  ||  window).screenTop;};  }
 else
-if (window.screenX)  {  // legacy FireFox
+if (window.screenX)  {
 	UniDOM.getScreenX=function(w)  {return  (w  ||  window).screenX;};
 	UniDOM.getScreenY=function(w)  {return  (w  ||  window).screenY;};  }
 
@@ -715,6 +735,12 @@ ElementWrapper.prototype.getOffset=function(scroll)  {return getElementOffset(th
 ElementWrapper.prototype.getMouseOffset=function(event)  {return getMouseOffset(this.element, event);}
 
 ElementWrapper.prototype.isElementNode=function()  {return isElementNode(this.element);}
+ElementWrapper.prototype.isElement=function(i)  {return isElement(this.element, i);}
+ElementWrapper.prototype.isNode=function(i)  {return isNode(this.element, i);}
+ElementWrapper.prototype.isFirst=function()  {return isFirst(this.element);}
+ElementWrapper.prototype.isFirstNode=function()  {return isFirstNode(this.element);}
+ElementWrapper.prototype.isLast=function()  {return isLast(this.element);}
+ElementWrapper.prototype.isLastNode=function()  {return isLastNode(this.element);}
 
 ElementWrapper.prototype.getAncestor=function()  {return UniDOM(getAncestor.apply(this.element, arguments), true);};
 ElementWrapper.prototype.getElements=function()  {return UniDOM(getElements.apply(this.element, arguments), true);};
@@ -1024,6 +1050,8 @@ UniDOM.prototypify=function(objectsToo)  { //invade the DOM
 	// While UniDOM’s method will accept the same arguments as the DOM standard getElementsByClassName(),
 	// the latter returns a live node-list that changes as the DOM is updated,
 	// and we need to retain that functionality for cross-library compatibility.
+	// Also note that methods that can accept RegExps use the $ marker as such in their names.
+
 	Element.prototype.getElementsBy$Class=getElementsByClass;
 	Element.prototype.getAncestorBy$Class=getAncestorByClass;
 	Element.prototype.getElementsBy$Name=getElementsByName;
@@ -1045,6 +1073,14 @@ UniDOM.prototypify=function(objectsToo)  { //invade the DOM
 	Element.prototype.getEventHandler=function() {getEventHandler.apply(this, arguments);};
 	Element.prototype.generateEvent=function() {generateEvent.apply(this, arguments);};
 
+	Object.defineProperties(Node.prototype, {
+		isFirstNode: {enumerable:true, get: function() {return this===this.parentNode.firstChild;}, configurable:true},
+		isLastNode:  {enumerable:true, get: function() {return this===this.parentNode.lastChild;}, configurable:true} });
+	Object.defineProperties(Element.prototype, {
+		isFirst: {enumerable:true, get: function() {return this===this.parentNode.firstElementChild;}, configurable:true},
+		isLast:  {enumerable:true, get: function() {return this===this.parentNode.lastElementChild;}, configurable:true} });
+	Node.prototype.isNode=function(i) {return this===this.parentNode.childNodes[i];}
+	Element.prototype.isElement=function(i) {return this===this.parentNode.children[i];}
 
 	Element.prototype.getOffset=function(scroll)  {return UniDOM.getElementOffset(this, scroll);};
 	Element.prototype.getMouseOffset=function(event)  {return UniDOM.getMouseOffset(this, event);};

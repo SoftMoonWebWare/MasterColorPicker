@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.1.6  March 11, 2020  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.1.7  March 15, 2020  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020 Joe Golembieski, SoftMoon WebWare
 
@@ -160,6 +160,8 @@ if (typeof SoftMoon.palettes !== 'object')  SoftMoon.palettes=new Object;
 
 SoftMoon.WebWare.Palette=function Palette($meta)  {
 	Object.defineProperty(this, "palette",  {value: Object.create($meta.palette),  enumerable: true});
+	if ($meta.header)  Object.defineProperty(this, "header", {value: typeof $meta.header === 'object' ? Object.create($meta.header) : $meta.header,  enumerable: true});
+	if ($meta.footer)  Object.defineProperty(this, "footer", {value: typeof $meta.footer === 'object' ? Object.create($meta.footer) : $meta.footer,  enumerable: true});
 	Object.defineProperty(this, "requireSubindex",  {value: $meta.requireSubindex,  enumerable: true});
 	var config=Object.create(Palette.defaultConfig);
 	if ($meta.config)  for (c in $meta.config)  {config[c] = Object.getOwnPropertyDescriptor($meta.config, c);}

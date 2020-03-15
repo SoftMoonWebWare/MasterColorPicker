@@ -1,6 +1,6 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.0 (February 29, 2020)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
+/* FormFieldGenie version 4.1 (March 15, 2020)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatable with early versions of MSIE =*=*=*
 
@@ -372,6 +372,9 @@ FormFieldGenie.prototype.catchTab=function(event)  {
 //  Inactive elements will not be considered when deciding to pop a new fieldNodeGroup or dump an empty one.
 // 	Your function should return true/false.
 FormFieldGenie.prototype.isActiveField=function(fieldNode)  {
+	switch (typeof this.config.isActiveField)  {
+		case 'function': return this.config.isActiveField(fieldNode);
+		case 'boolean':  return this.config.isActiveField;  }
 	if ( typeof fieldNode.offsetWidth === 'number'
 	&&  ( fieldNode.offsetWidth<this.config.minPixWidth
 		||  fieldNode.offsetHeight<this.config.minPixHeight ) )  return false;
