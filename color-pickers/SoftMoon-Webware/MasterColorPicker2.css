@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.09  March 12, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.10  March 15, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -304,13 +304,6 @@ span.MCP_fix_Safari {
 	font-style:  normal;
 	font-variant: normal; }
 
-#MasterColorPicker p.underConstruction {
-	color: red !important;
-	text-align: center !important;
-}
-#MasterColorPicker p.underConstruction span {
-	display: block;
-	font-size: 1.162em; }
 
 #MasterColorPicker_options.pickerPanel,
 #MasterColorPicker_options.pickerPanel.activeInterface,
@@ -554,18 +547,22 @@ select#MasterColorPicker_palette_select {
 	display: inline; }
 #MasterColorPicker_MyPalette .port,
 #MasterColorPicker_MyPalette .port label,
+#MasterColorPicker_MyPalette .paletteMerge label,
 #MasterColorPicker_MyPalette .paletteMeta label {
 	display: block;
 	position: relative;
 	z-index: 1; }
 #MasterColorPicker_MyPalette .port,
 #MasterColorPicker_MyPalette .port label:hover,
+#MasterColorPicker_MyPalette .paletteMerge label:hover,
 #MasterColorPicker_MyPalette .paletteMeta label:hover {
 	z-index: 2; }
 #MasterColorPicker_MyPalette .port label span,
+#MasterColorPicker_MyPalette .paletteMerge label span,
 #MasterColorPicker_MyPalette .paletteMeta label span {
 	display: none; }
 #MasterColorPicker_MyPalette .portDialog.export .port label:hover span,
+#MasterColorPicker_MyPalette .paletteMerge.import label:hover span,
 #MasterColorPicker_MyPalette .portDialog.export .paletteMeta label:hover span {
 	display: block;
 	position: absolute;
@@ -574,6 +571,8 @@ select#MasterColorPicker_palette_select {
 	padding: 0 1em .618em 1em;
 	background-color: maroon;
 	color: white; }
+#MasterColorPicker_MyPalette .paletteMerge.import label:hover span {
+	background-color: darkBlue; }
 #MasterColorPicker_MyPalette .portDialog.export .paletteMeta label:hover span {
 	background-color: gold;
 	color: black; }
@@ -608,16 +607,16 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette fieldset.filetype label {
 	display: block;
 	margin-right: .382em; }
-#MasterColorPicker_MyPalette .uploading {
+#MasterColorPicker_MyPalette .portNotice {
 	display: block;
 	background-color: lightyellow;
 	width: 30em;
 	white-space: pre-wrap;
 	overflow-wrap: break-word; }
-#MasterColorPicker_MyPalette .uploading span {
+#MasterColorPicker_MyPalette .portNotice span {
 	font-weight: bold;
 	font-family: monospace;  }
-#MasterColorPicker_MyPalette .uploading strong {
+#MasterColorPicker_MyPalette .portNotice strong {
 	color: red;  }
 #MasterColorPicker_MyPalette table {
 	margin: 0;
@@ -995,7 +994,12 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	padding: .618em; }
 #MasterColorPicker_Gradientor canvas { border: 1px solid black; }
 
-
+#MasterColorPicker p.underConstruction {
+	color: red !important;
+	text-align: center !important; }
+#MasterColorPicker p.underConstruction span {
+	display: block;
+	font-size: 1.162em; }
 #MasterColorPicker_Gradientor p.underConstruction,
 #MasterColorPicker_Thesaurus p.underConstruction {
 	position: absolute;

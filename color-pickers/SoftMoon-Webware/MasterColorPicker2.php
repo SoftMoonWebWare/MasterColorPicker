@@ -17,7 +17,7 @@
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.09  March 11, 2020
+      release 2.0.10  March 15, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -168,7 +168,6 @@ or pin it to the window when it is pinned to the page.
 
 <div id='MasterColorPicker_MyPalette' class='pickerPanel expanding'>
 <h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F2 for shortcut">MyPalette</span></h2>
-<p class='underConstruction'><span>Under Construction:</span> only partial functionality</p>
 <p>(choose color(s) using any color-picker or type directly)</p>
 <fieldset>
 <button type='button' name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
@@ -201,6 +200,13 @@ or pin it to the window when it is pinned to the page.
 		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='current' />a current MasterColorPicker™ Palette Table
 			<span><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</span></label>
 		<button type='button' name='MasterColorPicker_MyPalette_porter'><span class='export'>save</span><span class='import'>load</span></button>
+	</fieldset>
+	<fieldset class='paletteMerge import' disabled='disabled'><legend>import merge mode</legend>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='add' />add new <span>Add colors &amp; subpalettes to this palette; ignore duplicate names.</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='merge' />merge new <span>Add colors to this palette; merge subpalettes, ignore duplicate color names.</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='merge-over' />merge &amp; replace with new <span>Add colors to this palette; merge subpalettes, replace colors with duplicate names.</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='over' />replace with new <span>Add colors &amp; subpalettes to this palette; replace those with duplicate names.</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='replace' />all new <span>Clear existing palette, and load new palette.</span></label>
 	</fieldset>
 	<fieldset class='paletteMeta export' disabled='disabled'>
 		<label>Palette Name: <input type='text' name='MasterColorPicker_MyPalette_name' /></label>
