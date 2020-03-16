@@ -21,7 +21,7 @@ BeezEye Color Picker™
     Classic color-wheel shows HSL, HSV/HSB, HCG, and CMYK color-spaces (one at a time) with user-controlled Lightness/Brightness/Gray/Black.
     
 Simple² Color Picker™
-    Works with the HSL and HSV/HSB color-spaces (both at once) to bring you simple access to the shades of any color from the “pure” color to →black, →white, and →gray.
+    Works with the HSL and HSV/HSB color-spaces (both at once) to bring you simple access to the shades of any color (hue) from the “pure” (fully-chromatic) color to →black, →white, and →gray.
     
 YinYang NíHóng Color Picker™
     Another classic style, delivers all of the 11,777,216 colors your 24-bit monitor can show within two easy clicks using either the HSL, HSB or HCG color-spaces.
