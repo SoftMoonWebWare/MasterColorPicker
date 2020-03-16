@@ -1,6 +1,9 @@
 # MasterColorPicker
 Advanced JavaScript desktop / web-page-plug-in tool delivering all the color you can handle, designed by and for professional digital media developers.
+
 Both desktop and server versions are cross-platform, and work with any modern browser that has up-to-date standards (FireFox, Chrome, Edge, Safari, Opera, etc.) on any computer: just HTML, JavaScript, and CSS.  No executable-programs to install in your computer!  The server version uses only one (1) short index.php file to manage upload and fascilitate download of the color-table-palettes data.
+No external dependencies!  No package manager to worry with!  No bootstrapping!  Just unzip and go!
+
 Supports unique needs of digital media formats.
 Colorblind-assistant in the RainbowMaestro harmonic-color-picker helps choose colors that are compatible with each-other for full color-sighted people and colorblind people.
 The MyPalette interface allows users to build thier own color-table-palettes, give each color a descriptive name, and save/retrieve them for future use.
