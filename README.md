@@ -15,7 +15,7 @@ RainbowMaestro Harmonic Color Picker™
     Specializes in color-harmony, shows light/dark shades (monochromatic) of a selected hue and its complement, triadic complements, split-complements, and analogous colors, all in one color-wheel. Includes a “websafe colors” setting;  Colorblind assistant shows protan, deutan, & tritan simulations of the palette and selected color.
     
 Spectral Progressive Color Picker™
-    Shows the progression of colors in steps based on the RGB color-space.  Works with browsers as far back as Internet Exploder 6.
+    Shows the progression of colors in steps based on the RGB color-space.  Works with browsers as far back as Internet Exploder 6. (note however, this project overall does not any longer support any version of MSIE, although early versions even supported IE9+)
     
 BeezEye Color Picker™
     Classic color-wheel shows HSL, HSV/HSB, HCG, and CMYK color-spaces (one at a time) with user-controlled Lightness/Brightness/Gray/Black.
