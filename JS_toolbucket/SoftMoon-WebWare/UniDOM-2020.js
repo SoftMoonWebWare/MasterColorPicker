@@ -1,4 +1,4 @@
-/*  UniDOM-2020  version 1.2.0  March 15, 2020
+/*  UniDOM-2020  version 1.2.1  March 17, 2020
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -976,7 +976,12 @@ function StyleSheetShell(ss)  { var i;
 	function getSSByName (ss)  { var id, j=0;
 		function isSSElement(e) {return e.nodeName==='STYLE' || (e.nodeName==='LINK' && e.rel==='stylesheet');}
 		if ((id=document.getElementById(ss))  &&  isSSElement(id))  {
-			getElders.call(id, function(e) {if (isSSElement(e))  j++;},	true);
+			//getElders.call(id, function(e) {if (isSSElement(e))  j++;},	true);  return document.styleSheets[j];  } //for MSIE
+			var links=Array.from(document.getElementsByTagName('link')),
+					inStyleSheets=function(e) {return e.rel==='stylesheet';},
+					styles=Array.from(document.getElementsByTagName('style')),
+					byDocPos=function(e1, e2) {return e2.compareDocumentPosition(e1)-3;};
+			j=links.filter(inStyleSheets).concat(styles).sort(byDocPos).indexOf(id);
 			return document.styleSheets[j];  }
 		for (; j<document.styleSheets.length; j++)  {
 			if (document.styleSheets[j].title===ss)  return document.styleSheets[j];  }  }
