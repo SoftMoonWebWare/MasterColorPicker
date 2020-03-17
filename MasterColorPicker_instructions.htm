@@ -1,13 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8" />
 <meta name='description' content='MasterColorPicker: a JavaScript color-picker delivering all the color you can handle.' />
 <meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker' />
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare' />
-<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019 Joe Golembieski, SoftMoon-WebWare' />
+<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020 Joe Golembieski, SoftMoon-WebWare' />
 <title>MasterColorPicker Instructions from SoftMoon WebWare</title>
-<link rel='stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' title='MasterColorPicker' />
 <style type="text/css">
 body, section, header, footer, div, h1, h2, h4, h5, img, ul, ol, dl, menu, li {
 	margin: 0;
@@ -64,20 +63,41 @@ body {
 #top figcaption span em {
 	text-transform: uppercase;
 	font-weight: bold }
+#top menu {
+	position: absolute;
+	bottom: 13em;
+	right: 7px;
+	z-index: 618;
+	color: #000000;
+	font-size: 1.382em;
+	list-style-type: none;
+	overflow: visible; }
+#top menu#sub_nav {
+	position: relative;
+	top: 0;
+	right: 0;
+	font-size: 100%;
+	margin-left: 1.618em; }
+#top menu a {
+	display: block;
+	padding: 0 2px 1px 2px;
+	color: #000080; }
+#top menu a:visited {
+	color: #000080; }
+#top menu a:hover {
+	color: #FFFF00;
+	background-color: #000080;
+	text-decoration: none; }
+#top li.current {
+	font-weight: bold;
+	font-style: oblique;
+	position: relative;
+	right: 3.618em; }
 
 body > header + div {
 	position: relative;
 	min-width: 62em;
 	height: 0px; }
-aside {
-	position: absolute;
-	left: .618em;
-	width: 13em;
-	z-index: 62; }
-aside p {
-	text-align: center; }
-aside a {
-	white-space: nowrap; }
 kbd span {
 	display: inline-block;
 	position: static;
@@ -239,6 +259,17 @@ strong em {
 	color: white; }
 #tester2 {
 	right: 12em; }
+dd {
+	position: relative; }
+.construction {
+	color: red;
+	font-weight: bold;
+	border: 1px. dotted red;
+	position: absolute;
+	left: 2.618em;
+	top: -.618em;
+	transform: rotate(-13.1deg);
+}
 </style>
 
 </head>
@@ -270,11 +301,6 @@ on this page:
 	<li><a href='#about_options'>The “options” panel</a></li>
 </menu>
 </nav>
-<aside>
-<p>download our
-<a href='http://softmoon-webware.com/OpenSource.php'>MasterColorPicker JavaScript<mark class='macronym'>™</mark></a> package.
-</p>
-</aside>
 </div>
 
 <section id='content' class='content'>
@@ -284,7 +310,7 @@ named-color database files included: Brewer, common, Crayola, <abbr>HTML</abbr>,
 Your chosen colors can be returned in the most popular color-space models including hexadecimal-<abbr>RGB</abbr>,
 <abbr title='red, green, blue'>RGB</abbr>,
 <abbr title='hue, saturation, lightness'>HSL</abbr>,
-<abbr title='hue, saturation, brightness; also known as HSV: hue, saturation, value'>HSB</abbr>,
+<abbr title='hue, saturation, brightness; also known as HSV: hue, saturation, value'>HSB-HSV</abbr>,
 <abbr title='hue, chroma, gray'>HCG</abbr>, or
 <abbr title='cyan, magenta, yellow, black;  used when printing with inks'>CMYK</abbr>,
 or when using named-colors their names can also be returned.&nbsp;
@@ -303,11 +329,11 @@ The five interactive graphical color-pickers included are:</p>
 		<dd>Shows the progression of colors in steps based on the <abbr>RGB</abbr> color-space.&nbsp;
 				Works with browsers as far back as Internet Exploder 6.</dd>
 	<dt>BeezEye Color Picker<mark class='macronym'>™</mark></dt>
-		<dd>Classic color-wheel shows <abbr>HSL</abbr>, <abbr>HSB</abbr>, <abbr>HCG</abbr>,
-				and <abbr>CMYK</abbr> color-spaces (one at a time) with user-controlled Lightness/Brightness/Gray/Black.</dd>
+		<dd>Classic color-wheel shows <abbr>HSL</abbr>, <abbr>HSB-HSV</abbr>, <abbr>HCG</abbr>,
+				and <abbr>CMYK</abbr> color-spaces (one at a time) with user-controlled Lightness/Brightness-Value/Gray/Black.</dd>
 	<dt>Simple² Color Picker<mark class='macronym'>™</mark></dt>
-		<dd>Works with the <abbr>HSL</abbr> and <abbr>HSB</abbr> color-spaces (both at once) to bring you
-				simple access to the shades of any color from the “pure” color to →black, →white, and →gray.</dd>
+		<dd>Works with the <abbr>HSL</abbr> and <abbr>HSB-HSV</abbr> color-spaces (both at once) to bring you
+				simple access to the shades of any color (hue) from the “pure” (fully chromatic) color to →black, →white, and →gray.</dd>
 	<dt>YinYang NíHóng Color Picker<mark class='macronym'>™</mark></dt>
 		<dd>Another classic style, delivers all of the 11,777,216 colors your 24-bit monitor can show within two easy clicks
 				using either the <abbr>HSL</abbr>, <abbr>HSB</abbr> or <abbr>HCG</abbr> color-spaces.</dd>
@@ -315,134 +341,112 @@ The five interactive graphical color-pickers included are:</p>
 <p>All these graphical color pickers, except for the YinYang NíHóng color picker, are designed to
 show colors in definite “steps” of progression, allowing you to easily work with gradients (see our Rainbow-Maker projects)
 and find “matching” colors from other hues/shades.&nbsp; The number of steps, or variety of colors,
-is user-controllable in real-time, from just a few to “high resolution”.</p>
+is user-controllable in real-time, from just a few to “high resolution”.&nbsp;
+Plus! MasterColorPicker brings you these additional features:</p>
+<dl>
+<dt>The MyPalette interface</dt>
+<dd>allows users to build their own color-table-palettes,
+give each color a descriptive name, organize them to your liking,
+group them into sub-palettes, and save/retrieve them for future use,
+allowing complete and simple management of all colors used throughout an entire project.</dd>
 
-<p>¡As of <del>late October 2014</del> <del>August 2015</del> February 14, 2019,
-I have pre-released MasterColorPicker version <del>2.0.01-alpha</del> 2.0.02-alpha.&nbsp;
-This latest release goes to the core and replaces the “central brain:” the color-space conversion library.&nbsp;
-This increases the performance speed by around <strong>700%!</strong>&nbsp;
-Same browser (latest version of FireFox Quantum 65.0.1 64-bit), two tabs open with different versions of MasterColorPicker,
-with MasterColorPicker embedded in the same page,
-the RainbowMaestro palette, with colorblind assist on, split-complements, hue at 78°, and maximum variety of colors
-(in other words, the most complex calculations, and the most of those calculations)
-takes just over 8 seconds to generate the canvas palette images in version 2.0.01-alpha;
-now it takes just over 1 second in version 2.0.02-alpha: quite a difference!&nbsp;
-The new <code>RGB_Calc</code> now also supports radians and gradians for hue-angle-units,
-as well as degrees, turn, and percent-of-a-turn.&nbsp;
-Version 2.0.02 comes with a brand-new color-blind filter (the Wickline algorithmic),
-as well as revamping the previous color-blind interpolator function (Rigden websafe colorblind interpolator).&nbsp;
-The latter now produces top-quality results from up to 8 data-points, seemingly better than the more common Wickline filter.&nbsp;
-Also, MasterColorPicker now integrates with the system clipboard;
-you can simply click on a color and it is automatically ready to paste in whatever other application you desire.&nbsp;
-Many other little bugs and annoyances were also addressed in version 2.0.02-alpha.&nbsp;
-Version 2.0.x gives the user the ability to drag &amp; drop the “picker panels”
-around the window and/or <abbr>HTML</abbr> page the MasterColorPicker is embedded in
-(<abbr title='also known as'>a.k.a.</abbr> “sticky panels” because the user can “stick” them back-and-forth to either
-the window (<code>position: fixed</code>) or page (<code>position: absolute</code>) in real-time).&nbsp;
-(Don’t confuse this concept with the new <code>position: sticky</code> <abbr>CSS</abbr> directive)&nbsp;
-In addition, several new auxiliary panels are included in the <abbr>HTML</abbr> front-end
-showing off the features that will be included when
-version 2.0-beta is complete and ready to be released.&nbsp;
-Only the “color-filter,” “color-space lab,” and “myPalette” features have any integrated working functionality (and “myPalette” is still incomplete),
-but this release shows off the latest update to the <code>Picker</code> class which is the
-supporting framework for the MasterColorPicker project.&nbsp;
-The MasterColorPicker code-set remains largely unchanged at the low-level (with V 2.0.01), however, at a higher level,
-the <code>x-ColorPicker</code> class is no longer a simple static-functional class, rather it now
-constructs “color picker” objects; this will be necessary to integrate the planned enhancements.&nbsp;
-For now, if you want to use the <code>MasterColorPicker.php</code> file,
-you will want to manually remove the new panels and hide their supporting options in the “options panel”
-if you include this update in your own project — see the<abbr>HTML</abbr> comments in the file.&nbsp;
-I’m still not sure when I will find time to finish MasterColorPicker 2.0-beta, (but hopefully soon)
-so I’m releasing 2.0.x-alpha just to keep up with the current browser changes, minimal bug-fixes and enhancements.</p>
+<dt>The Color-Space Lab</dt>
+<dd>gives you direct control of, and displays a color’s definitive values
+in the RGB, HSV/HSB, HSL, HSG, &amp; CMYK color-spaces.&nbsp;
+It can update automatically as you hover over a color in a palette;
+or you can use it to manually make color-space conversions.</dd>
+
+<dt>The Color Thesaurus</dt>
+<dd><span class='construction'>(Under Construction)</span> shows you the nearest
+“named color” in any one of the color-table-palettes that you choose.</dd>
+
+<dt>The Gradientor</dt>
+<dd><span class='construction'>(Under Construction)</span> gives you measured color-stops in a gradient,
+so you can change the opacity at regular intervals when building complex translucent background or fill gradients;
+or to style individual elements (perhaps each element in a list, headlines, whatever)
+for a decorative gradient transitional effect.</dd>
+
+<dt>…</dt>
+<dd>And much more… … …</dd>
+</dl>
 
 <p>Now these ain’t your grandpa’s color pickers, mind you.&nbsp;
 The MasterColorPicker project is of a cutting-edge design
-that relies on a modern computer that can process the JavaScript<mark class='macronym'>™</mark> fast enough,
-and a modern browser with <abbr>HTML5</abbr> <code>&lt;canvas&gt;</code> tag support and
-<a href='http://caniuse.com/#feat=forms' target='aux_page'><abbr>HTML5</abbr> forms support</a>
-for the slider controls to work (sliders are the only real way for this to work well for users in real time).&nbsp;
-At the time of the first MasterColorPicker release, only
+that relies on a modern computer with a modern browser.&nbsp;
+At the time of the first MasterColorPicker release back when dinosaur browsers still roamed the Earth, only
 Google’s<mark class='macronym'>®</mark> Chrome<mark class='macronym'>®</mark>,
 Apple’s<mark class='macronym'>®</mark> Safari<mark class='macronym'>®</mark>,
 the Opera<mark class='macronym'>®</mark> browser,
-and Microsoft’s<mark class='macronym'>®</mark> Internet Exploder 10 had this capability natively.&nbsp;
+and Microsoft’s<mark class='macronym'>®</mark> new Internet Exploder 10 had this capability natively.&nbsp;
+A hack and polyfill support also gave MSIE9 a chance to play (see the legacy files on GitHub if you’re interested).&nbsp;
 
-Presently (February 2019) all modern browsers “should” support the MasterColorPicker with ease.&nbsp;
+Presently (spring 2020) all modern browsers “should” support the MasterColorPicker with ease.&nbsp;
+¡As of <del>late October 2014</del> <del>August 2015</del> <del>February 14, 2019</del> spring 2020,
+I have pre-released MasterColorPicker version <del>2.0.01-alpha</del> <del>2.0.02-alpha</del> 2.0.11(+) -alpha.&nbsp;
+I have been revamping old support files to newer, modern standards, removing all old legacy browser support.&nbsp;
+Browsers used must embrace “modern” standards in the year 2020, or at least to say the ECMAScript-2015 standard.&nbsp;
+
 Unfortunately, Internet Exploder has this way of lingering on people’s desktops.&nbsp;
-
-With Microsoft’s<mark class='macronym'>®</mark> Internet Exploder 9,
-even though color-picker rendering is slower than molasses in winter when adjusting values,
-you might be able to use a JavaScript<mark class='macronym'>™</mark> package like the one from
-Brian McAllister of frequency-decoder (the FD-slider)
-to add the needed <code>&lt;input type='range' /&gt;</code> capabilities; but note that package only works under some
-conditions on some browsers.&nbsp;
-I <a href='http://softmoon-webware.com/FD-slider_SM-enhanced_instructions.htm'>enhanced it</a> to work better
-with more complicated layouts, and also added the ability to work with rotated sliders,
-and included its basics with the MasterColorPicker files.&nbsp;
-
-That was back in the beginning of this project (March 2013 according to GitHub records); now in February 2019,
-for some reason that seems obscure to me, the sliders stopped responding upon testing for this latest release.&nbsp;
-Given that Mirosoft just released a statement saying:
+Given that Microsoft just released a statement saying:
 ♪♫♪♫ “Internet [Exploder] should no longer be considered a web browser” ♪♫♪♫ (¡music to my ears!)
-and is unsafe and virtually unusable on todays modern web, I’m not looking back, still forward <big>☺</big>.&nbsp;
-Unless I magically get time, curiosity, and luck together and find the simple bug and fix it,
-consider this project to no longer support <abbr>MSIE9</abbr>; it is a pain to keep up with the patches to make it work.&nbsp;
-
-Never-the-less, the FD_slider package does(did) <em>not</em> work with the basic supplied server-based <abbr>CSS</abbr> file which
-places the pickers in a fixed-position format in the top-right of the browser window,
-but there is a supplied patch-file, that works with <em>some</em> overall page structures
-(where you place the MasterColorPicker in the document, and what the parent element is,
-and what else it contains, and how you style that parent and the rest of the document),
-which you can target to <abbr>MSIE9</abbr>.&nbsp;
-(see the simple fix which you should target to that browser in the section on
-<a href='#using_MasterColorPicker'>using the MasterColorPicker</a> below).&nbsp;
-But these color-pickers are completely flexible and don’t rely on any specific <abbr>CSS</abbr> styling.&nbsp;
-In fact, except for the Spectral Progressive color-picker and the named-color tables,
-the <abbr>HTML</abbr> is flexible too: use whatever tags you want/need, with only minimal restriction
-on placing tag <abbr title='identification attributes'>id</abbr>s on appropriate wrapper elements.&nbsp;
-With all that said, there is even a hack that skips the <code>&lt;input type='range' /&gt;</code> for browsers with at
-least <code>&lt;canvas&gt;</code> support, but it’s more of an unfriendly work-around for both users and programmers…
-See below for technical details on the <abbr>HTML</abbr>
-<a href='#picker_requirements'>requirements</a> for each individual color-picker,
-and the section on <a href='#registering_interfaces'>registering interface elements</a>.&nbsp;
-Finally, if you must have support for older browsers, maybe either the
-<a href='http://raphaeljs.com/'>Raphaël—JavaScript Library</a>
-(the way I would go as <abbr>SVG</abbr> is even more powerful and universal) or
-<a href='http://flashcanvas.net/'>http://flashcanvas.net/</a>
-(I would avoid as Flash<mark class='macronym'>®</mark> is on its way out!)
-can help: but you will at least need to modify <code class='filename'>MasterColorPicker.js</code>,
-a bit more than I have time for right now as I’m looking forward not backward <big>☺</big></p>
+and is unsafe and virtually unusable on today’s modern web, I’m not looking back, still forward <big>☺</big>.</p>
 
 <h3 id='desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</h3>
 
-<p>The package includes two versions: desktop and server-based.&nbsp;
+<p>The package includes two versions: desktop (<code>file://</code>) and server (<code>http://</code>) -based.&nbsp;
 The desktop version can be placed in a folder on your personal computer and used to find the colors of your dream’s desire.&nbsp;
 But while the desktop version can also be incorporated into your own web page and served from your server, you guessed it,
 the server-based version requires a server such as Apache for example
-(you can always put a server on your home machine, of course, and use the server version on your desktop).&nbsp;
+(you can always put a server on your home machine, of course,
+and use the server version on your desktop without a network connection).&nbsp;
 But the server-based version is much more convenient to use if you plan on adding or deleting
 named-color database tables on a regular basis.&nbsp;
-For instance, you might use the server-based package to allow customers to choose the color they want based on
-the product they are interested in, one table for each product line, and your product line may be dynamic.&nbsp;
 With the server-based version, you simply create the named-color database file and add it to the proper folder; that’s it.&nbsp;
+Or you can use the MyPalette interface to create your named-color-table and save your file to the server,
+and not even worry about which folders where … or about the file formatting details …
+MasterColorPicker takes care of it all for you.&nbsp;
 Remove it from the folder when you are done with it.&nbsp;
-With the desktop version, you must manually add and remove links to each of the named-color tables,
-whether served with your web-pages, or simply using the desktop tool.</p>
+With the desktop (<code>file://</code>) version, you must manually add and remove links to each of the named-color tables
+<strong>if you want them to auto-load when MasterColorPicker starts</strong>.&nbsp;
+You can find info on doing such in MasterColorPicker’s ☺Help☺ panel while it is up-and-running.</p>
+
+<p>You will find these two (2) files in the root folder that are <strong>tools</strong> for digital media developers:
+<code class='filename'>MasterColorPicker_desktop.htm</code> and
+<code class='filename'>MasterColorPicker_desktop.php</code><br />
+With the <code class='filename'>.htm</code> file, no server is needed;
+just click on the file and it will open in your browser.&nbsp;
+Use a server with the <code class='filename'>.php</code> file,
+and the same desktop <em>tool</em> is available,
+but you can save MyPalette files that you create to the server
+(a private local server; or with the correct security protocols set up, a shared public server;
+either of which can be a team-shared project host center), and they can be automatically
+loaded as a named-color-table-palette whenever MasterColorPicker starts
+by simply clicking a checkbox when you save.&nbsp;
+Both the server-<em>version</em> and desktop-<em>version</em> of these twin desktop-<em>tools</em>
+allow you to create, save &amp; load MyPalette and other named-color-table-palette files
+to &amp; from your computer’s local filesystem, so without a server you are not high-and-dry;
+the advantage of the server-version is the simplified autoload feature, and the centralized project host center.&nbsp;
+As a final note on these two different files:&nbsp; they actually both support being used with a server!&nbsp;
+The <code class='filename'>.htm</code> file simply adds hardcoded links to the named-color-table files;
+both files recognize the environment they are active in, and if served from a server (via <code>http://</code>)
+the <code class='filename'>.htm</code> file will still allow you save &amp; load to/from the server-host.</p>
+
 
 <p>There is another factor in deciding whether to use the desktop or server version when incorporating the
-MasterColorPicker into your own website.&nbsp; The named-colors database files are <acronym>JSON</acronym> formatted.&nbsp;
+MasterColorPicker into your own website.&nbsp;
+The named-colors database files are <acronym title='JavaScript Object Notation'>JSON</acronym> formatted.&nbsp;
 With the server based version, these files are loaded using JavaScript<mark class='macronym'>™</mark>
 to make HTTP calls back to the server (think ajax), whereas with the desktop version,
 they are themselves JavaScript<mark class='macronym'>™</mark> files loaded with an <abbr>HTML</abbr>
-<code>&lt;script src='colors-filename.js'&gt;</code> tag.&nbsp;
+<code>&lt;script src='colors-filename.palette.js'&gt;</code> tag.&nbsp;
 This means that the server version can interpret the files,
 whereas in the desktop version the database files are required to be legal JavaScript<mark class='macronym'>™</mark>.&nbsp;
 And this means that the server version has database files that can be used easier with server-side languages,
 such as <abbr>PHP</abbr>.&nbsp;
 <abbr>PHP</abbr> has a function, <code>json_decode()</code> that quickly and simply converts
 <acronym>JSON</acronym>-encoded text-strings.&nbsp; But the desktop version requires that the
-<acronym>JSON</acronym> Object is <em>assigned</em> to something right there in the database file itself, and
-<abbr>PHP</abbr> can not natively read this.&nbsp; Of course, with a little ingenuity, you could strip off
+<acronym>JSON</acronym> Object is <em>assigned</em> to something right there in the <code>.palette.js</code> database file itself,
+and <abbr>PHP</abbr> can not natively read this.&nbsp; Of course, with a little ingenuity, you could strip off
 the “assignment” within the JavaScript<mark class='macronym'>™</mark>-based-database file and then parse it
 natively using <abbr>PHP</abbr>;
 more overhead on overworked servers is never a good thing, though, however small.</p>
@@ -454,21 +458,28 @@ and many of the files are very long, these database files only come packaged in 
 There is an included <abbr>PHP</abbr> powered converter which will convert all the files to the server version format.&nbsp;
 There is also an instruction file which explains the details on how to do this using the included converter,
 and also how to do this by hand.&nbsp;
-These two files, <code class='filename'>convert_palette_formats.php</code> and <code class='filename'>converting_palette_formats.rtf</code>,&nbsp;
+These two files, <code class='filename'>convert_palette_formats.php</code> and <code class='filename'>converting_palette_formats.odt</code>,&nbsp;
 can be found in the <code class='filename'>color_palettes</code> folder.</p>
 
-<p>Building your own named-color-tables is simple to do using any basic text-editor.&nbsp;
-Complete instructions on how to do this can be found in the <code class='filename'>README.rtf</code> file
-in the <code class='filename'>color_palettes</code> folder.&nbsp;</p>
+<p>Building your own named-color-tables by hand is simple to do using any basic text-editor.&nbsp;
+If you have a list/database of colors, they can easily be incorporated into MasterColorPicker.&nbsp;
+Complete instructions on how to do this can be found in the <code class='filename'>README.odt</code> file
+in the <code class='filename'>color_palettes</code> folder.&nbsp;
+However, MasterColorPicker’s MyPalette interface makes creating them from scratch a snap!</p>
 
 <h3 id='using_MasterColorPicker'>Using MasterColorPicker in your own project</h3>
 
 <p>It’s very easy to incorporate the MasterColorPicker (or even any of its individual pickers) into your own project.&nbsp;
-To limit download size, but maximize ease of use, two different but similar files are included.&nbsp;
+To limit download size, but maximize ease of use, three different but similar files are included.&nbsp;
 The desktop version is built with pure <abbr>HTML</abbr> (file name <code class='filename'>MasterColorPicker_desktop.htm</code>),
-while the server version is built with embedded <abbr>PHP</abbr> (file name <code class='filename'>MasterColorPicker.php</code>).&nbsp;
-The desktop file is a complete <abbr>HTML</abbr> page with a head and body, while the server version only contains
-the needed <abbr>HTML</abbr> for the MasterColorPicker project itself.&nbsp;
+while the server version is built with embedded <abbr>PHP</abbr> (two files, named
+<code class='filename'>MasterColorPicker_desktop.php</code> and
+<code class='filename'>color-pickers/SoftMoon-WebWare/MasterColorPicker.php</code>).&nbsp;
+Now it should be noted not to confuse the desktop “version” with the <code>_desktop</code> “files”.&nbsp;
+The desktop version is a single complete <abbr>HTML</abbr> page with a head and body,
+while the server version splits the head and body from
+the needed <abbr>HTML</abbr> for the MasterColorPicker project itself, so it is ready to go in any web page as is.&nbsp;
+The <code>_desktop</code> “files” both give you a browser-based desktop tool for use in digital media development.&nbsp;
 The <abbr>PHP</abbr> generated <abbr>HTML</abbr> is essentially the same as the pure <abbr>HTML</abbr>,
 except the <abbr>PHP</abbr> can keep track of the settings on the individual pickers, and keep them set the
 way the user sets them, in between page invocations.&nbsp;
@@ -478,7 +489,7 @@ Generally, if you are picking a color, you will be sending form data anyway.&nbs
 But you do not need to use the <abbr>PHP</abbr> file with the rest of the server version.&nbsp;
 (What defines the server-version is the way named-color tables are used:
 see <a href='#desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</a>).
-Simply “cut out” the proper section of <abbr>HTML</abbr> from the desktop version file
+Simply “cut out” the proper section of <abbr>HTML</abbr> from the <code>_desktop.htm</code> file
 (the file is commented so you can tell what to cut), and either make it a new file: <code class='filename'>MasterColorPicker.htm</code>
 or simply paste it into your own web-page file; either way you then incorporate the MaterColorPicker <abbr>HTML</abbr>
 at whatever place in your document you desire.&nbsp;
@@ -492,91 +503,22 @@ You can use and/or modify the supplied <abbr>CSS</abbr> files, or write your own
 </p>
 
 <p>Link the main <code class='filename'>MasterColorPicker.css</code> file in the head of your document if you plan on using it.&nbsp;
-If you want to use this file with Internet Exploder 9, you will need conditional comments to load in the
-<code class='filename'>fd-slider_SM-enhanced.js</code> file and its stylesheet.&nbsp;
-At this point you should simply also be able to
-link the <code class='filename'>MasterColorPicker_MSIE9-patch.css</code> file; however, this is Microsoft.&nbsp;
-They give you a lame hack requiring conditional comments to overcome their lack of commitment to
-working <abbr>CSS</abbr>, and then that hack they specifically recommend doesn’t work half the time.&nbsp;
-<abbr>CSS</abbr> means “<em>cascading</em> style sheets”, yet Microsoft developers don’t know how to apply a
-simple cascade, even in <abbr>IE9</abbr>, 15 years after the concept was introduced.&nbsp;
-Open the <kbd><span>F12</span></kbd> developers tools, and it <em>shows</em> as all being there………&nbsp;
-If you don’t place the MasterColorPicker <abbr>HTML</abbr> within the “right” overall page structure
-(don’t ask for a definitive answer on what that means or entails!…this is Microsoft!),
-or even if you simply add a <code>title</code> attribute to the <code>&lt;link&gt;</code> tag
-(a basic standard <acronym>DOM</acronym> attribute
-which is supposed to give you an easy &amp; definitive interface handle within JavaScript<mark class='macronym'>™</mark>
-to each individual stylesheet, or your code must otherwise “know” the stylesheets’ file names or which order they are linked,
-which means hard-coding the answer – bad practice!)
-rules may simply be ignored in the patch file.&nbsp;
-<strong>So</strong>, if you find that to be the case, you must manually copy and paste the text of the patch file in to
-<code>&lt;style&gt;</code> tags embedded in the head of the document.&nbsp; Low and behold!&nbsp; They now apply!</p>
-
-<code style='width: 47em;'>&#60;!--[if lt IE 10]&#62;
-&#60;link rel=&#34;stylesheet&#34; type=&#34;text/css&#34; media=&#34;screen, projection&#34; href=&#34;JS_toolbucket/freqdec-fd-slider-01084d3/css/fd-slider_SM-enhanced-compatible.css&#34; /&#62;
-&#60;script type='text/javascript' src=&#34;JS_toolbucket/freqdec-fd-slider-01084d3/js/fd-slider_SM-enhanced.js&#34;&#62;&#60;/script&#62;
-&#60;link rel=&#34;stylesheet&#34; type=&#34;text/css&#34; media=&#34;screen, projection&#34; href=&#34;color-pickers/SoftMoon-WebWare/MasterColorPicker_MSIE9-patch.css&#34; /&#62;
-&#60;style type='text/css'&#62;
-………if linking doesn’t work insert copied CSS <span class='attention'>(¡not linked!)</span> file here (<span class='filename'>MasterColorPicker_MSIE9-patch.css</span>)………
-………and remove the link just above…
-&#60;/style&#62;
-&#60;![endif]--&#62;
-
-&#60;!--[if gte IE 10]&#62;
-&#60;style type=&#34;text/css&#34;&#62;
-#MasterColorPicker_mainPanel,
-#MasterColorPicker_options {margin-right&#58; 1em&#59;}
-&#60;/style&#62;
-&#60;![endif]--&#62;
-
-&#60;!--[if IE]&#62;
-&#60;style type=&#34;text/css&#34;&#62;
-#MasterColorPicker_options.activePickerPanel &#62; div div {display&#58; block&#59;}
-
-#MasterColorPicker_mainPanel table {border-top&#58; none&#59;}
-#MasterColorPicker_mainPanel table caption {
-	border&#58; 1px solid&#59;
-	border-bottom&#58; none&#59; }
-#MasterColorPicker_mainPanel table#BeezEye caption {
-	border-right&#58; none&#59; }
-
-legend {color&#58; inherit&#59;}
-&#60;/style&#62;
-&#60;![endif]--&#62;</code>
-
-<p>You should also fix the way <abbr>MSIE</abbr> handles
-table captions and fieldset legends in general as shown above.&nbsp;
-For MSIE10, (¡oh no! another nightmare browser for developers!&nbsp; And they were doing so good with MSIE9…
-And Windows<mark class='macronym'>®</mark> 8 takes the cake for user-<strong><em>un</em></strong>friendliness)
-you need to take in account that the browser-window’s scrollbar may randomly appear on the right side of the screen,
-covering the browser-window’s content,
-whenever Windows<mark class='macronym'>®</mark> decides the user wants to scroll
-(why the user can’t decide this I don’t know, other than the folks at Microsoft are just so arrogant as to think
-that <em><strong>they</strong></em> should be in control of your computer,
-and you are just a data-mine of personal info and usage statistics).&nbsp;
-Without a margin, any scrollbar for the “mainPanel” can be covered by a “ghost” scrollbar for the whole window,
-leaving the user unable to control what it is they are trying to scroll.&nbsp;
-And of last note, again <abbr>MSIE</abbr> fails to apply cascades correctly, and fails to handle
-<abbr>CSS</abbr> <code>:hover</code> directives correctly,
-when you try to use the color-space output <code>&lt;select&gt;</code>.&nbsp;
-The attempted hack to fix this at least preserves the pull-down menu!&nbsp;
-But the rest of the options panel, including the main body of the <code>&lt;select&gt;</code> disappears
-when you hover the mouse over this pull-down!&nbsp;
-So sad that leaders of the Human Race do so with make-up and mirrors,
-not true leadership or intelligence or even by attempting basic working solutions.&nbsp;
-But as the Tao says, nothing lasts…
-Anyway, depending on your overall page layout,
-you may want to reposition the options panel and/or keep it visible when the MasterColorPicker is active
-by modifying the supplied main <abbr>CSS</abbr> file instead of cascading with additional styles.</p>
+If you plan on using MasterColorPicker in your own HTML page, and want that page to be usable
+as a desktop-version, in essence where the user clicks on the file saved in their local file-system
+and it opens in their browser with the <abbr>URL</abbr> beginning with <code>file://</code>
+you must include a <code>&lt;style id='MasterColorPicker_desktop_stylesheet'&gt;</code> tag
+directly in the HTML page (¡not linked!) that includes the well-documented
+snippet of <abbr>CSS</abbr> found at the end of the similar <code>&lt;style&gt;</code> tag
+in the <code>&lt;head&gt;</code> of the <code class='filename'>MasterColorPicker_desktop.htm</code> file.&nbsp;
+This is because the stylesheet must be modified directly in real-time by JavaScript,
+and browsers block JavaScript from reading files linked or loaded from the local file-system
+unless the end-user specifically selects that file by hand.</p>
 
 <p>Your <abbr>HTML</abbr> (web page) file <strong>must</strong> be encoded in <abbr>UTF-8</abbr>.&nbsp;
 You should already be using this encoding in all your web page files anyway.&nbsp;
 JavaScript<mark class='macronym'>™</mark> is required to be encoded in <abbr>UTF-8</abbr>,
 and this project uses a character set beyond the standard <acronym>ASCII</acronym> characters.&nbsp;
-Remember, <abbr>UTF-8</abbr> is <em>the</em> #1 international choice for character encoding;&nbsp;
-it even helps protect your site against
-<a href="http://webdesign.about.com/od/metatags/qt/meta-charset.htm">cross-site scripting</a>
-(<abbr title='versus'>vs.</abbr> the default <abbr>UTF-7</abbr>).</p>
+Remember, <abbr>UTF-8</abbr> is <em>the</em> #1 international choice for character encoding.</p>
 
 <h3 id='using_picker'>Using the Picker interface</h3>
 <p>MasterColorPicker is built on an instance of SoftMoon-WebWare’s Picker interface,
@@ -747,7 +689,7 @@ The important requirements to follow are listed below for each of the color-pick
 			</ul></li>
 	<li>The <code>&lt;input /&gt;</code> tags in your file must have the same names, types, &amp; values found in the supplied files.</li>
 	<li>The first <code>&lt;canvas&gt;</code> tag is the background with the rainbow-ring and main section of the Yin-Yang.&nbsp;
-			The second <code>&lt;canvas&gt;</code> tag is the “hue swathes” (the animated disks of the Yin-Yang).&nbsp;
+			The second <code>&lt;canvas&gt;</code> tag is the “hue swatches” (the animated disks of the Yin-Yang).&nbsp;
 			The third <code>&lt;canvas&gt;</code> tag is the monochromatic gradient (the central part of the color-picker).&nbsp;
 			For best results, if you modify the width/height of these canvases, keep them proportional in size to what is
 			given in the supplied files.&nbsp;
@@ -866,7 +808,7 @@ it’s a simple modification to the <abbr>CSS</abbr> file to achieve the same re
 
 </section><!-- close .content -->
 <footer>
-<p>All content found on this page &amp; site Copyright © 2010, 2012, 2013, 2019 by SoftMoon WebWare and its owner,
+<p>All content found on this page &amp; site Copyright © 2010, 2012, 2013 by SoftMoon WebWare and its owner,
 all rights reserved, unless otherwise specifically noted.&nbsp;
 Trademarks and Service-Marks are property of SoftMoon WebWare and its owner,
 all rights reserved, unless otherwise specifically noted.<br />
@@ -888,7 +830,6 @@ all rights reserved, unless otherwise specifically noted.<br />
 <span class='notice'>“Microsoft<mark class='macronym'>®</mark>” &amp;
 “Internet Explorer<mark class='macronym'>®</mark>” are trademarks of Microsoft, Inc.</span>
 
-<span class='notice'>“Flash<mark class='macronym'>®</mark>” is a trademark of Adobe Systems Incorporated.</span></p>
 </footer>
 </body>
 </html>
