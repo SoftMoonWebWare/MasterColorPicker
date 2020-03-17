@@ -1,5 +1,6 @@
 ﻿
-<!--  You may move these support scripts to the document head, especially if you plan on using them with other code  -->
+<!--  You may move these links & scripts to the document head, especially if you plan on using them with other stylesheets that take precedence or JavaScript code  -->
+<!--  link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' /  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!-- ESSENTIAL for server version, NOT for desktop use -->
@@ -11,13 +12,20 @@
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline.colorblind_converter.js" defer></script><!-- supports RainbowMaestro -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
 
+<script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer='true'></script>
+<script type="text/javascript">
+window.addEventListener('load', function()  {
+	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);  //see files:  MasterColorPicker2.js → RGB_Calc.js
+	} );
+</script>
+
 <!-- div id='MasterColorPicker_debugLog'></div>
 <button type='button' onclick="MasterColorPicker.debug.clear();" style='position: relative; z-index: 10000'>Clear Log</button><!--  -->
 
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.10  March 15, 2020
+      release 2.0.12  March 17, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -889,19 +897,3 @@ tri-color?</label>
 
 </section><!--  close  MasterColorPicker  HTML  -->
 
-
-<script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer='true'></script>
-<!--  script type="text/javascript" src="color-pickers/SoftMoon-WebWare/color-space_autoReformatter.js" defer='true'></script  -->
-<script type="text/javascript">
-window.addEventListener('load', function()  {
-	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);  //see files:  MasterColorPicker2.js → RGB_Calc.js
-	//SoftMoon.WebWare.activateColorSpaceFormatConverters(function() {return MasterColorPicker.registeredTargets});  //see file: color-space_autoReformatter.js
-/*@cc_on
-	@if (@_jscript)
-		if (parseInt(navigator.userAgent.match( /MSIE ([0-9]+)[^0-9]/ )[1]) < 10)
-			for (var i=0, inps=document.getElementById('MasterColorPicker').getElementsByTagName('input');  i<inps.length;  i++)  {
-				if (inps[i].getAttribute('type').toLowerCase()==='range')  inps[i].setAttribute('tabIndex', '-1');  }
-	@end
-@*/
-	} );
-</script>

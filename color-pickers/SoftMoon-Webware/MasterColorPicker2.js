@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// MasterColorPicker2.js   ~release ~2.0.11-alpha   March 16, 2020   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.0.12-alpha   March 17, 2020   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -2181,12 +2181,14 @@ SoftMoon.WebWare.buildSpectralPalette=function()  {
 // after all the palette files are loaded and their HTML <table>s are built, just before their display is set to none.
 // (remember, for JavaScript to set inline styles, the element must be currently displayed)
 SoftMoon.WebWare.initPaletteTables= function(path, whenLoaded, whenDone)  {
-	var wrap=document.getElementById('MasterColorPicker_mainPanel');
+	var wrap=document.getElementById('MasterColorPicker_mainPanel'),
+			alrtBox=document.getElementById('paletteLoadingAlert').firstChild;
 	if (path instanceof Array)  {
 		for (var i=0;  i<path.length;  i++)  {
 			SoftMoon.WebWare.addPalette(path[i]);
 			SoftMoon.WebWare.initLoadedPaletteTable(path[i], whenLoaded);}
 		UniDOM.remove$Class(wrap, 'init');
+		UniDOM.addClass(alrtBox.parentNode, 'disabled');
 		return;  }
 
 	var files=SoftMoon.WebWare.loadPalettes(  // see RGB_Calc.js
@@ -2200,7 +2202,6 @@ SoftMoon.WebWare.initPaletteTables= function(path, whenLoaded, whenDone)  {
 								files.noneGiven=true;
 								alrtBox.innerHTML= HTML.indexFailed;  },
 							SoftMoon.WebWare.HTTP.handleMultiple ),
-			alrtBox=document.getElementById('paletteLoadingAlert').firstChild,
 			failed=false,
 			HTML=SoftMoon.WebWare.initPaletteTables.HTML;
 
@@ -3091,5 +3092,5 @@ UniDOM.generateEvent(provSelect, 'onchange');
 			stickyPanels[i].style.right= "";
 			UniDOM.remove$Class(stickyPanels[i], ['scrollable', 'floating']);  }  }
 
-
+UniDOM.generateEvent(window, 'mastercolorpicker_ready');
 } );  //close window onload
