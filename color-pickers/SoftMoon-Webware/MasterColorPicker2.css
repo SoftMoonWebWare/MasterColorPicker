@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.10  March 15, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.12  March 17, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -483,13 +483,18 @@ select#MasterColorPicker_palette_select {
 	margin: 0; }
 #MasterColorPicker_options > div div fieldset#x_ColorPicker_options > label#MasterColorPicker_applyToAll {
 	position: absolute;  /* this has a different ref point for the offset parent in different browsers for an unknown reason */
-	top: -1.25em;  /* value for Firefox */
+	top: -0.25em;  /* value for Chrome, ¿more? */
 	right: .382em;
 	left: auto;
 	margin: 0;
 	padding: 0;
 	color: black;
 	background-color: white; }
+@-moz-document url-prefix() {
+	#MasterColorPicker_options > div div fieldset#x_ColorPicker_options > label#MasterColorPicker_applyToAll {
+		top: -1.25em;  /* value for Firefox - they need to fix this issue - going on 10+ years! */
+	}
+}
 #MasterColorPicker_options > div div > fieldset:nth-child(2) > label:nth-child(1),
 #MasterColorPicker_options > div div > fieldset:nth-child(2) > label:nth-child(2) {
 	display: inline; }
