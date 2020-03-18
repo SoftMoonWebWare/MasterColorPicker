@@ -1,4 +1,4 @@
-/*  UniDOM-2020  version 1.2.1  March 17, 2020
+/*  UniDOM-2020  version 1.2.2  March 17, 2020
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -1001,7 +1001,7 @@ StyleSheetShell.prototype.getRuleIndexes=function(s)  {
 	if (!rules)  return null;
 	var i, found=new Array;
 	if (s instanceof RegExp)
-		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText.match(s))  found.push(i);}
+		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText  &&  rules[i].selectorText.match(s))  found.push(i);}
 	else
 		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText===s)  found.push(i);}
 	if (found.length>0)  return found;  }
