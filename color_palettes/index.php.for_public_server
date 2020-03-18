@@ -1,0 +1,47 @@
+<?php  /*  charset="UTF-8"
+	color_palettes/index.php  for PUBLIC SERVERS          March 17, 2020
+
+	This dynamically creates a text-based list of all the palettes in the folder
+
+	You may modify how this processes the output and uploads.
+	You may replace it with a script in another language.
+	You may replace it with a static text file (you will need to then keep it updated by hand, and no uploading).
+
+	By DEFAULT:
+	(no GET or POST requests)
+	This script finds all the files in this folder (color_palettes) and its subfolders
+	with filenames containing “.palette.json”
+	as the second-to-last and last filename extentions.
+
+
+  */
+
+
+
+define('PALETTE_NAME_EXTENTION', '/\.palette\.json$/i');
+
+
+
+//echo file_get_contents("php://input");  // this is the raw input data; becomes $_POST if URI-encoded and the content-type header was 'application/x-www-form-urlencoded'
+
+
+
+if ($_POST['filename'])  {echo "¡Error! : This server does not accept uploads.";}
+else findAllPalettes($userName);
+
+//  echo "color_palettes/baz_bar_foo.txt\n";  //send a false filename to test the JavaScript (“ajax”) loader
+
+exit;
+
+
+
+Function findAllPalettes($userName, $match=PALETTE_NAME_EXTENTION, $preg=true, $dir='../color_palettes')  {
+$D=opendir($dir);
+while ($F=readdir($D))  {
+	//echo '==$F==',$F,'  ==is dir?',is_dir($F),"\n";
+	if (substr($F, 0, 1)==='.'
+	||  (substr($F, 0, 1)==='~'  AND  $F!==$userName))  continue;
+	if (is_dir($dir."/".$F))  {findAllPalettes($userName, $match, $preg, $dir."/".$F);  continue;}
+	if (($preg  AND  preg_match($match, substr($dir, 3)."/".$F))
+	OR  (!$preg  AND  $F===$match))
+		echo substr($dir, 3),"/",$F, "\n";  }  }
