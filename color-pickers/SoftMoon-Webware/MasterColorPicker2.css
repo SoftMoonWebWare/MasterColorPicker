@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.12  March 17, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.13  March 23, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -548,7 +548,8 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette .portDialog.import .import,
 #MasterColorPicker_MyPalette .portDialog.export .export {
 	display: block; }
-#MasterColorPicker_MyPalette .portMode label {
+#MasterColorPicker_MyPalette .portMode label,
+#MasterColorPicker_MyPalette .portDialog.server span.server {
 	display: inline; }
 #MasterColorPicker_MyPalette .port,
 #MasterColorPicker_MyPalette .port label,
@@ -596,12 +597,14 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette .portDialog.import .port .local,
 #MasterColorPicker_MyPalette .portDialog .port button.disabled,
 #MasterColorPicker_MyPalette .portDialog.export .paletteMeta .browser,
-#MasterColorPicker_MyPalette .portDialog.export .paletteMeta .server {
+#MasterColorPicker_MyPalette .portDialog.export .paletteMeta .server,
+#MasterColorPicker_MyPalette .portDialog.import .import.server {
 	display: none; }
 #MasterColorPicker_MyPalette .portDialog.import.local .port .local,
 #MasterColorPicker_MyPalette .portDialog.export.browser .paletteMeta .browser,
 #MasterColorPicker_MyPalette .portDialog.export.server .paletteMeta .server,
-#MasterColorPicker_MyPalette .portDialog.export.local .paletteMeta .local {
+#MasterColorPicker_MyPalette .portDialog.export.local .paletteMeta .local,
+#MasterColorPicker_MyPalette .portDialog.import.server .import.server {
 	display: block; }
 #MasterColorPicker_MyPalette .port .local input[type="file"] {
 	border: 2px solid blue; }
@@ -623,6 +626,22 @@ select#MasterColorPicker_palette_select {
 	font-family: monospace;  }
 #MasterColorPicker_MyPalette .portNotice strong {
 	color: red;  }
+#MasterColorPicker_MyPalette .portNotice h4 {
+	margin: 0;
+	padding: 0; }
+#MasterColorPicker_MyPalette .portNotice button {
+	display: block;
+	margin: 0 0 0 .618em;
+	padding: 0;
+	text-indent: -.618em;
+	border: none;
+	color: inherit;
+	background-color: inherit;
+	font-variant: none;
+	font-family: monospace;
+	text-align: left; }
+#MasterColorPicker_MyPalette .portNotice button:hover {
+	outline: 1px solid red; }
 #MasterColorPicker_MyPalette table {
 	margin: 0;
 	padding: 0;

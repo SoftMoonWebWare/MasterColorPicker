@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// MasterColorPicker2.js   ~release ~2.0.12-alpha   March 17, 2020   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.0.13-alpha   March 23, 2020   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -772,7 +772,6 @@ MyPalette.prototype.clearPalette=function()  {
 	i=UniDOM.getElementsBy$Name(this.trs[2], /definition|name/ );  i[0].value="";  i[1].value="";
 	}
 
-
 MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 	if (typeof JSON_palette !== 'object')  return false;
 	if (mergeMode===undefined)  mergeMode=UniDOM.getElementsBy$Name(this.HTML.querySelector('.paletteMerge'), /import_merge_mode/ ).getSelected().value;
@@ -886,6 +885,7 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 		palette: palette } };
 	return palette;  }
 
+
 MyPalette.prototype.portNotice=function(notice, wait)  {
 	var div=document.createElement('div'),
 			portDialog=this.HTML.querySelector('.portDialog');
@@ -895,10 +895,12 @@ MyPalette.prototype.portNotice=function(notice, wait)  {
 	portDialog.insertBefore(div, portDialog.querySelector('.port'));
 	return div;  }
 
-const buildingNotice='<strong>Building MyPalette… … …please wait…</strong>',
-			noFileNotice=  '<strong>No file chosen.&nbsp; Please choose a file to import.</strong>',
-			fileNameNotice='<strong>Improper filename extension for imported file.</strong>',
-			corruptNotice= '<strong>File is corrupt: can not load.</strong>';
+const BUILDING_NOTICE= '<strong>Building MyPalette… … …please wait…</strong>',
+			NO_FILE_NOTICE=  '<strong>No file chosen.&nbsp; Please choose a file to import.</strong>',
+			FILE_NAME_NOTICE='<strong>Improper filename extension for imported file.</strong>',
+			CORRUPT_NOTICE=  '<strong>File is corrupt: can not load.</strong>',
+			HTTP_NOTICE=     '<strong>¡Error! :\n problem with the HTTP connection or server.</strong>';
+
 
 MyPalette.prototype.porter=function(event)  {
 	if (event.detail>1) return;
@@ -908,12 +910,14 @@ MyPalette.prototype.porter=function(event)  {
 			i, pName, palette, div,
 			thisPalette=this;
 	var underConstruction='<strong>Under Construction: ' + portMode + ', ' + port + '</strong>';
-	for (i=0; i<divs.length; i++)  {if (!divs[i].wait)  divs[i].parentNode.removeChild(divs[i]);}
+	for (i=0; i<divs.length; i++)  { if (divs[i].wait)  continue;
+		if (divs[i].evented)  UniDOM.removeAllEventHandlers(divs[i], true);
+		divs[i].parentNode.removeChild(divs[i]);  }
 	switch (portMode)  {
 	case 'import':  switch (port)  {
 		case 'current':
 			if (palette=SoftMoon.palettes[pName=MasterColorPicker.picker_select.getSelected().firstChild.data])  {
-				div=this.portNotice(buildingNotice, true);
+				div=this.portNotice(BUILDING_NOTICE, true);
 				setTimeout(function() {thisPalette.fromJSON({[pName]: palette});  div.parentNode.removeChild(div);},  38);  }
 			else this.portNotice('<strong>Please choose a MasterColorPicker™ Palette Table from the main palette-select.</strong>');
 			return;
@@ -921,9 +925,9 @@ MyPalette.prototype.porter=function(event)  {
 			if (palette=(this.droppedImportPaletteFile
 								||  UniDOM.getElementsBy$Name(this.HTML.querySelector(".port"), /_import\]?$/ , 1)[0].files[0]))
 				this.importPaletteFile(palette);
-			else  this.portNotice(noFileNotice);
+			else  this.portNotice(NO_FILE_NOTICE);
 			return;
-		case 'server':
+		case 'server':   this.getRemotePaletteFilesIndex();  return;
 		case 'browser':  this.portNotice(underConstruction);
 		default: console.log('porter:', portMode, port);  return;
 	}
@@ -935,52 +939,125 @@ MyPalette.prototype.porter=function(event)  {
 		default: console.log('porter:', portMode, port);  return;
 	}  }  }
 
-const consoleImportError='MasterColorPicker MyPalette import file error:\n';
 
 MyPalette.prototype.importPaletteFile=function(PaletteFile)  {
 	if (!PaletteFile.name.match( /\.palette\.js(?:on)?$/i ))  {
-		this.portNotice(fileNameNotice);
+		this.portNotice(FILE_NAME_NOTICE);
 		return false;  }
 	var div, thisPalette=this, fr=new FileReader();
 	fr.onload=function()  { var palette;
 		try {
-			palette=fr.result.trim().replace( /^SoftMoon\.loaded_palettes\.push\s*\(\s*/ , "").replace( /\s*\)\s*;?[^{}]*$/ , "");
-			thisPalette.fromJSON(JSON.parse(palette));  }
+			thisPalette.fromFileText(fr.result)  }
 		catch(e)  {
-			console.error(consoleImportError,e.message,"\n",palette);
-			thisPalette.portNotice(corruptNotice);  }
+			console.error(CONSOLE_IMPORT_ERROR,e.message,"\n",fr.result);
+			thisPalette.portNotice(CORRUPT_NOTICE);  }
 		finally {div.parentNode.removeChild(div);}  };
 	fr.onerror=function()  {
-		console.error(consoleImportError,fr.error);
-		thisPalette.portNotice(corruptNotice);
+		console.error(CONSOLE_IMPORT_ERROR,fr.error);
+		thisPalette.portNotice(CORRUPT_NOTICE);
 		div.parentNode.removeChild(div);  };
-	div=this.portNotice(buildingNotice, true);
+	div=this.portNotice(BUILDING_NOTICE, true);
 	fr.readAsText(PaletteFile);
 	return fr;  }
 
+
+MyPalette.prototype.fromFileText=function(ft)  {
+	return this.fromJSON(JSON.parse(ft.trim().replace( /^SoftMoon\.loaded_palettes\.push\s*\(\s*/ , "").replace( /\s*\)\s*;?[^{}]*$/ , "")));  }
+
+
+const CONSOLE_IMPORT_ERROR='MasterColorPicker MyPalette import file error:\n';
+
+const HTTP=SoftMoon.WebWare.HTTP,
+			Connector=new HTTP();
+
+
+MyPalette.prototype.downloadPalette=function(filename)  {
+	console.log(' ←← downloading palette from:',filename);
+	var div, thisPalette=this,
+			connection=HTTP.Connection(filename, 'Can not download Palette from server: no HTTP service available.');
+	connection.onFileLoad=function()  { console.log(' ←← Download response:\n',this.responseText);
+		if (this.responseText.substr(0,10)==='¡Error! : ')  {
+			UniDOM.remove$Class(div, 'wait');  div.wait=false;
+			div.innerHTML= '<strong>' + this.responseText + '</strong>';
+			return;  }
+		setTimeout(function()  {
+			try {
+				thisPalette.fromFileText(connection.responseText);
+				div.parentNode.removeChild(div);  }
+			catch(e) {
+				console.error(CONSOLE_IMPORT_ERROR,e.message,"\n",connection.responseText);
+				UniDOM.remove$Class(div, 'wait');  div.wait=false;
+				div.innerHTML=CORRUPT_NOTICE;  }  },
+		 38);
+		div.innerHTML=BUILDING_NOTICE;  };
+	connection.loadError=function()  { console.warn(' ←← Download: HTTP or server error.');
+		UniDOM.remove$Class(div, 'wait');  div.wait=false;
+		div.innerHTML=HTTP_NOTICE;  }
+	Connector.commune(connection);
+	div=this.portNotice('Downloading <span>' + filename + '</span> from:\n<span>' +
+		document.URL.substring(0, document.URL.lastIndexOf("/")+1) + '</span>', true);  }
+
+
+MyPalette.prototype.getRemotePaletteFilesIndex=function()  {
+	console.log(' ←← downloading palette index from:',SoftMoon.colorPalettes_defaultPath);
+	var div, thisPalette=this,
+			connection=HTTP.Connection(SoftMoon.colorPalettes_defaultPath, 'Can not download Palette index from server: no HTTP service available.');
+	connection.onFileLoad=function()  { console.log(' ←← remote Palette index response:\n',this.responseText);
+		div.parentNode.removeChild(div);
+		div=thisPalette.presentPaletteFileIndex(this.responseText);
+		UniDOM.addEventHandler(div, ['click', 'buttonpress'], function (event)  {
+			if (event.target.nodeName!=='BUTTON')  return;
+			UniDOM.removeAllEventHandlers(div, true);
+			div.parentNode.removeChild(div);
+			thisPalette.downloadPalette(event.target.firstChild.data);  });
+		div.evented=true;  }
+	connection.loadError=function()  { console.warn(' ←← Download Palette index: HTTP or server error.');
+		UniDOM.remove$Class(div, 'wait');  div.wait=false;
+		div.innerHTML=HTTP_NOTICE;  }
+	Connector.commune(connection);
+	div=this.portNotice('Requesting the palette file index from:\n<span>' +
+		document.URL.substring(0, document.URL.lastIndexOf("/")+1) + SoftMoon.colorPalettes_defaultPath + '</span>\n … … please wait.', true);  }
+
+
+MyPalette.prototype.presentPaletteFileIndex=function(indexText)  {
+	var div=this.portNotice('<h4>Choose a Palette to download for import:</h4>'),
+			btn, tn, i;
+	UniDOM.addClass(div, 'import server');
+	indexText=indexText.split("\n").map(function(t) {return t.trim();});
+	for (i=0; i<indexText.length; i++)  {
+		if (indexText[i]===""
+		||  indexText[i].indexOf('/users/') === -1
+		||  indexText[i].indexOf('/autoload/')>0)  continue;
+		btn=document.createElement('button');  btn.type='button';
+		tn=document.createTextNode(indexText[i]);
+		btn.appendChild(tn);
+		div.appendChild(btn);
+		MasterColorPicker.registerInterfaceElement(btn);  }
+	return div;  }
+
+
 MyPalette.prototype.uploadPalette=function(JSON_Palette) {
 	console.log(' →→ Uploading palette to:',SoftMoon.colorPalettes_defaultPath);
-	var HTTP=SoftMoon.WebWare.HTTP,
-			palette=JSON_Palette || this.toJSON(),
-			connector=new HTTP(),
+	var palette=JSON_Palette || this.toJSON(),
 			connection=HTTP.Connection(SoftMoon.colorPalettes_defaultPath, 'Can not upload Palette to server: no HTTP service available.'),
-			pName, div, portDialog=this.HTML.querySelector('.portDialog');
+			pName, div;
   for (pName in palette)  {break;}
-	connection.onFileLoad=function() {console.log(' →→ Upload response:',this.responseText);
+	connection.onFileLoad=function()  { console.log(' →→ Upload response:',this.responseText);
 		if (this.responseText.substr(0,10)==='¡Error! : ')  div.innerHTML= '<strong>' + this.responseText + '</strong>';
 		else  div.innerHTML= 'Successfully uploaded to:\n<span>' + document.URL.substring(0, document.URL.lastIndexOf("/")+1) + this.responseText + '</span>';  };
-	connection.loadError=function()  {console.log(' →→ Upload HTTP or server Error.');
-		div.innerHTML='<strong>¡Error! :\n problem with the HTTP connection or server.</strong>';  }
+	connection.loadError=function()  { console.warn(' →→ Upload: HTTP or server Error.');
+		div.innerHTML=HTTP_NOTICE;  }
+	connection.onloadend=function() {UniDOM.remove$Class(div, 'wait');  div.wait=false;};
   connection.requestHeaders={'Content-Type': 'application/x-www-form-urlencoded'};
 	connection.postData=HTTP.URIEncodeObject({
 		filename: pName+".palette.json",
 		palette: JSON.stringify(palette, undefined, "\t"),
 		replace_file: UniDOM.getElementsBy$Name(this.HTML, /replace_file/ , 1)[0].checked.toString(),
 		autoload: UniDOM.getElementsBy$Name(this.HTML, /autoload/ , 1)[0].checked.toString() });
-	connector.commune(connection);
+	Connector.commune(connection);
 	div=this.portNotice('Uploading <span>' + pName + '</span> to:\n<span>' +
-		document.URL.substring(0, document.URL.lastIndexOf("/")+1)+SoftMoon.colorPalettes_defaultPath + '</span>');
-}
+		document.URL.substring(0, document.URL.lastIndexOf("/")+1)+SoftMoon.colorPalettes_defaultPath + '</span>', true);  }
+
 
 MyPalette.prototype.savePalette=function(JSON_Palette)  {
 	var iframe=document.getElementById('MasterColorPicker_MyPalette_local_filesaver') || document.createElement('iframe'),

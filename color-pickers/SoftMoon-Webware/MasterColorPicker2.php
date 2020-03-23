@@ -25,7 +25,7 @@ window.addEventListener('load', function()  {
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.12  March 17, 2020
+      release 2.0.13  March 23, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -207,7 +207,7 @@ or pin it to the window when it is pinned to the page.
 			<span><strong>¡Note</strong> the browser may delete it at any time!</span></label>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='current' />a current MasterColorPicker™ Palette Table
 			<span><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</span></label>
-		<button type='button' name='MasterColorPicker_MyPalette_porter'><span class='export'>save</span><span class='import'>load</span></button>
+		<button type='button' name='MasterColorPicker_MyPalette_porter'><span class='export'>save</span><span class='import'>load<span class='server'> index</span></span></button>
 	</fieldset>
 	<fieldset class='paletteMerge import' disabled='disabled'><legend>import merge mode</legend>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='add' />add new <span>Add colors &amp; subpalettes to this palette; ignore duplicate names.</span></label>
@@ -896,4 +896,3 @@ tri-color?</label>
 
 
 </section><!--  close  MasterColorPicker  HTML  -->
-
