@@ -623,7 +623,8 @@ function MyPalette(HTML, PNAME)  {
 SoftMoon.WebWare.x_ColorPicker.MyPalette_Color=MyPalette_Color;
 function MyPalette_Color(color)  {
 	color=new SoftMoon.WebWare.x_ColorPicker.x_Color(color);
-	Object.getPrototypeOf(color).constructor=MyPalette_Color;  }
+	color.constructor=MyPalette_Color;
+	return color;  }
 
 
 MyPalette.prototype.onPick=function(x_Color, event)  {
@@ -632,8 +633,8 @@ MyPalette.prototype.onPick=function(x_Color, event)  {
 	var mp=this.addToMyPalette.value;
 	if (event instanceof Event
 	&& (  (event.type==='click'
-				 && ((mp==='single-click' && event.detail===1  &&  !(x_Color instanceof MyPalette_Color))
-					|| (mp==='single-click' && event.detail===2  &&  (x_Color instanceof MyPalette_Color))
+				 && ((mp==='single-click' && event.detail===1  &&  !(x_Color.constructor===MyPalette_Color))
+					|| (mp==='single-click' && event.detail===2  &&  (x_Color.constructor===MyPalette_Color))
 					|| (mp==='double-click' && event.detail===2)
 					|| (mp==='shift-click'  && event.detail===1  &&  event.shiftKey)))
 		 || (event.type==='contextmenu'
