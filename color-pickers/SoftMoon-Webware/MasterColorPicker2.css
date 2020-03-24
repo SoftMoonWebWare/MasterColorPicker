@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.13  March 23, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.14  March 24, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -163,7 +163,6 @@ span.MCP_fix_Safari {
 	background-color: white;
 	border: 2px solid gray;
 	border-radius: .618em / 1em; }
-#MasterColorPicker .pickerPanel.init,  /*older browsers require the named-color-tables be displayed while initializing/setting the swatch background colors*/
 #MasterColorPicker .pickerPanel.activePicker,
 #MasterColorPicker .pickerPanel.activeInterface {
 	display: block;  }
@@ -324,7 +323,8 @@ span.MCP_fix_Safari {
 select#MasterColorPicker_palette_select {
 	color: black;
 	background-color: white;
-	position: relative; }
+	position: relative;
+	max-width: 10em; }
 
 
 #MasterColorPicker_options header {
@@ -1159,14 +1159,13 @@ table.palette > tfoot td {
 	text-align: center; }
 
 
-/* #Spectral, #BeezEye, #RainbowMaestro, #Simple², #YinYangNíHóng;   color charts after initialization  */
+/* #Spectral, #BeezEye, #RainbowMaestro, #Simple², #YinYangNíHóng;   */
 .picker {
 	display: none;  /* JavaScript will display these when the time comes */
 }
 .picker:hover,
 .picker.activePicker,
-.picker.activePickerInterface,
-.init .color_chart.picker {
+.picker.activePickerInterface {
 	display: block; }
 
 

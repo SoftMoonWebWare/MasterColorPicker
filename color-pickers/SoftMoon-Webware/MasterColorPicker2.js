@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// MasterColorPicker2.js   ~release ~2.0.13-alpha   March 23, 2020   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.0.14-alpha   March 24, 2020   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@ SoftMoon.WebWare.canvas_graphics={
 		context.lineTo(ep.x, ep.y);
 		context.stroke();  },
 	shapes: {}  };
-//                                                           centerpoint ↓    # of ↓vertexes    ↓ pass in function− typically “lineTo”
+//                                                           centerpoint ↓   # of ↓ vertexes   ↓ pass in function− typically “lineTo”
 SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon=function(canvas, x,y, h,w, vCount, atVertex, rotate)  {
 	var i, pX, pY, vertexes=[], angle;  //, out='';      //     before rotation ↑           radian value ↑ ¡not degrees!
 	if (typeof rotate !== 'number')  rotate=0;
@@ -169,7 +169,7 @@ var userOptions;
 		UniDOM.addEventHandler(userOptions.palette_select.element, 'onchange', function()  {
 			var p=userOptions.palette_select.getSelected();
 			if (!(p instanceof Array))
-				SoftMoon.WebWare.x_ColorPicker.registeredPickers[p.value].putOptions();  });
+				SoftMoon.WebWare.x_ColorPicker.registeredPickers[p.firstChild.data].putOptions();  });
 
 		Object.defineProperty(MasterColorPicker, "userOptions_HTML", {value: userOptions});
 
@@ -656,6 +656,12 @@ MyPalette.prototype.addColor=function(color, name)  {
 	tr.scrollIntoView();
 	return true;  }
 
+MyPalette.prototype.getColor=function(name)  {
+	for (var i=0; i<this.trs.length; i++)  {
+
+	}
+	}
+
 MyPalette.prototype.selectAll=function(event, checkbox)  {
 	var tbody=checkbox.parentNode.parentNode.parentNode.parentNode;
 	for (var i=1, tr=tbody.getElementsByTagName('tr');  i<tr.length-1;  i++)  {tr[i].children[0].children[0].checked=checkbox.checked;}  }
@@ -932,7 +938,11 @@ MyPalette.prototype.porter=function(event)  {
 		default: console.log('porter:', portMode, port);  return;
 	}
 	case 'export':  switch (port)  {
-		case 'current': SoftMoon.WebWare.initLoadedPaletteTable(this.toJSON());  return;
+		case 'current':
+			SoftMoon.WebWare.addPalette(palette=this.toJSON());
+			SoftMoon.WebWare.initLoadedPaletteTable(palette);
+			this.portNotice('Exported to MasterColorPicker™');
+			return;
 		case 'server':  this.uploadPalette();  return;
 		case 'local':   this.savePalette();  return;
 		case 'browser': this.portNotice(underConstruction);
@@ -1025,15 +1035,17 @@ MyPalette.prototype.presentPaletteFileIndex=function(indexText)  {
 	UniDOM.addClass(div, 'import server');
 	indexText=indexText.split("\n").map(function(t) {return t.trim();});
 	for (i=0; i<indexText.length; i++)  {
-		if (indexText[i]===""
-		||  indexText[i].indexOf('/users/') === -1
-		||  indexText[i].indexOf('/autoload/')>0)  continue;
+		if (this.filterOutPaletteFileForImport(indexText[i]))  continue;
 		btn=document.createElement('button');  btn.type='button';
 		tn=document.createTextNode(indexText[i]);
 		btn.appendChild(tn);
 		div.appendChild(btn);
 		MasterColorPicker.registerInterfaceElement(btn);  }
 	return div;  }
+
+// note this complements the function  SoftMoon.WebWare.initPaletteTables();
+MyPalette.prototype.filterOutPaletteFileForImport=function(path)  {
+	return  path===""  ||  path.indexOf('/users/') === -1  ||  path.indexOf('/autoload/')>0  }
 
 
 MyPalette.prototype.uploadPalette=function(JSON_Palette) {
@@ -2264,7 +2276,6 @@ SoftMoon.WebWare.initPaletteTables= function(path, whenLoaded, whenDone)  {
 		for (var i=0;  i<path.length;  i++)  {
 			SoftMoon.WebWare.addPalette(path[i]);
 			SoftMoon.WebWare.initLoadedPaletteTable(path[i], whenLoaded);}
-		UniDOM.remove$Class(wrap, 'init');
 		UniDOM.addClass(alrtBox.parentNode, 'disabled');
 		return;  }
 
@@ -2316,8 +2327,7 @@ SoftMoon.WebWare.initPaletteTables= function(path, whenLoaded, whenDone)  {
 			, 100);  }
 			else  UniDOM.addClass(alrtBox.parentNode, 'disabled');
 			if (typeof whenDone == 'function')  whenDone(files);
-			UniDOM.remove$Class(document.body, 'MCP_init');
-			UniDOM.remove$Class(wrap, 'init');  },
+			UniDOM.remove$Class(document.body, 'MCP_init');  },
 		500 );
 
 	return files;  }
@@ -2326,7 +2336,7 @@ SoftMoon.WebWare.initPaletteTables.HTML={
   building: " <span class='loaded'>¡Loaded!……building table……</span>",
   loaded: " <span class='loaded'>¡Loaded and Built!</span>",
   reload: " <span class='reload'>¡Retrying to Load!</span>",
-  failed: " <span class='failed'>¡Failed to Load!</span>" ,
+  failed: " <span class='failed'>¡Failed to Load!</span>",
 	noPalettes: "<p class='noPalettes'>No Palettes found on the Server.</p>",
 	indexFailed: "<p class='indexFailed'>The index to the Palettes’ files <strong>¡Failed!</strong> to load from the Server</p>" };
 
@@ -2338,8 +2348,8 @@ SoftMoon.WebWare.initLoadedPaletteTable=function(json_palette, whenLoaded)  {
 	for (paletteName in json_palette)  {
 		if (typeof whenLoaded === 'function'  &&  whenLoaded(paletteName))  continue;
 		MasterColorPicker.registerPicker( wrap.appendChild( (typeof json_palette[paletteName].buildPaletteHTML == 'function')  ?
-					json_palette[paletteName].buildPaletteHTML(paletteName)       // ← ↓ init: note custom init methods must add a “setStylez” method to the HTML -and- it should return the HTML
-				: SoftMoon.WebWare.buildPaletteTable(paletteName, json_palette[paletteName], 'color_chart picker') ).setStylez() );
+					json_palette[paletteName].buildPaletteHTML(paletteName)       // ← ↓ init: note custom init methods should return the HTML
+				: SoftMoon.WebWare.buildPaletteTable(paletteName, json_palette[paletteName], 'color_chart picker') ) );
 		o=document.createElement('option');
 		o.value=paletteName.replace( /\s/g, "_");
 		o.appendChild(document.createTextNode(paletteName));
@@ -2348,32 +2358,22 @@ SoftMoon.WebWare.initLoadedPaletteTable=function(json_palette, whenLoaded)  {
 
 
 ;(function() {
-var setStylez=function()  {return this;},
-/*
-			var elmnts=this.childNodes, i, s;  // note how we can set inline styles as we build the Spectral palette, but that does not work for these…
-			for (i=0; i<elmnts.length; i++)  { if (elmnts[i].nodeType==Node.ELEMENT_NODE)  {
-				if (elmnts[i].stylez)  for (s in elmnts[i].stylez)  {elmnts[i].style[s]=elmnts[i].stylez[s];}
-				if (elmnts[i].hasChildNodes())  arguments.callee.call(elmnts[i]);  }  }
-			return this;  } ,
- */
-		getColor=function(event, cb, chain) {return cb(event, chain)} ,  //this is called by the x_ColorPicker.onclick implementation
-		// the following are the callback (cb) functions for getColor above
-		noColor=function() {return "none";} ,
-		addEntry=function(event, chain)  {
-			var txt=chain+(event.target || event.srcElement).firstChild.data;
-			return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};  } ,
-		returnNext=function(event)  {
-			var target=(event.target || event.srcElement);
-			UniDOM.generateEvent(target.nextSibling, 'onclick', { view: event.view, bubbles: false, relatedTarget: target,
-							cancelable: event.cancelable, detail: event.detail, button: event.button,
-							screenX: event.screenX, screenY: event.screenY, clientX: event.clientX, clientY: event.clientY,
-							ctrlKey: event.ctrlKey, altKey: event.altKey, shiftKey: event.shiftKey, metaKey: event.metaKey  });  } ,
-		addRef=function(event)  {
-			var txt=(event.target || event.srcElement).firstChild.data;
-			return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};} ,
-		addBackRef=function(event)  {
-			var txt=(event.target || event.srcElement).firstChild.firstChild.data;
-			return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};} ;
+
+const getColor=function(event, cb, chain) {return cb(event, chain)} ,  //this is called by the x_ColorPicker.onclick implementation
+			// the following are the callback (cb) functions for getColor above
+			noColor=function() {return "none";} ,
+			addEntry=function(event, chain)  {
+				var txt=chain+event.target.firstChild.data;
+				return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};  } ,
+			returnNext=function(event)  {
+				UniDOM.generateEvent(event.target.nextSibling, 'onclick', { view: event.view, bubbles: false, relatedTarget: event.target,
+					cancelable: event.cancelable, detail: event.detail, button: event.button,
+					screenX: event.screenX, screenY: event.screenY, clientX: event.clientX, clientY: event.clientY,
+					ctrlKey: event.ctrlKey, altKey: event.altKey, shiftKey: event.shiftKey, metaKey: event.metaKey  });  } ,
+			addRef=
+			addBackRef=function(event)  {
+				var txt=event.target.firstChild.data;
+				return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};} ;
 
 
 
@@ -2403,7 +2403,6 @@ function buildPaletteTable(pName, pData, className)  {
 		'noColor'));
 	tbl.appendChild(buildTableBody(pData.palette));
 	if (pData.footer)  tbl.appendChild(buildTableHdFt(pData.footer, 'tfoot', 'td'));
-	tbl.setStylez=setStylez;
 	return tbl;
 
 	function buildTableHdFt(data, t, clmn)  {

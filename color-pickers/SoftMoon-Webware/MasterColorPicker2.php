@@ -25,7 +25,7 @@ window.addEventListener('load', function()  {
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.13  March 23, 2020
+      release 2.0.14  March 24, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -483,7 +483,7 @@ tri-color?</label>
 
 
 
-<div id='MasterColorPicker_mainPanel' class='pickerPanel expanding init'><!--  class “init” is removed after the color-tables are generated - they need to be shown while this process occurs  -->
+<div id='MasterColorPicker_mainPanel' class='pickerPanel expanding'>
 
 <table class='picker palette' id='Spectral'><caption><h6>Spectral Progressive Color-Picker™</h6>click to choose<span id='SpectralIndicator'>&nbsp;<span id='SpectralSwatch'></span></span></caption>
 
