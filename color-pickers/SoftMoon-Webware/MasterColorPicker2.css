@@ -1,5 +1,5 @@
 ﻿/*  charset: UTF-8
- * for: MasterColorPicker release 2.0.14  March 24, 2020  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.0.15  March 27, 2020  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -21,8 +21,8 @@ body.MCP_dragMyPaletteColor {
 	font-size: 13px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
 #MasterColorPicker select,
 #MasterColorPicker select option {
-	color: black;
-	background-color: white; }
+	color: black !important;
+	background-color: white !important; }
 
 #MasterColorPicker input[type="range"] {
 	vertical-align: middle;  /*fix Google’s Chrome*/
@@ -1456,9 +1456,9 @@ table#Simple² label {
 	margin: -.5em -195px;
 	font-weight: bold;
 	padding: 0;
-	transform: rotate(90deg);
-	-webkit-transform: rotate(90deg);
-	-ms-transform: rotate(90deg); }
+	transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);
+	-ms-transform: rotate(270deg); }
 table#Simple² tr:nth-child(3) td:first-child label {
 	width: auto;
 	margin: -2.618em -1.27em; } /* adjust if content changes */

@@ -25,7 +25,7 @@ window.addEventListener('load', function()  {
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.14  March 24, 2020
+      release 2.0.15  March 27, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -39,7 +39,8 @@ but to retain the settings this file may be included inside an existing web <for
 	if (typeof SoftMoon._POST != 'object')  SoftMoon._POST=new Object;
 	<?php if ($_POST['MasterColorPicker_palette_select']) echo 'SoftMoon._POST["palette_select"]="',$_POST['MasterColorPicker_palette_select'],'"'; ?>
 </script>
-<label for='MasterColorPicker_palette_select'>palette: <select id='MasterColorPicker_palette_select' name='palette_select'><!--   tabToTarget='true'  -->
+<label for='MasterColorPicker_palette_select'>palette:
+<select id='MasterColorPicker_palette_select' name='palette_select' backtabToTarget='true'>
 <option<?php if ($_POST['palette_select']==='RainbowMaestro'  or  $_POST['palette_select']=="")  echo " selected='selected'"?>>RainbowMaestro</option>
 <option<?php if ($_POST['palette_select']==='Spectral')  echo " selected='selected'"?>>Spectral</option>
 <option<?php if ($_POST['palette_select']==='BeezEye')  echo " selected='selected'"?>>BeezEye</option>
@@ -164,7 +165,7 @@ or pin it to the window when it is pinned to the page.
 
 <fieldset>
 	<label>Color-blind filter provider:
-	<select name='MasterColorPicker_colorblind_provider'>
+	<select name='MasterColorPicker_colorblind_provider' tabTo='MasterColorPicker_mainPanel'>
 	</select></label>
 	<p>Color-blind simulations are approximate, and may vary between individuals and monitors</p>
 </fieldset>
@@ -178,9 +179,9 @@ or pin it to the window when it is pinned to the page.
 <h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F2 for shortcut">MyPalette</span></h2>
 <p>(choose color(s) using any color-picker or type directly)</p>
 <fieldset>
-<button type='button' name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
+<button type='button' name='MasterColorPicker_MyPalette_makeSub' backtabToTarget='true'>create sub-palette</button>
 <button type='button' name='MasterColorPicker_MyPalette_delete'>delete selected</button>
-<button type='button' name='MasterColorPicker_MyPalette_port' title='Under Construction: no functionality'>import/export palette</button>
+<button type='button' name='MasterColorPicker_MyPalette_port'>import/export palette</button>
 <label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette'>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='double-click')  echo " selected='selected'"; ?>>double-click</option>
 	<option<?php if ($_POST['MasterColorPicker_addtoMyPalette']==='shift-click')  echo " selected='selected'"; ?>>shift-click</option>
@@ -253,7 +254,7 @@ or pin it to the window when it is pinned to the page.
 	<tbody class='subPalette'><!-- note these names below are indexed properly for the FormFieldGenie -->
 	<tr>
 		<th colspan='3'>
-			<label>Sub-palette name: <input type='text' name='MasterColorPicker_MyPalette[0][subPalette][name]' /></label>
+			<label>Sub-palette name: <input type='text' name='MasterColorPicker_MyPalette[0][subPalette][Name]' /></label>
 			<button type='button' name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll' />select all</label>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectThis' />select this</label>
@@ -292,7 +293,7 @@ or pin it to the window when it is pinned to the page.
 <p>(choose color(s) using any color-picker or type directly)</p>
 	<fieldset>
 	  <label><span>¿Average all filter-colors and apply the result, or apply each filter-color individually and progressively?</span>
-			<select name='MasterColorPicker_Filter_average'><option selected='selected'>average</option><option>progressive</option></select></label>
+			<select name='MasterColorPicker_Filter_average' backtabToTarget='true'><option selected='selected'>average</option><option>progressive</option></select></label>
 	  <label><span>¿Add/subtract the filters’ average to the picked color, or grade the picked color to the filters’ average?</span>
 			<select name='MasterColorPicker_Filter_applyToAverage'><option selected='selected'>add to</option><option>grade to</option><option>sub from</option></select></label>
 	</fieldset>
@@ -325,7 +326,7 @@ or pin it to the window when it is pinned to the page.
 <table class='primaries'><caption><acronym>RGB</acronym></caption>
 <tr><th>primary</th><th>byte value</th><th>#hex</th><th>percent%</th><td></td></tr>
 <tr class='red'><th><label for='MasterColorPicker_Rgb_byte' style="color:red">Red:</label></th>
-		<td><input type='numeric' name='MasterColorPicker_Rgb_byte' min='0' max='255' value='0' /></td>
+		<td><input type='numeric' name='MasterColorPicker_Rgb_byte' min='0' max='255' value='0' backtabToTarget='true' /></td>
 		<td><input type='numeric' name='MasterColorPicker_Rgb_hex' class='hex' base='16' maxlength='2' size='2' value='00' /></td>
 		<td><input type='numeric' name='MasterColorPicker_Rgb_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_Rgb_range' min='0' max='255' value='0' style="color:red" tabindex='-1' /></td>
@@ -412,12 +413,12 @@ or pin it to the window when it is pinned to the page.
 </tr>
 <tr class='black'>
 		<th><label for='MasterColorPicker_cmyK_percent' style="color:black">Black</label></th>
-		<td><input type='numeric' name='MasterColorPicker_cmyK_percent' min='0' max='100' step='any' value='100' tabToTarget='true' /></td>
+		<td><input type='numeric' name='MasterColorPicker_cmyK_percent' min='0' max='100' step='any' value='100' /></td>
 		<td><input type='range' name='MasterColorPicker_cmyK_range' min='0' max='100' value='100' style="color:black" tabindex='-1' /></td>
 </tr>
 </table>
 <label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnMouseMove' checked='checked' />update on Mouse move?</label>
-<label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnKeystroke' checked='checked' />update on Keystroke?</label>
+<label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnKeystroke' checked='checked' tabToTarget='true' />update on Keystroke?</label>
 <span class='swatch'>Click here to Choose</span>
 </div><!--  close  MasterColorPicker_Lab  -->
 
@@ -428,9 +429,9 @@ or pin it to the window when it is pinned to the page.
 <p class='underConstruction'><span>Under Construction:</span> no functionality</p>
 <fieldset><legend>(choose colors using any color-picker or type directly)</legend>
  <label>color 1
-	<input type='text' name='MasterColorPicker_Gradientor_color1'
-		interfaceTarget='true' swatch='this.nextSibling' value='<?php
-		echo ($_POST['MasterColorPicker_Gradientor_color1']!="") ? $_POST['MasterColorPicker_Gradientor_color1'] : "blue"; ?>' /><span class='swatch'></span></label>
+	<input type='text' name='MasterColorPicker_Gradientor_color1' value='<?php
+		echo ($_POST['MasterColorPicker_Gradientor_color1']!="") ? $_POST['MasterColorPicker_Gradientor_color1'] : "blue"; ?>'
+		interfaceTarget='true' swatch='this.nextSibling' backtabToTarget='true' /><span class='swatch'></span></label>
  <label>↔through color-space↔
  	<select name='MasterColorPicker_Gradientor_colorSpace'>
 		<option<?php if (!in_array($_POST['MasterColorPicker_Gradientor_colorSpace'], array('HSB', 'HSL', 'HCG', 'CMYK'), true))  echo " selected='selected'"; ?>>RGB</option>
@@ -452,7 +453,7 @@ or pin it to the window when it is pinned to the page.
 <label title='2 — 256'>steps: <input type='number' id='testMe' name='MasterColorPicker_Gradientor_steps' min='2' max='256' step='1' value='16' /></label>
 <label>¿<input type='checkbox' name='MasterColorPicker_Gradientor_tricolor' value='tricolor'<?php
 	if ($_POST['MasterColorPicker_Gradientor_tricolor']==="tricolor") echo " checked='checked'"; ?>
-	onchange='with (SoftMoon.WebWare) {UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor_color3"), !this.checked);}' />
+	onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor_color3"), !this.checked);'  tabToTarget='true' />
 tri-color?</label>
 </div><!--  close  MasterColorPicker_Gradientor  -->
 
@@ -464,11 +465,11 @@ tri-color?</label>
 <p>This tool can help you identify the name of the closest color(s) in the chosen color-space geometry.</p>
 <fieldset><legend>(choose color using any color-picker or type directly)</legend>
  <label>color:
-	<input type='text' name='MasterColorPicker_Thesaurus_color'
-		interfaceTarget='true' swatch='this.nextSibling' value='<?php
-		echo ($_POST['MasterColorPicker_Thesaurus_color']!="") ? $_POST['MasterColorPicker_Thesaurus_color'] : ""; ?>' /><span class='swatch'></span></label>
+	<input type='text' name='MasterColorPicker_Thesaurus_color' value='<?php
+		echo ($_POST['MasterColorPicker_Thesaurus_color']!="") ? $_POST['MasterColorPicker_Thesaurus_color'] : ""; ?>'
+		interfaceTarget='true' swatch='this.nextSibling' backtabToTarget='true' /><span class='swatch'></span></label>
  <label>color-space:
-	<select name='MasterColorPicker_Thesaurus_colorSpace'>
+	<select name='MasterColorPicker_Thesaurus_colorSpace' tabToTarget='true'>>
 		<option<?php if (!in_array($_POST['MasterColorPicker_Thesaurus_colorSpace'], array('HSB', 'HSL', 'HCG', 'CMYK'), true))  echo " selected='selected'"; ?>>RGB</option>
 		<option<?php if ($_POST['MasterColorPicker_Thesaurus_colorSpace']==='HSB')  echo " selected='selected'"; ?>>HSB</option>
 		<option<?php if ($_POST['MasterColorPicker_Thesaurus_colorSpace']==='HSL')  echo " selected='selected'"; ?>>HSL</option>
@@ -489,7 +490,7 @@ tri-color?</label>
 
 <thead><tr><td colspan='100'><table>
 <tr>
-	<td colspan='6'><label>hue variety: <input type='range' name='hue_variety' value='<?php echo is_numeric($_POST['hue_variety']) ? $_POST['hue_variety'] : "30";?>' max='100' min='10' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()' backtabToTarget='true' /></label>
+	<td colspan='6'><label>hue variety: <input type='range' name='hue_variety' value='<?php echo is_numeric($_POST['hue_variety']) ? $_POST['hue_variety'] : "30";?>' max='100' min='10' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()' backtabTo='MasterColorPicker_palette_select' /></label>
 									<label>mix variety: <input type='range' name='mix_variety' value='<?php echo is_numeric($_POST['mix_variety']) ? $_POST['mix_variety'] : "7";?>' max='20' min='5' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()' /></label><br />
 									<label>x-shift: <input type='range' name='x_shift' value='<?php echo is_numeric($_POST['x_shift']) ? $_POST['x_shift'] : "0";?>' max='6.28' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()' /></label>
 									<label>y-shift: <input type='range' name='y_shift' value='<?php echo is_numeric($_POST['y_shift']) ? $_POST['y_shift'] : "0";?>' max='1' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()' /></label>
@@ -541,9 +542,8 @@ tri-color?</label>
 <caption><h6>BeezEye Color Picker™</h6>click to choose</caption>
 <tbody>
 <tr>
-	<td><label id="BeezEye_twist_value_transformer" data-fd-slider-rotate="330">Twist<input type='range'
-		name='BeezEye_twist_value' value='50' min='0' max='100' backtabToTarget='true'
-		data-fd-slider-transformer="BeezEye_twist_value_transformer" /></label></td>
+	<td><label>Twist<input type='range' name='BeezEye_twist_value'
+		value='50' min='0' max='100' backtabTo='MasterColorPicker_palette_select' /></label></td>
 	<td><fieldset><legend>color space</legend>
 		<dl>
 			<dt>CMYK</dt>
@@ -560,7 +560,7 @@ tri-color?</label>
 				<dd>twists the color-disk at its center to make it easier to find progressive color-series</dd>
 		</dl>
 		<label><input type='radio' name='BeezEye_model' value='cmyk'
-			backtabTo="document.getElementById('BeezEye_twist').checked ? undefined : MasterColorPicker.dataTarget" />CMYK</label>
+			backtabTo="document.getElementById('BeezEye_twist').checked ? undefined : MasterColorPicker.picker_select" />CMYK</label>
 		<label><input type='radio' name='BeezEye_model' value='hsv' />HSV / HSB</label>
 		<label><input type='radio' name='BeezEye_model' value='hsl' checked='checked' />HSL</label>
 		<label><input type='radio' name='BeezEye_model' value='hcg' />HCG</label>
@@ -571,17 +571,17 @@ tri-color?</label>
 </tr>
 <tr>
 	<td rowspan='2'><canvas width='360' height='360'></canvas></td>
-	<td><label id="BeezEye_value_transformer" data-fd-slider-rotate="270">Brightness <span>Value</span><input type='range' name='BeezEye_value' value='50' min='0' max='100' data-fd-slider-transformer="BeezEye_value_transformer" /></label></td>
+	<td><label>Brightness <span>Value</span><input type='range' name='BeezEye_value' value='50' min='0' max='100' /></label></td>
 </tr>
 <tr>
 	<td valign='bottom'><fieldset>
-		<label id="BeezEye_curve_value_transformer" data-fd-slider-rotate="315">Curve<input type='range' name='BeezEye_curve_value' value='50' min='1' max='100' data-fd-slider-transformer="BeezEye_curve_value_transformer" /></label>
-		<label><input type='checkbox' name='BeezEye_curve_midring' value='midring' tabToTarget='true' /> Mid–Ring</label>
+		<label>Curve<input type='range' name='BeezEye_curve_value' value='50' min='1' max='100' /></label>
+		<label><input type='checkbox' name='BeezEye_curve_midring' value='midring' /> Mid–Ring</label>
 		</fieldset>
 	</td>
 </tr>
 <tr>
-	<td><label>Hue Variety<input type='range' name='BeezEye_variety' value='15' min='5' max='89' step='2' /></label></td>
+	<td><label>Hue Variety<input type='range' name='BeezEye_variety' value='15' min='5' max='89' step='2' tabToTarget='true' /></label></td>
 	<td rowspan='2' id='BeezEye_swatch'></td>
 </tr>
 <tr><td id='BeezEye_indicator'> </td></tr>
@@ -593,7 +593,7 @@ tri-color?</label>
 <table class='picker palette' id='RainbowMaestro'><caption><h6>RainbowMaestro Harmonic Color Picker™</h6>click to choose</caption>
 <thead>
 	<tr><td colspan='2'>
-	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked='checked' backtabTotarget='true' />websafe</label>
+	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked='checked' backtabTo='MasterColorPicker_palette_select' />websafe</label>
 	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true' />split-compliments</label>
 	<label><input type='checkbox' name='RainbowMaestro_colorblind' value='true' checked='checked' />colorblind assist<mark class='footmark'>‡</mark></label>
 	<label><input type='checkbox' name='RainbowMaestro_lock' value='true' />lock focal hue</label>
@@ -646,9 +646,8 @@ tri-color?</label>
 		><canvas width='360' height='360'></canvas></td>
 <td   style='border: 1px solid; border-left: none'
 		><div><span class='lft'>«0°→→</span>←←Hue→→<span class='rt'>←←360°»</span></div></td>
-<td id="Simple²interface"><label id='Simple²_variety_transformer' data-fd-slider-rotate="90">variety<input
-	type='range' name='Simple²_variety' value='12' min='12' max='360' step='2' backtabToTarget='true'
-	data-fd-slider-transformer="Simple²_variety_transformer" /></label></td>
+<td id="Simple²interface"><label>variety<input
+	type='range' name='Simple²_variety' value='12' min='12' max='360' step='2' backtabTo='MasterColorPicker_palette_select' /></label></td>
 </tr>
 <tr>
 <td rowspan='5'  style='border-bottom: 1px solid' valign='bottom'
@@ -689,7 +688,7 @@ tri-color?</label>
 
 <table class='picker palette' id='YinYangNíHóng'><caption><h6>YinYang NíHóng<span>the Tao of Color Pickers™</span></h6>click to choose</caption>
 <thead><tr>
-<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabToTarget='true' />HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
+<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='MasterColorPicker_palette_select' />HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
 <td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked='checked' />HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
 <td><label><input type='radio' name='YinYang NíHóng' value='HCG' tabToTarget='true' />HCG<dfn>Hue, Chroma, Gray</dfn></label></td>
 </tr></thead>
