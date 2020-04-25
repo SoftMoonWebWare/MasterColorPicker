@@ -455,8 +455,9 @@ function registerInterfaces(element, actions, isUserdataInputType)  {
 		UniDOM.addEventHandler(element, 'onClick', clickOnInterfaceElement);
 	else if (!isInput(element))  {
 		UniDOM.addEventHandler(element, 'onclick', clickOnInterfacePanel);
-		UniDOM.addEventHandler(element, 'onmousedown', function(event) {if (!is_UserData_InputType(event.target))  event.preventDefault();});
-	}
+		UniDOM.addEventHandler(element, 'onmousedown', function(event)  {
+			if (!is_UserData_InputType(event.target))  event.preventDefault();  });  }
+
 
 	function clickOnInterfaceElement(event)  {tabbedOut= enterKeyed= selectPan= false;}
 

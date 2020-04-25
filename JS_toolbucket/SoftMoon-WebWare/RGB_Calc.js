@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.1.7  March 15, 2020  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.1.9  April 10, 2020  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020 Joe Golembieski, SoftMoon WebWare
 
@@ -137,6 +137,11 @@ RegExp.hsv=
 RegExp.hsb=
 RegExp.hcg=
 RegExp.ColorWheelColor=new window.RegExp( '^' +h+ sep +p+ sep +p+ '$' );
+RegExp.hsla=
+RegExp.hsva=
+RegExp.hsba=
+RegExp.hcga=
+RegExp.ColorWheelColorA=new window.RegExp( '^' +h+ sep +p+ sep +p+ sep +f+ '$' );
 RegExp.Hue= new window.RegExp( '^' +h_+ '$' );
 
 })();  // execute the anonymous function above
@@ -160,14 +165,19 @@ if (typeof SoftMoon.palettes !== 'object')  SoftMoon.palettes=new Object;
 
 SoftMoon.WebWare.Palette=function Palette($meta)  {
 	Object.defineProperty(this, "palette",  {value: Object.create($meta.palette),  enumerable: true});
+	doubleDownDeep(this.palette);
 	if ($meta.header)  Object.defineProperty(this, "header", {value: typeof $meta.header === 'object' ? Object.create($meta.header) : $meta.header,  enumerable: true});
 	if ($meta.footer)  Object.defineProperty(this, "footer", {value: typeof $meta.footer === 'object' ? Object.create($meta.footer) : $meta.footer,  enumerable: true});
 	Object.defineProperty(this, "requireSubindex",  {value: $meta.requireSubindex,  enumerable: true});
+	Object.defineProperty(this, "alternatives",  {value: $meta.alternatives,  enumerable: true});
 	var config=Object.create(Palette.defaultConfig);
 	if ($meta.config)  for (c in $meta.config)  {config[c] = Object.getOwnPropertyDescriptor($meta.config, c);}
 	Object.defineProperty(this, "config",  {value: config,  enumerable: true});
 	if (typeof $meta.getColor == 'function')
-		Object.defineProperty(this, "getColor", {value: $meta.getColor,  enumerable: true});  }
+		Object.defineProperty(this, "getColor", {value: $meta.getColor,  enumerable: true});
+	function doubleDownDeep(palette)  { for (c in palette)  {
+		if (c.palette)  {
+			palette[c]=new Palette(c)  }  }  }  }
 
 
 Object.defineProperty(
@@ -258,6 +268,7 @@ SoftMoon.WebWare.addPalette=function($json_palette)  {
 SoftMoon.WebWare.RGBA_Color=function($r, $g, $b, $a, $config)  {
 	if (this===SoftMoon.WebWare)  throw new Error('SoftMoon.WebWare.RGBA_Color is a constructor, not a function.');
 	this.config= new RGB_Calc.ConfigStack(this, $config);
+	this.config.stringFormat=SoftMoon.WebWare.RGBA_Color.prototype.toString.defaultFormat;
 	var ThisColorObject=this,
 			rgb=new Array,
 			rgba=new Array;
@@ -311,41 +322,50 @@ function getAlphaFactor(v)  {
 		parseFloat(v)  :  (parseFloat(v)/100);
 	return (v<0) ? 0 : (v>1 ? 1 : v);  }
 
+SoftMoon.WebWare.RGBA_Color.prototype.useHexSymbol=function(flag)  {this.config.useHexSymbol=flag;  return this;}
+
 SoftMoon.WebWare.RGBA_Color.prototype.toString=function(format) {
 	if (typeof format != 'string')  format="";
 	format+= " "+this.config.stringFormat;
-	var s,  a=this.a,  alpha=(typeof a === 'number');
-	if (!alpha  &&  format.match( /alpha/ )  ||  this.config.autoDefineAlpha)  {alpha=true;  a=1}
-	if (format.match( /percent/ )  &&  !format.match( /byte.*percent/ ))
-		s=Math.roundTo(this.r/2.55, 1)+'%, '+
-			Math.roundTo(this.g/2.55, 1)+'%, '+
-			Math.roundTo(this.b/2.55, 1)+'%'+
-			(alpha ? (', '+Math.roundTo(a*100, 3)+'%') : "");
-	else
-	if (format.match( /factor/ )  &&  !format.match( /byte.*factor/ ))
-		s=Math.roundTo(this.r/255, 3)+', '+
-			Math.roundTo(this.g/255, 3)+', '+
-			Math.roundTo(this.b/255, 3)+
-			(alpha ? (', '+Math.roundTo(a, 3)) : "");
-	else
-		s=Math.round(this.r)+', '+
-			Math.round(this.g)+', '+
-			Math.round(this.b)+
-			(alpha ? (', '+
-						(format.match( /percent/ ) ?
-								Math.roundTo(a*100, 1)+'%'
-							: Math.roundTo(a, 3)))
-					: "");
-	switch ((format=format.match( /css|html|wrap|function|prefix|plain|self/i ))  &&  format[0])  {
+	var outAs=format.match( /hex|css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i );
+	if (outAs) outAs=outAs[0].toLowerCase();
+	if (outAs!=='hex')  {
+		var s,  a=this.a,  alpha=(typeof a === 'number');
+		if (!alpha  &&  format.match( /alpha/ )  ||  this.config.autoDefineAlpha)  {alpha=true;  a=1}
+		if (format.match( /percent/ )  &&  !format.match( /byte.*percent/ ))
+			s=Math.roundTo(this.r/2.55, 1)+'%, '+
+				Math.roundTo(this.g/2.55, 1)+'%, '+
+				Math.roundTo(this.b/2.55, 1)+'%'+
+				(alpha ? (', '+Math.roundTo(a*100, 3)+'%') : "");
+		else
+		if (format.match( /factor/ )  &&  !format.match( /byte.*factor/ ))
+			s=Math.roundTo(this.r/255, 3)+', '+
+				Math.roundTo(this.g/255, 3)+', '+
+				Math.roundTo(this.b/255, 3)+
+				(alpha ? (', '+Math.roundTo(a, 3)) : "");
+		else
+			s=Math.round(this.r)+', '+
+				Math.round(this.g)+', '+
+				Math.round(this.b)+
+				(alpha ? (', '+
+							(format.match( /percent/ ) ?
+									Math.roundTo(a*100, 1)+'%'
+								: Math.roundTo(a, 3)))
+						: "");  }
+	switch (outAs)  {
+	case 'hex':  s=this.hex;  return (format.indexOf('#')>=0 && !this.config.useHexSymbol ? "#" : "") + s;
 	case 'css':
 	case 'html':
 	case 'wrap':
 	case 'function':  return (alpha ? 'RGBA(' : 'RGB(')+s+')';
 	case 'prefix':    return (alpha ? 'RGBA: ' : 'RGB: ')+s;
-	case 'plain':  return s;
+	case 'csv':
+	case 'commas':  return s;
+	case 'plain':  return s.replace( /,/g , "");
+	case 'tabbed':  return s.replace( /, /g , "\t");
 	case 'self':
 	default:  return 'RGBA_Color: ('+s+')';  }  }
-
+SoftMoon.WebWare.RGBA_Color.prototype.toString.defaultFormat='self';
 
 
 
@@ -382,13 +402,16 @@ ColorWheel_Color.prototype.toString=function(format)  {
 		s+=Math.roundTo(arr[1], 3) + ', ' + Math.roundTo(arr[2], 3);
 	else
 		s+=Math.roundTo(arr[1]*100, 1) + '%, ' + Math.roundTo(arr[2]*100, 1)+'%';
-	switch ((format=format.match( /css|html|wrap|function|prefix|plain|self/ ))  &&  format[0])  {
+	switch ((format=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i ))  &&  format[0].toLowerCase())  {
 	case 'css':
 	case 'html':
 	case 'wrap':
 	case 'function':  return this.model+'('+s+')';;
 	case 'prefix':    return this.model+': '+s
-	case 'plain':  return s;
+	case 'csv':
+	case 'commas':  return s;
+	case 'plain':  return s.replace( /,/g , "");
+	case 'tabbed':  return s.replace( /, /g , "\t");
 	case 'self':
 	default:  return this.model.toUpperCase()+'_Color: ('+s+')';  }  }
 
@@ -570,13 +593,16 @@ SoftMoon.WebWare.CMYK_Color.prototype.toString=function(format) {
 		s=Math.roundTo(this.c, 3)+', '+Math.roundTo(this.m, 3)+', '+Math.roundTo(this.y, 3)+', '+Math.roundTo(this.k, 3);
 	else
 		s=Math.roundTo(this.c*100, 1)+'%, '+Math.roundTo(this.m*100, 1)+'%, '+Math.roundTo(this.y*100, 1)+'%, '+Math.roundTo(this.k*100, 1)+'%';
-	switch ((format=format.match( /css|html|wrap|function|prefix|plain|self/ ))  &&  format[0])  {
+	switch ((format=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i ))  &&  format[0].toLowerCase())  {
 	case 'css':
 	case 'html':
 	case 'wrap':
-	case 'function':  return 'CMYK('+s+')';;
-	case 'prefix':    return 'CMYK: '+s
-	case 'plain':  return s;
+	case 'function':  return 'CMYK('+s+')';
+	case 'prefix':    return 'CMYK: '+s;
+	case 'csv':
+	case 'commas':  return s;
+	case 'plain':  return s.replace( /,/g , "");
+	case 'tabbed':  return s.replace( /, /g , "\t");
 	case 'self':
 	default:  return 'CMYK_Color: ('+s+')';  }  }
 

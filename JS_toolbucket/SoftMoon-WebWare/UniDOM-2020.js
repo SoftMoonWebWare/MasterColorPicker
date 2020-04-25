@@ -1,4 +1,4 @@
-/*  UniDOM-2020  version 1.2.2  March 17, 2020
+/*  UniDOM-2020  version 1.2.3  March 27, 2020
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -19,6 +19,11 @@
 		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
 
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
+
+RegExp.escape=function (string) {
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+  return string && string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
 
 
 
@@ -455,6 +460,9 @@ function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 // objFltr → may be a filter-function returning Object-property names.  See the  objectify()  function down below.
 // powerSelect → Boolean: ¿apply nonstandard methods (getSelected() & setSelected()) to <select> elements?
 
+//you can use the following function as the value of goDeep for getElements, getElders, & getjuniors
+//then your cb() can include something like: function(){ … … if (done_with_search)  UniDOM.alwaysTrue.doContinue=false; … … }
+Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){return true}});
 
 // returns an array of HTML elements (though there may only be one array member)
 // returns an empty array if no matches found
@@ -529,7 +537,7 @@ function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 	function getElementsByName(n, deep, objFltr, powerSelect)  { var count;
 		if (n===""  ||  typeof n === 'undefined'  ||  n===null)  n=new RegExp('^.+$');
 		else
-		if (typeof n !== 'object'  ||  !(n instanceof RegExp))  n=new RegExp('^'+n+'$');
+		if (typeof n !== 'object'  ||  !(n instanceof RegExp))  n=new RegExp('^'+RegExp.escape(n)+'$');
 		if (typeof deep === 'number')  { //should be >0 or no limit will be reached.
 			count=deep;
 			deep=function(){return true};  }
@@ -625,7 +633,7 @@ function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 			if (typeof c === 'function')  return c(e)^c.not;
 			if (typeof c !== 'object'  ||  !(c instanceof RegExp))  {
 				if (typeof c == 'string'  &&  c.charAt(0)==='!')  {c=c.substr(1);  not=true;}
-				c=new RegExp('\\b'+c+'\\b');  }
+				c=new RegExp('\\b'+RegExp.escape(c)+'\\b');  }
 			return (not  ||  c.not)  ?  (e.className.match(c)===null) : e.className.match(c);  });  }
 
 
@@ -634,7 +642,7 @@ function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 	function aClass(cn, ac)  {  //private
 		if (!(ac instanceof Array))  ac=[ac];
 		for (var i=0; i<ac.length; i++)  {
-			if (!(typeof cn == 'string'  &&  cn.match( new RegExp('\\b'+ac[i]+'\\b') )))
+			if (!(typeof cn == 'string'  &&  cn.match( new RegExp('\\b'+RegExp.escape(ac[i])+'\\b') )))
 				cn+=(cn) ? (" "+ac[i]) : ac[i];  }
 		cn=cleanClass(cn);
 		return cn;  }
@@ -645,7 +653,7 @@ function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 		if (typeof cn != 'string')  return;
 		if (!(xc instanceof Array))  xc=[xc];
 		for (var i=0; i<xc.length; i++)  {
-			cn=cn.replace((typeof xc[i] == 'object'  &&  (xc[i] instanceof RegExp)) ?  xc[i]  :  new RegExp('\\b'+xc[i]+'\\b', 'g'),  "");
+			cn=cn.replace((typeof xc[i] == 'object'  &&  (xc[i] instanceof RegExp)) ?  xc[i]  :  new RegExp('\\b'+RegExp.escape(xc[i])+'\\b', 'g'),  "");
 			cn=cleanClass(cn);  }
 		return cn;  }
 
@@ -751,7 +759,7 @@ ElementWrapper.prototype.getElementsBy$Class=function()  {return UniDOM(getEleme
 ElementWrapper.prototype.getAncestorBy$Class=function()  {return UniDOM(getAncestorByClass.apply(this.element, arguments), true);};
 ElementWrapper.prototype.getElementsByComplex=function()  {return UniDOM(getElementsByComplex.apply(this.element, arguments), true);};
 ElementWrapper.prototype.getAncestorByComplex=function()  {return UniDOM(getAncestorByComplex.apply(this.element, arguments), true);};
-ElementWrapper.prototype.getElementsByTagName=function(tn)  {return UniDOM(this.element.getElementsByTagName(tn));};
+ElementWrapper.prototype.getElementsByTagName=function(tn)  {return UniDOM(this.element.getElementsByTagName(tn), true);};
 ElementWrapper.prototype.hasAncestor=function()  {return UniDOM(hasAncestor.apply(this.element, arguments), true);};
 ElementWrapper.prototype.hasElement=function()  {return UniDOM(hasElement.apply(this.element, arguments), true);};
 ElementWrapper.prototype.has=function()  {return has.apply(this.element, arguments);};
@@ -896,6 +904,7 @@ var cb,  //private
 	function xElement(e) {return (!UniDOM.isWindow(e)  &&  (e instanceof ElementWrapper)) ? e.element : e;}
 //↑private----===========*********===========----
 
+
 	function getSelectedOptions(forceReturnArray)  {
 		if (this.type==='select-one')  { var s= (this.selectedIndex>=0) ? this.options[this.selectedIndex] : null;
 			return  forceReturnArray ? [s] : s;  }
@@ -907,7 +916,7 @@ var cb,  //private
 		if (!(value instanceof Array))  value=[value];
 		for (i=0; i<this.length; i++)  { for (j=0; j<value.length; j++)  {
 			if (this.nodeName==='SELECT')  {
-				if (options[i].hasAttribute('value'))
+				if (this.options[i].hasAttribute('value'))
 					this.options[i].selected= (this.options[i].value==value[j]);
 				else this.options[i].selected= (this.options[i].text==value[j]);  }
 			else  this[i].checked= (this[i].value==value[j]);  }  }
@@ -972,31 +981,25 @@ Object.has=has;   //  myObject={};  myObject.has=Object.has;  flag=myObject.has(
 // Or you may pass in an array of “titles” and/or “names”, and the first one in the array found in the document will be used.
 // Or you may pass in the indexNumber of the styleSheet or simply the styleSheet itself.
 UniDOM.StyleSheetShell=StyleSheetShell;
-function StyleSheetShell(ss)  { var i;
-	function getSSByName (ss)  { var id, j=0;
+function StyleSheetShell(ssName)  { var ss, i;
+	function getSSByName(ssName)  { var id, j=0;
 		function isSSElement(e) {return e.nodeName==='STYLE' || (e.nodeName==='LINK' && e.rel==='stylesheet');}
-		if ((id=document.getElementById(ss))  &&  isSSElement(id))  {
-			//getElders.call(id, function(e) {if (isSSElement(e))  j++;},	true);  return document.styleSheets[j];  } //for MSIE
-			var links=Array.from(document.getElementsByTagName('link')),
-					inStyleSheets=function(e) {return e.rel==='stylesheet';},
-					styles=Array.from(document.getElementsByTagName('style')),
-					byDocPos=function(e1, e2) {return e2.compareDocumentPosition(e1)-3;};
-			j=links.filter(inStyleSheets).concat(styles).sort(byDocPos).indexOf(id);
-			return document.styleSheets[j];  }
+		if ((id=document.getElementById(ssName))  &&  isSSElement(id))  return id.sheet;
 		for (; j<document.styleSheets.length; j++)  {
-			if (document.styleSheets[j].title===ss)  return document.styleSheets[j];  }  }
-	if (!new.target)  throw new Error("UniDOM.Stylesheet (StyleSheetShell) is a constructor, not a function");
-	if (typeof ss === 'number')  ss=document.styleSheets[ss];
-	else if (typeof ss === 'string')  ss=getSSByName(ss);
-	else if (typeof ss === 'object'  &&  ss instanceof Array)
-		for (i=0; i<ss.length; i++) {if (ss[i]=getSSByName(ss[i]))  {ss=ss[i];  break;}}
-	this.ss=ss;
-	this.initLength=this.ss.cssRules.length;  }
+			if (document.styleSheets[j].title===ssName)  return document.styleSheets[j];  }  }
+	if (!new.target)  throw new Error('“UniDOM.StyleSheetShell” is a constructor, not a function.');
+	if (typeof ssName === 'number')  ss=document.styleSheets[ssName];
+	else if (typeof ssName === 'string')  ss=getSSByName(ssName);
+	else if (typeof ssName === 'object'  &&  ssName instanceof Array)
+		for (i=0; i<ssName.length; i++) {if (ss=getSSByName(ssName[i]))  break;}
+	if (ss)
+		Object.defineProperties(this, {ss: {enumerable:true, value:ss}, initLength: {enumerable:true, value:ss.cssRules.length}});  }
 
-// pass in a string of the selector text.
+
+// pass in a string or EegExp of the selector text.
 // returns an array of indexNumbers that refer to that rule, in ¡reverse order! found in the stylesheet.
 // returns null if no match is found.
-StyleSheetShell.prototype.getRuleIndexes=function(s)  {
+StyleSheetShell.prototype.getRuleIndexes=function getRuleIndexes(s)  {
 	var rules=this.ss.cssRules;
 	if (!rules)  return null;
 	var i, found=new Array;
@@ -1004,12 +1007,12 @@ StyleSheetShell.prototype.getRuleIndexes=function(s)  {
 		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText  &&  rules[i].selectorText.match(s))  found.push(i);}
 	else
 		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText===s)  found.push(i);}
-	if (found.length>0)  return found;  }
+	if (found.length>0)  return found;  };
 
-StyleSheetShell.prototype.insertRule=function(selector, styles, n)  {
+StyleSheetShell.prototype.insertRule=function insertRule(selector, styles, n)  {
 	if (typeof n != 'number')  n=this.ss.cssRules.length;
 	this.ss.insertRule(selector+'{'+styles+'}', n);
-	return n;  }
+	return n;  };
 
 StyleSheetShell.prototype.deleteRule=function(n)  {
 	if (typeof n === 'string'  ||  n instanceof RegExp)  n=this.getRuleIndexes(n);
@@ -1017,9 +1020,8 @@ StyleSheetShell.prototype.deleteRule=function(n)  {
 	if (typeof n === 'number')  n=[n];
 	else
 	if (!n instanceof Array)  n=[this.ss.cssRules.length-1];
-	for (var i=0; i<n.length; i++)  {
-		if (this.ss.deleteRule)  this.ss.deleteRule(n);  }
-	return n;  }
+	for (var i=0; i<n.length; i++)  {this.ss.deleteRule(n);}
+	return n;  };
 
 
 // ******************************************************************** \\

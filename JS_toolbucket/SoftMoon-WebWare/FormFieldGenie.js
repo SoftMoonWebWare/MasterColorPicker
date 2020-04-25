@@ -1,6 +1,6 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.1 (March 15, 2020)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
+/* FormFieldGenie version 4.2 (March 25, 2020)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatable with early versions of MSIE =*=*=*
 
@@ -37,7 +37,8 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 	this.config=new FormFieldGenie.ConfigStack(this, opts);
 	this.clipboard=new Object;
 	this.HTML_clipMenu=HTML_clipMenu;
-	this.tabbedOut=false;  }
+	this.tabbedOut=false;
+	this.catchTab=this.catchTab.bind(this);  }
 
 
 /*
@@ -467,16 +468,16 @@ function dumpEmpties(elmnt)  {
 
 	function getNextGroup(nodeGroup)  {
 		do {nodeGroup=nodeGroup.nextElementSibling}
-		while  (nodeGroup!==null  &&  (!isGroup(nodeGroup)  ||  getField(nodeGroup)===null));
+		while  (nodeGroup!=null  &&  (!isGroup(nodeGroup)  ||  getField(nodeGroup)==null));
 		return  nodeGroup;  }
 
 	function getFirstGroup()  { var firstGroup=fieldNodeGroupFieldset.firstElementChild;
-		while (firstGroup!==null  &&  (!isGroup(firstGroup)  ||  getField(firstGroup)===null))  {
+		while (firstGroup!=null  &&  (!isGroup(firstGroup)  ||  getField(firstGroup)==null))  {
 			firstGroup=firstGroup.nextElementSibling;  }
 		return firstGroup;  }
 
 	function getLastGroup()  { var lastGroup=fieldNodeGroupFieldset.lastElementChild;
-		while (lastGroup!==null  &&  (!isGroup(lastGroup)  ||  getField(lastGroup)===null))  {
+		while (lastGroup!=null  &&  (!isGroup(lastGroup)  ||  getField(lastGroup)==null))  {
 			lastGroup=lastGroup.previousElementSibling;  }
 		return lastGroup;  }
 
@@ -572,6 +573,14 @@ function dumpEmpties(elmnt)  {
 		if (opts  &&  opts.refocus)  setTimeout(function() {getField(getLastGroup()).focus();}, 1);
 		return true;  }
 
+	function alignSelectValues(source, clone)  { var _clone_=clone;
+		if ((source=source.getElementsByTagName('select'))
+		&&  (clone=clone.getElementsByTagName('select')))
+			for (var j, i=0; i<source.length; i++)  { for (j=0; j<clone[i].options.length; j++)  {
+				clone[i].options[j].selected= source[i].options[j].selected;  }  }
+		return _clone_;  }
+
+
  function popNewField(fieldNodeGroup, opts, clip, avoidTimeout)  {
 	var newField, cloned, fieldCount=0, fieldNode=getFirstGroup(), flag=false, pasted=false;
 	function timeoutForInsert()  {
@@ -591,6 +600,7 @@ function dumpEmpties(elmnt)  {
 			if (clip.node instanceof Element)  {
 				pasted=true;
 				newField=(cloned=clip.node).cloneNode(true);
+				alignSelectValues(cloned, newField);
 				offSet=fieldPos-clip.position;  }
 			else if (clip instanceof Array)  {
 				for (var i=0; i<clip.length; i++)  {if (popNewField.call(this, fieldNodeGroup, opts, clip[i], true))  flag=true;}
@@ -599,6 +609,7 @@ function dumpEmpties(elmnt)  {
 			else  return false;  }
 		else if (config.clone instanceof Element)  {
 			newField=(cloned=config.clone).cloneNode(true);
+			alignSelectValues(cloned, newField);
 			offSet=fieldPos;  }
 		else {
 		//the last field should have standard default values, so we clone this one.
@@ -607,6 +618,7 @@ function dumpEmpties(elmnt)  {
 			cloned=getLastGroup();
 			if (cloned===null)  return false;
 			newField=cloned.cloneNode(true);
+			alignSelectValues(cloned, newField);
 			offSet=fieldPos-fieldCount+1;
 			flag=true;  }
 		if (!opts.addTo)  {
@@ -650,12 +662,14 @@ function dumpEmpties(elmnt)  {
 	//  if the TAB key was pressed to exit this input field, focus the cursor at the newly generated field.
 		if (config.clone instanceof Element)  {
 			newField=(cloned=config.clone).cloneNode(true);
+			alignSelectValues(cloned, newField);
 			offSet=fieldCount;
 			flag=false;  }
 		else {
 			cloned=getLastGroup();
 			if (cloned===null)  return false;
 			newField=cloned.cloneNode(true);
+			alignSelectValues(cloned, newField);
 			offSet=1;
 			flag=true;   }
 		updateGroupNames(newField, offSet, flag);
@@ -704,6 +718,7 @@ FormFieldGenie.prototype.pasteField=function(fieldNodeGroup, opts)  {
 			opts.doso='paste';  flag=popNewField.call(this, fieldNodeGroup, opts, clip);  opts.doso='insert';
 			return flag;  }
 		var newField=clip.node.cloneNode(true);
+		alignSelectValues(clip.node, newField);
 		updateGroupNames(newField, getPosition(fieldNodeGroup)-clip.position, false);
 		if (typeof config.cloneCustomizer === 'function')
 			config.cloneCustomizer(newField, 'paste-over', config.cbParams);
@@ -737,8 +752,8 @@ FormFieldGenie.prototype.cutField=function(fieldNodeGroup, opts)  {
 		if (opts)  this.config.pop();  }  }
 
 function copyField(fieldNodeGroup)  {
-	Object.defineProperties(this.getClip(config.clip, true), {
-		node: {value: fieldNodeGroup.cloneNode(true), enumerable: true, writable: false, configurable: false},
+	Object.defineProperties(this.getClip(config.clip, true), {      //  ↓↓ this is returned from alignSelectValues()
+		node: {value: alignSelectValues(fieldNodeGroup, fieldNodeGroup.cloneNode(true)), enumerable: true, writable: false, configurable: false},
 		position: {value: getPosition(fieldNodeGroup), enumerable: true, writable: false, configurable: false}  });  }
 
 FormFieldGenie.prototype.copyField=function(fieldNodeGroup, opts)  {
