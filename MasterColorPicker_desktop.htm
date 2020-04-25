@@ -58,7 +58,7 @@ p img {
 <script type='text/javascript' src='JS_toolbucket/Math+++.js'></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js'></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js"></script><!--  supports RainbowMaestro  -->
-<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline.colorblind_converter.js"></script><!--  supports RainbowMaestro  -->
+<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js"></script><!--  supports RainbowMaestro  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js'></script><!--  supports MyPalette & ColorFilter  -->
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js"></script>
 
@@ -67,7 +67,7 @@ p img {
 <script type="text/javascript">
 SoftMoon.loaded_palettes=new Array;  // each desktop-palette file should push its palette(s) onto this Array
 window.addEventListener('mastercolorpicker_ready', function()  {
-	SoftMoon.WebWare.initPaletteTables(SoftMoon.loaded_palettes);
+	SoftMoon.WebWare.initPaletteTables();
 	//options below may be changed to your preference
 	MasterColorPicker.showColorAs='background';
 	MasterColorPicker.enablePanelDrag=true;
@@ -101,7 +101,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.15 alpha  March 27, 2020
+      release 2.0.16 alpha  March 28, 2020
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -241,6 +241,12 @@ or pin it to the window when it is pinned to the page.
 <button type='button' name='MasterColorPicker_MyPalette_makeSub' backtabToTarget='true'>create sub-palette</button>
 <button type='button' name='MasterColorPicker_MyPalette_delete'>delete selected</button>
 <button type='button' name='MasterColorPicker_MyPalette_port'>import/export palette</button>
+<fieldset class='options'><legend>▼ Options</legend>
+	<label><input type='checkbox' name='MasterColorPicker_MyPalette_showColorblind' />show color-blind simulations
+		<note>Note simulations are approximate and may vary between individuals and monitors.</note></label>
+	<label><input type='checkbox' name='MasterColorPicker_MyPalette_autoSelect' checked='checked' />automatically select newly created Sub-Palettes for “auto add colors”</label>
+	<label><input type='checkbox' name='MasterColorPicker_MyPalette_autoUncheck' checked='checked' />automatically un-check items upon “add selected”</label>
+</fieldset>
 <label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette'>
 	<option selected='selected'>double-click</option>
 	<option>shift-click</option>
@@ -255,7 +261,7 @@ or pin it to the window when it is pinned to the page.
 		<label><input type='radio' name='MasterColorPicker_MyPalette_portMode' value='export' />Export this “MyPalette”</label>
 	</fieldset>
 	<fieldset class='port'><legend><span class='import'>import from:</span><span class='export'>save to:</span></legend>
-		<script type='text/javascript'> if (window.location.protocol==='http:')  document.writeln(
+		<script type='text/javascript'> if (window.location.protocol.match( /^https?\:$/ ))  document.writeln(
 		"<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='server' />" +
 			(window.location.hostname==='localhost' ? "your local server (“localhost”)" : (window.location.host+" —(i.e. “the cloud”)")) + "</label>"  );
 		</script>
@@ -264,69 +270,87 @@ or pin it to the window when it is pinned to the page.
 		<label class='import local' disabled='disabled'><input type='file' name='MasterColorPicker_MyPalette_import' disabled='disabled' />← drag files here</label>
 		</fieldset>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='browser' />this browser’s private storage
-			<span><strong>¡Note</strong> the browser may delete it at any time!</span></label>
+			<note class='warn'><strong>¡Note</strong> the browser may delete it at any time!</note></label>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='current' />a current MasterColorPicker™ Palette Table
-			<span><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</span></label>
+			<note class='warn'><strong>¡Note</strong> this is temporary, and will be lost when this browser window closes!</note></label>
 		<button type='button' name='MasterColorPicker_MyPalette_porter'><span class='export'>save</span><span class='import'>load<span class='server'> index</span></span></button>
 	</fieldset>
 	<fieldset class='paletteMerge import' disabled='disabled'><legend>import merge mode</legend>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='add' />add new <span>Add colors &amp; subpalettes to this palette; ignore duplicate names.</span></label>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='merge' />merge new <span>Add colors to this palette; merge subpalettes, ignore duplicate color names.</span></label>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='merge-over' />merge &amp; replace with new <span>Add colors to this palette; merge subpalettes, replace colors with duplicate names.</span></label>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='over' />replace with new <span>Add colors &amp; subpalettes to this palette; replace those with duplicate names.</span></label>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='replace' />all new <span>Clear existing palette, and load new palette.</span></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='add' />add new <note>Add colors &amp; subpalettes to this palette; ignore duplicate names.</note></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='merge' />merge new <note>Add colors to this palette; merge subpalettes, ignore duplicate color names.</note></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='merge-over' />merge &amp; replace with new <note>Add colors to this palette; merge subpalettes, replace colors with duplicate names.</note></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='over' />replace with new <note>Add colors &amp; subpalettes to this palette; replace those with duplicate names.</note></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='replace' />all new <note>Clear existing palette, and load new palette.</note></label>
 	</fieldset>
 	<fieldset class='paletteMeta export' disabled='disabled'>
-		<label>Palette Name: <input type='text' name='MasterColorPicker_MyPalette_name' /></label>
+		<label>Palette filename: <input type='text' name='MasterColorPicker_MyPalette_filename' /></label>
 		<fieldset><legend>palette headers:</legend>
 		<textarea name='MasterColorPicker_MyPalette_headers[0]' rows='1' cols='50' value=""></textarea>
 		</fieldset>
 		<fieldset><legend>palette footers:</legend>
-		<textarea name='MasterColorPicker_MyPalette_footers[0]' rows='1' cols='50'  value=""></textarea>
+		<textarea name='MasterColorPicker_MyPalette_footers[0]' rows='1' cols='50' value=""></textarea>
 		</fieldset>
+		<label>Alternative Color Names:
+			<select class='alternative' name='MasterColorPicker_MyPalette_alternative'>
+				<option selected='true'>—none—</option>
+				<option>lowercase</option>
+				<option>UPPERCASE</option>
+			</select><note referto='MasterColorPicker_helpFor_MyPalette_alternatives'> see <strong>☺Help☺</strong> </note></label>
+		<label>¿Duplicate Color Names?
+			<select class='duplicate' name='MasterColorPicker_MyPalette_duplicate'>
+				<option value='forbid'>¡ Forbid !</optoin>
+				<option value='append' selected='true'>Append name with an index #</option>
+				<option value='ignore'>Ignore and overwrite</option>
+			</select></label>
 		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_replace_file' disabled='disabled' /> replace existing file?</label>
 		<label class='browser server' disabled='disabled'>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoload' disabled='disabled' /> auto-load this palette when MasterColorPicker starts?</label>
-		<fieldset class='filetype local'><legend>save as type:</legend>
-		<label><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="js" /> .js (for MasterColorPicker™—desktop auto-load use<span> see <strong>☺Help☺</strong> </span>)</label>
+		<fieldset class='filetype local server'><legend>save as type:</legend>
+		<label class='local'><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="js" /> .js (for MasterColorPicker™—desktop auto-load use<note referto='MasterColorPicker_helpFor_MyPalette_autoload'> see <strong>☺Help☺</strong> </note>)</label>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="json" /> .json (for MasterColorPicker™—server or other use)</label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="css" /> .css (Cascading Style Sheet
+			<select name='MasterColorPicker_MyPalette_CSSautoType'>
+			<option value="" selected='true'>palette</option>
+			<option value="--">variables</option>
+			<option value="#">ids</option>
+			<option value=".">classes</option>
+			</select>)<note referto='MasterColorPicker_helpFor_MyPalette_CSS-files'> see <strong>☺Help☺</strong> </note></label>
+		<label><input type='radio' name='MasterColorPicker_MyPalette_filetype' disabled='disabled' value="gpl" /> .gpl (GIMP Palette format)</label>
 		</fieldset>
 	</fieldset>
 </fieldset>
 <table>
 	<thead>
-	<tr><th></th>
-		<th><label for='MasterColorPicker_MyPalette_[0][0][definition]'>color definition:</label></th>
-		<th><label for='MasterColorPicker_MyPalette_[0][0][name]'>name:</label></th></tr>
+	<tr>
+		<th></th>
+		<th class='colorblind'>↓<span>protan</span></th>
+		<th class='colorblind'>↓<span>deutan</span></th>
+		<th class='colorblind'>↓<span>tritan</span></th>
+		<th><label for='MasterColorPicker_MyPalette_[0][0][definition]'>↓ ↓ color definition ↓ ↓</label></th>
+		<th></th>
+		<th><label for='MasterColorPicker_MyPalette_[0][0][name]'>↓ ↓ color name ↓ ↓</label></th></tr>
 	</thead>
-	<tbody class='mainPalette'>
+	<tbody class='MyPaletteBody'>
 	<tr>
-		<th colspan='3'>
+		<th colspan='7'>
+			<label class='subPalette'>parent Palette: <select name='MasterColorPicker_MyPalette[0][parent]'><option>«MyPalette root»</option></select></label>
+			<label><span class='subPalette'>Sub-</span>Palette Name: <input type='text' name='MasterColorPicker_MyPalette[0][Name]' /></label>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll' />select all</label>
+			<label class='subPalette'><input type='checkbox' name='MasterColorPicker_MyPalette_selectThis' />select this</label>
 			<button type='button' name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
-			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere' checked='checked' />Auto-add new Colors below</label></th></tr>
-	<tr class='MyColor'>
-		<td><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' /></td><!-- value='true' -->
-		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][definition]'
-			interfaceTarget='true' swatch='this.parentNode.previousElementSibling' value='' /><span class='dragHandle' title='drag from here or right-click for menu'>↕</span></td>
-		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' /></td></tr>
-	</tbody>
-	<tbody class='subPalette'><!-- note these names below are indexed properly for the FormFieldGenie -->
-	<tr>
-		<th colspan='3'>
-			<label>Sub-palette name: <input type='text' name='MasterColorPicker_MyPalette[0][subPalette][Name]' value="" /></label>
-			<button type='button' name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
-			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll' />select all</label>
-			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectThis' />select this</label>
 			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere' />Auto-add new Colors below</label></th></tr>
 	<tr class='MyColor'>
-		<td><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' /></td><!-- value='true' -->
+		<td toggleBorder='no'><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]' /></td>
+		<td class='colorblind' colorblind='protan' toggleBorder='no'></td>
+		<td class='colorblind' colorblind='deutan' toggleBorder='no'></td>
+		<td class='colorblind' colorblind='tritan' toggleBorder='no'></td>
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][definition]'
-			interfaceTarget='true' swatch='this.parentNode.previousElementSibling' value='' /><span class='dragHandle' title='drag from here or right-click for menu'>↕</span></td>
+			interfaceTarget='true' swatch="this.closest('.MyColor').firstElementChild" value='' /></td>
+		<td class='dragHandle' title='drag from here or right-click for menu'>↕</td>
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' /></td></tr>
 	</tbody>
 </table>
 <menu class='MyPalette_ColorGenieMenu' standardItems='genie' title="">
-<!--  The FormFieldGenie JavaScript is greatly dependent on the structure and text-content in this section.
+<!--  The JavaScript is greatly dependent on the structure and text-content in this section.
 			You may safely modify the content of the ‹span› tag  -->
 	<li>insert:
 		<span class='genie'>new color</span>
@@ -834,6 +858,21 @@ tri-color?</label>
 				syncs the Thesaurus with that color.</dd>
 
 	</dl>
+	<table><caption>Extended Characters</caption>
+	<tr><th>key</th> <th><kbd><span>CTRL</span></kbd></th> <th><kbd><span>CTRL</span>+<span>SHIFT</span></kbd></th></tr>
+	<tr><td><kbd><span>1!</span></kbd></td> <td><code>●</code></td> <td><code>¡</code></td></tr>
+	<tr><td><kbd><span>2@</span></kbd></td> <td><code>©</code></td> <td><code>®</code></td></tr>
+	<tr><td><kbd><span>5%</span></kbd></td> <td><code></code></td> <td><code>°</code></td></tr>
+	<tr><td><kbd><span>6^</span></kbd></td> <td><code>☺</code></td> <td><code>☻</code></td></tr>
+	<tr><td><kbd><span>7&amp;</span></kbd></td> <td><code>♪</code></td> <td><code>♫</code></td></tr>
+	<tr><td><kbd><span>8*</span></kbd></td> <td><code>×</code></td> <td><code>☼</code></td></tr>
+	<tr><td><kbd><span>=+</span></kbd></td> <td><code>≈</code></td> <td><code>±</code></td></tr>
+	<tr><td><kbd><span>/?</span></kbd></td> <td><code>÷</code></td> <td><code>¿</code></td></tr>
+	<tr><td><kbd><span>[{</span></kbd></td> <td><code>‘</code></td> <td><code>“</code></td></tr>
+	<tr><td><kbd><span>]}</span></kbd></td> <td><code>’</code></td> <td><code>”</code></td></tr>
+	<tr><td><kbd><span>'"</span></kbd></td> <td><code>π</code></td> <td><code>φ</code></td></tr>
+	<tr><td><kbd><span>r</span></kbd></td> <td><code>ʳ</code></td> <td><code></code></td></tr>
+	</table>
 	<hr />
 	<h5>Examples:</h5>
 	<ul>
@@ -889,15 +928,26 @@ tri-color?</label>
 	Also, each “sub-palette” must have a unique name among “sub-palette names”
 	<em>as well as</em> a unique name among “main palette color names.”&nbsp;
 	Names that are duplicates will be (depending on options set) either:</p>
-	<ul><li>automatically appended with an index number</li>
-			<li>overwritten by colors later in the palette with the same name</li>
-			<li>notify you of the conflict</li></ul>
-	When the palette you create is loaded as a 	MasterColorPicker™ Palette Table,
+	<ul><li>automatically appended with an index number,</li>
+			<li>overwritten by colors later in the palette with the same name;</li>
+			<li>or you will be notified of the conflict.</li></ul>
+	<p>When the palette you create is loaded as a MasterColorPicker™ Palette Table,
 	colors that you leave un-named will show in the table with the
 	color-definition next to the color-swatch; whereas colors that you do name
 	show up in the table with the name next to the color swatch,
 	and the color definition will pop-up when the mouse-pointer hovers over
 	the swatch.</p>
+	<h6 id='MasterColorPicker_helpFor_MyPalette_alternatives'>Alternative color names</h6>
+	<p>Alternative spellings for color names can be included,
+	but hidden when listed as a MasterColorPicker Palette Table.&nbsp;
+	You do this by choosing <code>lowercase</code> or <code>UPPERCASE</CODE>
+	for “Alternatives” in the Export File dialog.&nbsp;
+	Then colors you name with all lowercase or UPPERCASE letters
+	(based on your choice) become “alternatives”.&nbsp;
+	For instance, the <abbr>HTML</abbr> Palette includes both
+	“<code>Gray</code>” and “<code>grey</code>” but only “<code>Gray</code>” shows in the table;
+	yet the user can type <code>Grey</code> or <code>gray</code>
+	(since color-names are case-insensitive) and expect the same color.&nbsp;</p>
 	<h6 id='MasterColorPicker_helpFor_MyPalette_autoload'>Auto-loading your palettes</h6>
 	<p>If you save your palette to your “localhost” server, the server cloud,
 	or in the browser’s private storage (when available),
@@ -919,6 +969,68 @@ tri-color?</label>
 	If you are using a Windows® system, don’t confuse folder seperators!&nbsp;
 	Browsers like forward-slashes /&nbsp;<br />
 	Then save the <code>MasterColorPicker_desktop.htm</code> file.</p>
+
+	<h6 id='MasterColorPicker_helpFor_MyPalette_CSS-files'>Exporting to <abbr title='Cascading Style Sheet'>CSS</abbr> files</h6>
+	<p>When you export your palette to a CSS file,
+	the Palette &amp; Sub-Palette <em>names</em> and Color <em>names</em> take on a special meaning:&nbsp;
+	they become <abbr>CSS</abbr> selectors.&nbsp;
+	Color <em>names</em> may also instead become <abbr>CSS</abbr> <code><var>variables</var></code>.&nbsp;
+	When you save the file, the export dialog offers an option to automatically convert
+	the Color <em>names</em> into a variable or a type of <abbr>CSS</abbr> selector,
+	or simply let you manage all that by hand.&nbsp;
+	If any of your <em>names</em> begin with a valid <abbr>CSS</abbr> selector,
+	it will be recognized and and the <em>name</em> will not be auto-converted.&nbsp;
+	If you begin a <em>name</em> with the <code>$</code> character,
+	the <code>$</code> will be removed from the beginning of the <em>name</em>,
+	and the <em>name</em> will not then be auto-converted;&nbsp; this is a “custom-selector” for an element-name,
+	or any other special selector that may emerge.</p>
+
+	<p>When MyPalette then exports to a <abbr>CSS</abbr> file, the (Sub-)Palette <em>names</em>
+	chain together according to their “parent Palette” and recursively its “parent Palette”
+	to create one long <abbr>CSS</abbr> selector.&nbsp;
+	(Note that MyPalette does not validate your <abbr>CSS</abbr>,
+	it only chains together what you create.)&nbsp;
+	If any of your Color <em>names</em> are — or are automatically converted to —
+	a <abbr>CSS</abbr> selector,
+	then it is appended to the selector chain of the palette it is in,
+	and the color it defined is set as a “<code>color: </code>” property/value pair
+	for that appended chain’s resulting <abbr>CSS</abbr> selector.&nbsp;
+	If your Color <em>name</em> begins with <code>¡bg!</code>
+	(use <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>1!</span></kbd> for the ¡ character)
+	then it is stripped from the beginning of your color<em>name</em>
+	and the above said property/value pair is instead a “<code>background-color: </code>”.&nbsp;
+	If your Color <em>name</em> begins with <code>!</code> then
+	it is stripped from the beginning of your color<em>name</em>
+	and the above said property/value pair is marked as “<code>!important</code>”.&nbsp;
+	Use <code>¡bg!!</code> to do both.&nbsp;
+	For example, if your Palette <em>name</em> is “body”
+	and a Sub-Palette <em>name</em> is “div.foobar”
+	and a Color <em>name</em> in the “div.foobar” Sub-Palette is “<code>¡bg!!warning</code>”
+	and “auto-convert” is set for “classes”,
+	and the color you define is “<code>#401000</code>”
+	then the output line in the <abbr>CSS</abbr> file would be:
+	<code class='multiline'>body div.foobar .warning { background-color: #401000 !important; }</code></p>
+
+	<p>If your Color <em>name</em> is — or is automatically converted to — a
+	<abbr>CSS</abbr> <code><var>variable</var></code> (it begins with <code>--</code>)
+	then it is assigned as a property/value pair to the selector defined by the
+	(Sub-)Palette <em>name</em> and its hierarchy.&nbsp;
+	Similarly, if a color has no name (after processing out “background-color” and “!important” markers)
+	then it is assigned as a property/value pair (including its background and important properties)
+	to the selector defined by the (Sub-)Palette <em>name</em> and its hierarchy.&nbsp;
+	Given the example in the above paragraph,
+	if the Color <em>name</em> is simply <code>¡bg!!</code> then the output is:
+	<code class='multiline'>body div.foobar {
+	background-color: #401000 !important;
+ }</code>
+	and if another Color <em>name</em> in the same Sub-Palette is <code>--bazbuz</code>
+	with the color-definition <code>#1000A0</code>
+	then the output is:
+	<code class='multiline'>body div.foobar {
+	background-color: #401000 !important;
+	--bazbuz: #1000A0;
+ }</code>
+	</p>
 
 	<hr />
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
