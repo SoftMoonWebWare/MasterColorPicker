@@ -1,5 +1,5 @@
 <?php  /*  charset="UTF-8"
-	color_palettes/index.php  for PRIVATE SERVERS
+	color_palettes/index.php  for PRIVATE SERVERS          April 24, 2020
 
 	¡WARNING!  This PHP file can accept uploads and install them in your server’s file system.
 	It was designed for basic minimal protection against innocent unknowing individuals,
@@ -61,7 +61,7 @@ define('DIRECTORY_ACCESS', 0644);	 // Read and write for owner, read for everybo
  */
 
 
-define('PALETTE_NAME_EXTENTION', '/\.palette\.json$/i');
+define('PALETTE_NAME_EXTENTION', '/\.palette\.(json|css|gpl)$/i');
 
 
 
