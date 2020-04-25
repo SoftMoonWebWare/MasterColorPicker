@@ -5,8 +5,8 @@ Both desktop and server versions are cross-platform, and work with any modern br
 No external dependencies!  No package manager to worry with!  No bootstrapping!  Just unzip and go!
 
 Supports unique needs of digital media formats.
-Colorblind-assistant in the RainbowMaestro™ harmonic-color-picker helps choose colors that are compatible with each-other for full color-sighted people and colorblind people.
-The MyPalette interface allows users to build thier own color-table-palettes, give each color a descriptive name, group them into sub-palettes, and save/retrieve them for future use, allowing complete and simple management of all colors used throughout an entire project.
+Colorblind-assistants in the RainbowMaestro™ harmonic-color-picker and the MyPalette interface helps choose colors that are compatible with each-other for full color-sighted people and colorblind people.
+The MyPalette interface allows users to build thier own color-table-palettes, give each color a descriptive name, group them into sub-palettes, and save/retrieve them for future use or export them as CSS or GIMP palette files, allowing complete and simple management of all colors used throughout an entire project.
 And much more...
 
 SoftMoon WebWare’s MasterColorPicker™ package delivers five JavaScript™ powered professional quality interactive graphical color-pickers, plus a named-color-table based color-picker framework with seven named-color database files included: Brewer, common, Crayola®, HTML, OpenOffice, universal, & X11.  Your chosen colors can be returned in the most popular color-space models including hexadecimal-RGB, RGB, HSL, HSV/HSB, HCG, or CMYK, or when using named-colors their names can also be returned.  The different graphical color-pickers each look at the different available color-spaces in a different way, giving you complete intuitive control over finding the exact color you want.  Best of all, you can work with one color-space graphically, while outputting the corresponding conversion value from another color-space.  The five interactive graphical color-pickers included are:
