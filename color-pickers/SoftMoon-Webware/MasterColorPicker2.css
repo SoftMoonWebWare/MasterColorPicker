@@ -22,7 +22,8 @@ body.MCP_dragMyPaletteColor {
 #MasterColorPicker select,
 #MasterColorPicker select option {
 	color: black !important;
-	background-color: white !important; }
+	background-color: white !important;
+	color-adjust: exact; }
 
 #MasterColorPicker input[type="range"] {
 	vertical-align: middle;  /*fix Google’s Chrome*/
@@ -267,8 +268,10 @@ span.MCP_fix_Safari {
 	overflow: auto;
 	margin: 0;
 	padding: 0 .618em .618em .618em;
-	text-align: left;
+	text-align: center;
 	border-radius: .618em; }
+#MasterColorPicker_Help > div * {
+	text-align: left; }
 #MasterColorPicker_Help ul,
 #MasterColorPicker_Help dl {
 	list-style-type: disc;
@@ -291,6 +294,15 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help li:nth-child(3) ul:first-child li kbd {
 	/* text shows XYZ limits */
 	padding-left: 1.382em; }
+#MasterColorPicker_Help table {
+	margin .681em auto;
+	border: 1px solid;
+	text-align: center; }
+#MasterColorPicker_Help table td {
+	text-align: center; }
+#MasterColorPicker_Help code.multiline {
+	display: block;
+	white-space: pre-wrap; }
 /* the browsers insist on inserting a line break before this <address> element, so I’m not using it; <kbd> instead */
 /* the element-inspector console shows them as inline-static ………? */
 /* note they do not do that for the  #MasterColorPicker_options header address  */
@@ -529,7 +541,10 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette > fieldset,
 #MasterColorPicker_MyPalette p {
 	margin-left: 1.618em; }
-#MasterColorPicker_MyPalette p+fieldset label {
+#MasterColorPicker_MyPalette p+fieldset {
+	position: relative;
+	overflow: hidden; }
+#MasterColorPicker_MyPalette p+fieldset > label {
 	display: block;
 	padding-top: 0.382em;
 	text-align: right; }
@@ -537,6 +552,32 @@ select#MasterColorPicker_palette_select {
 	margin-left: .618em;
 	margin-right: 0;
 	break-before: avoid; }
+#MasterColorPicker_MyPalette .options {
+	position: absolute;
+	top: calc(100% - 1.382em);
+	left: 0;
+	bottom: auto;
+	right: auto;
+	height: 0;
+	border: none; }
+#MasterColorPicker_MyPalette fieldset.options label {
+	display: none; }
+/* #MasterColorPicker_MyPalette p+fieldset:has(fieldset:hover),   /* is it just me, or is waiting 10 years for browsers to mature a bit slow? */
+#MasterColorPicker_MyPalette p+fieldset.pseudoHover{      /* class controlled by JavaScript  … pitiful in 2020 ! */
+	overflow: visible;
+	z-index: 10; }
+#MasterColorPicker_MyPalette fieldset.options:hover {
+	border: 1px solid;
+	border-top: none;
+	height: auto;
+	width: auto;
+	background-color: white;
+	color: black; }
+#MasterColorPicker_MyPalette fieldset.options:hover label {
+	display: block;
+	z-index: 1; }
+#MasterColorPicker_MyPalette fieldset.options label:hover {
+	z-index: 2; }
 #MasterColorPicker_MyPalette .portDialog:disabled,
 #MasterColorPicker_MyPalette .portDialog .import,
 #MasterColorPicker_MyPalette .portDialog .export,
@@ -551,6 +592,7 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette .portMode label,
 #MasterColorPicker_MyPalette .portDialog.server span.server {
 	display: inline; }
+#MasterColorPicker_MyPalette .options label,
 #MasterColorPicker_MyPalette .port,
 #MasterColorPicker_MyPalette .port label,
 #MasterColorPicker_MyPalette .paletteMerge label,
@@ -558,28 +600,28 @@ select#MasterColorPicker_palette_select {
 	display: block;
 	position: relative;
 	z-index: 1; }
+#MasterColorPicker_MyPalette .options,
+#MasterColorPicker_MyPalette .options lable:hover,
 #MasterColorPicker_MyPalette .port,
 #MasterColorPicker_MyPalette .port label:hover,
 #MasterColorPicker_MyPalette .paletteMerge label:hover,
 #MasterColorPicker_MyPalette .paletteMeta label:hover {
 	z-index: 2; }
-#MasterColorPicker_MyPalette .port label span,
-#MasterColorPicker_MyPalette .paletteMerge label span,
-#MasterColorPicker_MyPalette .paletteMeta label span {
-	display: none; }
-#MasterColorPicker_MyPalette .portDialog.export .port label:hover span,
-#MasterColorPicker_MyPalette .paletteMerge.import label:hover span,
-#MasterColorPicker_MyPalette .portDialog.export .paletteMeta label:hover span {
-	display: block;
+#MasterColorPicker_MyPalette .options note,
+#MasterColorPicker_MyPalette .portDialog note {
 	position: absolute;
 	top: 100%;
 	left: 38.2%;
 	padding: 0 1em .618em 1em;
-	background-color: maroon;
-	color: white; }
-#MasterColorPicker_MyPalette .paletteMerge.import label:hover span {
-	background-color: darkBlue; }
-#MasterColorPicker_MyPalette .portDialog.export .paletteMeta label:hover span {
+	background-color: darkBlue;
+	color: white;
+	display: none; }
+#MasterColorPicker_MyPalette .options label:hover note,
+#MasterColorPicker_MyPalette .portDialog label:hover note {
+	display: block; }
+#MasterColorPicker_MyPalette .portDialog note.warn {
+	background-color: maroon; }
+#MasterColorPicker_MyPalette .portDialog note[referto] {
 	background-color: gold;
 	color: black; }
 #MasterColorPicker_MyPalette .port fieldset {
@@ -643,19 +685,43 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette .portNotice button:hover {
 	outline: 1px solid red; }
 #MasterColorPicker_MyPalette table {
-	margin: 0;
+	margin: 0.618em 0 0 0;
 	padding: 0;
 	position: relative;
 	max-height: 7.618em;
-	overflow: auto; }
-#MasterColorPicker_MyPalette tr {
-	cursor: n-resize; }
-#MasterColorPicker_MyPalette tr:first-child,
-#MasterColorPicker_MyPalette tr:last-child {
-	cursor: auto; }
+	overflow: auto;
+	border-collapse: collapse; }
+/*
+#MasterColorPicker_MyPalette thead th,
+#MasterColorPicker_MyPalette tbody td.colorblind {
+	border-right: 1px solid;
+	border-top: 1px solid; }
+#MasterColorPicker_MyPalette thead th:nth-child(1),
+#MasterColorPicker_MyPalette thead th:nth-child(6) {
+	border-top: none; }
+ */
+#MasterColorPicker_MyPalette thead th,
+#MasterColorPicker_MyPalette tbody td.colorblind {
+	border: 1px solid; }
+#MasterColorPicker_MyPalette thead th:nth-child(1),
+#MasterColorPicker_MyPalette thead th:nth-child(6) {
+	border-left: none;
+	border-top: none; }
+
+#MasterColorPicker_MyPalette table .colorblind,
+#MasterColorPicker_MyPalette tbody:nth-child(2) .subPalette {
+	display: none; }
+#MasterColorPicker_MyPalette table.showColorblind .colorblind {
+	font-family: monospace;
+	display: table-cell; }
+#MasterColorPicker_MyPalette table .colorblind span {
+	font-variant: small-caps;
+	font-size: .8em; }
 #MasterColorPicker_MyPalette td:first-child {
 	cursor: pointer; }
-#MasterColorPicker_MyPalette tbody.subPalette tr:first-child,
+#MasterColorPicker_MyPalette td.dragHandle {
+	cursor: n-resize; }
+#MasterColorPicker_MyPalette tbody tr:first-child,
 body.MCP_dragMyPaletteColor #MasterColorPicker_MyPalette tbody tr:last-child,
 body.MCP_dragMyPaletteColor #MasterColorPicker_MyPalette td:first-child,
 body.MCP_dragMyPaletteColor #MasterColorPicker_MyPalette td input,
@@ -665,7 +731,7 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody input,
 body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody button {
 	cursor: n-resize; }
 body.MCP_dragMyPaletteColor #MasterColorPicker_MyPalette tr:hover td,
-body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th {
+body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 	/*{{now OK in 2020?}} → Blink/(Webkit?) browsers: the hover state does not change until the button is released - so this does not work properly*/
 	border-top: 2px solid red; }
 #MasterColorPicker_MyPalette .isBeingDragged {
@@ -673,11 +739,14 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 #MasterColorPicker_MyPalette tr:hover .dragHandle {
 	color: red; }
 #MasterColorPicker_MyPalette .dragHandle {
-	margin-left: .162em;
+	padding-left: .382em;
+	padding-right: .382em;
+	font-weight: bold;
 	position: relative; }
 #MasterColorPicker_MyPalette tr:last-child .dragHandle {
 	visibility: hidden; }
 #MasterColorPicker_MyPalette td {
+	border-color: black !important;
 	white-space: nowrap; }
 #MasterColorPicker_MyPalette tbody th {
 	position: relative;
@@ -685,33 +754,26 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody.subPalette:hover th
 	border: 1px solid;
 	border-bottom: none;
 	text-align: left; }
+#MasterColorPicker_MyPalette th select[name$='[parent]'],
+#MasterColorPicker_MyPalette th input[name$='[Name]'] {
+	width: 30em; }
 #MasterColorPicker_MyPalette tbody th label:last-child {
 	position: absolute;
 	left: auto;
 	right: .382em;
 	top: auto;
 	bottom: 0; }
-#MasterColorPicker_MyPalette tbody.subPalette th label:first-child {
-	display: block; }
-#MasterColorPicker_MyPalette tbody.subPalette th label:first-child input {
-	width: 20em; }
-#MasterColorPicker_MyPalette tbody.subPalette th button {
-	position: absolute;
-	left: auto;
-	right: .382em;
-	top: 0;
-	bottom: auto; }
-#MasterColorPicker_MyPalette tbody.subPalette th label:nth-child(4) {
+#MasterColorPicker_MyPalette tbody th label:first-child,
+#MasterColorPicker_MyPalette tbody th label:nth-child(2) {
+	display: block;
+	margin: 0.618em 0; }
+#MasterColorPicker_MyPalette tbody th label:nth-child(5) {
 	margin-left: 1.618em; }
 #MasterColorPicker_MyPalette td:first-child {
 	padding: 0 1.618em 0 .382em;
 	border: 1px solid; }
 #MasterColorPicker_MyPalette td input[type="text"] {
 	width: 17em; }
-#MasterColorPicker_MyPalette .dragHandle {
-	padding-left: .382em;
-	padding-right: .382em;
-	font-weight: bold; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu ul {
