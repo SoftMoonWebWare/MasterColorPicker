@@ -24,7 +24,7 @@ Simple² Color Picker™
     Works with the HSL and HSV/HSB color-spaces (both at once) to bring you simple access to the tints/tones/shades of any color (hue) from the “pure” (fully-chromatic) color to →black, →white, and →gray.
     
 YinYang NíHóng Color Picker™
-    Another classic style, delivers all of the 11,777,216 colors your 24-bit monitor can show within two easy clicks using either the HSL, HSB or HCG color-spaces.
+    Another classic style, delivers all of the 11,777,216 colors your 24-bit monitor can show within two easy clicks using either the HSL, HSV/HSB or HCG color-spaces.
 
 All these graphical color pickers, except for the YinYang NíHóng color picker, are designed to show colors in definite “steps” of progression, allowing you to easily work with gradients (see our Rainbow-Maker projects) and find “matching” colors from other hues/tints/tones/shades.  The number of steps, or variety of colors, is user-controllable in real-time, from just a few to “high resolution”.
 
