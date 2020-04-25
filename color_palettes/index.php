@@ -15,7 +15,10 @@
 	• set upload-directory permissions to prevent execution of files on UNIX systems
 	• remove PHP and ASHX (ASP.NET) tags in the uploaded file
 	• clean the filename for the uploaded file from unacceptable characters, and (for Windows®) device-namespaces
-	• limit the filename for the uploaded file to having the extention:  .palette.json
+	• limit the filename for the uploaded file to having one of the extentions:
+		◦  .palette.json
+		◦  .palette.css
+		◦  .palette.gpl
 
 	As webmaster, you may want to allow dynamic (PHP/ASPX) generated palette files.
 	You should change the access code accordingly (and can do so without real harm on a “safe” private server),
@@ -32,7 +35,7 @@
 	By DEFAULT:
 	(no GET or POST requests)
 	This script finds all the files in this folder (color_palettes) and its subfolders
-	with filenames containing “.palette.json”
+	with filenames containing “.palette.json”  “.palette.css”  or  “.palette.gpl”
 	as the second-to-last and last filename extentions.
 
 	By setting GET-file or GET-file_preg in the URL
