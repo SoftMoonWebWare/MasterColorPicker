@@ -5,7 +5,7 @@ Both desktop and server versions are cross-platform, and work with any modern br
 No external dependencies!  No package manager to worry with!  No bootstrapping!  Just unzip and go!
 
 Supports unique needs of digital media formats.
-Colorblind-assistants in the RainbowMaestro™ harmonic-color-picker and the MyPalette interface helps choose colors that are compatible with each-other for full color-sighted people and colorblind people.
+Colorblind-assistants in the RainbowMaestro™ harmonic-color-picker and the MyPalette interface help choose colors that are compatible with each-other for full color-sighted people and colorblind people.
 The MyPalette interface allows users to build thier own color-table-palettes, give each color a descriptive name, group them into sub-palettes, and save/retrieve them for future use or export them as CSS or GIMP palette files, allowing complete and simple management of all colors used throughout an entire project.
 And much more...
 
