@@ -859,7 +859,7 @@ tri-color?</label>
 
 	<h4>Using MyPalette</h4>
 	<p>You can use the “MyPalette” interface to create your own Color Palette Tables,
-	give each color a descriptive name if you choose (i.e. what you you it for in your project)
+	give each color a descriptive name if you choose (i.e. what you use it for in your project)
 	organize them into sub-palettes and give each sub-palette a descriptive name,
 	and save the Palette Table in various formats.&nbsp;
 	You can then later reload your saved Palette Table back into the “MyPalette” interface,
