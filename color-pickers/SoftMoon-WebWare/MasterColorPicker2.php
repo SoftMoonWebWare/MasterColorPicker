@@ -896,7 +896,7 @@ tri-color?</label>
 	For instance, the <abbr>HTML</abbr> Palette includes both
 	“<code>Gray</code>” and “<code>grey</code>” but only “<code>Gray</code>” shows in the table;
 	yet the user can type <code>Grey</code> or <code>gray</code>
-	(since color-names are case-insensitive) and expect the same color.&nbsp;</p>
+	(note color-names are also case-insensitive) and expect the same color.&nbsp;</p>
 	<h6 id='MasterColorPicker_helpFor_MyPalette_autoload'>Auto-loading your palettes</h6>
 	<p>If you save your palette to your “localhost” server, the server cloud,
 	or in the browser’s private storage (when available),
