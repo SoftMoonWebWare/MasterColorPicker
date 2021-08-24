@@ -2,7 +2,7 @@
 
 /*	websafe table interpolator function  Feb 2, 2019  by SoftMoon WebWare.
  *   written by and Copyright © 2019 Joe Golembieski, SoftMoon WebWare
- *  Websafe table colorblind data courtisy of Christine Rigden → http://safecolours.rigdenage.com/
+ *  Websafe table colorblind data courtesy of Christine Rigden → http://safecolours.rigdenage.com/
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
