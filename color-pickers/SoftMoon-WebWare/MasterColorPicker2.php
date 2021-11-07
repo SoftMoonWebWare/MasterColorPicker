@@ -910,7 +910,7 @@ tri-color?</label>
 	(see the line with: <code>&lt;/head&gt;</code> just above the line with: <code>&lt;body&gt;</code> ).&nbsp;
 	Just above the bottom of the head you will see multiple lines that begin with
 	<code>&lt;script type="… … …</code> — duplicate one of them and change the
-	<code>src="… … …"</code> so it’s filepath leads to the file you saved from “MyPalette.”&nbsp;
+	<code>src="… … …"</code> so its filepath leads to the file you saved from “MyPalette.”&nbsp;
 	If it is in the same folder as <code>MasterColorPicker_desktop.htm</code>
 	you only need the filename: for example <code>src="<i>your_colors.palette.js</i>"</code>&nbsp;
 	If it is in a sub-folder, only include that subpath and filename: for example
