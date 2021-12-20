@@ -1,5 +1,7 @@
 SoftMoon.loaded_palettes.push(
-{"OpenOffice": { "palette": {
+{"OpenOffice": { 
+"comments": "circa 2013",
+"palette": {
 
 "Black": "000000",
 "Blue": "000080",
