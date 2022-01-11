@@ -18,7 +18,8 @@
 		You should have received a copy of the GNU General Public License
 		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
 
-// requires  “Math+++.js”  in  JS_toolbucket/
+// requires  “+++.js”  in  JS_toolbucket/+++.js/
+// requires  “+++Math.js”  in  JS_toolbucket/+++.js
 // requires   “HTTP.js”  in  JS_toolbucket/SoftMoon-WebWare/    ← only when downloading color-palette tables from the web via ajax.  They may be included in other ways.
 
 
@@ -142,7 +143,8 @@ RegExp.hsva=
 RegExp.hsba=
 RegExp.hcga=
 RegExp.ColorWheelColorA=new window.RegExp( '^' +h+ sep +p+ sep +p+ sep +f+ '$' );
-RegExp.Hue= new window.RegExp( '^' +h_+ '$' );
+RegExp.Hue=
+RegExp.angle= new window.RegExp( '^' +h_+ '$' );
 
 })();  // execute the anonymous function above
 //}  // close  “with (SoftMoon)”  wrapping RegExp property definitions
@@ -164,20 +166,27 @@ if (typeof SoftMoon.palettes !== 'object')  SoftMoon.palettes=new Object;
 
 
 SoftMoon.WebWare.Palette=function Palette($meta)  {
+	// NOTE how the palette data gets set to the prototype.
+	// This allows the host environment to further process the data, while retaining the original.
+	// For instance, you could reduce colors’ string values down to native Arrays, for the fastest future access.
+	// MasterColorPicker palettes may have “marks” (used to format the HTML tables)
+	//  that need to be removed by that application for RGB_Calc to interpret the color data.
+	if (!new.target)  throw new Error('SoftMoon.WebWare.Palette is a class constructor, not a function.');
 	Object.defineProperty(this, "palette",  {value: Object.create($meta.palette),  enumerable: true});
-	doubleDownDeep(this.palette);
-	if ($meta.header)  Object.defineProperty(this, "header", {value: typeof $meta.header === 'object' ? Object.create($meta.header) : $meta.header,  enumerable: true});
-	if ($meta.footer)  Object.defineProperty(this, "footer", {value: typeof $meta.footer === 'object' ? Object.create($meta.footer) : $meta.footer,  enumerable: true});
-	Object.defineProperty(this, "requireSubindex",  {value: $meta.requireSubindex,  enumerable: true});
-	Object.defineProperty(this, "alternatives",  {value: $meta.alternatives,  enumerable: true});
+	doubleDownDeep($meta.palette);
+	if ('requireSubindex' in $meta)
+		Object.defineProperty(this, "requireSubindex",  {value: Boolean.eval($meta.requireSubindex, true),  enumerable: true});
+//console.log('Palette properties: ',$meta);
+	for (const prop of Palette.properties)  {
+		//console.log("copying meta prop: ",prop," / ",$meta[prop]);
+		if ($meta[prop])  Object.defineProperty(this, prop, {value: $meta[prop], enumerable: true});  }
 	var config=Object.create(Palette.defaultConfig);
 	if ($meta.config)  for (c in $meta.config)  {config[c] = Object.getOwnPropertyDescriptor($meta.config, c);}
 	Object.defineProperty(this, "config",  {value: config,  enumerable: true});
 	if (typeof $meta.getColor == 'function')
 		Object.defineProperty(this, "getColor", {value: $meta.getColor,  enumerable: true});
 	function doubleDownDeep(palette)  { for (c in palette)  {
-		if (c.palette)  {
-			palette[c]=new Palette(c)  }  }  }  }
+		if (palette[c].palette)  palette[c]=new Palette(palette[c]);  }  }  }
 
 
 Object.defineProperty(
@@ -185,17 +194,22 @@ Object.defineProperty(
 		writable: true,
 		enumerable: true,
 		configurable: false,
-		value: function getColor($clr)  { var c, matches;
+		value: function getColor($clr, $requireSubindex=true)  { var matches;
 			$clr=$clr.trim().toLowerCase();
-			for (c in this.palette)  {
+			if ('requireSubindex' in this)  $requireSubindex=this.requireSubindex;
+			for (const c in this.palette)  {
 				if (!this.palette[c].palette)  {
 					if (c.trim().toLowerCase()===$clr)  return this.palette[c];
 					else  continue;  }
 				if ((matches=($clr.match(RegExp.stdWrappedColor)  ||  $clr.match(RegExp.stdPrefixedColor)))
 				&&  c.toLowerCase()===matches[1].toLowerCase())
-					return this.palette[c].getColor  ?  this.palette[c].getColor(matches[2])  :  getColor.call(this.palette[c], matches[2]);  // arguments.callee
-				if (this.requireSubindex==='false'
-				&&  (matches= this.palette[c].getColor  ?  this.palette[c].getColor($clr)  :  getColor.call(this.palette[c], $clr)))  // arguments.callee
+					return this.palette[c].getColor  ?
+							this.palette[c].getColor(matches[2], $requireSubindex)
+					 :  getColor.call(this.palette[c], matches[2], $requireSubindex);
+				if (!$requireSubindex
+				&&  (matches= this.palette[c].getColor  ?
+									this.palette[c].getColor($clr, $requireSubindex)
+							 :  getColor.call(this.palette[c], $clr, $requireSubindex)))
 					return matches;  }
 			return null;  }  });
 
@@ -204,7 +218,8 @@ SoftMoon.WebWare.Palette.defaultConfig={   // see  SoftMoon.WebWare.RGB_Calc.Con
 	inputAsFactor: {value: false,  enumerable:true, writable:true, configurable:true},
 	hueAngleUnit:  {value: 'deg',  enumerable:true, writable:true, configurable:true}  }
 
-
+// this can be filled with property names for configuration values of a palette that the implementation requires.
+SoftMoon.WebWare.Palette.properties=[];
 
 // This function will return an initially empty array, with two added properties:  connector,  paletteIndexConnection.
 // Once the index is asynchronously loaded via HTTP, the array will fill with HTTP-connect objects, one for each palette being loaded.
@@ -245,12 +260,14 @@ if (!SoftMoon.colorPalettes_defaultPath)  SoftMoon.colorPalettes_defaultPath='co
 
 SoftMoon.WebWare.addPalette=function($json_palette)  {
 	var json_palette = this.responseText  ||  $json_palette;
-	// JSON.parse resists single-quote-apostrophe in property names, and will not allow for custom methods; eval can be dangerous, but may be necessary for your implementation.
+	// JSON.parse will not allow for custom methods; eval can be dangerous and slow and “unstrict”, but may be necessary for your implementation.
 //	if (typeof json_palette == 'string')  json_palette=eval("("+json_palette+")");
-	if (typeof json_palette == 'string')  json_palette=JSON.parse(json_palette);
-	if (typeof json_palette == 'object')
+	if (typeof json_palette === 'string')  json_palette=JSON.parse(json_palette);
+	if (typeof json_palette === 'object')
 		for (paletteName in json_palette)  {
-			SoftMoon.palettes[paletteName]= new SoftMoon.WebWare.Palette(json_palette[paletteName]);  }
+			SoftMoon.palettes[paletteName]= new SoftMoon.WebWare.Palette(json_palette[paletteName]);
+			json_palette[paletteName]=SoftMoon.palettes[paletteName];  }
+	else  throw new TypeError('Can not add SoftMoon.palette: ',json_palette);
 	return json_palette;  }
 
 
