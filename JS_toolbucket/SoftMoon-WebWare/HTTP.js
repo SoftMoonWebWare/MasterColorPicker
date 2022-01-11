@@ -1,6 +1,6 @@
 /*  charset="UTF-8"
-	HTTP.js  version 2.0  March 11, 2020
-	Copyright © 2013, 2017, 2018, 2020 by Joe Golembieski, SoftMoon-WebWare.
+	HTTP.js  version 2.1  December 23, 2021
+	Copyright © 2013, 2017, 2018, 2020, 2021 by Joe Golembieski, SoftMoon-WebWare.
 
 //  character-encoding: UTF-8 UNIX     includes extended character set in comments example:  far-east asian: Chinese and Japanese
 //  tab-spacing: 2   word-wrap: no   standard-line-length: 160   full-line-length: 2400
@@ -124,75 +124,80 @@ HTTP.prototype.commune=function(connection)  {
 	var userArgs=Array.prototype.slice.call(arguments, 1),
 			thisConnector=this,
 			timer;
-	if (typeof connection.tryAgain != 'function')  connection.tryAgain=function()  { //try «attempts» times, then stop and wait until called upon again
-		if (connection.attempts<thisConnector.maxAttempts)  setTimeout(
-			function() { var passArgs=userArgs.slice(0);  passArgs.unshift(connection);
-			  thisConnector.commune.apply(thisConnector, passArgs);  },
-			thisConnector.retryDelayBuffer );
-		else  {connection.trying=false;  if (typeof connection.loadError == 'function')  connection.loadError(thisConnector);}  }
-	connection.attempts++;
-	connection.trying=true;
-	if (!connection.ontimeout)  connection.ontimeout=function()  {
-		//¿does the possiblility occur that the browser may implement this ontimeout method “automatically”?
-		//¿that is, will it trigger a timeout after, say for instance, 2 minutes, on it’s own without setting the “timeout” property?
-		//if so, and “timeoutDelay” is longer than the automatic timeout delay, we need to clear the timeout.
-		if (connection.readyState<3)  {connection.abort();  clearTimeout(timer);  connection.tryAgain.apply(connection, userArgs);}  };
-	if (!connection.timeout  &&  this.timeoutDelay)  timer=setTimeout(
-		connection.ontimeout,
-		this.timeoutDelay+(connection.attempts-1)*this.retryDelayIncrease );
-
-	connection.onreadystatechange=function()  {
-		if (connection.readyState>=3  &&  timer)  clearTimeout(timer);
-		if (connection.readyState!=4)  return;
-		connection.trying=false;
-		if (typeof connection.onStatus == 'object'
-		&&  typeof connection.onStatus[connection.status] == 'function'
-		&&  connection.onStatus[connection.status].apply(connection, userArgs) !== false)  // ¡¡NOTE how the methods of “onStatus” are applied to the “connection” object!!
-			return;  //if your custom onStatus handler method returns Boolean: “false”, the “onComplete” and then possibly the “standard” handlers below will be used.
-		if (typeof connection.onComplete == 'function'
-		&&  connection.onComplete.apply(connection, userArgs) !== false)
-			return;  //if your custom onStatus handler method returns Boolean: “false”, the standard handler below will be used.
-		status:  { switch (connection.status)  {
-			case 200:
-			case 202:
-			case 203:
-			case 204: if (typeof connection.onFileLoad === 'function')  connection.onFileLoad.apply(connection, userArgs);
-								break status;
-			case 300: if (typeof connection.onMultiple == 'function')  {  //multiple choices offered by the server - user must choose one.  responseText should hold more info
-                  var passArgs=userArgs.slice(0);  passArgs.unshift(thisConnector);
-									connection.onMultiple.apply(connection, passArgs);
-									break status;  }
-								connection.errorNotice='Server requires choosing file from multiple choices; no “onMultiple” method supplied.'
-			case 400:
-			case 401:
-			case 402:
-			case 403:
-			case 404:
-			case 410: if (typeof connection.loadError == 'function')
-										connection.loadError.apply(connection, userArgs);
-							 break status;
-			case 301: HTTP.setPermanentRedirect(connection);  //this is a permanent redirect; below are temporary or “other”
-            /* fall through to redirect by response header [307] */
-			case 201: if (connection.status==201)  {
-			  					if (thisConnector.autoShuttle_201)  {
-										if (connection.responseText.length<2001
-										&&  connection.responseText.match( thisConnector.RegExp.url ))  {
-											if (thisConnector.redirect(connection, connection.responseText, userArgs))  {
-                        connection.method="GET";  delete connection.getQuery;  delete connection.postData;
-											  connection.trying=true;  connection.tryAgain.apply(connection, userArgs);  }
-											break status;  }
-										else  {/* fall through to redirect by response header */}  }
-									else {connection.onFileLoad.apply(connection, userArgs);  break status;}  }
-			case 302:
-			case 303: if (connection.status==302 || connection.status==303)  {
-			  					connection.method="GET";  delete connection.getQuery;  delete connection.postData;  }
-			case 305:
-			case 307: if (thisConnector.redirect(connection, connection.getResponseHeader('location'), userArgs)===false)  break;
-			default:  connection.trying=true;  connection.tryAgain.apply(connection, userArgs);  }  }  }
 
 	if (this.restrictURL  &&   !connection.url.match(this.RegExp.url))
+
     connection.errorNotice="Improper “url” for HTTP request: \n “"+connection.url+"”\n No connection attempt made.";
+
 	else if (HTTP.redirectFilter(connection))  {  // url is OK as given or was changed to a new redirected url
+
+		if (typeof connection.tryAgain != 'function')  connection.tryAgain=function()  { //try «attempts» times, then stop and wait until called upon again
+			if (connection.attempts<thisConnector.maxAttempts)  setTimeout(
+				function() { var passArgs=userArgs.slice(0);  passArgs.unshift(connection);
+					thisConnector.commune.apply(thisConnector, passArgs);  },
+				thisConnector.retryDelayBuffer );
+			else  {
+				connection.trying=false;  connection.failed=true;
+				if (typeof connection.loadError == 'function')  connection.loadError(thisConnector);  }  }
+		connection.attempts++;
+		if (!connection.ontimeout)  connection.ontimeout=function()  {
+			//¿does the possiblility occur that the browser may implement this ontimeout method “automatically”?
+			//¿that is, will it trigger a timeout after, say for instance, 2 minutes, on it’s own without setting the “timeout” property?
+			//if so, and “timeoutDelay” is longer than the automatic timeout delay, we need to clear the timeout.
+			if (connection.readyState<3)  {connection.abort();  clearTimeout(timer);  connection.tryAgain.apply(connection, userArgs);}  };
+		if (!connection.timeout  &&  this.timeoutDelay)  timer=setTimeout(
+			connection.ontimeout,
+			this.timeoutDelay+(connection.attempts-1)*this.retryDelayIncrease );
+
+		connection.onreadystatechange=function()  {
+			if (connection.readyState>=3  &&  timer)  clearTimeout(timer);
+			if (connection.readyState!=4)  return;
+			connection.trying=false;
+			if (typeof connection.onStatus == 'object'
+			&&  typeof connection.onStatus[connection.status] == 'function'
+			&&  connection.onStatus[connection.status].apply(connection, userArgs) !== false)  // ¡¡NOTE how the methods of “onStatus” are applied to the “connection” object!!
+				return;  //if your custom onStatus handler method returns Boolean: “false”, the “onComplete” and then possibly the “standard” handlers below will be used.
+			if (typeof connection.onComplete == 'function'
+			&&  connection.onComplete.apply(connection, userArgs) !== false)
+				return;  //if your custom onStatus handler method returns Boolean: “false”, the standard handler below will be used.
+			status:  { switch (connection.status)  {
+				case 200:
+				case 202:
+				case 203:
+				case 204: if (typeof connection.onFileLoad === 'function')  connection.onFileLoad.apply(connection, userArgs);
+									break status;
+				case 300: if (typeof connection.onMultiple == 'function')  {  //multiple choices offered by the server - user must choose one.  responseText should hold more info
+										var passArgs=userArgs.slice(0);  passArgs.unshift(thisConnector);
+										connection.onMultiple.apply(connection, passArgs);
+										break status;  }
+									connection.errorNotice='Server requires choosing file from multiple choices; no “onMultiple” method supplied.'
+				case 400:
+				case 401:
+				case 402:
+				case 403:
+				case 404:
+				case 410: if (typeof connection.loadError == 'function')
+											connection.loadError.apply(connection, userArgs);
+								break status;
+				case 301: HTTP.setPermanentRedirect(connection);  //this is a permanent redirect; below are temporary or “other”
+							/* fall through to redirect by response header [307] */
+				case 201: if (connection.status==201)  {
+										if (thisConnector.autoShuttle_201)  {
+											if (connection.responseText.length<2001
+											&&  connection.responseText.match( thisConnector.RegExp.url ))  {
+												if (thisConnector.redirect(connection, connection.responseText, userArgs))  {
+													connection.method="GET";  delete connection.getQuery;  delete connection.postData;
+													connection.trying=true;  connection.tryAgain.apply(connection, userArgs);  }
+												break status;  }
+											else  {/* fall through to redirect by response header */}  }
+										else {connection.onFileLoad.apply(connection, userArgs);  break status;}  }
+				case 302:
+				case 303: if (connection.status==302 || connection.status==303)  {
+										connection.method="GET";  delete connection.getQuery;  delete connection.postData;  }
+				case 305:
+				case 307: if (thisConnector.redirect(connection, connection.getResponseHeader('location'), userArgs)===false)  break;
+				default:  connection.trying=true;  connection.tryAgain.apply(connection, userArgs);  }  }  }
+
 		var postData;
 		if (typeof connection.method === 'string')  connection.method=connection.method.toUpperCase();
 		switch (connection.method)  {
@@ -204,10 +209,15 @@ HTTP.prototype.commune=function(connection)  {
 		if (typeof connection.requestHeaders === 'object')  for (var rh in connection.requestHeaders)  {
 			connection.setRequestHeader(rh, connection.requestHeaders[rh]); }
 		connection.send(postData || null);
-		return;  }
+		connection.trying=true;
+		return true;  }
+
 	else  { /* Url was redirected circularly */ }
+
 	clearTimeout(timer);
-	if (typeof connection.loadError == 'function')  connection.loadError.apply(connection, userArgs);  }
+	if (typeof connection.loadError == 'function')  connection.loadError.apply(connection, userArgs);
+	connection.failed=true;
+	return false;  }
 
 
 //avoid calling this method yourself unless you fully understand what you are doing
