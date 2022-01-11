@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare' />
-<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020 Joe Golembieski, SoftMoon-WebWare' />
+<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2022 Joe Golembieski, SoftMoon-WebWare' />
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
 <link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' />
 <style type='text/css'>
@@ -32,8 +32,8 @@ body > input {
 p img {
 	display: block; }
 </style>
-<!--  for MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.12  March 17, 2020   -->
+<!--  for MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
+      release 2.0.17  April 24, 2020   -->
 
 <script type="text/javascript">
 window.addEventListener('mastercolorpicker_ready', function()  {
