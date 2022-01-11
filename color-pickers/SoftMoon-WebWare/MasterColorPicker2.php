@@ -6,10 +6,11 @@
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!-- ESSENTIAL for server version, NOT for desktop use -->
 <!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/Math+++.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/+++JS/+++.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!-- supports RainbowMaestro -->
-<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js" defer></script><!-- supports RainbowMaestro -->
+<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!-- supports RainbowMaestro & MyPalette -->
+<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js" defer></script><!-- supports RainbowMaestro & MyPalette -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!-- supports MyPalette & ColorFilter -->
 
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer='true'></script>
@@ -24,8 +25,8 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8' />
-<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
-      release 2.0.15  March 27, 2020
+<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
+      release 2.1  January 10, 2022
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -983,7 +984,7 @@ tri-color?</label>
 
 	<hr />
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
-	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 by Joe Golembieski, SoftMoon-WebWare
+	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 by Joe Golembieski, SoftMoon-WebWare
 		 ( <kbd>http://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
 	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
 		 ( <kbd>http://safecolours.rigdenage.com/</kbd> ).&nbsp;
@@ -1001,6 +1002,7 @@ tri-color?</label>
 
 
 <div id='paletteLoadingAlert'><div>
+ <h3>MasterColorPicker</h3>
  <h3>Loading Palettes:</h3>
  <p>Please Wait</p>
 <div></div></div></div><!--  do not separate or modify this line  -->
