@@ -1,8 +1,13 @@
 SoftMoon.loaded_palettes.push(
-{ "OpenOffice": { 
-"comments": "December 21, 2021",
+{ "OpenOffice": {
+"footer": ["Apache OpenOffice® 4 by The Apache Software Foundation."],
+"requireSubindex": false,
+"useShortChains": true,
+"display": "grid",
+"columns": 12,
 "palette": {
 
+"basic": { "palette": {
 "White": "#ffffff",
 "Gray 1": "#eeeeee",
 "Gray 2": "#dddddd",
@@ -26,7 +31,9 @@ SoftMoon.loaded_palettes.push(
 "Cyan": "#66ffff",
 "Turquoise": "#33ff99",
 "Green": "#99ff66",
-"Yellow green": "#ccff00",
+"Yellow green": "#ccff00"  }  },
+
+"shades & tones": { "palette": {
 "Yellow 1": "#ffff66",
 "Orange 1": "#ffcc00",
 "Red 1": "#ff9999",
@@ -146,7 +153,9 @@ SoftMoon.loaded_palettes.push(
 "Cyan 10": "#ccffff",
 "Turquoise 10": "#99ffcc",
 "Green 10": "#ccffcc",
-"Yellow green 10": "#ccff99",
+"Yellow green 10": "#ccff99"  }  },
+
+"special": { "display": ["grid","list"], "palette": {
 "Blue gray": "#e6e6ff",
 "Blue classic": "#CFE7F5",
 "Violet": "#9999ff",
@@ -155,7 +164,9 @@ SoftMoon.loaded_palettes.push(
 "Pale green": "#ccffff",
 "Dark violet": "#660066",
 "Salmon": "#ff8080",
-"Sea blue": "#0066cc",
+"Sea blue": "#0066cc"  }  },
+
+"chart": { "palette": {
 "Chart 1": "#004586",
 "Chart 2": "#ff420e",
 "Chart 3": "#ffd320",
@@ -167,5 +178,5 @@ SoftMoon.loaded_palettes.push(
 "Chart 9": "#4b1f6f",
 "Chart 10": "#ff950e",
 "Chart 11": "#c5000b",
-"Chart 12": "#0084d1"  }  }  }
+"Chart 12": "#0084d1"  }  }  }  }  }
 );
