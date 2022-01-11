@@ -1,7 +1,7 @@
-﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
+﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.0.17-alpha   April 24, 2020   by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon WebWare
+// MasterColorPicker2.js   ~release ~2.1-alpha   January 10, 2022   by SoftMoon WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -29,8 +29,9 @@
 
 // requires  SoftMoon-WebWare’s UniDOM-2020 package  (in  JS_toolbucket/SoftMoon-WebWare/))
 // requires  SoftMoon.WebWare.Picker  (“Picker.js”  or  “Picker.withDebug.js”  in  JS_toolbucket/SoftMoon-WebWare/)
-// requires  “Math+++.js”  in  JS_toolucket/
-// requires  SoftMoon.WebWare.RGB_Calc
+// requires  “+++.js”  in  JS_toolucket/+++JS/+++.js/
+// requires  “+++Math.js”  in  JS_toolucket/+++JS/+++.js/
+// requires  SoftMoon.WebWare.RGB_Calc  (in  JS_toolbucket/SoftMoon-WebWare/)
 // requires  SoftMoon.WebWare.FormFieldGenie  (“FormFieldGenie.js”  in  JS_toolbucket/SoftMoon-WebWare/)   for MyPalette and ColorFilter
 // requires  Softmoon.WebWare.Log  if you want to log with “event grouping” for easier debugging (see this file's end)
 // subject to move to unique files (with more functions) in the future:
@@ -38,6 +39,7 @@
 
 
 /*==================================================================*/
+
 
 UniDOM.isConnected_polyfill();
 
@@ -322,7 +324,7 @@ SoftMoon.WebWare.x_ColorPicker.toSystemClipboard=function(x_Colors, event)  {
 	return x_Colors;  }
 
 
-
+// We need a function that returns the text for the Picker’s  pickFilter
 SoftMoon.WebWare.x_ColorPicker.color_to_text=function(x_Colors)  {return x_Colors.text_output;}
 
 
@@ -851,7 +853,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 	var pName, palette;
 	for (pName in JSON_palette)  {
 		JSON_palette=JSON_palette[pName];
-		palette= (JSON_palette instanceof SoftMoon.WebWare.Palette) ? Object.getPrototypeOf(JSON_palette.palette) : JSON_palette.palette;
+		palette= getPalette(JSON_palette);
 		break;}
 	if (typeof palette !== 'object')  return false;
 	var thisPalette=this,
@@ -883,12 +885,15 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 
 	var CGFC=this.ColorGenie.config.fieldsetCustomizer,  SPGFC=this.SubPaletteGenie.config.fieldsetCustomizer;
 	this.ColorGenie.config.fieldsetCustomizer=null;  this.SubPaletteGenie.config.fieldsetCustomizer=null;
-	try {fill_tBody(palette, tbody, SoftMoon.WebWare.buildPaletteTable.refColorMarks, [pName]);}
+	try {fill_tBody(palette, tbody, JSON_palette.referenceMarks, [pName]);}
 	finally {this.ColorGenie.config.fieldsetCustomizer=CGFC;  this.SubPaletteGenie.config.fieldsetCustomizer=SPGFC;}
 	SPGFC.call(this.SubPaletteGenie, this.table);
 	this.alignParentPaletteSelectors();
 	tbodys[0].querySelector("input[name$='addToHere']").checked=true;
 	tbodys[0].scrollIntoView(true);
+
+	function getPalette(JSON_palette)  {
+		return (JSON_palette instanceof SoftMoon.WebWare.Palette) ? Object.getPrototypeOf(JSON_palette.palette) : JSON_palette.palette;  }
 
 	function makeNew_tBody(sName, parentName, parentId)  {
 		if (thisPalette.SubPaletteGenie.popNewField(thisPalette.table, {addTo:true}))	 {
@@ -916,15 +921,17 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 		default: return makeNew_tBody(sName, chain.pop(), parentId);  }  }
 
 	function fill_tBody(palette, tbody, marks, chain)  { var pRef, cName;
-		marks= palette.marks || marks;
 		marks.open=new RegExp('^'+RegExp.escape(marks[0]));
 		marks.close=new RegExp(RegExp.escape(marks[1])+'$');
 		tbody.querySelector("input[name$='addToHere']").checked=true;
 		for (pRef in palette)  { cName=pRef.trim();
 			if (palette[pRef].palette)  {
-				fill_tBody(palette[pRef].palette,  get_tBody(cName, chain.slice(0), tbody.id),  marks,  chain.concat(cName));
+				fill_tBody(getPalette(palette[pRef]),
+									 get_tBody(cName, chain.slice(0), tbody.id),
+									 palette[pRef].referenceMarks || marks,
+									 chain.concat(cName));
 				continue;  }
-			if (cName.substr(0, marks[0].length)===marks[0]  &&  cName.substr(-marks[1].length)===marks[1])  cName="";
+			if (marks  &&  cName.substr(0, marks[0].length)===marks[0]  &&  cName.substr(-marks[1].length)===marks[1])  cName="";
 			switch(cName  &&  mergeMode)  {
 				case 'merge-over':
 				case 'over':  for (var trs=tbody.children, i=1;  i<trs.length;  i++)  {
@@ -934,14 +941,16 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 		CGFC.call(thisPalette.ColorGenie, tbody);  }  }
 
 
+MyPalette.prototype.referenceMarks=[ '«' , '»' ];
+
+
 MyPalette.prototype.toJSON=function(onDupColor)  {
 	var requireSubindex=false,
 			metaHTML=this.HTML.querySelector('.paletteMeta'),
 			onDupColor=onDupColor ||  metaHTML.querySelector('select.duplicate').getSelected().value,
 			tbodys=this.tbodys,
 			subs=new Array,
-			marks=SoftMoon.WebWare.buildPaletteTable.refColorMarks,
-			marked=false;
+			marks=this.referenceMarks,
 			palette=buildPaletteObject(tbodys[0], 0),
 			pName= ( tbodys[0].querySelector("input[name$='[Name]']").value.trim()
 							||  ('MyPalette '+((new Date()).toUTCString()))
@@ -951,9 +960,9 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 		footer: UniDOM.getElementsBy$Name(metaHTML, /footers/ ).getValues(),
 		alternatives: metaHTML.querySelector('.alternative').getSelected().value,
 		requireSubindex: requireSubindex,
+		referenceMarks: marks,
 		paletteName: pName,
 		palette: palette } };
-	if (marked)  palette[pName].marks=marks;
 	return palette;
 	function buildPaletteObject(tbody, tbIndex)  {
 		var j, cName, def, e, pltt=new Object, p, subName,
@@ -961,9 +970,9 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 		for (j=1; j<trs.length; j++)  { // if (trs[j].firstElementChild.tagName==='TH')  continue;  //this is a foolproofer condition - it should never happen unless the table stucture is changed
 			def=UniDOM.getElementsBy$Name(trs[j], /definition/ , 1)[0].value.trim();
 			cName=UniDOM.getElementsBy$Name(trs[j], /name/ , 1)[0].value.trim();
-			if (def==="" && cName==="")  continue;
-			if (cName!=="")  def=" "+def;   // mark the definition as a “back reference” : see  SoftMoon.WebWare.buildPaletteTable
-			cName=cName  ||  (marked=true,  (marks[0]+"["+(j)+"]"+marks[1]));  // mark the name as a “forward reference”
+			if (def==="" && cName==="")  continue;  //note it is possible to create a color with no definition (maybe to be filled in later)
+			if (cName==="")  cName=marks[0]+"["+(j)+"]"+marks[1];  // mark the name as a “forward reference”
+			else  def=marks[0]+def+marks[1];   // mark the definition as a “back reference” : see  SoftMoon.WebWare.buildPaletteTable
 			loop:{ while (cName in pltt)  {
 				switch (onDupColor)  {
 				case 'forbid':
@@ -1890,7 +1899,7 @@ SoftMoon.WebWare.RainbowMaestro.buildPalette=function(onlyColorblind)  {
 	f=function(rgb, a) {return RGB_Calc.to.hex((i===0) ?  rgb  :  (rgb.hcg=[a/_['π×2'],1,.5],  RGB_Calc.to.colorblind(rgb, cbTypes[i-1])));};
 	fb=function(rgb, a)  { return f(
 			settings.splitComplement.checked  ?
-					RGB_Calc.from.hue( ( (Math.Trig.ovalizeAngle(a-focalHue, 1/3) + focalHue) % _['360°'] ) / _['π×2'] )
+					RGB_Calc.from.hue( ( (Math.Trig.ellipseAngle(a-focalHue, 1/3) + focalHue) % _['360°'] ) / _['π×2'] )
 				: rgb,
 			a );  };
 	for (i=beginCount; i<cnvs.length; i++)  { //cycle through each canvas
@@ -1926,7 +1935,7 @@ SoftMoon.WebWare.RainbowMaestro.buildPalette=function(onlyColorblind)  {
 			for (j=2; j<=variety; j++)  { for (n=1, hueWidth=_['60°']/j, halfHW=hueWidth/2+space.w/2;  n<j;  n++)  {
 				da=f*_['60°']+hueWidth*n;
 				dh= (settings.splitComplement.checked  &&  !settings.websafe.checked) ?
-					Math.Trig.ovalizeAngle(da, 1/3)
+					Math.Trig.ellipseAngle(da, 1/3)
 				: da;
 				da=Math.rad(da-focalHue);
 				dh=Math.rad(dh-focalHue);
@@ -1946,7 +1955,7 @@ SoftMoon.WebWare.RainbowMaestro.buildPalette=function(onlyColorblind)  {
 		for (f=0; f<6; f++)  { //cycle through 6 focal hues
 			fa=f*_['60°'];
 			fh= (settings.splitComplement.checked  &&  !settings.websafe.checked) ?
-				Math.Trig.ovalizeAngle(fa, 1/3)
+				Math.Trig.ellipseAngle(fa, 1/3)
 			: fa;
 			fa=Math.rad(fa-focalHue);
 			fh=Math.rad(fh-focalHue);
@@ -2028,7 +2037,7 @@ SoftMoon.WebWare.RainbowMaestro.getColor=function(event)  { mouseColor=null;  ta
 		gray=(chroma===0) ? .5 : gray/chroma;  //get gray factor
 		chroma=1-chroma/(variety-1);  //get chroma factor
 		if (settings.splitComplement.checked  &&  !settings.websafe.checked)
-			fa=Math.Trig.ovalizeAngle(fa-focalHue, 1/3)+focalHue;
+			fa=Math.Trig.ellipseAngle(fa-focalHue, 1/3)+focalHue;
 		fa=Math.rad(fa);
 		color=mouseColor=new RainbowMaestro.MaestroColor(
 				MasterColorPicker.RGB_calc.from.hcg([fa/_['π×2'],  chroma,  gray]),
@@ -2047,7 +2056,7 @@ SoftMoon.WebWare.RainbowMaestro.getColor=function(event)  { mouseColor=null;  ta
 		gray=(chroma===0) ? .5 : 1-gray/chroma;  //get gray factor
 		chroma=1-chroma/(variety-1);  //get chroma factor
 		if (settings.splitComplement.checked  &&  !settings.websafe.checked)
-			fa=Math.rad(Math.Trig.ovalizeAngle(fa-focalHue, 1/3)+focalHue);
+			fa=Math.rad(Math.Trig.ellipseAngle(fa-focalHue, 1/3)+focalHue);
 		color=mouseColor=new RainbowMaestro.MaestroColor(
 				MasterColorPicker.RGB_calc.from.hcg([fa/_['π×2'],  chroma,  gray]),
 				fa, chroma, gray, 'looseDiamonds');
@@ -2059,7 +2068,7 @@ SoftMoon.WebWare.RainbowMaestro.getColor=function(event)  { mouseColor=null;  ta
 	&&  r<=w*this.lgRainbowRing.outRad)  {
 		if (settings.websafe.checked)  a=Math.round(a/_['24°'])*_['24°'];
 		else if (settings.splitComplement.checked)
-			a=Math.rad(Math.Trig.ovalizeAngle(a-focalHue, 1/3)+focalHue);
+			a=Math.rad(Math.Trig.ellipseAngle(a-focalHue, 1/3)+focalHue);
     targetHue=a;
 		color=mouseColor=new RainbowMaestro.MaestroColor(
 				MasterColorPicker.RGB_calc.from.hue(a/_['360°']),  a, 1, .5, 'lgRainbow', a);  }
@@ -2727,65 +2736,129 @@ SoftMoon.WebWare.buildSpectralPalette=function()  {
 /*==================================================================*/
 
 
+;(function() {  //create a private namespace for the Palette Tables manager/constructor
+
+
+	// these are the properties of a Palette that MasterColorPicker uses to build Palette Tables
+const paletteProps=['header', 'footer', 'footnote', 'useShortChains', 'alternatives', 'display', 'columns',
+										'ignoreUnknownColors', 'referenceMarks', 'backReferenceAll', 'forwardReferenceAll'];
+const inherited=['requireSubindex', 'useShortChains', 'alternatives', 'display', 'columns',
+										'ignoreUnknownColors', 'referenceMarks', 'backReferenceAll', 'forwardReferenceAll'];
+Object.lock(paletteProps);
+Object.freeze(inherited);
+Object.defineProperty(paletteProps, 'inherited', {value: inherited, enumerable: true});
+// You can add your custom properties as needed for your hack, but you can not remove or change any default vaules.
+// You should only modify this array if you are adding a wrapper-function to “builtPaletteTable()”
+//  that needs additional specification properties.
+// If your host-environment or another module needs additional properties added to a Palette class instance,
+//  you should add them to the  SoftMoon.WebWare.Palette.properties  array instead.
+// Replacing this globally accessable pointer does nothing.
+SoftMoon.MasterColorPicker_Palette_properties=paletteProps;
+
+
 //   If you don’t supply a  path  then the loadPalettes() function will use
 // its default path to the palettes’ folder on the server. (see RGB_Calc.js : SoftMoon.colorPalettes_defaultPath='color_palettes/';)
-//   If you supply a  whenLoaded  function, it will be passed the freshly loaded palette name
+//   If you supply a  whenLoaded  function, it will be passed the freshly loaded palette name and data
 // before each palette <table> HTML is built.  If this function passes back  true  then the HTML <table>
 // will NOT be built, nor will it be added to the “palette select”; it will be then assumed that this
 // function (the whenLoaded function) handled all that if required.
 //   If you supply a  whenDone  function, it will be passed an array of
 // HTTP-connect Objects (their connections completed) (see the comments for the loadPalettes() function in the rgb.js file)
-// after all the palette files are loaded and their HTML <table>s are built, just before their display is set to none.
-// (remember, for JavaScript to set inline styles, the element must be currently displayed)
+// after all the palette files are loaded and their HTML <table>s are built, just before the document.body.classname{'MCP-int'} is removed.
 SoftMoon.WebWare.initPaletteTables= function(path, whenLoaded, whenDone)  {
-	var wrap=document.getElementById('MasterColorPicker_mainPanel'),
-			alrtBox=document.getElementById('paletteLoadingAlert').firstChild,
-			preLoaded= SoftMoon.loaded_palettes instanceof Array ? SoftMoon.loaded_palettes : new Array;
+	const preLoaded= SoftMoon.loaded_palettes instanceof Array ? SoftMoon.loaded_palettes : new Array;
 	if (arguments[0] instanceof Array)  preLoaded.push.apply(preLoaded, arguments[0]);
+
+	// we need to tell the Palette class constructor to include the
+	// properties of a Palette that MasterColorPicker uses to build Palette Tables
+	for (const p of paletteProps)  {
+	if (!SoftMoon.WebWare.Palette.properties.includes(p))  SoftMoon.WebWare.Palette.properties.push(p);  }
+
+	function preLdErr(palette, e)  {
+		if (typeof palette === 'object')  palette.malformed=true;
+		console.error('The MasterColorPicker JSON palette file was malformed.\n  Preloaded palette: ',palette,'\n  Error: ', e);  }
+	for (let palette of preLoaded)  {
+		try  {
+			palette=SoftMoon.WebWare.addPalette(palette);
+			for (p in palette) {cleanPaletteMarks(palette[p], palette[p].referenceMarks);}  }
+		catch(e) {preLdErr(palette, e);}  }
 	while (preLoaded.length)  {
-		var palette=preLoaded.shift();
-		SoftMoon.WebWare.addPalette(palette);
-		SoftMoon.WebWare.initLoadedPaletteTable(palette, whenLoaded);  }
+		let palette=preLoaded.shift();
+		try  {SoftMoon.WebWare.initLoadedPaletteTable(palette, whenLoaded);}
+		catch(e) {preLdErr(palette, e);}  }
+
+	const alertBox=document.getElementById('paletteLoadingAlert');
 
 	if (arguments[0] instanceof Array
 	||  !window.location.protocol.match( /^https?\:$/ ))  {
-		UniDOM.addClass(alrtBox.parentNode, 'disabled');
+		UniDOM.addClass(alertBox, 'disabled');
 		return;  }
 
-	var files=SoftMoon.WebWare.loadPalettes(  // see RGB_Calc.js
-							path,
-							updateAlertBox,
-							function()  {
-								updateAlertBox(this.url);
-								var json_palette=SoftMoon.WebWare.addPalette(this.responseText);
-								SoftMoon.WebWare.initLoadedPaletteTable(json_palette, whenLoaded)  },
-							function()  { if (files.length>0)  return;  //load errors are silently ignored for palettes
-								files.noneGiven=true;
-								alrtBox.innerHTML= HTML.indexFailed;  },
-							SoftMoon.WebWare.HTTP.handleMultiple ),
-			failed=false,
-			HTML=SoftMoon.WebWare.initPaletteTables.HTML;
+	const HTML=SoftMoon.WebWare.initPaletteTables.HTML,
+				fadeRate=SoftMoon.WebWare.initPaletteTables.fadeRate,
+				files=SoftMoon.WebWare.loadPalettes(  // see RGB_Calc.js
+								path,
+								updateAlertBox,
+								function()  {
+									try {
+										this.json_palette=SoftMoon.WebWare.addPalette(this.responseText);
+										for (p in this.json_palette) {cleanPaletteMarks(this.json_palette[p], this.json_palette[p].referenceMarks);}  }
+									catch(e)  {
+										this.json_palette=null;
+										this.malformed=true;
+										console.error('The MasterColorPicker JSON palette file was malformed.  Filename:\n  '+this.url+'\n Error:  ', e);  }
+									updateAlertBox();  },
+								function()  { if (files.length>0)  return;  //load errors are silently ignored here for palettes; updateAlertBox() notes it to the user
+									files.noneGiven=true;
+									files.indexFailed=true;  },
+								SoftMoon.WebWare.HTTP.handleMultiple );
 
-	function updateAlertBox(url)  {
-		var flag=false, html="<ul>\n";
-		if (files.noneGiven)  alrtBox.innerHTML=HTML.noPalettes;
-		else  {
-			for (i=0; i<files.length; i++)  {
-				html+="<li>"+files[i].url;
-				if (files[i].trying)  { flag=true;
-					if (files[i].readyState>=3)  html+=HTML.connected;
-					else  html+=(files[i].attempts>1 ? HTML.reload : "");  }
-				else  {
-					if (files[i].status===200)  html+= (files[i].url===url) ? HTML.building : HTML.loaded;
-					else  {failed=true;  html+=HTML.failed;}  }
-				html+="</li>\n";  }
-			html+="</ul>\n";
-			alrtBox.lastChild.innerHTML= html;  }
-		return flag;  }
+	if (alertBox.isDirty)  alertBox.replaceChild(HTML.initDefault.cloneNode(true), alertBox.firstChild);
+	else alertBox.isDirty=true;
+	const alrtBox=alertBox.firstChild;  // ¡don’t confuse the two!
+	function updateAlertBox()  {
+		if (files.noneGiven)  {
+			alrtBox.innerHTML= (files.indexFailed ? HTML.indexFailed : HTML.noPalettes);
+			opacity=100;  fade=setInterval(fadeAlertBox, fadeRate);
+			return false;  }
+		var i, flag=false, built=0, failed=false, html="<ul>\n";
+		for (i=0; i<files.length; i++)  {
+			html+="<li>"+files[i].url.replace( /&/g , '&amp;').replace( /</g , '&lt;').replace( />/g , '&gt;');
+			if (files[i].trying)  { flag=true;
+				if (files[i].readyState>=3)  html+=HTML.connected;
+				else  html+=(files[i].attempts>1 ? HTML.reload : "");  }
+			else  {
+				if (files[i].status===200
+				&&  !files[i].malformed)  html+= (files[i].built) ? (built++, HTML.loaded) : HTML.building;
+				else  {failed=true;  built++;  html+= (files[i].malformed ? HTML.malformed : HTML.failed);}  }
+			html+="</li>\n";  }
+		html+="</ul>\n";
+		alrtBox.lastChild.innerHTML= html;
+		if (files.length>0  &&  built===files.length)  {
+			if (failed)  {
+				const button1=document.createElement('button');  button1.append("X");
+				const button2=document.createElement('button');  button2.append(HTML.close);
+				const button3=document.createElement('button');  button3.append(HTML.hold);
+				button1.onclick= button2.onclick= function(event)  {
+					event.preventDefault();  event.stopPropagation();
+					clearInterval(fade);  UniDOM.addClass(alertBox, 'disabled');  };
+				button3.onclick=function(event)  {
+					event.preventDefault();  event.stopPropagation();
+					clearInterval(fade);  alertBox.style.opacity='1';  }
+				alrtBox.lastChild.insertBefore(button1, alrtBox.lastChild.firstChild);
+				alrtBox.lastChild.append(button3, button2);
+				opacity=100;  fade=setInterval(fadeAlertBox, fadeRate);  }
+			else UniDOM.addClass(alertBox, 'disabled');  }
+		return flag;
+		var opacity, fade;
+		function fadeAlertBox()  {
+			console.log(String(opacity/100));
+			if (--opacity>0  &&  !MasterColorPicker.pickerActiveFlag)  alertBox.style.opacity=String(opacity/100);
+			else  {clearInterval(fade);  UniDOM.addClass(alertBox, 'disabled');}  }  }
 
-	UniDOM.remove$Class(alrtBox.parentNode, 'disabled');
+	UniDOM.remove$Class(alertBox, 'disabled');
 	UniDOM.addClass(document.body, 'MCP_init');
-	alrtBox.style.opacity='1';
+	alertBox.style.opacity='1';
 
 	var wait=setInterval(
 		function()  {
@@ -2794,78 +2867,156 @@ SoftMoon.WebWare.initPaletteTables= function(path, whenLoaded, whenDone)  {
 			else  flag=(files instanceof Array  &&  !files.noneGiven);
 			if (flag)  return;
 			clearInterval(wait);
-			if (failed  ||  files.noneGiven)  { i=99;  wait=setInterval(function()  {
-			  if (i-->0  &&  !MasterColorPicker.pickerActiveFlag)  alrtBox.style.opacity=i/100;
-				else  {clearInterval(wait);  UniDOM.addClass(alrtBox.parentNode, 'disabled');}  }
-			, 100);  }
-			else  UniDOM.addClass(alrtBox.parentNode, 'disabled');
-			if (typeof whenDone == 'function')  whenDone(files);
-			UniDOM.remove$Class(document.body, 'MCP_init');  },
-		500 );
+			if (files.noneGiven)  {
+				if (typeof whenDone === 'function')  {try{whenDone(files);} catch(e){console.error(e);}}
+				UniDOM.remove$Class(document.body, 'MCP_init');
+				return;  }
+			i=0;
+			wait=setInterval(function ()  { //this exists only to give the DOM a chance to update between building palette tables
+					try  { if (files[i].json_palette)
+						SoftMoon.WebWare.initLoadedPaletteTable(files[i].json_palette, whenLoaded);  }
+					catch (e)  {
+						files[i].malformed=true;
+						console.error('The MasterColorPicker JSON palette file was malformed.  Filename:\n  '+files[i].url+'\n  Error: ', e);  }
+					files[i].built=true;
+					updateAlertBox();
+				  if (++i >= files.length)  {
+						clearInterval(wait);
+						if (typeof whenDone === 'function')  {
+							try {whenDone(files);}
+							catch(e) {console.error('User-supplied “whenDone” function failed in SoftMoon.WebWare.initPaletteTables()  ',e);}  }
+						UniDOM.remove$Class(document.body, 'MCP_init');
+						}  },
+				7);  },
+		100 );
 
 	return files;  }
+SoftMoon.WebWare.initPaletteTables.autoFadeOnError=true;
+SoftMoon.WebWare.initPaletteTables.fadeRate=162;
 SoftMoon.WebWare.initPaletteTables.HTML={
 	connected: " <span class='connected'>…connected and loading…</span>",
   building: " <span class='loaded'>¡Loaded!……building table……</span>",
   loaded: " <span class='loaded'>¡Loaded and Built!</span>",
   reload: " <span class='reload'>¡Retrying to Load!</span>",
   failed: " <span class='failed'>¡Failed to Load!</span>",
-	noPalettes: "<p class='noPalettes'>No Palettes found on the Server.</p>",
-	indexFailed: "<p class='indexFailed'>The index to the Palettes’ files <strong>¡Failed!</strong> to load from the Server</p>" };
+	malformed: " <span class='failed'>¡Malformed File!</span>",
+	noPalettes: "<p class='noPalettes'>No MasterColorPicker Palettes found on the Server.</p>",
+	indexFailed: "<p class='indexFailed'>The index to the MasterColorPicker Palettes’ files <strong>¡Failed!</strong> to load from the Server</p>",
+	close: "close", //these last two are for button text
+	hold: "hold" };
+SoftMoon.WebWare.initPaletteTables.HTML.initDefault=document.getElementById('paletteLoadingAlert')?.firstChild.cloneNode(true);
+
 
 
 SoftMoon.WebWare.initLoadedPaletteTable=function(json_palette, whenLoaded)  {
-	var paletteName,  o,
-			slct=document.getElementById('MasterColorPicker_palette_select'),
-			wrap=document.getElementById('MasterColorPicker_paletteTables');
-	for (paletteName in json_palette)  {
-		if (typeof whenLoaded === 'function'  &&  whenLoaded(paletteName))  continue;
+	const slct=document.getElementById('MasterColorPicker_palette_select'),
+				wrap=document.getElementById('MasterColorPicker_paletteTables');
+	for (const paletteName in json_palette)  {
+		if (typeof whenLoaded === 'function')  {
+			try {if (whenLoaded(paletteName, json_palette[paletteName]))  continue;}
+			catch(e) {console.error('User-supplied “whenLoaded” function failed in SoftMoon.WebWare.initLoadedPaletteTable()  ',e);}  }
+		if (json_palette[paletteName].display==='none')  continue;
 		MasterColorPicker.registerPicker( wrap.appendChild( (typeof json_palette[paletteName].buildPaletteHTML == 'function')  ?
-					json_palette[paletteName].buildPaletteHTML(paletteName)       // ← ↓ init: note custom init methods should return the HTML
-				: SoftMoon.WebWare.buildPaletteTable(paletteName, json_palette[paletteName], 'color_chart picker') ) );
-		o=document.createElement('option');
+				json_palette[paletteName].buildPaletteHTML(paletteName)       // ← ↓ init: note custom init methods should return the HTML
+			: SoftMoon.WebWare.buildPaletteTable(paletteName, json_palette[paletteName], 'color_chart picker') ) );
+		const o=document.createElement('option');
 		o.value=paletteName.replace( /\s/g, "_");
 		o.appendChild(document.createTextNode(paletteName));
 		o.selected=(SoftMoon._POST  &&  SoftMoon._POST.palette_select===paletteName);
 		slct.appendChild(o);  }  };
 
 
-;(function() {
 
-const getColor=function(event, cb, chain) {return cb(event, chain)} ,  //this is called by the x_ColorPicker.onclick implementation
-			// the following are the callback (cb) functions for getColor above
-			noColor=function() {return "none";} ,
-			addEntry=function(event, chain)  {
-				var txt=chain+event.target.firstChild.data;
-				return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};  } ,
-			returnNext=function(event)  {
-				UniDOM.generateEvent(event.target.nextSibling, 'onclick', { view: event.view, bubbles: false, relatedTarget: event.target,
-					cancelable: event.cancelable, detail: event.detail, button: event.button,
-					screenX: event.screenX, screenY: event.screenY, clientX: event.clientX, clientY: event.clientY,
-					ctrlKey: event.ctrlKey, altKey: event.altKey, shiftKey: event.shiftKey, metaKey: event.metaKey  });  } ,
-			addRef=
-			addBackRef=function(event)  {
-				var txt=event.target.firstChild.data;
-				return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};} ;
+function cleanPaletteMarks(jp, referenceMarks)  {  // jp= JSON Palette descriptor
+	referenceMarks=getReferenceMarks(referenceMarks);
+	if (referenceMarks)  for (cn in jp.palette)  {
+		if (jp.palette[cn].palette)  {
+			cleanPaletteMarks(jp.palette[cn],
+					jp.palette[cn].referenceMarks===undefined ? referenceMarks : jp.palette[cn].referenceMarks);
+			continue;  }
+		const clean=checkIsRef(jp.palette[cn], referenceMarks);
+		// remember, the original color-data is in the prototype; we are merely masking it here.
+		if (clean)  jp.palette[cn]=clean;  }  }
+
+function getReferenceMarks(marks)  {
+	if (marks)  {
+		if ((marks instanceof Array  ||  typeof marks === 'string')  &&  marks.length===2)  return marks;
+		throw new TypeError('Malformed “referenceMarks” property of a JSON encoded palette.');  }  }
+
+function checkIsRef(v, referenceMarks) {
+	if (referenceMarks  &&  typeof v === 'string'
+	&&  v.substr(0, referenceMarks[0].length)===referenceMarks[0]
+	&&  v.substr(-referenceMarks[1].length)===referenceMarks[1])
+		return v.slice(referenceMarks[0].length, -referenceMarks[1].length);  }
+
+
+// getColor below is called by the x_ColorPicker.onclick implementation, which is called by a <tbody>.onclick (handleClick)
+function getColor(event, target, chain) {return target.getColor_cb(event, chain);}
+				// the value of “target” above is a <td>
+				// the following are the callback (cb) functions for getColor above
+function noColor() {return {RGB:null, text:"none", model:'text'};}
+function addEntry(event, chain)  {
+	const txt=chain+this.firstChild.data;
+	return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};  }
+function addGridEntry(event, chain)  {
+	const txt=chain+this.firstChild.firstChild.data;
+	return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};  }
+function returnNext(event)  {
+	// return this.nextSibling.getColor_cb(event, chain);
+	UniDOM.generateEvent(this.nextSibling, 'onclick', { view: event.view, bubbles: true, relatedTarget: this,
+		cancelable: event.cancelable, detail: event.detail, button: event.button,
+		screenX: event.screenX, screenY: event.screenY, clientX: event.clientX, clientY: event.clientY,
+		ctrlKey: event.ctrlKey, altKey: event.altKey, shiftKey: event.shiftKey, metaKey: event.metaKey  });  }
+function addRef()  {
+	const txt=this.firstChild.data;
+	return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};}
+function addBackRef()  {
+	const txt=this.firstChild.firstChild.data;
+	return  {RGB: MasterColorPicker.RGB_calc(txt),  text: txt,  model: 'text'};}
 
 
 
 SoftMoon.WebWare.buildPaletteTable=buildPaletteTable;
 function buildPaletteTable(pName, pData, className)  {
-	var tbl, cpt,
-			x_CP=new SoftMoon.WebWare.x_ColorPicker(pName),
-			handleClick=function(event) {x_CP.onclick(event, this.getColor_cb, this.chain);};
+	const x_CP=new SoftMoon.WebWare.x_ColorPicker(pName),
+				tbl=document.createElement('table'),
+				cpt=document.createElement('caption'),
+				displayChain= (pName===SoftMoon.defaultPalette) ? "" : (pName+': '),
+				clickChain=displayChain,
+				footer= (pData.footer instanceof Array) ? pData.footer.slice() : (pData.footer ? [pData.footer] : []);
+				// footer may have additional “footers” added from sub-palettes.
+				// These are all displayed togeter at the bottom of the complete MasterColorPicker palette table.
+				// (sub)palettes may also have a “footnote” which is added to the bottom of each said (sub)palette.
+	footer.add=function(foots)  {
+		if (!(foots instanceof Array))  this.push(foots);
+		else for (const ft in foots) {this.push(ft);}  };
 	x_CP.getColor=getColor;
 	x_CP.canInterlink=false;
 	x_CP.canIndexLocator=false;
-	tbl=document.createElement('table')
-	tbl.className=className  // 'color_chart'
+
+	function handleClick(event)  {  // this=== <tbody>
+		const target=event.target.closest('td');
+		if (target  &&  target.getColor_cb)  // user may have clicked on <tr> or <tbody> ... spacing between <td>s can be possible
+			// or user may have clicked on a <td class='footnote'> which has no color data
+			// the params below are passed to x_CP.getColor(); see getcolor() above
+			x_CP.onclick(event, target, this.getAttribute('chain'));  }
+
+	tbl.className=className;  // 'color_chart'
 	tbl.id=pName.replace( /\s/g , "_");
-	cpt=document.createElement('caption')
-	cpt.innerHTML= pData.caption  ||  SoftMoon.WebWare.buildPaletteTable.caption.replace( /{pName}/ , pName);
+	if (pData.caption)  cpt.appendChild(document.createTextNode(pData.caption));
+	else  {
+		const h6=document.createElement('h6');
+		for (p of buildPaletteTable.caption.h6)  {
+			if (p==='{pName}')  h6.appendChild(document.createElement('strong')).appendChild(document.createTextNode(pName));
+			else  h6.appendChild(document.createTextNode(p));  }
+		cpt.append(h6);
+		if (buildPaletteTable.caption.text)  {
+			cpt.appendChild(document.createElement('span')).appendChild(document.createTextNode(buildPaletteTable.caption.text));  }  }
 	tbl.appendChild(cpt);
 	if (pData.header)  tbl.appendChild(buildTableHdFt(pData.header, 'thead', 'th'));
-	tbl.appendChild(buildTableRow('td', [
+/*
+	if (pData.display!=='grid')
+		tbl.appendChild(buildTableRow('td', [
 			{ stylez:{border: '2px dotted'},
 				onclick: handleClick,
 				getColor_cb: noColor  },
@@ -2874,87 +3025,215 @@ function buildPaletteTable(pName, pData, className)  {
 				getColor_cb: noColor  },
 			],
 		'noColor'));
-	tbl.appendChild(buildTableBody(pData.palette));
-	if (pData.footer)  tbl.appendChild(buildTableHdFt(pData.footer, 'tfoot', 'td'));
+ */
+	tbl.appendChild(buildTableBodys(pData, displayChain, clickChain));
+	if (footer.length)  tbl.appendChild(buildTableHdFt(footer, 'tfoot', 'td'));
 	return tbl;
 
-	function buildTableHdFt(data, t, clmn)  {
+	function buildTableHdFt(data, hf, clmn)  {
 		if (!(data instanceof Array))  data=[data];
-		var hdft=document.createElement(t);
-		for (var i=0; i<data.length; i++)  {hdft.appendChild( buildTableRow(clmn, [{colSpan:'2', text:data[i] }]) );}
+		const hdft=document.createElement(hf);
+		for (var i=0; i<data.length; i++)  {hdft.appendChild( buildTableRow(clmn, [{colSpan:2, text:data[i] }]) );}
 		return hdft;  }
 
+	function buildTableBodys(pData, displayChain, clickChain)  {
+    var display = (pData.display===undefined) ? 'list' : pData.display;
+		const dlb=[];
+		function chkDisp(disp)  {
+			if (typeof disp !== 'string'
+			||  !['list', 'grid', 'none'].includes(disp)
+			||  dlb.includes(disp))
+				throw new TypeError('Unrecognized or doubled “display” type in MasterColorPicker JSON palette “'+pName+'”: '+disp);
+			dlb.push(disp);  }
+		if (typeof display === 'object'  &&  display instanceof Array
+		&&  display.length>0  &&  display.length<4)
+			display.forEach(chkDisp);
+		else  chkDisp(display);
+		if (display.length===1)  display=display[0];
 
-	function buildTableBody(colors, chain)  { if (typeof chain !== 'string')  chain="";
-		var tb=false, tr, th, subs=new Object, subIndex, clr, frag=document.createDocumentFragment(),
-				flagBackRef, flagFwdRef, refColorMarks=SoftMoon.WebWare.buildPaletteTable.refColorMarks;
-		for (var c in colors)  {
-			if (colors[c].palette)  {subs[c]=colors[c].palette;  continue;}
-			if ((pData.alternatives==='lowercase'  &&  c.match( /[a-z]/ )  &&  !c.match( /[A-Z]/ ))  // color names that are in all-lowercase/uppercase may be alternative spellings and are not displayed
-			||  (pData.alternatives==='uppercase'  &&  c.match( /[A-Z]/ )  &&  !c.match( /[a-z]/ )))  continue;  // for example,  HTML: grey  HTML: Gray
-			if ((clr=MasterColorPicker.RGB_calc(colors[c])) == null)  continue;
-			if (!tb)  {tb=document.createElement('tbody');}
-			flagBackRef=(typeof colors[c] === 'string'  &&  ( colors[c].match( /^\s/ )
-				||  (colors[c].substr(0, refColorMarks[0].length)===refColorMarks[0]  &&  colors[c].substr(-1, refColorMarks[1].length)===refColorMarks[1]) ));
-			flagFwdRef=(typeof c === 'string'  &&  ( c.match( /^\s/ )
-				||  (c.substr(0, refColorMarks[0].length)===refColorMarks[0]  &&  c.substr(-1, refColorMarks[1].length)===refColorMarks[1]) ));
-			tb.appendChild(buildTableRow('td', [
-				{ text: flagBackRef ?  ('<div>'+colors[c]+'</div>')  :  "",
-					stylez: {backgroundColor: clr.hex, color: clr.contrast},
-					onclick: handleClick,
-					getColor_cb: (flagBackRef ?  addBackRef :  returnNext) },
-				{ text: flagFwdRef ? colors[c] : c,
-					onclick: handleClick,
-					getColor_cb: (flagFwdRef ?  addRef : addEntry),
-					chain: buildHierarchy(
-							((pName===SoftMoon.defaultPalette) ? "" : pName),
-							((pData.requireSubindex==='false') ? "" : chain) ) }  ]));  }
-		if (tb)  frag.appendChild(tb);
-		for (s in subs)  { subIndex=(chain.length>0 ? (chain+': ') : "")+s
-			frag.appendChild(buildTableRow('th', [{colSpan:'2', text:subIndex}]));
-			frag.appendChild(buildTableBody(subs[s], subIndex));  }
-		return frag;  }
+		const frag=document.createDocumentFragment();
 
-	function buildHierarchy()  { var chosen="";
-		if (arguments.length>0)  {
-			if (arguments[0] instanceof Array)
-				chosen=arguments[0].join(': ')+': '+chosen;
-			else  for (var i=arguments.length; --i>=0;)  { if (typeof arguments[i] == 'string'  &&  arguments[i].length>0)
-				chosen=arguments[i]+': '+chosen;  }  };
-	return chosen;
-	}
+		if (typeof display !== 'string')  {
+			const th=document.createDocumentFragment();
+			th.appendChild(document.createTextNode('display: '));
+			var flag=true;
+			for (const disp of display)  {
+				const inp=document.createElement('input');
+				inp.type='radio';
+				inp.name='MCP display for '+displayChain;
+				inp.value=disp;
+				inp.checked=flag;
+				inp.onchange=function() {this.closest('tr').className='switch '+this.value;}
+				th.appendChild(document.createElement('label')).append(inp, disp);
+				flag=false;  }
+			const tr=buildTableRow('th', [{colSpan:2, html:th}]);
+			tr.className='switch '+display[0];
+			tr.firstChild.className='display';
+			frag.appendChild(tr);  }
+
+		var unbuilt=true;
+		const subs=new Object,
+					useShortChains=Boolean.eval(pData.useShortChains, false),
+					referenceMarks=getReferenceMarks(pData.referenceMarks),
+					bakRefAll=Boolean.eval(pData.backReferenceAll, false),
+					fwdRefAll=Boolean.eval(pData.forwardReferenceAll, false),
+					ignore=Boolean.eval(pData.ignoreUnknownColors, false),
+					colors=Object.getPrototypeOf(pData.palette);  //the palette has been “cleansed” so we need the original data with formatting marks
+
+		if (canDisplay('grid'))  {
+			const columns= Number(pData.columns || buildPaletteTable.defaultGridColumns);
+			if (Number.isNaN(columns))
+				throw new TypeError('Column value for MasterColorPicker palette '+displayChain+' is not a number: '+(pData.columns || buildPaletteTable.defaultGridColumns));
+			if (columns<2  ||  columns>61)
+				throw new RangeError('Column value for MasterColorPicker palette '+displayChain+' is out of range: '+columns);
+			let tb=false, tbl, row= new Object, i=0;
+			for (const c in colors)  {
+				if (isAlternative(c))  continue;
+				if (colors[c].palette)  {
+					subs[c]=get_subP(colors[c]);
+					continue;  }
+				if (ignore
+				&&  MasterColorPicker.RGB_calc( checkIsRef(colors[c], referenceMarks) || colors[c] ) == null)
+					continue;
+				row[c]=colors[c];
+				if (!tb)  {
+					tb=document.createElement('tbody');
+					const tr=document.createElement('tr');
+					const td=document.createElement('td');  td.colSpan='2';
+					tbl=document.createElement('table');  tbl.className='grid';
+					tb.appendChild(tr).appendChild(td).appendChild(tbl);  }
+				if (++i===columns)  { i=0;
+					tbl.appendChild(buildGridRow(row, columns, referenceMarks, bakRefAll, fwdRefAll));
+					row=new Object;  }  }
+			if (i>0)  tbl.appendChild(buildGridRow(row, columns, referenceMarks, bakRefAll, fwdRefAll));
+			if (tb)  addTB(tb, 'grid');
+			unbuilt=false;  }
+
+		if (canDisplay('list'))  {
+			let tb=false, html;
+			for (const c in colors)  {
+				if (isAlternative(c))  continue;
+				if (colors[c].palette  &&  unbuilt)  {
+					subs[c]=get_subP(colors[c]);
+					continue;  }
+				const clr=checkIsRef(colors[c], referenceMarks);
+				const flagBakRef= bakRefAll || clr
+				const flagFwdRef= fwdRefAll || checkIsRef(c, referenceMarks);
+				const clrOb=MasterColorPicker.RGB_calc(clr||colors[c]);
+				if (ignore  &&  clrOb == null)  continue;
+				if (!tb)  tb=document.createElement('tbody');
+				if (flagBakRef)  {
+					html=document.createElement('div');  html.appendChild(document.createTextNode(clr||colors[c]));  }
+				else html=undefined;
+				tb.appendChild(buildTableRow('td', [
+					{ html: html,
+						stylez: {backgroundColor: clrOb ? clrOb.hex : "",  color: clrOb ? clrOb.contrast : ""},
+						getColor_cb: clrOb ? (flagBakRef ?  addBackRef : returnNext) : undefined },
+					{ text: flagFwdRef ? (clr||colors[c]) : c,
+						getColor_cb: clrOb ? (flagFwdRef ?  addRef : addEntry) : undefined }  ]));  }
+			if (tb)  addTB(tb, 'list');  }
+
+		if (display === 'none')
+			for (const c in colors)  {
+				if (colors[c].palette)  subs[c]= get_subP(colors[c]);  }
+
+		for (const s in subs)  { const subChain=displayChain+s;
+			frag.appendChild(buildTableRow('th', [{colSpan:2, className:'head', text:subChain}]));
+			if (subs[s].header)
+				frag.appendChild(buildTableRow('th', [{colSpan:2, className:'header', text:subs[s].header}]));
+			if (subs[s].footer)  footer.add(subs[s].footer);
+			frag.appendChild(buildTableBodys(subs[s], subChain+': ',      // pData.requireSubindex is evaluated to a Boolean by the Palette class constructor.
+																			 clickChain+((useShortChains && !pData.requireSubindex) ? "" : (s+": "))));  }
+
+		return frag;
+
+		function addTB(tb, disp)  {
+			if (pData.footnote)  {
+				const footnote= (pData.footnote instanceof Array) ? pData.footnote : [pData.footnote],
+							tr=buildTableRow('td', [{colSpan:2}]);
+				tr.className='footnote';
+				for (const fn of footnote)  {
+					tr.firstChild.appendChild(document.createElement('p')).appendChild(document.createTextNode(fn));  }
+				tb.appendChild(tr);  }
+			tb.setAttribute('chain', clickChain);
+			tb.setAttribute('full-chain', displayChain);
+			tb.onclick=handleClick;
+			tb.className=disp;
+			frag.appendChild(tb);  }
+		function canDisplay(format)  {
+			return display===format  ||  (display instanceof Array  &&  display.includes(format));  }
+		function get_subP(plt)  {
+			const subP=Object.create(plt);
+			for (const p of paletteProps.inherited)  {if (!(p in plt)) subP[p]=pData[p];}
+			return subP;  }
+		function isAlternative(c)  {
+			// color names that are in all-lowercase/UPPERCASE may be alternative spellings and ifso are not displayed
+			// for example,  HTML: grey  HTML: Gray
+			return ((pData.alternatives==='lowercase'  &&  c.match( /[a-z]/ )  &&  !c.match( /[A-Z]/ ))
+					||  (pData.alternatives==='UPPERCASE'  &&  c.match( /[A-Z]/ )  &&  !c.match( /[a-z]/ )));  }  }
+
 
 	function buildTableRow(chlds, data, className)  {
-		var i, p, tr=document.createElement('tr'), td;
-		tr.className=className;
-		for (i in data)  { td=document.createElement(chlds); // td ‖ th
-			for (p in data[i])  { switch (p)  {
-				case 'text':  td.innerHTML=data[i].text;
+		const tr=document.createElement('tr');
+		if (tr.className)  tr.className=className;
+		for (const i in data)  {
+			const td=document.createElement(chlds); // td ‖ th
+			for (const p in data[i])  { switch (p)  {
+				case 'text':  td.appendChild(document.createTextNode(data[i].text));
 				break;
-	//			case 'getColor_cb': UniDOM.addEventHandler(td, 'onclick', x_CP, false, data[i].getColor_cb, data[i].chain);
-	//			case 'chain': continue;
+				case 'html':  if (data[i].html)  td.appendChild(data[i].html);
+				break;
 				case 'stylez':  for (s in data[i].stylez)  {td.style[s]=data[i].stylez[s]};
 				break;
 				default:  td[p]=data[i][p];  }  }
 			tr.appendChild(td);  }
 		return tr;  }
 
+	function buildGridRow(colors, columns, referenceMarks, backRefAll, fwdRefAll)  {
+		var i=0, j;
+		const tr=document.createElement('tr');
+		for (const c in colors)  { i++;
+			let clr=checkIsRef(colors[c], referenceMarks);
+			const flagBackRef= backRefAll||clr;
+			if (flagBackRef) colors[c]=flagBackRef;
+			clr=MasterColorPicker.RGB_calc(clr||colors[c]);
+			const td=document.createElement('td');
+			td.appendChild(document.createElement('span')).appendChild(document.createTextNode(
+				(fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c ));
+			td.style.backgroundColor= clr ? clr.hex : "";
+			td.style.color= clr ? clr.contrast : "";
+			if (flagBackRef)  td.title=colors[c];
+			td.getColor_cb=addGridEntry;
+			tr.appendChild(td);  }
+		for (j=0; j<columns-i; j++)  {tr.appendChild(document.createElement('td')).className='filler';}
+		return tr;  }
+
  }; //close  SoftMoon.WebWare.buildPaletteTable
-})();  //close & execute the anonymous wrapper function holding long-term private variables
+})();  //close & execute the private namespace for the Palette Tables manager/constructor
 
 
-SoftMoon.WebWare.buildPaletteTable.caption='<h6><strong>{pName}</strong> color-picker table</h6>click to choose';  //  '{pName} colors'
-SoftMoon.WebWare.buildPaletteTable.refColorMarks=[ '«' , '»' ];  // if a color name in a palette is wrapped
+SoftMoon.WebWare.buildPaletteTable.caption={
+	"h6": ["{pName}"," color-picker table"],  // you may add in other strings of text; they build in order.  {pName} gets put in a <strong>pName</strong>
+	"text": "click to choose" };  //  '<h6><strong>{pName}</strong> color-picker table</h6><span>click to choose</span>';  //  '{pName} colors'  //  'couleurs de {pName}'
+SoftMoon.WebWare.buildPaletteTable.defaultGridColumns=13;  // the default number of columns in a grid layout format
+// The following property is no longer used by MasterColorPicker.
+// Instead, referenceMarks are a property of a specific Palette instance.
+// The MyPalette class prototype now contains this value to use in the toJSON method.
+// The followings’ comments give a good description of how they work:
+/*
+// note that if (and only if) your marks are a single-character (UTF-8) each,
+//  you may use a string instead of an array:    ='«»';
+SoftMoon.WebWare.buildPaletteTable.referenceMarks=[ '«' , '»' ];  // if a color name in a palette is wrapped
 		// with these characters, it is a “forward-reference” to the color-definition.  This means that when the
 		// HTML palette <table> is being built, the color-name is not listed, rather the color-definition is listed.
-		// Forward referencing can also be accomplished by placing white-space at the beginning of the color-name.
-		// Back-referencing the color-definition can be accomplished in a similar way, by wrapping the color-definition
-		// with these characters, or by placing white-space at the beginning of the color-definition;
-		// in this case, the color-name will be listed, but the color-definition-text will be
-		// placed inside a <div></div> within the color-swatch <td></td> (the first column of the row which is usually text-less).
-		// Use CSS to manage this added <div>, noting its parent color-swatch <td></td> background will be set as usual,
-		// but the <td></td> foreground will also be set to a contrasting color.
-
+		// Back-referencing the color-definition can be accomplished in a similar way,
+		// by wrapping the color-definition with these characters:
+		// in this case, the color-name will be listed, but the color-definition-text will be either:
+		// (a) for list-displays: placed inside a <div></div> within the color-swatch <td></td> (the first column of the row which is usually text-less).
+		//     Use CSS to manage this added <div>, noting its parent color-swatch <td></td> background will be set as usual,
+		//     but the <td></td> foreground will also be set to a contrasting color.
+		// (b) for grid-displays: set as a title for the <td></td> to be a standard pop-up tool-tip.
+*/
 
 // =================================================================================================== \\
 
@@ -3008,20 +3287,11 @@ else
 if ("hueAngleUnit" in meta) calcOpts.hueAngleUnit=meta.hueAngleUnit;  // per SoftMoon.WebWare.RGB_Calc:   'deg' ‖ "°" ‖ 'rad' ‖ "ʳ" ‖ 'grad' ‖ "%" ‖ 'turn' ‖ "●"
 if ("keepPrecision" in user) calcOpts.roundRGB=!user.keepPrecision;
 else
-if ("keepPrecision" in meta) calcOpts.roundRGB=!boolString(meta.keepPrecision, !SoftMon.WebWare.RGB_Calc.ConfigStack.prototype.roundRGB);
+if ("keepPrecision" in meta) calcOpts.roundRGB=!Boolean.evalString(meta.keepPrecision, !SoftMon.WebWare.RGB_Calc.ConfigStack.prototype.roundRGB);
 MasterColorPicker.RGB_calc=new SoftMoon.WebWare.RGB_Calc(calcOpts);
 
 Object.defineProperty(MasterColorPicker, 'HTML', {value: document.getElementById('MasterColorPicker'), enumerable: true});
 
-function boolString(s, d) {  s=s.toLowerCase();  //  ((s||"").toLowerCase());
-	if (boolString.truthy.indexOf(s)>=0)  return true;
-	if (boolString.falsey.indexOf(s)>=0)  return false;
-	return Boolean(d);  }
-boolString.truthy=['true', 't', 'yes', 'y', 'affirmative'];
-boolString.falsey=['false', 'f', 'no', 'n', 'negative'];
-//you can adjust the language of the meta tag values above through the global reference below;
-
-Boolean.evalString=boolString;
 
 
 Object.defineProperty(MasterColorPicker, "keepPrecision", { enumerable: true,
@@ -3075,6 +3345,7 @@ try{UniDOM.generateEvent(document.getElementById('MasterColorPicker_showHelp'), 
 
 
 //after all other modules have access to the original x_Color Object data.
+// note we are pushing a function
 MasterColorPicker.pickFilters.push(SoftMoon.WebWare.x_ColorPicker.color_to_text);
 
 
@@ -3109,12 +3380,14 @@ UniDOM.addEventHandler(mainHTML,  ['onMouseEnter', 'onMouseLeave'],
 UniDOM.addEventHandler(mainHTML, 'pickerPanelZLevelChange',
 	function(event) { if (this===event.newTopPanel)  {
 		MasterColorPicker.panels.splice(MasterColorPicker.panels.indexOf(optsHTML), 1);
-		MasterColorPicker.panels.push(optsHTML);  }  },
+		MasterColorPicker.panels.push(optsHTML);  }  },  // options on top
+		//MasterColorPicker.panels.splice(-1, 0, optsHTML);  }  },  // main (picker-panel) on top
 	false);
 UniDOM.addEventHandler(optsHTML, 'pickerPanelZLevelChange',
 	function(event) { if (this===event.newTopPanel)  {
 		MasterColorPicker.panels.splice(MasterColorPicker.panels.indexOf(mainHTML), 1);
-		MasterColorPicker.panels.splice(-1, 0, mainHTML);  }  },
+		MasterColorPicker.panels.splice(-1, 0, mainHTML);  }  },  // options on top
+		//MasterColorPicker.panels.push(mainHTML);  }  },  // main (picker-panel) on top
 	false);
 
 
