@@ -289,7 +289,7 @@ dd {
 <nav>
 on this page:
 <menu>
-	<li><a href='#desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</a></li>
+	<li><a href='#file-http'><code>file://</code> <abbr title='versus'>vs.</abbr> <code>http://</code></a></li>
 	<li><a href='#named-colors'>Named-color tables</a></li>
 	<li><a href='#using_MasterColorPicker'>Using MasterColorPicker</a></li>
 	<li><a href='#using_picker'>Using the Picker</a></li>
@@ -311,7 +311,8 @@ Your chosen colors can be returned in the most popular color-space models includ
 <abbr title='red, green, blue'>RGB</abbr>,
 <abbr title='hue, saturation, lightness'>HSL</abbr>,
 <abbr title='hue, saturation, brightness; also known as HSV: hue, saturation, value'>HSB-HSV</abbr>,
-<abbr title='hue, chroma, gray'>HCG</abbr>, or
+<abbr title='hue, chroma, gray'>HCG</abbr>,
+<abbr title='hue, whiteness, blackness'>HWB</abbr>, or
 <abbr title='cyan, magenta, yellow, black;  used when printing with inks'>CMYK</abbr>,
 or when using named-colors their names can also be returned.&nbsp;
 The different graphical color-pickers each look at the different available color-spaces in a different way,
@@ -354,7 +355,8 @@ allowing complete and simple management of all colors used throughout an entire 
 
 <dt>The Color-Space Lab</dt>
 <dd>gives you direct control of, and displays a color’s definitive values
-in the RGB, HSV/HSB, HSL, HSG, &amp; CMYK color-spaces.&nbsp;
+in the RGB, HSV/HSB, HSL, HSG, HWB, &amp; CMYK color-spaces.&nbsp;
+It also allows you to add an Alpha (opacity) value to your selected color, automatically if you choose.&nbsp;
 It can update automatically as you hover over a color in a palette;
 or you can use it to manually make color-space conversions.</dd>
 
@@ -373,95 +375,101 @@ for a decorative gradient transitional effect.</dd>
 </dl>
 
 <p>Now these ain’t your grandpa’s color pickers, mind you.&nbsp;
-The MasterColorPicker project is of a cutting-edge design
-that relies on a modern computer with a modern browser.&nbsp;
-At the time of the first MasterColorPicker release back when dinosaur browsers still roamed the Earth, only
-Google’s<mark class='macronym'>®</mark> Chrome<mark class='macronym'>®</mark>,
-Apple’s<mark class='macronym'>®</mark> Safari<mark class='macronym'>®</mark>,
-the Opera<mark class='macronym'>®</mark> browser,
-and Microsoft’s<mark class='macronym'>®</mark> new Internet Exploder 10 had this capability natively.&nbsp;
-A hack and polyfill support also gave MSIE9 a chance to play (see the legacy files on GitHub if you’re interested).&nbsp;
+The MasterColorPicker project relies on a modern computer with a modern browser.&nbsp;
+Browsers used must embrace “modern” standards in the year 2022.&nbsp;
+Also, MasterColorPicker was designed as a professional’s tool,
+not a toy to be used on an ity-bity laptop, or other portable device with a small monitor.&nbsp;
+While most of MasterColorPicker’s panels adjust to the monitor height,
+the Color-Space Lab is (for now at least) a fixed size,
+and can be trouble to drag and move on a smaller browser window.&nbsp;
+A wide screen is also preferable when multiple panels are open at once.&nbsp;
+But some smaller monitors may still be manageable.
+</p>
 
-Presently (spring 2020) all modern browsers “should” support the MasterColorPicker with ease.&nbsp;
-¡As of <del>late October 2014</del> <del>August 2015</del> <del>February 14, 2019</del> <del>spring 2020</del> January 10, 2022,
-I have pre-released MasterColorPicker version <del>2.0.01-alpha</del> <del>2.0.02-alpha</del> <del>2.0.11(+)</del> 2.1 -alpha.&nbsp;
-I have been revamping old support files to newer, modern standards, removing all old legacy browser support.&nbsp;
-Browsers used must embrace “modern” standards in the year 2020, or at least to say the ECMAScript-2015 standard.&nbsp;
+<h3 id='file-http'><code>file://</code> <abbr title='versus'>vs.</abbr> <code>http://</code></h3>
 
-Unfortunately, Internet Exploder has this way of lingering on people’s desktops.&nbsp;
-Given that Microsoft just released a statement saying:
-♪♫♪♫ “Internet [Exploder] should no longer be considered a web browser” ♪♫♪♫ (¡music to my ears!)
-and is unsafe and virtually unusable on today’s modern web, I’m not looking back, still forward <big>☺</big>.</p>
-
-<h3 id='desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</h3>
-
-<p>The package includes two versions: desktop (<code>file://</code>) and server (<code>http://</code>) -based.&nbsp;
-The desktop version can be placed in a folder on your personal computer and used to find the colors of your dream’s desire.&nbsp;
-But while the desktop version can also be incorporated into your own web page and served from your server, you guessed it,
-the server-based version requires a server such as Apache for example
-(you can always put a server on your home machine, of course,
-and use the server version on your desktop without a network connection).&nbsp;
-But the server-based version is much more convenient to use if you plan on adding or deleting
-named-color database tables on a regular basis.&nbsp;
-With the server-based version, you simply create the named-color database file and add it to the proper folder; that’s it.&nbsp;
+<p>MasterColorPicker automatically adapts to the environment that it is used in.&nbsp;
+It can be placed in a folder on your personal computer and
+loaded into a browser using the <code>file://</code> protocol
+(you click on the file in your filesystem for example);
+or it can be placed on a server and loaded into a browser using the <code>http://</code> protocol.&nbsp;
+The server may be remote, public or private (in “the cloud” or in a private network);
+or be a <code>localhost/</code> on your personal computer.&nbsp;
+Both protocols offer similar functionality, but server-based usage is much more convenient
+if you plan on adding or deleting named-color database tables on a regular basis.&nbsp;
+With server-based (<code>http://</code> protocol) usage,
+you simply create the named-color database file and add it to the proper folder; that’s it.&nbsp;
 Or you can use the MyPalette interface to create your named-color-table and save your file to the server,
 and not even worry about which folders where … or about the file formatting details …
-MasterColorPicker takes care of it all for you.&nbsp;
-Remove it from the folder when you are done with it.&nbsp;
-With the desktop (<code>file://</code>) version, you must manually add and remove links to each of the named-color tables
+MasterColorPicker takes care of it all for you and even lets you autoload them in the future.&nbsp;
+Simply remove your database file from the folder when you are done with it.&nbsp;
+With <code>file://</code> protocol usage, you must manually add and remove links to each of the named-color tables
 <strong>if you want them to auto-load when MasterColorPicker starts</strong>.&nbsp;
-You can find info on doing such in MasterColorPicker’s ☺Help☺ panel while it is up-and-running.</p>
-
-<p>You will find these two (2) files in the root folder that are <strong>tools</strong> for digital media developers:
-<code class='filename'>MasterColorPicker_desktop.htm</code> and
-<code class='filename'>MasterColorPicker_desktop.php</code><br />
-With the <code class='filename'>.htm</code> file, no server is needed;
-just click on the file and it will open in your browser.&nbsp;
-Use a server with the <code class='filename'>.php</code> file,
-and the same desktop <em>tool</em> is available,
-but you can save MyPalette files that you create to the server
-(a private local server; or with the correct security protocols set up, a shared public server;
-either of which can be a team-shared project host center), and they can be automatically
-loaded as a named-color-table-palette whenever MasterColorPicker starts
-by simply clicking a checkbox when you save.&nbsp;
-Both the server-<em>version</em> and desktop-<em>version</em> of these twin desktop-<em>tools</em>
+You can find info on doing such in MasterColorPicker’s ☺Help☺ panel while it is up-and-running.
+Both <code>http://</code> and <code>file://</code> protocol usages
 allow you to create, save &amp; load MyPalette and other named-color-table-palette files
 to &amp; from your computer’s local filesystem, so without a server you are not high-and-dry;
-the advantage of the server-version is the simplified autoload feature, and the centralized project host center.&nbsp;
-As a final note on these two different files:&nbsp; they actually both support being used with a server!&nbsp;
-The <code class='filename'>.htm</code> file simply adds hardcoded links to the named-color-table files;
-both files recognize the environment they are active in, and if served from a server (via <code>http://</code>)
-the <code class='filename'>.htm</code> file will still allow you save &amp; load to/from the server-host.</p>
+the advantage of server usage is the simplified autoload feature,
+and having a centralized project host center for multiple developers.&nbsp;
+</p>
+
+<p>You will find these two (2) files in the root folder that are <strong>tools</strong>
+for digital media developers to find the colors of their dream’s desire:
+<code class='filename'>MasterColorPicker_desktop.html</code> and
+<code class='filename'>MasterColorPicker_desktop.php</code><br />
+With the <code class='filename'>.html</code> file, no server is needed;
+just click on the file and it will open in your browser.&nbsp;
+With the <code class='filename'>.php</code> file you of course need a server with <abbr>PHP</abbr> installed,
+and the same desktop <em>tool</em> is available,
+but it is an <em>example</em> of how you can incorporate MasterColorPicker into your own web page,
+and also of the subtle differences in the CSS and how the palette files are loaded
+(no HTML <code>&lt;script&gt;</code> tags needed to load them).&nbsp;
+¡Note both files support being used with a server!&nbsp;
+There are two simple, primary differences between the files:&nbsp;
+First, the <code class='filename'>.html</code> file adds hardcoded links to the named-color-table files;
+(¡note both files recognize the environment they are active in, and if served from a server (via <code>http://</code>)
+the <code class='filename'>.html</code> file will still allow you save &amp; load palette files to/from the server-host!)&nbsp;
+Second, the <code class='filename'>.html</code> file adds a copy of some of the <abbr>CSS</abbr> styling
+directly into the HTML markup, which is needed for MasterColorPicker to work,
+since, for security reasons, browsers prevent a web page
+from reading any other files loaded from the local file system,
+including its own <abbr>CSS</abbr> stylesheet file (unless the user selects them by hand).
+</p>
 
 
-<p>There is another factor in deciding whether to use the desktop or server version when incorporating the
-MasterColorPicker into your own website.&nbsp;
-The named-colors database files are <acronym title='JavaScript Object Notation'>JSON</acronym> formatted.&nbsp;
-With the server based version, these files are loaded using JavaScript<mark class='macronym'>™</mark>
-to make HTTP calls back to the server (think ajax), whereas with the desktop version,
+<p>The named-colors database files themselves need to be adapted to the protocol they are used in.&nbsp;
+With server based (<code>http://</code> protocol) usage,
+these files are <acronym title='JavaScript Object Notation'>JSON</acronym> formatted,
+and loaded using JavaScript<mark class='macronym'>™</mark>
+to make HTTP calls back to the server (think ajax);
+whereas with <code>file://</code> protocol usage,
 they are themselves JavaScript<mark class='macronym'>™</mark> files loaded with an <abbr>HTML</abbr>
 <code>&lt;script src='colors-filename.palette.js'&gt;</code> tag.&nbsp;
-This means that the server version can interpret the files,
-whereas in the desktop version the database files are required to be legal JavaScript<mark class='macronym'>™</mark>.&nbsp;
-And this means that the server version has database files that can be used easier with server-side languages,
-such as <abbr>PHP</abbr>.&nbsp;
-<abbr>PHP</abbr> has a function, <code>json_decode()</code> that quickly and simply converts
-<acronym>JSON</acronym>-encoded text-strings.&nbsp; But the desktop version requires that the
-<acronym>JSON</acronym> Object is <em>assigned</em> to something right there in the <code>.palette.js</code> database file itself,
-and <abbr>PHP</abbr> can not natively read this.&nbsp; Of course, with a little ingenuity, you could strip off
-the “assignment” within the JavaScript<mark class='macronym'>™</mark>-based-database file and then parse it
-natively using <abbr>PHP</abbr>;
-more overhead on overworked servers is never a good thing, though, however small.</p>
+Without a server, the palette files need to be hard-coded into the web page.&nbsp;
+However, the server can tell MasterColorPicker what files are available
+and MasterColorPicker can load what it wants.&nbsp;
+Look at the difference in the two <code class='filename'>MasterColorPicker_desktop</code> files
+for an example of this principle.&nbsp;
+See also the file <code class='filename'>color_palettes/index.php</code> and note that
+it is a relatively simple file that can be replaced with one in another programming language (Node.js, Perl, etc.);
+using a server with MasterColorPicker is not limited to one with <abbr>PHP</abbr> installed.&nbsp;
+Except for the “demo” <code class='filename'>MasterColorPicker_desktop.php</code> file,
+the palette index file is the only active file on the server
+(except for some “utility files” that are not technically part of the project and are not required),
+and even it can be replaced with a simple <code class='filename'>.txt</code> file.
+</p>
 
 <h3 id='named-colors'>Named-color tables</h3>
 
 <p>Because the named-color database tables are required to be in only slightly different formats,
-and many of the files are very long, these database files only come packaged in one format: for the desktop version.&nbsp;
-There is an included <abbr>PHP</abbr> powered converter which will convert all the files to the server version format.&nbsp;
+and many of the files are very long, these database files only come packaged in one format:
+for <code>file://</code> protocol usage (extention <code class='filename'>.js</code>).&nbsp;
+There is an included <abbr>PHP</abbr> powered converter which will convert all the files
+to the server (<code>http://</code> protocol) usage format (extention <code class='filename'>.json</code>).&nbsp;
 There is also an instruction file which explains the details on how to do this using the included converter,
-and also how to do this by hand.&nbsp;
+and also how to do this by hand (which is remarkably simple) if you don't have <abbr>PHP</abbr> installed.&nbsp;
 These two files, <code class='filename'>convert_palette_formats.php</code> and <code class='filename'>converting_palette_formats.odt</code>,&nbsp;
-can be found in the <code class='filename'>color_palettes</code> folder.</p>
+can be found in the <code class='filename'>color_palettes/</code> folder.</p>
 
 <p>Building your own named-color-tables by hand is simple to do using any basic text-editor.&nbsp;
 If you have a list/database of colors, they can easily be incorporated into MasterColorPicker.&nbsp;
@@ -471,47 +479,42 @@ However, MasterColorPicker’s MyPalette interface makes creating them from scra
 
 <h3 id='using_MasterColorPicker'>Using MasterColorPicker in your own project</h3>
 
-<p>It’s very easy to incorporate the MasterColorPicker (or even any of its individual pickers) into your own project.&nbsp;
-To limit download size, but maximize ease of use, three different but similar files are included.&nbsp;
-The desktop version is built with pure <abbr>HTML</abbr> (file name <code class='filename'>MasterColorPicker_desktop.htm</code>),
-while the server version is built with embedded <abbr>PHP</abbr> (two files, named
-<code class='filename'>MasterColorPicker_desktop.php</code> and
-<code class='filename'>color-pickers/SoftMoon-WebWare/MasterColorPicker.php</code>).&nbsp;
-Now it should be noted not to confuse the desktop “version” with the <code>_desktop</code> “files”.&nbsp;
-The desktop version is a single complete <abbr>HTML</abbr> page with a head and body,
-while the server version splits the head and body from
-the needed <abbr>HTML</abbr> for the MasterColorPicker project itself, so it is ready to go in any web page as is.&nbsp;
-The <code>_desktop</code> “files” both give you a browser-based desktop tool for use in digital media development.&nbsp;
-The <abbr>PHP</abbr> generated <abbr>HTML</abbr> is essentially the same as the pure <abbr>HTML</abbr>,
-except the <abbr>PHP</abbr> can keep track of the settings on the individual pickers, and keep them set the
-way the user sets them, in between page invocations.&nbsp;
-Doing this requires that the color-pickers <abbr>HTML</abbr> be either enclosed within a <code>&lt;form method='post'&gt;</code>
-tag, or otherwise “attached” to a form, and submitted back to the server.&nbsp;
-Generally, if you are picking a color, you will be sending form data anyway.&nbsp;
-But you do not need to use the <abbr>PHP</abbr> file with the rest of the server version.&nbsp;
-(What defines the server-version is the way named-color tables are used:
-see <a href='#desktop-server'>Desktop <abbr title='versus'>vs.</abbr> Server</a>).
-Simply “cut out” the proper section of <abbr>HTML</abbr> from the <code>_desktop.htm</code> file
-(the file is commented so you can tell what to cut), and either make it a new file: <code class='filename'>MasterColorPicker.htm</code>
-or simply paste it into your own web-page file; either way you then incorporate the MaterColorPicker <abbr>HTML</abbr>
-at whatever place in your document you desire.&nbsp;
-To use the <abbr>PHP</abbr> file with your <abbr>PHP</abbr> webpage, simply place
-<code>&lt;?php include "color-pickers/SoftMoon-WebWare/MasterColorPicker.php"; ?&gt;</code> in your document at the
-appropriate place.&nbsp;
-Or you can use your own <abbr>HTML</abbr>, with no restriction on the tags used, and minimal requirements on the
-structure: just place a few <abbr title='identification attributes'>id</abbr>s on appropriate wrapper elements.&nbsp;
-You can use and/or modify the supplied <abbr>CSS</abbr> files, or write your own
-(see <a href='#your_structure'>customizing MasterColorPicker</a> below).
-</p>
+<p>It’s very easy to incorporate MasterColorPicker into your own project.&nbsp;
+To limit download size, but maximize ease of use, the MasterColorPicker package comes with
+only the <code class='filename'>_desktop</code> “<strong>tool</strong>” file.&nbsp;
+Simply “cut out” the proper section of <abbr>HTML</abbr> from the <code>MasterColorPicker_desktop.html</code> file
+(the file is commented so you can tell what to cut), and either make it a new file:
+<code class='filename'>color-pickers/SoftMoon-WebWare/MasterColorPicker.htm</code>
+that you can load into your webpage, for example using
+<code>&lt;?php include "color-pickers/SoftMoon-WebWare/MasterColorPicker.htm"; ?&gt;</code>
+in your web-page document at the appropriate place;&nbsp;
+or simply paste the MasterColorPicker HTML you cut-out into your own web-page file;
+either way you then incorporate the MaterColorPicker <abbr>HTML</abbr>
+at whatever place in your document you desire.</p>
 
-<p>Link the main <code class='filename'>MasterColorPicker.css</code> file in the head of your document if you plan on using it.&nbsp;
-If you plan on using MasterColorPicker in your own HTML page, and want that page to be usable
-as a desktop-version, in essence where the user clicks on the file saved in their local file-system
-and it opens in their browser with the <abbr>URL</abbr> beginning with <code>file://</code>
+<p>Take a look at the “demo” <code class='filename'>MasterColorPicker_desktop.php</code> file
+and note that it “includes” the
+<code class='filename'>color-pickers/SoftMoon-WebWare/MasterColorPicker.htm</code> file,
+and how the required JavaScript<mark class='macronym'>™</mark> and <abbr>CSS</abbr> files are loaded.&nbsp;
+Note that if you want your webpage to be loadable from the local filesystem
+using the <code>file://</code> protocol (you click on the file in your filesystem for example),
+you must also include links to the named-color-table palette files
+(see the <code class='filename'>MasterColorPicker_desktop.html</code> file for that example).&nbsp;
+To actually make the “demo” <code class='filename'>MasterColorPicker_desktop.php</code> file
+function as the MasterColorPicker tool, you will need to “cut-out” the proper section of HTML
+from the <code class='filename'>MasterColorPicker_desktop.html</code> file as described above,
+just as you would for your own web-page.&nbsp;
+This is to avoid duplication in the package to limit download size.</p>
+
+<p>Link the main <code class='filename'>MasterColorPicker.css</code> file
+in the head of your document if you plan on using it.&nbsp;
+Note how if you want your web-page to be able to be loaded in a browser
+with the <abbr>URL</abbr> using the <code>file://</code> protocol
+(you click on the file in your filesystem for example),
 you must include a <code>&lt;style id='MasterColorPicker_desktop_stylesheet'&gt;</code> tag
 directly in the HTML page (¡not linked!) that includes the well-documented
 snippet of <abbr>CSS</abbr> found at the end of the similar <code>&lt;style&gt;</code> tag
-in the <code>&lt;head&gt;</code> of the <code class='filename'>MasterColorPicker_desktop.htm</code> file.&nbsp;
+in the <code>&lt;head&gt;</code> of the <code class='filename'>MasterColorPicker_desktop.html</code> file.&nbsp;
 This is because the stylesheet must be modified directly in real-time by JavaScript,
 and browsers block JavaScript from reading files linked or loaded from the local file-system
 unless the end-user specifically selects that file by hand.</p>
@@ -590,6 +593,16 @@ See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code>
 
 
 <h3 id='your_structure'>Structuring your own <abbr>HTML</abbr> and <abbr>CSS</abbr></h3>
+
+<p>The first releases of MasterColorPicker focused on separating the
+JavaScript from the HTML and CSS as much as possible.&nbsp;
+As the project evolved and bells and whistles were added,
+these three aspects of the project became more and more intertwined.&nbsp;
+Modifying any aspect of the project will require careful testing.&nbsp;
+In particular, the MyPalette interface is pretty tight.&nbsp;
+The end of the <code class='filename'>MasterColorPicker.js</code> file
+in particular relies on the standard HTML &amp; CSS files.&nbsp;
+Below you will find info on modifying older aspects of the project:</p>
 
 <p>The visual presentation of the individual color-pickers is up to you.&nbsp;
 There are a few comments within the supplied <abbr>HTML</abbr>/<abbr>PHP</abbr> files
