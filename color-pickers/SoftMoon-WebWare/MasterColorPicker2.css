@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.1  January 10, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.2  February 22, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -283,6 +283,12 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help h6 {
 	margin-left: 2.618em;
 	font-size: inherit; }
+#MasterColorPicker_Help a {
+	text-decoration: underline;
+	color: var(--fore-button);
+	background-color: var(--back-button);
+	border-radius: .382em;
+	cursor: pointer; }
 
 
 #MasterColorPicker_Help > div {
@@ -456,27 +462,31 @@ select#MasterColorPicker_palette_select {
 /* all popups */
 	display: block;
 	position: absolute;
-	top: 100%;
-	bottom: auto;
+	bottom: 100%;
+	top: auto;
 	width: auto;
 	margin: 0;
 	padding: .618em;
 	font-size: inherit;
 	white-space: normal;
+	border: 1px solid var(--border-hot);
+	border-bottom: none;
 	background-color: var(--back-text);
-	color: var(--fore-text);
+	color: var(--fore-text); }
+#MasterColorPicker_options.activePicker label#MasterColorPicker_interlink:hover > p,
+#MasterColorPicker_options.activePicker label#MasterColorPicker_keepPrecision:hover > p {
+	top: 1.162em;
+	top: 100%;
+	bottom: auto;
 	border: 1px solid var(--border-hot);
 	border-top: none; }
 #MasterColorPicker_options.activePicker fieldset:hover > p:first-child {
-/* Hue Angle Units notice popup */
-	bottom: 100%;
-	top: auto;
-	border-top: 1px solid var(--border-hot);
-	border-bottom: none; }
+/* Hue Angle Units notice popup */ }
 #MasterColorPicker_options.activePicker fieldset.pickerOptions:hover > p {
 /* flaoting panels notice popup */
 	top: -0.162em;
-	left: -19.162em;
+	left: auto;
+	right: 100%;
 	bottom: auto;
 	bottom: -0.162em;
 	width: 17.618em;
@@ -901,14 +911,16 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	color: var(--fore-text-lab);
 	background-color: var(--back-text-lab); }
 #MasterColorPicker_Lab h2 {
-	text-align: center; }
+	text-align: center;
+	padding: 0;
+	margin: 0 0 .162em 0;}
 #MasterColorPicker_Lab h2 span {
 	right: 10em; }
 #MasterColorPicker_Lab table {
 	border: 1px solid;
 	margin: 0 0 .618em; }
-#MasterColorPicker_Lab caption abbr:first-child {
-	margin-right: 1.618em; }
+#MasterColorPicker_Lab caption abbr:nth-child(2),
+#MasterColorPicker_Lab caption abbr:nth-child(4),
 #MasterColorPicker_Lab caption abbr:last-child {
 	margin-left: 1.618em; }
 #MasterColorPicker_Lab td {
@@ -1045,19 +1057,121 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 
 #MasterColorPicker_Lab table + table.primaries th label {
 	text-shadow: -1px -1px 5px gray; }
-#MasterColorPicker_Lab span.swatch {
+#MasterColorPicker_Lab fieldset {
+	display: block;
+	position: relative;
+	border: 1px solid var(--fore-text);
+	padding: .162em .618em;
+	margin: .162em 0;
+	text-align: right; }
+#MasterColorPicker_Lab fieldset legend {
+	font-weight: bold; }
+#MasterColorPicker_Lab fieldset > legend+label {
 	position: absolute;
-	right: .618em;
-	bottom: .618em;
+	left: .618em;
+	top: .162em;
+	right: auto;
+	bottom: auto; }
+#MasterColorPicker_Lab fieldset input[type="range"]::-moz-range-thumb {
+	background-color: var(--back-text); }
+#MasterColorPicker_Lab fieldset input[type="range"]::-ms-thumb {
+	background-color: var(--back-text); }
+#MasterColorPicker_Lab fieldset input[type="range"]::-webkit-slider-thumb {
+	background-color: var(--back-text); }
+
+#MasterColorPicker_Lab aside {
+	position: absolute;
+	top: 1em;
+	right: 1em;
+	left: auto;
+	bottom: auto; }
+
+#MasterColorPicker_Lab aside fieldset.options {
+	display: none; }
+
+#MasterColorPicker_Lab aside:hover fieldset.options,
+#MasterColorPicker_Lab aside fieldset.options.focus-within,
+#MasterColorPicker_Lab aside fieldset.options:focus-within {
+	display: block;
+	position: absolute;
+	top: 100%;
+	right: 0;
+	bottom: auto;
+	left: auto;
+	margin: 0;
+	padding: .618em;
+	border: 1px solid;
+	border-top: none;
+	color: var(--fore-text);
+	background-color: var(--back-text); }
+
+#MasterColorPicker_Lab aside fieldset.options fieldset {
+	border: none;
+	padding: 0;
+	margin: 0; }
+
+#MasterColorPicker_Lab aside label {
+	display: block;
+	white-space: pre;
+	text-align: left; }
+
+#MasterColorPicker_Lab button {
+	position: absolute;
+	right: 1.618em;
+	bottom: 5.38em;
 	left: auto;
 	top: auto;
-	width: 3.82em;
-	height: 3.82em;
-	text-align: center;
-	padding-top: .382em;
-	font-size: 1.618em;
-	cursor: default; }
-
+	margin: 0;
+	padding: 0;
+	font-family: inherit;
+	font-size: inherit;
+	font-variant: none;
+	border-radius: 2.41em;
+	border: none;
+	background: conic-gradient(from 90deg, black, white); }
+#MasterColorPicker_Lab button h5 {
+	position: absolute;
+	margin: 0;
+	padding: 0 0 4px 0;
+	font-size: 1em;
+	bottom: 100%;
+	top: auto;
+	left: 0;
+	right: 0;
+	text-align: center; }
+#MasterColorPicker_Lab button span.swatch {
+	display: block;
+	width: 4.82em;
+	height: 4.82em;
+	border: 1px solid;
+	border-radius: 2.41em;
+	cursor: pointer; }
+#MasterColorPicker_Lab button table {
+	position: absolute;
+	table-layout: fixed;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: none;
+	top: calc(100% + 8px);
+	bottom: auto;
+	left: auto;
+	right: auto;
+	border: none;
+	background-color: white;
+	color: black;
+	font-variant: small-caps;
+	font-size: .75em; }
+#MasterColorPicker_Lab button caption {
+	margin: 0;
+	padding: 0;
+	line-height: .62em; }
+#MasterColorPicker_Lab button td {
+	border: 1px solid;
+	padding: .616em; }
+#MasterColorPicker_Lab button:hover {
+	outline: 4px double;
+	outline-offset: 2px; }
 
 
 #MasterColorPicker_Gradientor {
