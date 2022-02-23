@@ -1,8 +1,10 @@
-//  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
+//  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 120
 
-/*	websafe table interpolator function  Feb 2, 2019  by SoftMoon WebWare.
- *   written by and Copyright © 2019 Joe Golembieski, SoftMoon WebWare
- *  Websafe table colorblind data courtesy of Christine Rigden → http://safecolours.rigdenage.com/
+/*	websafe table interpolator function version 1.1  Feb 2, 2019; Feb 15, 2022  by SoftMoon WebWare.
+ *   written by and Copyright © 2019,2022 Joe Golembieski, SoftMoon WebWare
+ *  Websafe table colorblind data courtesy of Christine Rigden →
+			http://www.rigdenage.co.uk/safecolours/
+			http://safecolours.rigdenage.com/
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -21,52 +23,61 @@
 
 
 // requires  “RGB_Calc.js”  in  JS_toolbucket/SoftMoon-WebWare/
-// requires  “Math+++.js”  in  JS_toolbucket/
+// requires  “+++Math.js”   in  JS_toolbucket/+++JS/
 
 
 //this function:
 // • requires passing in either:
-//   →  a 3-value decimal-byte RGB array specifying the normal-sighted color.
-//   →  any Object (such as the RGB array noted above) with a property  .hcg  which is the Hue-Chroma-Gray equivalent of the RGB color,
+//   →  a 3-value (or optionally 4-value with alpha-channel) decimal-byte RGB array specifying the normal-sighted color.
+//   →  any Object (such as the RGB array noted above) with a property  .hcga  which is the Hue-Chroma-Gray equivalent of the RGB color,
 //       and this will speed up processing a bit (the RGB array if passed will be subsequently ignored).
 // • requires input values in proper ranges, and will likely throw errors otherwise
 //   (note the “auditToColorBlind” shell does check input values for validity, and accepts many more input formats)
 //
 // • returns an array of arrays of colorblind RGB values →  [[r,g,b], [r,g,b], [r,g,b]]  if “rgb” is a WebSafe Color and no “type” is passed in
 //                                                           ↑protan  ↑deutan  ↑tritan
+//    No alpha value(s) will be passed back if no “type” is passed in.
 // or
 // • returns RGB byte values through the RGB_Calc standard output if “type” is passed in →  protan ‖ deutan ‖ tritan
+//     Any optional Alpha value that was padded in is passed along out.
 // The returned array ☆simulates☆ colorblind vision for people with “full color” vision.
 // Accuracy of results varies by individual and the computer monitor used.
 
-;(function() {
+;(function() {  // open a private namespace
+
+'use strict';
+
 if (!SoftMoon.WebWare.RGB_Calc.colorblindProviders)  SoftMoon.WebWare.RGB_Calc.colorblindProviders= new Object;
 SoftMoon.WebWare.RGB_Calc.colorblindProviders.Rigden={
 	title: "Rigden WebSafe interpolated",
-	thanks: "special thanks to: Christine Rigden → http://safecolours.rigdenage.com/",
+	thanks: "special thanks to: Christine Rigden → http://www.rigdenage.co.uk/safecolours/",
 	to: {
 		quick: toColorBlind,
-		audit: auditToColorBlind  }  };
+		audit: auditToColorBlind  } };
 
-var RGB_calc=new SoftMoon.WebWare.RGB_Calc({ColorWheelFactory: Array}, true);
+// this is the calculator we use internally to convert RGB values to HCG
+const rgb_calc=new SoftMoon.WebWare.RGB_Calc({ColorWheelFactory: Array}, true, {'to':['hcg']});
 
 SoftMoon.WebWare.RGB_Calc.to.colorblind= toColorBlind;
 SoftMoon.WebWare.RGB_Calc.to.definer.quick.colorblind= {value: toColorBlind, writable: true};
 SoftMoon.WebWare.RGB_Calc.to.definer.audit.colorblind= {value: auditToColorBlind, writable: true};
 function auditToColorBlind() {return this.convertColor(arguments, toColorBlind, 'colorblind  «Rigden-websafe interpolated»');}
 function toColorBlind(rgb, type)  {
-	var hcg= rgb.hcg || RGB_calc.to.hcg(rgb),
-			H=Math.deg(Math.round(hcg[0]*3600)/10),  //(0-359.9)
-			C=Math.round(hcg[1]*1000)/100, //(0-10)   ↑←↓ adjust to the json table format and get rid of floating-point errors.
-			G=Math.round(hcg[2]*1000),     //(0-1000)
-			tbl=toColorBlind.websafe_table,
-			Hlow, _C_, Glow, GlowRnd, Hhi, Ghi,
+	// The color may have an optional alpha (opacity) component as the 4th value (index [3]).
+	// We do not have any data to represent how the alpha-channel affects the perception of the color for color-blind people.
+	// We simply pass on the alpha-channel value.
+	const hcga= rgb.hcga || rgb_calc.to.hcg(rgb),
+				H=Math.deg(Math.round(hcga[0]*3600)/10),  //(0-359.9)
+				C=Math.round(hcga[1]*1000)/100, //(0-10)   ↑←↓ adjust to the json table format and get rid of floating-point errors.
+				G=Math.round(hcga[2]*1000),     //(0-1000)
+				tbl=toColorBlind.websafe_table;
+	var Hlow, _C_, Glow, GlowRnd, Hhi, Ghi,
 			DperH=0,  //when Chroma=0
 			SperG=0;  //when Chroma=10
 	type=toColorBlind.types.indexOf(type);
 
-	if (tbl[H]  &&  tbl[H][C]  &&  (rgb=tbl[H][C][G]))  // rgb now becomes 3 sets of 3-value-rgb-arrays
-		return type<0 ?  rgb  :  this.outputRGB.apply(this, rgb[type]);
+	if (tbl[H]  &&  tbl[H][C]  &&  (rgb=tbl[H][C][G]))   // rgb now becomes 3 sets of 3-value-rgb-arrays
+		return type<0 ?  rgb  :  this.outputRGB(...rgb[type], hcga[3]);
 
 	function setParams()  {
 		if (_C_===0) {Hlow=0; DperH=0;} //pure grayscale (white to black)-(when chroma=0) is found at Hue=0
@@ -99,12 +110,12 @@ function toColorBlind(rgb, type)  {
   _C_=Math.floor(C/2)*2;  // websafe-table chroma is either 0,2,4,6,8,10
 
 	setParams();
-	// we calculate 16,777,216 colors from 216 websafe colors: data is sparce
+	// we calculate 16,777,216 colors from 216 websafe colors: data is sparse
 	// we interpolate from 2 to 8 data points, based on “location” in the HCG color-space
-	// the more-sparce the data in the “vicinity,” the more data-points are used
-	if (C===_C_)  return this.outputRGB.apply(this, (H===Hlow) ? interp_G_() : interp_C_());
+	// the more-sparse the data in the “vicinity,” the more data-points are used
+	if (C===_C_)  return this.outputRGB(...((H===Hlow) ? interp_G_() : interp_C_()), hcga[3]);
 
-	return this.outputRGB.apply(this, interp(
+	return this.outputRGB(...(interp(
 		(_C_===0) ? interp_G_() : interp_C_(),
 		(
 			_C_+=2,
@@ -112,14 +123,17 @@ function toColorBlind(rgb, type)  {
 			setParams(),
 			(H===Hlow) ? interp_G_() : interp_C_()
 		),
-		(C-_C_+2)/2 ));  }
+		(C-_C_+2)/2 )), hcga[3]);  }
 
 
 
 //these are the valid values to pass in for “type”
 toColorBlind.types=['protan', 'deutan', 'tritan'];  //the order of this array needs to match the order of colorblind data in the table
 toColorBlind.websafe_table={
-//Original data compiled by Christine Rigden → http://safecolours.rigdenage.com/
+/* Original data compiled by Christine Rigden →
+			http://www.rigdenage.co.uk/safecolours/
+			http://safecolours.rigdenage.com/
+ */
 //It has been re-formatted into this table by SoftMoon-WebWare
 // Note that when chroma=0, the Hue is irrelevant; it is in the table at Hue=0  (these are the pure gray-tones from black to white).
 // Likewise, when chroma=10 (100%), the Gray is irrelevant; it is in the table at Gray=500  (these are the pure “full color” tones of a Hue).
@@ -1508,4 +1522,4 @@ toColorBlind.websafe_table={
 };
 
 
-})();  //close wrap-private-members
+})();  //close private namespace
