@@ -5,14 +5,15 @@
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare' />
 <meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2021,2022 Joe Golembieski, SoftMoon-WebWare' />
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
-<link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' />
+<link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection"
+			href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' />
 <style type='text/css' id='MasterColorPicker_desktop_stylesheet'>
 body, section, div {
 	margin: 0;
 	padding: 0; }
 body {
 	color: white;
-	background: black;
+	background: #808080;
   position: absolute; /* This keeps the very small body sized to the full window.  We need this for the panel-drag 'mouseover' which is on the body.  */
 	width: 100%;
 	height: 100%;  }
@@ -36,10 +37,11 @@ p img {
 /* The thumb’s color of the Hue range is controlled with JavaScript.
  * Since its color can not be directly scripted through the DOM, this stylesheet must be dynamically altered.
  * Therefore, if you change the following CSS-descriptors, you must accordingly change the MasterColorPicker.js file.
- * Also, the MasterColorPicker-desktop version (called with the file: protocol in the URL)
- * has a duplicate of these rules that need to be directly included in the HTML-head itself,
+ * Also, the MasterColorPicker-desktop version (called with the file:// protocol in the URL)
+ * must have a duplicate of these rules that need to be directly included in the HTML-head itself,
  * since JavaScript is not allowed to read any locally linked (including CSS) files
  * that the end-user does not hand-select.
+ * For the above reason, this <style> tag MUST have the proper ID so MasterColorPicker can find it.
 /*******/
 #MasterColorPicker_Lab tr.hue input[type="range"]::-webkit-slider-thumb {
 	background-color: white; }
@@ -47,36 +49,36 @@ p img {
 	background-color: white; }
 #MasterColorPicker_Lab tr.hue input[type="range"]::-moz-range-thumb {
 	background-color: white; }
+#MasterColorPicker_Lab fieldset input[type="range"]::-moz-range-thumb {
+	background-color: var(--back-text); }
+#MasterColorPicker_Lab fieldset input[type="range"]::-ms-thumb {
+	background-color: var(--back-text); }
+#MasterColorPicker_Lab fieldset input[type="range"]::-webkit-slider-thumb {
+	background-color: var(--back-text); }
 /*******/
 </style>
 
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js'></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js'></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
-<!--  script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js'></script><!--  ESSENTIAL for server version, NOT for file://desktop use  -->
+<!--  script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js'></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
 <!--  script type='text/javascript' src='JS_toolbucket/Log.js'></script><!--  only if you plan on logging to debug  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js'></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/+++JS/+++.js'></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js'></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js'></script><!--  !! ESSENTIAL !!  -->
-<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js"></script><!--  supports RainbowMaestro & MyPalette  -->
-<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js"></script><!--  supports RainbowMaestro & MyPalette  -->
+<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js"></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js"></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js'></script><!--  supports MyPalette & ColorFilter  -->
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js"></script>
 
 
-<!--  use the scripts below if don’t want to use the server-version for palette table files  -->
-<script type="text/javascript">
-SoftMoon.loaded_palettes=new Array;  // each desktop-palette file should push its palette(s) onto this Array
-window.addEventListener('mastercolorpicker_ready', function()  {
-	SoftMoon.WebWare.initPaletteTables();
-	//options below may be changed to your preference
-	MasterColorPicker.showColorAs='background';
-	MasterColorPicker.enablePanelDrag=true;
-	MasterColorPicker.enableStickyPanels=false;
-	MasterColorPicker.masterTarget=MasterColorPicker.registeredTargets[0];
-	MasterColorPicker.registeredTargets[0].focus();
-	}  );
-</script>
+<!--  These load the palette files for a  file://  based usage
+		You can use them (or a similar file of your own palette colors) for  http://  based usage also.
+		But it is recommended that they be converted to .json format
+		( see the file:  color_palettes/converting_palette_formats.odt )
+		and autoloaded directly by MasterColorPicker at startup;
+		then these script tags should be removed
+-->
 <script type="text/javascript" src="color_palettes/desktop_palettes/HTML.palette.js"></script>
 <script type="text/javascript" src="color_palettes/desktop_palettes/ANSI.palette.js"></script>
 <script type="text/javascript" src="color_palettes/desktop_palettes/OpenOffice.palette.js"></script>
@@ -85,6 +87,17 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <script type="text/javascript" src="color_palettes/desktop_palettes/Crayola.palette.js"></script>
 <script type="text/javascript" src="color_palettes/desktop_palettes/Brewer.palette.js"></script>
 <script type="text/javascript" src="color_palettes/desktop_palettes/universal.palette.js"></script>
+
+<script type="text/javascript">
+window.addEventListener('mastercolorpicker_ready', function()  {
+	//options below may be changed to your preference.  See the end of the MasterColorPicker2.js file for more…
+	MasterColorPicker.showColorAs='background';
+	MasterColorPicker.enablePanelDrag=true;
+	MasterColorPicker.enableStickyPanels=false;
+	MasterColorPicker.masterTarget=MasterColorPicker.registeredTargets[0];
+	MasterColorPicker.registeredTargets[0].focus();
+	}  );
+</script>
 
 </head>
 
@@ -99,15 +112,20 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 
 <!-------------- cut here to use the MasterColorPicker HTML (below) in your own page ---------------->
 
+<script>
+window.addEventListener('mastercolorpicker_ready', function()  {
+	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);  //see files:  MasterColorPicker2.js → RGB_Calc.js
+	} );
+</script>
 
 <section id='MasterColorPicker' charset='UTF-8'>
-<meta charset='UTF-8' />
+<meta charset='UTF-8' /><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
+
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.1  January 10, 2022
+      release 2.2  February 22, 2022
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
-
 
 
 <div id='MasterColorPicker_options' class='pickerPanel'>
@@ -154,10 +172,11 @@ but to retain the settings this file may be included inside an existing web <for
 	<option title='Hue, Saturation, Value; (a.k.a. HSB)'>HSV</option>
 	<option title='Hue, Saturation, Brightness; (a.k.a. HSV)'>HSB</option>
 	<option title='Hue, Saturation, Lightness'>HSL</option>
+	<option title='Hue, White, Black'>HWB</option>
 	<option title='Hue, Chroma, Gray'>HCG</option>
 	<option title='Cyam, Magenta, Yellow, Black'>CMYK</option>
 	</select></label>
-	<label>¿<input type='checkbox' id='MasterColorPicker_keepPrecision' name='MasterColorPicker_keepPrecision' value='true' checked="checked"
+	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked="checked"
 		onchange='MasterColorPicker.keepPrecision=this.checked;' />keep precision?
 	<p>Hex/RGB values are calculated from the native format, and others are calculated from the RGB values.&nbsp;
 			RGB values may be rounded off to integers in the process yielding differences that are especially noticeable in Hue values.&nbsp;
@@ -210,10 +229,12 @@ or pin it to the window when it is pinned to the page.
 		</optgroup>
 		<optgroup label='radians (2π ≈6.2831853)'>
 			<option>rad</option>
-			<option>ʳ</option>
+			<option>ᴿ</option>
+			<option>ᶜ</option>
 		</optgroup>
 		<optgroup label='gradians (400)'>
 			<option>grad</option>
+			<option>ᵍ</option>
 		</optgroup>
 		<optgroup label='percent of a turn (100)'>
 			<option>%</option>
@@ -227,10 +248,12 @@ or pin it to the window when it is pinned to the page.
 
 <fieldset>
 	<label>Color-blind filter provider:
-	<select name='MasterColorPicker_colorblind_provider' tabTo='MasterColorPicker_mainPanel'>
+	<select name='MasterColorPicker_colorblind_provider'>
 	</select></label>
 	<p>Color-blind simulations are approximate, and may vary between individuals and monitors</p>
 </fieldset>
+
+<label>¿<input type='checkbox' name='MasterColorPicker_preserveSettings' tabTo='MasterColorPicker_mainPanel'>preserve settings for next use?</label>
 
 </div></div>
 </div><!--  close  MasterColorPicker_options  -->
@@ -429,7 +452,7 @@ or pin it to the window when it is pinned to the page.
 </tr>
 </table>
 
-<table><caption><abbr>HSL</abbr> <abbr>HSV</abbr>/<abbr>HSB</abbr> <abbr>HCG</abbr></caption>
+<table><caption><abbr>HSL</abbr> <abbr>HSV</abbr>/<abbr>HSB</abbr> <abbr>HCG</abbr> <abbr>HWB</abbr></caption>
 <tr><th></th><th id='MasterColorPicker_Lab_hueUnitText'>degrees°</th><th>percent%</th><td></td></tr>
 <tr class='hue'>
 		<th><label for='MasterColorPicker_Hue_degrees'>Hue:</label></th>
@@ -458,7 +481,7 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='range' name='MasterColorPicker_hSv_range' min='0' max='100' value='0' tabindex='-1' /></td>
 </tr>
 <tr>
-		<th><label for='MasterColorPicker_hsV_percent'>Value:</label></th>
+		<th><label for='MasterColorPicker_hsV_percent' title='a.k.a. Brightness'>Value:</label></th>
 		<td></td>
 		<td><input type='numeric' name='MasterColorPicker_hsV_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_hsV_range' min='0' max='100' value='0' tabindex='-1' /></td>
@@ -475,6 +498,19 @@ or pin it to the window when it is pinned to the page.
 		<td></td>
 		<td><input type='numeric' name='MasterColorPicker_hcG_percent' min='0' max='100' step='any' value='0' /></td>
 		<td><input type='range' name='MasterColorPicker_hcG_range' min='0' max='100' value='0' tabindex='-1' /></td>
+</tr>
+
+<tr class='even'>
+		<th><label for='MasterColorPicker_hWb_percent'>Whiteness:</label></th>
+		<td></td>
+		<td><input type='numeric' name='MasterColorPicker_hWb_percent' min='0' max='100' step='any' value='0' /></td>
+		<td><input type='range' name='MasterColorPicker_hWb_range' min='0' max='100' value='0' tabindex='-1' /></td>
+</tr>
+<tr>
+		<th><label for='MasterColorPicker_hwB_percent'>Blackness:</label></th>
+		<td></td>
+		<td><input type='numeric' name='MasterColorPicker_hwB_percent' min='0' max='100' step='any' value='0' /></td>
+		<td><input type='range' name='MasterColorPicker_hwB_range' min='0' max='100' value='100' tabindex='-1' /></td>
 </tr>
 </table>
 
@@ -501,9 +537,34 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='range' name='MasterColorPicker_cmyK_range' min='0' max='100' value='100' style="color:black" tabindex='-1' /></td>
 </tr>
 </table>
+<fieldset>
+	<legend><label for='MasterColorPicker_opacity_range'>Alpha (opacity)</label></legend>
+	<label title='Opacity is applied when applicable to colors chosen from a color picker.'>¿<input type='checkbox' name='MasterColorPicker_applyOpacity'>apply?</label>
+	<label><input type='numeric' name='MasterColorPicker_opacity_percent' min='0' max='100' step='any' value='100'>%</label>
+	<input type='range' name='MasterColorPicker_opacity_range' min='0' max='100' value='100' style="color:black" tabindex='-1'>
+</fieldset>
+
+<button type='button'><h5>Click to Choose</h5>
+<span class='swatch'></span>
+<table>
+<caption>colorblind</caption>
+<td title='protan'></td>
+<td title='deutan'></td>
+<td title='tritan'></td>
+</table>
+</button>
+
+<aside>Options▼
+<fieldset class='options'>
 <label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnMouseMove' checked='checked' />update on Mouse move?</label>
-<label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnKeystroke' checked='checked' tabToTarget='true' />update on Keystroke?</label>
-<span class='swatch'>Click here to Choose</span>
+<label>¿<input type='checkbox' name='MasterColorPicker_updateLabOnKeystroke' checked='checked'/>update on Keystroke?</label>
+<fieldset>
+<label>¿<input type='radio' name='MasterColorPicker_alphaApplicationMode' value='convert' checked>convert named colors to RGB to apply alpha?</label>
+<label>¿<input type='radio' name='MasterColorPicker_alphaApplicationMode' value='avoid'>do not apply alpha value to named colors?</label>
+<label>¿<input type='radio' name='MasterColorPicker_alphaApplicationMode' value='apply' tabToTarget='true' >apply alpha value to color name?</label>
+</fieldset>
+</fieldset>
+</aside>
 </div><!--  close  MasterColorPicker_Lab  -->
 
 
@@ -566,45 +627,107 @@ tri-color?</label>
 <div id='MasterColorPicker_Help' class='pickerPanel help'>
  <h2>MasterColorPicker<mark class='macronym'>™</mark><span title="press F1 for shortcut">☺Help☺</span></h2>
  <div>
-	<h4>Valid values for colors include:</h4>
+	<h4>Colors with MasterColorPicker</h4>
+	<p>MasterColorPicker uses a color-specification based loosely on the CSS4 specs.
+		 It will always output colors according to those specs, with a few exceptions that can activated using “options”:</p>
+		 <ul>
+			<li>It can define colors using some color-spaces that CSS does not recognize.</li>
+			<li>It can define “hue angles” using units and/or symbols that CSS does not recognize.</li>
+			<li>It can output more “named colors” than the basic CSS list of colors.</li>
+			<li>It can add non-standard Alpha (opacity) values to “named” colors.</li>
+		 </ul>
+	<h4>Valid values for color inputs are similar to “loose” CSS specifications and include:</h4>
 	<ul>
-		<li>RGB values in hexadecimal (<abbr title='also known as'>a.k.a.</abbr> <abbr>hex</abbr>) with or without the leading <kbd>#</kbd> symbol.</li>
+		<li>RGB values in 6-digit hexadecimal (<abbr>hex</abbr>) with or without the leading <kbd>#</kbd> symbol.</li>
 		<li>RGB values as:
 			<ul>
 				<li>integer byte values (<kbd>0—255</kbd>)</li>
 				<li>percent ratios (<kbd>0%—100%</kbd> – be sure to use the percent <kbd>%</kbd> symbol)</li>
 			</ul>
-				<p>Each value may be separated by spaces/commas/semicolons.&nbsp;
+				<p>Each value may be separated by spaces/commas.&nbsp;
+				You may mix byte and percent values in the same spec.&nbsp;
 				You may wrap() or prefix: the values with <kbd>rgb( )</kbd> or <kbd>rgb:</kbd> but that is not necessary.</p></li>
 		<li>various different color-space models including:
 			<ul>
-				<li>CMYK</li>
-				<li>CMY</li>
-				<li>HSV / HSB</li>
-				<li>HSL</li>
-				<li>HCG</li>
-				<li>Hue ←&nbsp; define only a hue-angle-value and see the full-color (fully chromatic) shade of the hue.</li>
+				<li><abbr title='Cyan, Magenta, Yellow, Black'>CMYK</abbr></li>
+				<li><abbr title='Cyan, Magenta, Yellow'>CMY</abbr></li>
+				<li><abbr title='Hue, Saturation, Value / Brightness'>HSV / HSB</abbr></li>
+				<li><abbr title='Hue, Saturation, Lightness'>HSL</abbr></li>
+				<li><abbr title='Hue, Chroma, Gray'>HCG</abbr></li>
+				<li><abbr title='Hue, Whiteness, Blackness'>HWB</abbr></li>
+				<li>Hue ←&nbsp; define only a hue-angle-value and see the full-color (fully chromatic) tone of the hue.</li>
 				<li>XYZ →&nbsp; (Observer = 2°, Illuminant = D65) <kbd>0 ≤ X ≤ 95.047</kbd>, <kbd>0 ≤ Y ≤ 100</kbd>, <kbd>0 ≤ Z ≤ 108.883</kbd></li>
 			</ul>
 				<p>Use models by wrapping() or prefixing: their given values.&nbsp;
+				Each value may be separated by spaces/commas.&nbsp;
 				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %);
 				except Hue values are given in angular values (starting at 3:00 and going counter-clockwise) using one of the following units:
 				(the default unit used when none is specified is found on the MasterColorPicker “options” panel)</p>
 			<ul>
 				<li>in degrees (<kbd>0°—360°</kbd> ← postfixed using the <kbd>°</kbd> symbol or “<kbd>deg</kbd>”).</li>
-				<li>in radians (<kbd>0ʳ—2π≈6.28319ʳ</kbd> ← postfixed using the <kbd>ʳ</kbd> symbol or “<kbd>rad</kbd>”).</li>
-				<li>in gradians (<kbd>0grad—400grad</kbd> ← postfixed using “<kbd>grad</kbd>”).</li>
+				<li>in radians (<kbd>0ᴿ—2π≈6.28319ᴿ</kbd> ← postfixed using the <kbd>ᴿ</kbd> symbol, the <kbd>ᶜ</kbd> symbol, or “<kbd>rad</kbd>”).</li>
+				<li>in gradians (<kbd>0ᵍ—400ᵍ</kbd> ← postfixed using the <kbd>ᵍ</kbd> symbol or “<kbd>grad</kbd>”).</li>
 				<li>in % of a turn (<kbd>0%—100%</kbd> ← postfixed using the <kbd>%</kbd> symbol).</li>
 				<li>of a turn (<kbd>0●—1●</kbd> ← postfixed using the <kbd>●</kbd> symbol or “<kbd>turn</kbd>”).</li>
 			</ul>
 			<ul class='keybrd'>
 				<li>The “degrees” <kbd>°</kbd> symbol may be entered by typing <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>5%</span></kbd></li>
-				<li>The “radians” <kbd>ʳ</kbd> symbol may be entered by typing <kbd><span>CTRL</span>+<span>R</span></kbd></li>
+				<li>The “radians” <kbd title='circle'>ᶜ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>C</span></kbd></li>
+				<li>The “radians” <kbd>ᴿ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>R</span></kbd></li>
+				<li>The “gradians” <kbd>ᵍ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>G</span></kbd></li>
 				<li>The “turn” <kbd>●</kbd> symbol may be entered by typing <kbd><span>CTRL</span>+<span>1!</span></kbd></li>
 			</ul></li>
 		<li>Any of the available color-table colors.&nbsp;
 				Colors should be prefixed: or wrapped() with the appropriate color-table name.&nbsp;
 				<abbr>HTML</abbr>–<abbr>CSS</abbr> colors do not need to be wrapped or prefixed.</li>
+	</ul>
+	<h4 id='MasterColorPicker_helpFor_Alpha'>Alpha (opacity):</h4>
+	<p>You may specify opacity (the opposite of transparency) in any of the color space models
+			(RGB, CMYK, CMY, HSV, HSL, HCG, HWB, Hue)
+			by adding an additional factor (0-1) or percent (0%-100% ← you must use the percent % sign).&nbsp;
+			The color-space model names may or may not end with an additional “A” (for example, RGB vs. RGBA).
+			Per CSS4 specifications, the opacity value may also be separated with a <kbd>/</kbd> symbol
+			that is itself preceded and followed by a space;
+			for example <kbd>RGBA(0, 153, 255 / 62%)</kbd>&nbsp;
+			Note the “loose” interpretation of CSS specs allows commas with the <kbd>/</kbd> alpha separator.
+			Hex-RGB values may have an additional 2 hex digits to specify the alpha;
+			for example <kbd>#ADDCAD80</kbd>
+			Named colors may use the same Alpha specification for color space models described above,
+			but it must end with either a semicolin <kbd>;</kbd> or a space followed by <kbd>opacity;</kbd>&nbsp;
+			For examples:<br> <kbd>DodgerBlue, 78%;</kbd> <br> <kbd>ANSI: 35 / .84 opacity;</kbd></p>
+	<hr />
+	<h5>Examples:</h5>
+	<ul>
+		<li>These all give the same <span style='color: white; background-color: red; padding: 0 .382em;'>red</span> color:
+			<ul>
+				<li><kbd>255 0 0</kbd></li>
+				<li><kbd>rgb (255 0 0)</kbd></li>
+				<li><kbd>rgb(255, 0, 0)</kbd></li>
+				<li><kbd>#FF0000</kbd></li>
+				<li><kbd>ff0000</kbd></li>
+				<li><kbd>HCG(0deg, 100, 50)</kbd></li>
+				<li><kbd>HSL: 0°, 100%, 50%</kbd></li>
+				<li><kbd>HSV: 0° 100% 100</kbd></li>
+				<li><kbd>red</kbd></li>
+				<li><kbd>HTML: red</kbd></li>
+				<li><kbd>X11( RED )</kbd></li>
+			</ul>
+		</li>
+		<li>These all give the same <span style='color: black; background-color: lightSkyBlue; padding: 0 .382em;'>blueish</span> color:
+			<ul>
+				<li><kbd>135, 206, 250</kbd></li>
+				<li><kbd>RGB (135, 206 250)</kbd></li>
+				<li><kbd>RGB: 135  206, 250</kbd></li>
+				<li><kbd>#87cefa</kbd></li>
+				<li><kbd>87ceFA</kbd></li>
+				<li><kbd>hcg(202.96deg, 45.098% 96.429%)</kbd></li>
+				<li><kbd>hsl:56.3768%,92,75.49</kbd></li>
+				<li><kbd>hsv ( .563768turn , 46% , 98.039% )</kbd></li>
+				<li><kbd>lightSkyBlue</kbd></li>
+				<li><kbd>html (LiGHTSKyBLue)</kbd></li>
+				<li><kbd>X11:lIghtskYblUE</kbd></li>
+			</ul>
+		</li>
 	</ul>
 	<hr />
 	<h4>Keyboard shortcuts:</h4>
@@ -650,42 +773,11 @@ tri-color?</label>
 	<tr><td><kbd><span>[{</span></kbd></td> <td><code>‘</code></td> <td><code>“</code></td></tr>
 	<tr><td><kbd><span>]}</span></kbd></td> <td><code>’</code></td> <td><code>”</code></td></tr>
 	<tr><td><kbd><span>'"</span></kbd></td> <td><code>π</code></td> <td><code>φ</code></td></tr>
-	<tr><td><kbd><span>r</span></kbd></td> <td><code>ʳ</code></td> <td><code></code></td></tr>
+	<tr><th>key</th> <th><kbd><span>ALT</span></kbd></th> <th><kbd><span>ALT</span>+<span>SHIFT</span></kbd></th></tr>
+	<tr><td><kbd><span>c</span></kbd></td> <td><code>ᶜ</code></td> <td><code></code></td></tr>
+	<tr><td><kbd><span>g</span></kbd></td> <td><code>ᵍ</code></td> <td><code></code></td></tr>
+	<tr><td><kbd><span>r</span></kbd></td> <td><code>ᴿ</code></td> <td><code>ᴿ</code></td></tr>
 	</table>
-	<hr />
-	<h5>Examples:</h5>
-	<ul>
-		<li>These all give the same <span style='color: red;'>red</span> color:
-			<ul>
-				<li><kbd>255 0 0</kbd></li>
-				<li><kbd>rgb (255 0 0)</kbd></li>
-				<li><kbd>rgb(255, 0; 0)</kbd></li>
-				<li><kbd>#FF0000</kbd></li>
-				<li><kbd>ff0000</kbd></li>
-				<li><kbd>HCG(0deg, 100, 50)</kbd></li>
-				<li><kbd>HSL: 0°, 100%, 50%</kbd></li>
-				<li><kbd>HSV: 0° 100% 100</kbd></li>
-				<li><kbd>red</kbd></li>
-				<li><kbd>HTML: red</kbd></li>
-				<li><kbd>X11( RED )</kbd></li>
-			</ul>
-		</li>
-		<li>These all give the same <span style='color: lightSkyBlue;'>blueish</span> color:
-			<ul>
-				<li><kbd>135; 206; 250</kbd></li>
-				<li><kbd>RGB (135, 206 250)</kbd></li>
-				<li><kbd>RGB: 135; 206; 250</kbd></li>
-				<li><kbd>#87cefa</kbd></li>
-				<li><kbd>87ceFA</kbd></li>
-				<li><kbd>hcg(202.96deg, 45.098% 96.429%)</kbd></li>
-				<li><kbd>hsl:56.3768%,92,75.49</kbd></li>
-				<li><kbd>hsv ( .563768turn ; 46% ; 98.039% )</kbd></li>
-				<li><kbd>lightSkyBlue</kbd></li>
-				<li><kbd>html (LiGHTSKyBLue)</kbd></li>
-				<li><kbd>X11:lIghtskYblUE</kbd></li>
-			</ul>
-		</li>
-	</ul>
 	<hr />
 	<h4>Using MyPalette</h4>
 	<p>You can use the “MyPalette” interface to create your own Color Palette Tables,
@@ -702,14 +794,24 @@ tri-color?</label>
 	using MasterColorPicker’s™ MyPalette.</p>
 	<p>When you save the palette you create,
 	your colors and sub-palettes can be named or not or a mix,
-	and if named it must have unique names for each color
-	in the “main palette” as well each “sub-palette.”&nbsp;
-	Also, each “sub-palette” must have a unique name among “sub-palette names”
-	<em>as well as</em> a unique name among “main palette color names.”&nbsp;
+	and if named it must have unique name in the “main palette” or “sub-palette” it is in,
+	among “color names” <em>and</em> “sub-palette names”.&nbsp;
 	Names that are duplicates will be (depending on options set) either:</p>
 	<ul><li>automatically appended with an index number,</li>
 			<li>overwritten by colors later in the palette with the same name;</li>
 			<li>or you will be notified of the conflict.</li></ul>
+	<p>Palette and Sub-palette names may not contain the <kbd>:(</kbd> characters,
+	as these are used to distinguish the palette name from the color/subpalette name in the palette.&nbsp;
+	Color names may contain any characters, but two “hacks” are possible.
+	First, you could name a color <kbd>foo: bar</kbd>, and if, in the same palette,
+	there is a subpalette named <kbd>foo</kbd> with a color named <kbd>bar</kbd>
+	it will never be found.&nbsp;
+	Also, because of how MasterColorPicker interprets “add-on”
+	<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_Alpha').scrollIntoView();">Alpha (opacity) values</a>
+	when working with named colors, a color named <kbd>foo 30%;</kbd>
+	will be interpreted as a color named “foo” and then try to add a 30% opacity
+	to the color-value if it finds said color.
+	</p>
 	<p>When the palette you create is loaded as a MasterColorPicker™ Palette Table,
 	colors that you leave un-named will show in the table with the
 	color-definition next to the color-swatch; whereas colors that you do name
@@ -979,7 +1081,7 @@ tri-color?</label>
 <tr>
 <td colspan='3'><div class='indicator' id='Simple²saturation'>99.99%</div></td>
 <td colspan='2'   style='border: 1px solid; border-bottom: none'
-		>Chroma (Saturation)<br /><span class='lft'>0→</span>←‖1‖→<span class='rt'>←0</span></td>
+		>Chroma<br /><span class='lft'>0→</span>←‖1‖→<span class='rt'>←0</span></td>
 <td colspan='2'><div class='indicator' id='Simple²hue'>359.999°</div></td>
 </tr>
 <tr>
@@ -1036,7 +1138,8 @@ tri-color?</label>
 <thead><tr>
 <td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='MasterColorPicker_palette_select' />HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
 <td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked='checked' />HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
-<td><label><input type='radio' name='YinYang NíHóng' value='HCG' tabToTarget='true' />HCG<dfn>Hue, Chroma, Gray</dfn></label></td>
+<td><label><input type='radio' name='YinYang NíHóng' value='HCG' tabToTarget='true' />HCG<dfn>Hue, Chroma, Gray</dfn></label>
+		<input type='hidden' name='YinYang NíHóng focalHue' value='0'></td>
 </tr></thead>
 <tbody>
 <tr><td colspan='3' id='YinYangNíHóng_swatch'><div><canvas width='421' height='421'></canvas></div></td></tr>
@@ -1067,7 +1170,7 @@ tri-color?</label>
 </section><!--  close  MasterColorPicker  HTML  -->
 
 
-<!-------------- cut here to use the MasterColorPicker HTML in your own page ---------------->
+<!-------------- cut here to use the MasterColorPicker HTML in your own page  ---------------->
 
 
 </body>
