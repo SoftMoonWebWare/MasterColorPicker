@@ -1,4 +1,4 @@
-/*  plug-in for SoftMoon.WebWare.RGB_Calc
+/*  plug-in for SoftMoon.WebWare.RGB_Calc  v1.2 February 17, 2022
  *  Modified by Joe Golembeiski, SoftMoon-WebWare; with
  *  only superficial modifications from the previous contributors.
  *  FAR more than superficial thanks to the previous contributors!
@@ -11,6 +11,7 @@
  *
  * This source was copied from http://mudcu.be/sphere/js/Color.Blind.js
  *******************(now:2019) https://galactic.ink/sphere/js/Color.Blind.js
+ *******************(now:2020) see: http://colorlab.wickline.org/colorblind/colorlab/engine.js
  *
  * It contains modifications for use in node.js.
  *
@@ -59,11 +60,15 @@
 (function() {
 var RGB_Calc = SoftMoon.WebWare.RGB_Calc;  //this is our reference to the RGB_Calc Constructor/StaticClass
 
+RGB_Calc.ConfigStack.prototype.XYZFactory = Array; // to be expanded...
+RGB_Calc.ConfigStack.prototype.gammaCorrection = 2.2;  //2.2 was default
+
+
 // all  RGB_Calc.to  methods take an array of 3 RGB byte-values from 0-255
 RGB_Calc.to.xyz = toXYZ;
 RGB_Calc.to.definer.quick.xyz = {value: toXYZ};
 RGB_Calc.to.definer.audit.xyz = {value: function(color) {return this.convertColor(color, toXYZ, 'xyz');}};
-function toXYZ(rgb, gammaCorrection) {
+function toXYZ(rgb) {
 	var M = toXYZ.matrixRgbXyz;
 	var R = rgb[0] / 255;
 	var G = rgb[1] / 255;
@@ -73,10 +78,9 @@ function toXYZ(rgb, gammaCorrection) {
 		G = (G > 0.04045) ? Math.pow(((G + 0.055) / 1.055), 2.4) : G / 12.92;
 		B = (B > 0.04045) ? Math.pow(((B + 0.055) / 1.055), 2.4) : B / 12.92;
 	} else {
-		gammaCorrection=gammaCorrection || toXYZ.gammaCorrection;
-		R = Math.pow(R, gammaCorrection);
-		G = Math.pow(G, gammaCorrection);
-		B = Math.pow(B, gammaCorrection);
+		R = Math.pow(R, this.config.gammaCorrection);
+		G = Math.pow(G, this.config.gammaCorrection);
+		B = Math.pow(B, this.config.gammaCorrection);
 	}
 	return new this.config.XYZFactory(
 		R * M[0] + G * M[3] + B * M[6],
@@ -85,14 +89,12 @@ function toXYZ(rgb, gammaCorrection) {
 	);
 };
 toXYZ.colorProfile = 'sRGB';
-toXYZ.gammaCorrection = 2.2;
 toXYZ.matrixRgbXyz = [
 	0.41242371206635076, 0.21265606784927693, 0.019331987577444885,
 	0.3575793401363035, 0.715157818248362, 0.11919267420354762,
 	0.1804662232369621, 0.0721864539171564, 0.9504491124870351
 ];
 
-RGB_Calc.ConfigStack.prototype.XYZFactory = Array; // to be expanded...
 
 
 var RGB_calc_toXYZ = toXYZ.bind({config: {XYZFactory: Array}});  //this is the calculator we use within the colorblind conversion
@@ -121,6 +123,7 @@ RGB_Calc.to.definer.quick.colorblind = {value: toColorBlind, writable: true};   
 RGB_Calc.to.definer.audit.colorblind = {value: auditToColorBlind, writable: true};
 function auditToColorBlind() {return this.convertColor(arguments, toColorBlind, 'colorblind  «Wickline algorithmic»');}
 function toColorBlind(rgb, type, anomalize) {
+	if (type==='tritan'  &&  rgb[0]==0 && rgb[1]==0 && rgb[2]==0)  return this.outputRGB(0,0,0,rgb[3]);  //catch the NaN bug
 	var z, v, n,
 		line, c, slope,
 		yi, dx, dy,
@@ -139,10 +142,10 @@ function toColorBlind(rgb, type, anomalize) {
 			z.G = (v * z.G + rgb[1]) / n;
 			z.B = (v * z.B + rgb[2]) / n;
 		}
-		return this.outputRGB(z.R, z.G, z.B);
+		return this.outputRGB(z.R, z.G, z.B, rgb[3]);
 	}
 	line = toColorBlind.blinder[type];
-	c = to_xyY(RGB_calc_toXYZ(rgb, toColorBlind.gammaCorrection));
+	c = to_xyY(RGB_calc_toXYZ(rgb));
 	// The confusion line is between the source color and the confusion point
 	slope = (c.y - line.y) / (c.x - line.x);
 	yi = c.y - c.x * slope; // slope, and y-intercept (at x=0)
@@ -183,9 +186,9 @@ function toColorBlind(rgb, type, anomalize) {
 	z.G += adjust * dG;
 	z.B += adjust * dB;
 	// apply gamma and clamp simulated color...
-	z.R = 255 * (z.R <= 0 ? 0 : z.R >= 1 ? 1 : Math.pow(z.R, 1 / toColorBlind.gammaCorrection));
-	z.G = 255 * (z.G <= 0 ? 0 : z.G >= 1 ? 1 : Math.pow(z.G, 1 / toColorBlind.gammaCorrection));
-	z.B = 255 * (z.B <= 0 ? 0 : z.B >= 1 ? 1 : Math.pow(z.B, 1 / toColorBlind.gammaCorrection));
+	z.R = 255 * (z.R <= 0 ? 0 : z.R >= 1 ? 1 : Math.pow(z.R, 1 / this.config.gammaCorrection));
+	z.G = 255 * (z.G <= 0 ? 0 : z.G >= 1 ? 1 : Math.pow(z.G, 1 / this.config.gammaCorrection));
+	z.B = 255 * (z.B <= 0 ? 0 : z.B >= 1 ? 1 : Math.pow(z.B, 1 / this.config.gammaCorrection));
 	//
 	if (anomalize) {
 		v = 1.75;
@@ -195,7 +198,7 @@ function toColorBlind(rgb, type, anomalize) {
 		z.B = (v * z.B + rgb[2]) / n;
 	}
 	//
-	return this.outputRGB(z.R, z.G, z.B);
+	return this.outputRGB(z.R, z.G, z.B, rgb[3]);
 };
 
 // xy: coordinates, m: slope, yi: y-intercept
@@ -225,7 +228,6 @@ toColorBlind.blinder = {
 		yi: 1.026914
 	}
 };
-toColorBlind.gammaCorrection = 2.2;
 toColorBlind.matrixXyzRgb = [
 	3.240712470389558, -0.969259258688888, 0.05563600315398933,
 	-1.5372626602963142, 1.875996969313966, -0.2039948802843549,
