@@ -1,5 +1,5 @@
-/*  UniDOM-2020  version 1.2.3  March 27, 2020
- *  copyright © 2013, 2014, 2015, 2018, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
+/*  UniDOM-2020  version 1.2.4  February 20, 2022
+ *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
  *  http://softmoon-webware.com/UniDOM_instructions.htm
@@ -770,7 +770,7 @@ ElementWrapper.prototype.useClass=function()  {useClass.apply(this.element, argu
 ElementWrapper.prototype.swapOut$Class=function()  {swapOutClass.apply(this.element, arguments);  return this};
 ElementWrapper.prototype.disable=function()  {disable.apply(this.element, arguments);  return this;};
 
-ElementWrapper.prototype.getSelected=function() {
+ElementWrapper.prototype.getSelected= function() {
 	return  this.element.nodeName==='SELECT' ?
 			getSelectedOptions.call(this.element)
 		: getElementsByName.apply(this.element, aSlice.call(arguments, 1)).getSelected();  };
@@ -870,6 +870,7 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 		return filtered;  }
 
 }
+Object.defineProperty(ElementArray.prototype, 'type', {value: 'UniDOM ElementArray'});
 // default value for constructor above (unused internally by UniDOM’s functions and methods)
 ElementArray.wrappedElements=false;
 UniDOM.ElementArray=ElementArray;
@@ -984,7 +985,8 @@ UniDOM.StyleSheetShell=StyleSheetShell;
 function StyleSheetShell(ssName)  { var ss, i;
 	function getSSByName(ssName)  { var id, j=0;
 		function isSSElement(e) {return e.nodeName==='STYLE' || (e.nodeName==='LINK' && e.rel==='stylesheet');}
-		if ((id=document.getElementById(ssName))  &&  isSSElement(id))  return id.sheet;
+		if ((id=document.getElementById(ssName))  &&  isSSElement(id))
+			return id.sheet;
 		for (; j<document.styleSheets.length; j++)  {
 			if (document.styleSheets[j].title===ssName)  return document.styleSheets[j];  }  }
 	if (!new.target)  throw new Error('“UniDOM.StyleSheetShell” is a constructor, not a function.');
