@@ -262,7 +262,7 @@ span.MCP_fix_Safari {
 	padding: 0 .618em;
 	font-size: 85.4%;
 	line-height: .854em;
-	vertical-align: center; }
+	vertical-align: middle; }
 
 #MasterColorPicker_Help {
 	margin-top: 2em;
@@ -324,7 +324,7 @@ span.MCP_fix_Safari {
 	/* text shows XYZ limits */
 	padding-left: 1.382em; }
 #MasterColorPicker_Help table {
-	margin .681em auto;
+	margin: .681em auto;
 	border: 1px solid;
 	text-align: center; }
 #MasterColorPicker_Help table td {
@@ -586,7 +586,7 @@ select#MasterColorPicker_palette_select {
 	margin-left: .618em;
 	margin-right: 0;
 	break-before: avoid; }
-#MasterColorPicker_MyPalette .options {
+#MasterColorPicker_MyPalette fieldset.options {
 	position: absolute;
 	top: calc(100% - 1.382em);
 	left: 0;
@@ -634,7 +634,7 @@ select#MasterColorPicker_palette_select {
 	display: block;
 	position: relative;
 	z-index: 1; }
-#MasterColorPicker_MyPalette .options,
+#MasterColorPicker_MyPalette fieldset.options,
 #MasterColorPicker_MyPalette .options lable:hover,
 #MasterColorPicker_MyPalette .port,
 #MasterColorPicker_MyPalette .port label:hover,
@@ -1896,7 +1896,7 @@ div#paletteLoadingAlert > div {
 div#paletteLoadingAlert h3,
 div#paletteLoadingAlert h4 {
 	color: inherit;
-	background-color: none;
+	background-color: transparent;
 	text-align: center;
 	padding: 0;
 	margin: 0; }
@@ -1905,7 +1905,7 @@ div#paletteLoadingAlert  p {
 	font-size: 1.618em;
 	font-weight: bold;
 	color: var(--fore-text-warn);
-	background-color: none;
+	background-color: transparent;
 	padding-top: .618em;
 	text-align: center;  }
 div#paletteLoadingAlert  h3+p {
@@ -1922,15 +1922,15 @@ div#paletteLoadingAlert div li {
 	font-family: monospace; }
 div#paletteLoadingAlert div .loaded {
 	color: var(--fore-text-allgood);
-	background-color: none;
+	background-color: transparent;
 	font-weight: bold; }
 div#paletteLoadingAlert div .reload {
 	color: var(--fore-text-caution);
-	background-color: none;
+	background-color: transparent;
 	font-weight: bold; }
 div#paletteLoadingAlert div .failed {
 	color: var(--fore-text-warn);
-	background-color: none;
+	background-color: transparent;
 	font-weight: bold; }
 div#paletteLoadingAlert button {
 	color: inherit;
