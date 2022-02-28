@@ -1,6 +1,7 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.2  February 22, 2022  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.3[b]  February 27, 2022  by SoftMoon WebWare.
+//  [b] release has extra garbage baggage for MasterColorPicker
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022 Joe Golembieski, SoftMoon WebWare
 
