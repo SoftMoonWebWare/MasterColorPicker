@@ -36,18 +36,24 @@ p img {
 <!--  for MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
       release 2.2  Feb 22, 2022   -->
 
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js'></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js'></script><!--  ESSENTIAL for http:// (server) version, NOT for file:// use
-<!--  script type='text/javascript' src='JS_toolbucket/Log.js'></script><!--  only if you plan on logging to debug  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/+++JS/+++.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js'></script><!--  !! ESSENTIAL !!  -->
-<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js"></script><!--  supports RainbowMaestro & MyPalette  -->
-<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js"></script><!--  supports RainbowMaestro & MyPalette  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js'></script><!--  supports MyPalette & ColorFilter  -->
-<script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js"></script>
+<script>
+const SoftMoon={};
+Object.defineProperties(SoftMoon, {
+	WebWare: {value: {}, enumerable: true},
+	uploaded_palettes: {value: [], enumeralble: true}});
+</script>
+<script type='text/javascript' src='JS_toolbucket/+++JS/+++.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/+++input_type.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
+<!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!--  supports MyPalette & ColorFilter  -->
+<script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer></script>
 
 <script type="text/javascript">
 window.addEventListener('mastercolorpicker_ready', function()  {
