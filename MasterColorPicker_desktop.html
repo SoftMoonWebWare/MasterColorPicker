@@ -57,18 +57,24 @@ p img {
 /*******/
 </style>
 
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/input_type=numeric_.js'></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
-<!--  script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js'></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
-<!--  script type='text/javascript' src='JS_toolbucket/Log.js'></script><!--  only if you plan on logging to debug  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/+++JS/+++.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js'></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js'></script><!--  !! ESSENTIAL !!  -->
-<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js"></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
-<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js"></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js'></script><!--  supports MyPalette & ColorFilter  -->
-<script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js"></script>
+<script>
+const SoftMoon={};
+Object.defineProperties(SoftMoon, {
+	WebWare: {value: {}, enumerable: true},
+	uploaded_palettes: {value: [], enumeralble: true}});
+</script>
+<script type='text/javascript' src='JS_toolbucket/+++JS/+++.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/+++input_type.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js' defer></script><!--  !! ESSENTIAL !!  -->
+<!--  script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
+<!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!--  supports MyPalette & ColorFilter  -->
+<script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer></script>
 
 
 <!--  These load the palette files for a  file://  based usage
@@ -78,15 +84,14 @@ p img {
 		and autoloaded directly by MasterColorPicker at startup;
 		then these script tags should be removed
 -->
-<script type="text/javascript" src="color_palettes/desktop_palettes/HTML.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/ANSI.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/OpenOffice.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/common.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/X11.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/Crayola.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/Brewer.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/universal.palette.js"></script>
-<script type="text/javascript" src="color_palettes/desktop_palettes/bomber.palette.js"></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/HTML.palette.js" defer></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/ANSI.palette.js" defer></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/OpenOffice.palette.js" defer></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/common.palette.js" defer></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/X11.palette.js" defer></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/Crayola.palette.js" defer></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/Brewer.palette.js" defer></script>
+<script type="text/javascript" src="color_palettes/desktop_palettes/universal.palette.js" defer></script>
 
 <script type="text/javascript">
 window.addEventListener('mastercolorpicker_ready', function()  {
@@ -122,7 +127,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.2  February 27, 2022
+      release 2.2.2  April 20, 2022
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -196,19 +201,19 @@ but to retain the settings this file may be included inside an existing web <for
 		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Help"), !this.checked);'
 		checked>show ☺ Help ☺? <kbd><span>F1</span></kbd></label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showMyPalette' id='MasterColorPicker_showMyPalette' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_MyPalette"), !this.checked);'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_MyPalette"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show/use MyPalette? <kbd><span>F2</span></kbd></label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showLab' id='MasterColorPicker_showLab' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Lab"), !this.checked);'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Lab"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show Color-Space Lab? <kbd><span>F3</span></kbd></label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showFilter' id='MasterColorPicker_showFilter' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Filter"), !this.checked);'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Filter"), !this.checked); /*  if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show/use Color-Filter?</label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showGradientor' id='MasterColorPicker_showGradientor' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor"), !this.checked);'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show Gradientor?</label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showThesaurus' id='MasterColorPicker_showThesaurus' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Thesaurus"), !this.checked);'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Thesaurus"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show color Thesaurus? <kbd><span>F4</span></kbd></label>
 <p id='MasterColorPicker_returnPanelsOn3'>Drag panels by their handles.&nbsp;
 Triple-click on panel handles (or this message) to return the panel(s) to home position.&nbsp;
@@ -216,9 +221,10 @@ Right-click or Shift-click to: pin a panel to the page when it is pinned to the 
 or pin it to the window when it is pinned to the page.
 </p>
 </fieldset>
-
+<button type='button' name='MasterColorPicker_PaletteMngr_open'>open the Palette Manager</button>
 <fieldset>
-	<p>Hue angle unit values may be forced at any time when entered with a trailing unit; for example a “degrees” ° sign or by using the three letters “deg”.</p>
+	<p>Hue angle unit values may be forced at any time when entered with a trailing unit;
+		for example a “degrees” ° symbol or by using the three letters “deg”.</p>
 	<label>Hue Angle Unit:
 	<select name='MasterColorPicker_hue_angle_unit'>
 		<optgroup label='degrees (360)'>
@@ -258,9 +264,56 @@ or pin it to the window when it is pinned to the page.
 
 
 
+<div id='MasterColorPicker_PaletteManager' class='pickerPanel expanding disabled'>
+<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Palette Manager</span></h2>
+<fieldset class='controls'>
+<button type='button' name='MasterColorPicker_PaletteMngr_close'>X</button>
+<!--  button type='button' name='MasterColorPicker_PaletteMngr_close'>close</button  -->
+<!-- label>¿<input type='checkbox' name='MasterColorPicker_PaletteMngr_recycle'>force recycle-bin<span
+	class='note'>If a “trash” folder already exists, it will be used.</span></label -->
+<input type='filename' size='62' name='MasterColorPicker_PaletteMngr_renamer' keep-focus='false'>
+</fieldset>
+<div class='dialog'></div>
+<fieldset><legend>Hard-loaded</legend>
+</fieldset>
+<!-- JavaScript depends on these fieldset.classnames being static: do not change or add -->
+<fieldset class='browser'><legend>Browser DataBase</legend>
+	<button type='button' name='MasterColorPicker_PaletteMngr_refresh'>refresh</button>
+	<button type='button' name='MasterColorPicker_PaletteMngr_load'>load selected</button>
+	<button type='button' name='MasterColorPicker_PaletteMngr_delete'>delete selected</button>
+	<fieldset class='autoload_palettes'><legend>Auto-load</legend>
+		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
+		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
+		<ul></ul>
+	</fieldset>
+	<fieldset class='palettes'><legend>All users</legend>
+		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
+		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
+		<ul></ul>
+	</fieldset>
+</fieldset>
+<fieldset class='server disabled' disabled><legend>Server Based</legend>
+	<button type='button' name='MasterColorPicker_PaletteMngr_refresh'>refresh</button>
+	<button type='button' name='MasterColorPicker_PaletteMngr_load'>load selected</button>
+	<button type='button' name='MasterColorPicker_PaletteMngr_delete'>delete selected</button>
+	<fieldset class='autoload_palettes'><legend>Auto-load</legend>
+		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
+		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
+		<ul></ul>
+	</fieldset>
+	<fieldset class='palettes'><legend>All users</legend>
+		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
+		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
+		<ul></ul>
+	</fieldset>
+</fieldset>
+</div>
+
+
+
 <div id='MasterColorPicker_MyPalette' class='pickerPanel expanding'>
 <h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F2 for shortcut">MyPalette</span></h2>
-<p>(choose color(s) using any color-picker or type directly)</p>
+<p>(choose colors using any color-picker or type directly)</p>
 <fieldset>
 <button type='button' name='MasterColorPicker_MyPalette_makeSub' backtabToTarget='true'>create sub-palette</button>
 <button type='button' name='MasterColorPicker_MyPalette_delete'>delete selected</button>
@@ -307,7 +360,7 @@ or pin it to the window when it is pinned to the page.
 		<label><input type='radio' name='MasterColorPicker_MyPalette_import_merge_mode' value='replace'>all new <note>Clear existing palette, and load new palette.</note></label>
 	</fieldset>
 	<fieldset class='paletteMeta export' disabled>
-		<label>Palette filename: <input type='text' name='MasterColorPicker_MyPalette_filename'></label>
+		<label>Palette filename: <input type='filename' name='MasterColorPicker_MyPalette_filename'></label>
 		<fieldset><legend>palette headers:</legend>
 		<textarea name='MasterColorPicker_MyPalette_headers[0]' rows='1' cols='50' value=""></textarea>
 		</fieldset>
@@ -827,27 +880,64 @@ tri-color?</label>
 	“<code>Gray</code>” and “<code>grey</code>” but only “<code>Gray</code>” shows in the table;
 	yet the user can type <code>Grey</code> or <code>gray</code>
 	(note color-names are also case-insensitive) and expect the same color.&nbsp;</p>
+	<h6 id='MasterColorPicker_helpFor_MyPalette_browserDB'>Saving/Exporting your Palettes</h6>
+	<p>You can save the Palettes you create in various formats at various locations.&nbsp;
+	Each format has a different use and each location has its benefits and drawbacks.</p>
+	<h7>The browser’s private storage</h7>
+	<p>When you don't have access to a friendly server, the browser’s private storage
+	can be the option that gives you the fastest, easiest workflow for current projects,
+	as it will allow you to save MyPalette files and have them “autoload” as a
+	MasterColorPicker™ Palette Table.&nbsp;
+	Each browser has a private storage “sandbox” that is unique for each “website”
+	and/or each <abbr>HTML</abbr> page.&nbsp;
+	The JavaScript™ code can not store or access data outside the sandbox,
+	and the data stored is not accessable by any other website,
+	nor, generally speaking, is it readily accessable by the user of the browser
+	outside of using the website (it will be on your storage drive somewhere so hacks are possible).&nbsp;
+	MasterColorPicker™ uses the JavaScript™ <code>IndexedDB</code> database interface to store your MyPalette files.&nbsp;
+	The “sandboxed”
+	<a href='https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Browser_storage_limits_and_eviction_criteria' target='Mozilla'>►storage has a limit</a>
+	that should, under most circumstances, handle all of your files.&nbsp;
+	However, you should be aware that the broswer may delete them at any time,
+	and that <strong>you</strong> may delete them at any time through the browser’s
+	interface as described in the above link.&nbsp;
+	For that reason, you should save your Palette files in another more permenant location for long-term storage.</p>
+	<h7>Storage in a “localhost” server or a server “in the cloud”</h7>
+	<p>This requires that you (or your friends) have control of the server and
+	requires the included <filepath>color_palettes/index.php</filepath> file
+	or a similarly functioning file in another language (it’s a simple short file to translate).&nbsp;
+	A “localhost” server (a private server on your own computer) will offer you the
+	most flexibility and convenience when saving/storing your MyPalette files,
+	while a “shared central hub” server (possibly “in the cloud”) works great for teams that need to share files.</p>
+	<h7>Local file system storage</h7>
+	<p>You can always store your MyPalette files in any folder on your computer;
+	however, this is the only option where MasterColorPicker™ does not have direct access
+	to the file (JavaScript in a browser never has direct access to your file system)
+	so it can not be simply autoloaded — you must manually add links to the <abbr>HTML</abbr>
+	file containing MasterColorPicker™ — see below … … …</p>
 	<h6 id='MasterColorPicker_helpFor_MyPalette_autoload'>Auto-loading your palettes</h6>
 	<p>If you save your palette to your “localhost” server, the server cloud,
 	or in the browser’s private storage (when available),
 	it can be auto-loaded in the future when you use MasterColorPicker™.&nbsp;
 	Simply select that option when you save your palette, and that’s it.</p>
-	<p>If you are using MasterColorPicker™—desktop, save the file as type .js
-	and save the file in the same folder as the <code>MasterColorPicker_desktop.htm</code>
+	<p>If you are using MasterColorPicker™—desktop with the <code>file://</code> protocol
+	(you click on the <filepath>MasterColorPicker_desktop.html</filepath> file in your file system, for example),
+	save the Palette file as type <code>.js</code>
+	and save the file in the same folder as the <filepath>MasterColorPicker_desktop.html</filepath>
 	file or in a sub-folder, or the browser will prevent you from loading it.&nbsp;
-	Then open the <code>MasterColorPicker_desktop.htm</code> file in your favorite
+	Then open the <filepath>MasterColorPicker_desktop.html</filepath> file in your favorite
 	text-editor and scroll down about a page or so to the bottom of the HTML document head
 	(see the line with: <code>&lt;/head&gt;</code> just above the line with: <code>&lt;body&gt;</code> ).&nbsp;
 	Just above the bottom of the head you will see multiple lines that begin with
 	<code>&lt;script type="… … …</code> — duplicate one of them and change the
 	<code>src="… … …"</code> so its filepath leads to the file you saved from “MyPalette.”&nbsp;
-	If it is in the same folder as <code>MasterColorPicker_desktop.htm</code>
+	If it is in the same folder as <filepath>MasterColorPicker_desktop.html</filepath>
 	you only need the filename: for example <code>src="<i>your_colors.palette.js</i>"</code>&nbsp;
 	If it is in a sub-folder, only include that subpath and filename: for example
 	<br><code>src="<i>color_palettes/desktop_palettes/your_project/your_colors.palette.js</i>"</code>&nbsp;<br>
 	If you are using a Windows® system, don’t confuse folder seperators!&nbsp;
 	Browsers like forward-slashes /&nbsp;<br>
-	Then save the <code>MasterColorPicker_desktop.htm</code> file.</p>
+	Then save the <filepath>MasterColorPicker_desktop.html</filepath> file.</p>
 
 	<h6 id='MasterColorPicker_helpFor_MyPalette_CSS-files'>Exporting to <abbr title='Cascading Style Sheet'>CSS</abbr> files</h6>
 	<p>When you export your palette to a CSS file,
@@ -909,6 +999,27 @@ tri-color?</label>
 	background-color: #401000 !important;
 	--bazbuz: #1000A0;
  }</code>
+	</p>
+
+	<hr>
+	<h4>Using the PaletteManager</h4>
+	<p>The PaletteManager will help you keep track of Palette files
+	you save to your browser’s private storage DataBase as well as files
+	you save to a server.&nbsp;
+	This is the <strong>only</strong> way you can manage your browser’s private storage
+	without hacking your browser’s filesystem — or simply deleting all stored data
+	through your browser’s “options” menu.&nbsp;
+	For a remote server, this gives you an opportunity to manage the files directly
+	without having to pester Eugene in the <abbr>I.T.</abbr> department.</p>
+	<p>Most functions are self-evident;
+	to rename a file, you can:&nbsp; •double-click, or •shift-click,
+	or when using browsers for big boys &amp; girls
+	(here’s winkin’ at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/activeElement" target='Mozilla'>►you, Apple®</a>!)
+	from the MasterColorPicker color-input textbox (with the PaletteManager panel open),
+	press <kbd><span>CTRL</span></kbd> <kbd><span>.></span></kbd>
+	until focus is within the PaletteManager panel, then press <kbd><span>TAB</span></kbd>
+	until focus is on the file you want to rename, then
+	you can •double-press <kbd><span>ENTER</span></kbd> or •use <kbd><span>SHIFT</span></kbd> <kbd><span>ENTER</span></kbd>
 	</p>
 
 	<hr>
