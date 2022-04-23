@@ -3797,13 +3797,18 @@ PaletteManager.deleteAllSelected=deleteAllSelected;
 function deleteAllSelected(event)  {
 	const
 		chkBoxs= event.target.closest('fieldset').querySelectorAll('input[type="checkbox"]'),
+		port=event.target.closest('fieldset').className,
 		deathrow=new Array;
+	var flag=false;
 	for (const cb of chkBoxs)  {  //there will always be a “selectAll” checkbox first
 		if (!cb.disabled  &&  cb.checked  &&  ( /filename/ ).test(cb.name))
-			deathrow.push(cb.parentNode);  }  // <label><input type='checkbox'>filename</label>
-	if (deathrow.length===0)  {notice('No palettes selected to delete.');  return;}
+			if (port==='browser'  ||  masks.userPaletteMask.test(cb.parentNode.lastChild.data))
+				deathrow.push(cb.parentNode);    // <label><input type='checkbox'>filename</label>
+			else  flag=true;  }
+	if (flag)  notice('You may only delete user palettes.');
+	if (deathrow.length===0)  {notice('No palettes selected to delete.', false, !flag);  return;}
 	if (!confirm('¿¿ Delete the '+deathrow.length+' selected palette'+(deathrow.length>1 ? 's ??' : '??')))  return;
-	switch (event.target.closest('fieldset').className)  {
+	switch (port)  {
 		case 'browser':
 			const trans=openBrowserPaletteDBTransaction(['palettes', 'autoload_palettes'], 'readwrite');
 			if (trans)  {
