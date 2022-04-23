@@ -1,7 +1,7 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 120
 
-// Picker.js  Beta-3.0.0  release 2.0.0  March 27, 2020  by SoftMoon-WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020 Joe Golembieski, SoftMoon-WebWare
+// Picker.js  Beta-3.0.0  release 2.0.1  April 20, 2022  by SoftMoon-WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -17,11 +17,13 @@
 		You should have received a copy of the GNU General Public License
 		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
 
+// requires SoftMoon-WebWare’s +++.js package.
 // requires SoftMoon-WebWare’s UniDOM-2020 package.
 
+/*   The SoftMoon property is usually a constant defined in a “pinnicle” file somewhere else
 if (typeof SoftMoon !== 'object')  SoftMoon=new Object;
 if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
-
+*/
 								 // ¡!YO!¡ \\
 								//  ↓    ↓  \\
 //  ********  be SURE to READ the comments on applied classNames just below the Picker constructor function  **********
@@ -70,6 +72,9 @@ function Picker(mainPanel, opts)  {
 	this.pickFilters=new Array;
 	this.ATTRIBUTE_NAMES=Object.create(Picker.ATTRIBUTE_NAMES);
 	this.classNames=Object.create(Picker.CLASSNAMES);
+	// ↓ Boolean ← ¿do InterfaceElements (input-type=text for example) keep focus by default when the ENTER key is pressed?  =false → the data/master target is focused instead
+	// ↓  the InterfaceElement may have an attribute 'keep-focus' —  ===true when value undefined; or the value is evaluated by Boolean.eval()
+	this.doKeepInterfaceFocus=false;
 
 	if (typeof opts == 'object')  {
 
@@ -114,7 +119,9 @@ function Picker(mainPanel, opts)  {
 			if (typeof opts.classNames != 'object')  throw new Error(errTxt);
 			for (p in Picker.CLASSNAMES)  { if (typeof opts.classNames[p] != 'undefined')  {
 				if (typeof opts.classNames[p] != 'string')  throw new Error(errTxt);
-				else  this.classNames[p]=opts.classNames[p];  }  }  }  }
+				else  this.classNames[p]=opts.classNames[p];  }  }  }
+
+		if ('doKeepInterfaceFocus' in opts)  this.doKeepInterfaceFocus=opts.doKeepInterfaceFocus;  }
 
 	if (!opts  ||  opts.registerPanel!==false)  this.registerInterfacePanel(mainPanel, opts ? opts.panelOpts : undefined);  }
 
@@ -433,7 +440,7 @@ Picker.prototype.registerInterfaceElement=function(element, actions)  {
 		if (!(this.interfaceTargets instanceof Array))  this.interfaceTargets=new UniDOM.ElementArray;
 		this.interfaceTargets.push(element)  }
 
-	var tabbedOut, enterKeyed, selectPan, PickerInstance=this,
+	var PickerInstance=this,
 			isUserdataInputType=is_UserData_InputType(element);  //note that “Data” is capitaliized in the Function name, not the result’s name
 
 	UniDOM.addEventHandler(element, 'onMouseOver', function() {PickerInstance.mouseOverInterfaceElement=this;});
@@ -449,7 +456,7 @@ Picker.prototype.registerInterfaceElement=function(element, actions)  {
 
 //  private METHOD of a Picker-instance
 function registerInterfaces(element, actions, isUserdataInputType)  {
-	var tabbedOut, enterKeyed, selectPan, PickerInstance=this;
+	var tabbedOut, enterKeyed, selectPan, escaped, PickerInstance=this;
 
 	if (isUserdataInputType)
 		UniDOM.addEventHandler(element, 'onClick', clickOnInterfaceElement);
@@ -459,7 +466,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {
 			if (!is_UserData_InputType(event.target))  event.preventDefault();  });  }
 
 
-	function clickOnInterfaceElement(event)  {tabbedOut= enterKeyed= selectPan= false;}
+	function clickOnInterfaceElement(event)  {tabbedOut= enterKeyed= selectPan= escaped= false;}
 
 	function clickOnInterfacePanel(event)  {
 		if (is_UserData_InputType(event.target))  return clickOnInterfaceElement(event);
@@ -489,7 +496,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {
 		var thisPanel=UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel);
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel);
 		PickerInstance.event=false;
-		tabbedOut= enterKeyed= selectPan= false;  }
+		tabbedOut= enterKeyed= selectPan= escaped= false;  }
 
 	function tabIntoUserdataInputType(event) {
 		//an element must be displayed to receive focus, so we get a bit redundant
@@ -517,6 +524,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {
 		var shifted=event.shiftKey  ||  (event.ctrlKey && event.keyCode===188);
 		enterKeyed=(event.keyCode===13);         //            === ↑                 === ↓
 		selectPan=(event.target.nodeName==='SELECT'  &&  (event.keyCode===38 || event.keyCode===40));
+		escaped=(event.key==='Escape');  // code 27
 		if (tabbedOut)  { var tabTo, i;
 			if (actions && actions.tabbedOut && actions.tabbedOut(event))  return;
 			event.preventDefault();
@@ -578,14 +586,23 @@ function registerInterfaces(element, actions, isUserdataInputType)  {
 				UniDOM.generateEvent(event.target, 'change', {bubbles:true, userArgs: {enterKeyed: true, keyedCount: enterKeyPressCount}});
 				enterKeyed=false;
 				PickerInstance.event=false;
-				event.target.focus();  }
+				if ( event.target.hasAttribute('keep-focus') ?
+								Boolean.eval(event.target.getAttribute('keep-focus'), true)
+							: PickerInstance.doKeepInterfaceFocus )
+					event.target.focus();
+				else  try {(PickerInstance.dataTarget || PickerInstance.masterTarget)?.focus();}catch(e){}  }
 			else {
 				if (event.target.type==='checkbox'  ||  event.target.type==='radio')  {event.target.checked=!event.target.checked;  event.preventDefault();}
 				else if (event.target.nodeName==='BUTTON')  {
-					UniDOM.generateEvent(event.target, 'buttonpress', {bubbles:true, detail: enterKeyPressCount});
+					UniDOM.generateEvent(event.target, 'buttonpress',
+						{bubbles:true, detail: enterKeyPressCount, shiftKey: event.shiftKey, ctrlKey: event.ctrlKey, altKey: event.altKey});
 					event.preventDefault();  }
-				UniDOM.generateEvent(event.target, 'change', {bubbles: true, userArgs: {enterKeyed: true, keyedCount: enterKeyPressCount}});
-				UniDOM.generateEvent(event.target, 'tabIn', {bubbles:true, userArgs:{tabbedFrom: event.target}}); }  }  } );
+				UniDOM.generateEvent(event.target, 'change',
+						{bubbles: true, userArgs: {shiftKey: event.shiftKey, ctrlKey: event.ctrlKey, altKey: event.altKey, enterKeyed: true, keyedCount: enterKeyPressCount}});
+				UniDOM.generateEvent(event.target, 'tabIn',
+						{bubbles:true, shiftKey: event.shiftKey, ctrlKey: event.ctrlKey, altKey: event.altKey, userArgs:{tabbedFrom: event.target}}); }  }
+		if (escaped)  {
+			try {(PickerInstance.dataTarget || PickerInstance.masterTarget)?.focus();}catch(e){}  }  } );
 
 	var enterKeyPressCount=0, enterKeyPressRepeatTimeout;
 
@@ -598,7 +615,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {
 
 	function changeInUserdataInputType(event)  {
 		var key=PickerInstance.event && PickerInstance.event.keyCode;
-		if ((key && !tabbedOut && !enterKeyed)
+		if ((key && !tabbedOut && !enterKeyed && !escaped)
 		||  actions && actions.onchange && actions.onchange(event, enterKeyed, tabbedOut, selectPan))  return;
 		if ((!enterKeyed  &&  !selectPan)  &&  PickerInstance.pickerActiveFlag)  {
 			if (!PickerInstance.mouseOverUserdataInterface  &&  !tabbedOut)  //help Google’s Chrome to keep track of what’s going on by setting a timeout (it has a hard time remembering to make the cursor blink)
