@@ -1,4 +1,4 @@
-/*  UniDOM-2020  version 1.2.4  February 20, 2022
+/*  UniDOM-2020  version 1.2.6  April 20, 2022
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -20,11 +20,12 @@
 
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
 
+/*  this is now part of the now required file:  JS_toolbucket/+++JS/+++.js
 RegExp.escape=function (string) {
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
   return string && string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
-
+*/
 
 
 ;(function()  { //wrap UniDOM’s private space (to end of file)
@@ -94,47 +95,51 @@ if (typeof Element.prototype.querySelectorAll == 'function')
 	//private
 	function arrayify(v)  {return  (v instanceof Array) ? v : [v];}
 	function getEventType(eT)  {eT=eT.toLowerCase().match( /^(?:on)?(.+)$/ );  return eT[1];}
+	const aSlice=Array.prototype.slice;
 
-	var aSlice=Array.prototype.slice,
-			handlerCounter=0, eventCounter=0;
+	var handlerCounter=0, eventCounter=0;
 
 UniDOM.addEventHandler=addEventHandler;
 function addEventHandler(element, eventType, handler, useCapture)  {
 	element=xElement(element);
-	if (element instanceof Array)  {
-		for (var k=0, allAdded=new Array;  k<element.length;  k++)  {
-			allAdded.push(addEventHandler(element[k], eventType, handler, useCapture));  }
+	if (element instanceof Array
+	||  element instanceof HTMLCollection
+//	||  element instanceof HTMLFormControlsCollection
+//	||  element instanceof HTMLOptionsCollection
+	||  element instanceof NodeList)  {
+		const allAdded=new Array;
+		for (const elmnt of element)  {
+			allAdded.push(addEventHandler(elmnt, eventType, handler, useCapture));  }
 		return allAdded;  }
 	eventType=arrayify(eventType);  handler=arrayify(handler);  useCapture=Boolean(useCapture);
-	var i, eType,
-			userArgs=aSlice.call(arguments, 4),
-			wrapper=new Array,
-			added=new Object;
-	for (i=0; i<eventType.length; i++)  {
-		etype=getEventType(eventType[i]);
+	const
+		userArgs=aSlice.call(arguments, 4),
+		wrapper=new Array;
+	for (let i=0; i<eventType.length; i++)  {
+		let etype=getEventType(eventType[i]);
 		if (UniDOM.getEventHandler(element, etype, handler, useCapture) !== false)  {
+			console.error('UniDOM will not double-bind event handlers.\n •Element: ',element,'\n •event type: '+etype+' with'+(useCapture ? "" : "out")+' capture\n •handler: ',handler);
 			if (UniDOM.addEventHandler.errorOnDoubleBind)
-				throw new Error('UniDOM will not double-bind event handlers.\n •Element: '+element.nodeName+'\n  id: '+element.id+'\n  className: '+element.className+'\n  name: '+element.name+'\n •event type: '+etype+"\n •"+handler.toString().substr(0, 240));
+				throw new Error('UniDOM will not double-bind event handlers.');
 			else  continue;  }
-
 		if (document.addEventListener)  {
-			wrapper[i]=function UniDOMEventHandlerWrapper(event)  {
+			wrapper[i]=function UniDOM_EventHandlerWrapper(event)  {
 				if (handler.suspend)  return;
-				var j, off,  pass=userArgs.slice(0);  pass.unshift(event);
-				if (event.type.match( /click|mouse/ )  &&  event.offsetX===undefined)  setMouseEventOffsets(event);
+				const pass=userArgs.slice(0);  pass.unshift(event);
+				if (( /click|mouse/ ).test(event.type)  &&  event.offsetX===undefined)  setMouseEventOffsets(event);
 				event.id=eventCounter++;
 				event.doContinue=true;
-				for (j=0;  event.doContinue && j<handler.length;  j++)  {
-					if (typeof handler[j]['on'+event.type] == 'function')  handler[j]['on'+event.type].apply(handler[j], pass);
-					else if (typeof handler[j].handleEvent == 'function')  handler[j].handleEvent.apply(handler[j], pass);
+				for (let j=0;  event.doContinue && j<handler.length;  j++)  {
+					if (typeof handler[j]['on'+event.type] === 'function')  handler[j]['on'+event.type](...pass);
+					else if (typeof handler[j].handleEvent === 'function')  handler[j].handleEvent(...pass);
 					else  handler[j].apply(element, pass);  }  }
 			element.addEventListener(etype, wrapper[i], useCapture);  }
 
 		else throw new Error('Implementation can not add UniDOM Event Handler.');
 
 		addingHandler=true;
-		added[eventType[i]]=new UniDOM.EventHandler(element, etype, handler, useCapture, wrapper[i], userArgs);  }
-	return added;  }
+		wrapper[eventType[i]]=new UniDOM.EventHandler(element, etype, handler, useCapture, wrapper[i], userArgs);  }
+	return wrapper;  }
 addEventHandler.errorOnDoubleBind=true;  // false quietly ignores double-binds
 addEventHandler.apply=applyToElement; // (element, Array→[eventType, handler, useCapture])
 addEventHandler._apply_=Function.prototype.apply;
@@ -544,7 +549,7 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 		else if (typeof deep === 'function'  &&  deep.count)  count=deep.count;
 		if (typeof objFltr !== 'function')  objFltr=function(e) {return e.name;};
 		var found=getElements.call(this,
-			function(e)  { var flag=(typeof e.name === 'string'  &&  e.name.match(n));
+			function(e)  { var flag=(typeof e.name === 'string'  &&  n.test(e.name));
 				if (flag && count)  deep.doContinue=(--count);
 				return flag;  },
 			deep, objFltr, powerSelect);
@@ -632,9 +637,9 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 			var not=false;
 			if (typeof c === 'function')  return c(e)^c.not;
 			if (typeof c !== 'object'  ||  !(c instanceof RegExp))  {
-				if (typeof c == 'string'  &&  c.charAt(0)==='!')  {c=c.substr(1);  not=true;}
+				if (typeof c === 'string'  &&  c.charAt(0)==='!')  {c=c.substr(1);  not=true;}
 				c=new RegExp('\\b'+RegExp.escape(c)+'\\b');  }
-			return (not  ||  c.not)  ?  (e.className.match(c)===null) : e.className.match(c);  });  }
+			return (not  ||  c.not)  ?  !c.test(e.className) : e.className.match(c);  });  }
 
 
 	// c must be the string name of the class  or an array of these strings
@@ -642,7 +647,7 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 	function aClass(cn, ac)  {  //private
 		if (!(ac instanceof Array))  ac=[ac];
 		for (var i=0; i<ac.length; i++)  {
-			if (!(typeof cn == 'string'  &&  cn.match( new RegExp('\\b'+RegExp.escape(ac[i])+'\\b') )))
+			if (!(typeof cn === 'string'  &&  ( new RegExp('\\b'+RegExp.escape(ac[i])+'\\b') ).test(cn)))
 				cn+=(cn) ? (" "+ac[i]) : ac[i];  }
 		cn=cleanClass(cn);
 		return cn;  }
@@ -1006,7 +1011,7 @@ StyleSheetShell.prototype.getRuleIndexes=function getRuleIndexes(s)  {
 	if (!rules)  return null;
 	var i, found=new Array;
 	if (s instanceof RegExp)
-		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText  &&  rules[i].selectorText.match(s))  found.push(i);}
+		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText  &&  s.test(rules[i].selectorText))  found.push(i);}
 	else
 		for (i=rules.length; --i>=0;)  {if (rules[i].selectorText===s)  found.push(i);}
 	if (found.length>0)  return found;  };
