@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.2  February 27, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.2.2  April 20, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -150,6 +150,12 @@ span.MCP_fix_Safari {
 	vertical-align: text-bottom; }
 
 
+#MasterColorPicker filepath {
+	font-family: monospace;
+	font-size: 14px;
+	font-weight: bold;
+	white-space: pre;  }
+
 /* These classes are dynamically applied to ALL registered panels when you:
 		• activate/deactivate the MasterColorPicker
 		• click on one of the panels.
@@ -162,6 +168,7 @@ span.MCP_fix_Safari {
 #MasterColorPicker .pickerPanelZLevel6 {z-index: 3147;}  /* …and so on… for each new panel you register */
 #MasterColorPicker .pickerPanelZLevel7 {z-index: 3148;}  /* …and so on… for each new panel you register */
 #MasterColorPicker .pickerPanelZLevel8 {z-index: 3149;}  /* …and so on… for each new panel you register */
+#MasterColorPicker .pickerPanelZLevel9 {z-index: 3150;}  /* …and so on… for each new panel you register */
 
 #MasterColorPicker .pickerPanel.pseudoHover,  /*applied dynamically by JavaScript. If the CSS ~ combinator matched previous siblings as well as following siblings, we wouldn’t need this*/
 #MasterColorPicker_options.pickerPanel:hover ~ #MasterColorPicker_mainPanel,  /*these two panels work together as one in this layout*/
@@ -277,16 +284,20 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help h4,
 #MasterColorPicker_Help h5,
 #MasterColorPicker_Help h6,
+#MasterColorPicker_Help h7,
 #MasterColorPicker_Help li {
 	margin: 0;
 	padding: 0; }
 #MasterColorPicker_Help h6 {
 	margin-left: 2.618em;
 	font-size: inherit; }
+#MasterColorPicker_Help h7 {
+	font-weight: bold; }
 #MasterColorPicker_Help a {
 	text-decoration: underline;
 	color: var(--fore-button);
 	background-color: var(--back-button);
+	padding: 0 .162em;
 	border-radius: .382em;
 	cursor: pointer; }
 
@@ -332,6 +343,8 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help code.multiline {
 	display: block;
 	white-space: pre-wrap; }
+#MasterColorPicker_Help filepath {
+	color: CornflowerBlue; }
 /* the browsers insist on inserting a line break before this <address> element, so I’m not using it; <kbd> instead */
 /* the element-inspector console shows them as inline-static ………? */
 /* note they do not do that for the  #MasterColorPicker_options header address  */
@@ -553,6 +566,7 @@ select#MasterColorPicker_palette_select {
 
 
 
+#MasterColorPicker_PaletteManager.pickerPanel,
 #MasterColorPicker_MyPalette.pickerPanel {
 	margin: 0;
 	top: 2em;
@@ -561,9 +575,11 @@ select#MasterColorPicker_palette_select {
 	right: 19.618em;
 	left: auto;
 	padding: .382em 1.618em .382em .382em; }
+#MasterColorPicker_PaletteManager h2,
 #MasterColorPicker_MyPalette h2 {
 	margin: 0 0 0 .382em;
 	text-align: left; }
+#MasterColorPicker_PaletteManager h2 span,
 #MasterColorPicker_MyPalette h2 span {
 	position: absolute;
 	top: 3.382em;
@@ -572,6 +588,72 @@ select#MasterColorPicker_palette_select {
 	padding: 0;
 	border: none;
 	transform: rotate(270deg); }
+#MasterColorPicker_PaletteManager h2 span:hover,
+#MasterColorPicker_MyPalette h2 span:hover {
+	outline: 1px solid var(--border-hover); }
+#MasterColorPicker_PaletteManager.pickerPanel {
+	padding: .382em 1.618em .382em 1.854em;
+	left: 0;
+	right: auto;  }
+#MasterColorPicker_PaletteManager h2 {
+	margin-left: -.618em; }
+#MasterColorPicker_PaletteManager h2 span {
+	top: 4.618em;
+	left: -2.8em;  }
+#MasterColorPicker_PaletteManager fieldset {
+	border: 1px solid;
+	margin: 0;
+	padding: .382em; }
+#MasterColorPicker_PaletteManager fieldset.disabled {
+	display: none; }
+#MasterColorPicker_PaletteManager fieldset.controls {
+	padding: 0;
+	margin: 0;
+	border: none;
+	text-align: center; }
+#MasterColorPicker_PaletteManager button {
+	margin: 0 .618em; }
+#MasterColorPicker_PaletteManager .controls button:first-child {
+	position: absolute;
+	top: .382em;
+	bottom: auto;
+	left: auto;
+	right: 0; }
+#MasterColorPicker_PaletteManager ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-top: 1px dashed; }
+#MasterColorPicker_PaletteManager li {
+	margin: 0;
+	padding: 0; }
+#MasterColorPicker_PaletteManager label {
+	white-space: nowrap; }
+#MasterColorPicker_PaletteManager .dialog  {
+	margin: 0;
+	padding: .618em 0 0 0; }
+#MasterColorPicker_PaletteManager .dialog div {
+	margin: 0 0 .618em;
+	padding: 0 .328em;
+	border: none;
+	border-left: 1px solid;
+	border-radius: .618em / 1em; }
+#MasterColorPicker_PaletteManager .dialog p,
+#MasterColorPicker_PaletteManager .dialog strong {
+	display: block;
+	margin: 0;
+	padding: 0 0 0 .618em; }
+#MasterColorPicker_PaletteManager .dialog strong {
+	color: var(--fore-text-warn); }
+#MasterColorPicker_PaletteManager filepath {
+	display: block;
+	margin-left: -0.618em; }
+#MasterColorPicker_PaletteManager ul label {
+	font-family: monospace;
+	white-space: pre; }
+
+
 #MasterColorPicker_MyPalette > fieldset,
 #MasterColorPicker_MyPalette p {
 	margin-left: 1.618em; }
@@ -697,9 +779,13 @@ select#MasterColorPicker_palette_select {
 	width: 30em;
 	white-space: pre-wrap;
 	overflow-wrap: break-word; }
+/*
 #MasterColorPicker_MyPalette .portNotice span {
 	font-weight: bold;
 	font-family: monospace;  }
+*/
+#MasterColorPicker_MyPalette .portNotice filepath {
+	white-space: break-spaces;  }
 #MasterColorPicker_MyPalette .portNotice strong {
 	color: var(--fore-text-warn);  }
 #MasterColorPicker_MyPalette .portNotice h4 {
@@ -707,8 +793,8 @@ select#MasterColorPicker_palette_select {
 	padding: 0; }
 #MasterColorPicker_MyPalette .portNotice button {
 	display: block;
-	margin: 0 0 0 .618em;
-	padding: 0;
+	margin: 0;
+	padding: 0 0 0 .618em;
 	text-indent: -.618em;
 	border: none;
 	color: inherit;
