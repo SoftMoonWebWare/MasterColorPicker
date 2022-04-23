@@ -1,23 +1,52 @@
+//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
+/*   written by and Copyright © 2019, 2022 Joe Golembieski, SoftMoon WebWare */
+
 // input type='numeric' Feb 5, 2019
-window.addEventListener("load", function() {
-	var i, iBase
-			inps=document.getElementsByTagName('input');
+// input type='file…………'  April 20, 2022
+'use strict';
+/*   The SoftMoon property is usually a constant defined in a “pinnicle” file somewhere else
+if (!SoftMoon)  var SoftMoon={};
+if (!SoftMoon.WebWare)  Object.defineProperty(SoftMoon, 'WebWare', {value: {}, enumerable: true});
+*/
+Object.defineProperty(SoftMoon, 'illegalFilenameChars', {value: [':', '*', '?', '"', '<', '>', '|'], enumerable: true});
 
-	for (i=0; i<inps.length; i++)  {
-	 if (inps[i].hasAttribute('type')  &&  inps[i].getAttribute('type').toLowerCase()==='numeric')  {
+SoftMoon.WebWare.filename_safe=function filename_safe($name, $replacement="", $forbidPaths=true, $forwardPathsOnly=true)  {
+	$name=$name.trim();
+	for (const except of SoftMoon.illegalFilenameChars)  {
+		$name=$name.replaceAll(except, $replacement);  }
+	if ($forbidPaths)  {
+		$name=$name.replaceAll('/', $replacement);
+		$name=$name.replaceAll('\\', $replacement);  }
+	else if ($forwardPathsOnly)
+		$name=$name.replaceAll('..', $replacement);
+	$name=$name.replaceAll( /[\x00-\x1F]/g , $replacement);
+	$name=$name.replace( /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])/ , '_$1_');
+	return $name;  }
 
-		iBase=parseInt(inps[i].getAttribute('base')) || 10;
+
+window.addEventListener("load", function plusplusplusInput() {
+	const inps=document.getElementsByTagName('input');
+	for (const input of inps)  { if (input.hasAttribute('type'))  switch (input.getAttribute('type')?.toLowerCase())  {
+		case 'numeric':  SoftMoon.WebWare.register_input_type_numeric(input);
+		break;
+		case 'filename':
+		case 'filepath': SoftMoon.WebWare.register_input_type_file(input);  }  }  });
+
+
+SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeric(input)	{
+
+		const iBase=parseInt(input.getAttribute('base')) || 10;
 
 		if (iBase<=10)  {
 			// The hope is that by changing the type to text BEFORE the click that gives focus to the input, the cursor-position will not be reset to the beginning.
 			// This is, unfortunately, not the case.
-			//inps[i].addEventListener('mousedown', function() {if (this.type!=='text')  this.type='text';});
-			inps[i].addEventListener('focus', function() {if (this.type!=='text')  {this.type='text';  this.focus();  this.selectionStart=this.value.length;}});
-			inps[i].addEventListener('blur', function() {try {this.type='number';} catch(e){this.type='text'}});
-			try {inps[i].type='number';} catch(e){inps[i].type='text'}  }
+			//input.addEventListener('mousedown', function() {if (this.type!=='text')  this.type='text';});
+			input.addEventListener('focus', function() {if (this.type!=='text')  {this.type='text';  this.focus();  this.selectionStart=this.value.length;}});
+			input.addEventListener('blur', function() {try {this.type='number';} catch(e){this.type='text'}});
+			try {input.type='number';} catch(e){input.type='text'}  }
 		else  {
-			inps[i].addEventListener('blur', function() {this.value=this.value.toUpperCase();});
-			inps[i].addEventListener('keypress', function(event)  {
+			input.addEventListener('blur', function() {this.value=this.value.toUpperCase();});
+			input.addEventListener('keypress', function(event)  {
 				var letter=String.fromCharCode(event.charCode).toUpperCase();
 				//console.log(letter+"   charCode="+event.charCode+"   keyCode="+event.keyCode+"   key"+event.key);
 				if (letter>='A'  &&  letter<='Z')  { //note keydown (below) will filter out improper letters before getting here
@@ -28,7 +57,7 @@ window.addEventListener("load", function() {
 					event.preventDefault();  }  });  }
 
 
-		inps[i].addEventListener('keydown', function(event)  {
+		input.addEventListener('keydown', function(event)  {
 			if (event.keyCode===38  && !(event.altKey || event.ctrlKey || event.shiftKey))  { // up arrow key ↑
 				stepUp.call(this);  event.preventDefault();  return;  }
 			if (event.keyCode===40  && !(event.altKey || event.ctrlKey || event.shiftKey))  { // down arrow key ↓
@@ -62,7 +91,7 @@ window.addEventListener("load", function() {
 			});
 
 
-		inps[i].addEventListener('paste', function(event) {
+		input.addEventListener('paste', function(event) {
 			var i, s, len,
 					curPos=this.selectionStart,
 					data=event.clipboardData.getData('text'),
@@ -87,9 +116,9 @@ window.addEventListener("load", function() {
 			event.preventDefault();  });
 
 
-		inps[i].stepUp=stepUp;
-		inps[i].stepDown=stepDown;
-	}  }
+		input.stepUp=stepUp;
+		input.stepDown=stepDown;
+
 
 	function stepUp()  {
 		var base= parseInt(this.getAttribute('base')) || 10,
@@ -102,5 +131,26 @@ window.addEventListener("load", function() {
 				step= parseInt(this.getAttribute('step'), base) || 1;
 		this.value= (base===10) ?
 			(parseFloat(this.value)-step)
-		: Math.round(parseInt(this.value, base)-step).toString(base).toUpperCase();  }
-});
+		: Math.round(parseInt(this.value, base)-step).toString(base).toUpperCase();  }  }
+
+
+SoftMoon.WebWare.register_input_type_file=function register_input_type_file(input)	{  // type= filename ‖ filepath
+
+		input.addEventListener('keydown', function(event)  {
+			if (SoftMoon.illegalFilenameChars.includes(event.key)
+			||  (this.getAttribute('type')==='filename'
+					&&  (event.key==='/'  ||  event.key==='\\')))  event.preventDefault();  });
+
+		input.addEventListener('paste', function(event) {
+			var len,
+					curPos=this.selectionStart,
+					data=event.clipboardData.getData('text');
+			len=data.length;
+			data=this.value.substr(0,curPos)+data+this.value.substr(this.selectionEnd||curPos);
+			this.value=SoftMoon.WebWare.filename_safe(data,
+										this.getAttribute('replacement-char') || "",
+										this.getAttribute('type')==='filename',
+										this.hasAttribute('forward-paths-only'));
+			this.selectionStart=
+			this.selectionEnd=curPos+len;
+			event.preventDefault();  });  }
