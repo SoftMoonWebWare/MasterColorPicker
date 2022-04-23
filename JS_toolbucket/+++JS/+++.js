@@ -1,6 +1,10 @@
+RegExp.escape=function (string) {
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+  return string && string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
 
 
-if (Boolean.evalString)  console.warn("Boolean.evalSring already exists.")
+if (Boolean.evalString)  console.warn("Boolean.evalString already exists.");
 else {
 	Boolean.evalString=function boolString(s, d, charset='utf-8')  {
 		if (!boolString[charset])  return Boolean(d);
@@ -15,7 +19,7 @@ else {
 //you can add additional tables in other character sets
 }
 
-if (Boolean.eval)  console.warn("Boolean.eval already exists.")
+if (Boolean.eval)  console.warn("Boolean.eval already exists.");
 else Boolean.eval=function (b, d, charset)  {
 	if (typeof b === 'boolean')  return b;
 	if (typeof b === 'object'
