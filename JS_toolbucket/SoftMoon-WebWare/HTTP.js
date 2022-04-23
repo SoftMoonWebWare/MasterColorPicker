@@ -1,6 +1,6 @@
 /*  charset="UTF-8"
-	HTTP.js  version 2.1  December 23, 2021
-	Copyright © 2013, 2017, 2018, 2020, 2021 by Joe Golembieski, SoftMoon-WebWare.
+	HTTP.js  version 2.2  April 20, 2022
+	Copyright © 2013, 2017, 2018, 2020, 2021, 2022 by Joe Golembieski, SoftMoon-WebWare.
 
 //  character-encoding: UTF-8 UNIX     includes extended character set in comments example:  far-east asian: Chinese and Japanese
 //  tab-spacing: 2   word-wrap: no   standard-line-length: 160   full-line-length: 2400
@@ -63,9 +63,10 @@
 
  */
 
+/*   The SoftMoon property is usually a constant defined in a “pinnicle” file somewhere else
 if (typeof SoftMoon !== 'object')  SoftMoon=new Object;
 if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
-
+*/
 
 ;(function() {
 
@@ -77,7 +78,8 @@ function HTTP(maxAttempts, timeoutDelay, retryDelayIncrease, retryDelayBuffer, a
 	if (typeof retryDelayIncrease === 'number')  this.retryDelayIncrease=retryDelayIncrease;
 	if (typeof retryDelayBuffer === 'number')  this.retryDelayBuffer=retryDelayBuffer;
 	if (typeof autoShuttle_201 === 'boolean')  this.autoShuttle_201=autoShuttle_201;
-	if (typeof redirectMax === 'number')  this.redirectMax=redirectMax;  }
+	if (typeof redirectMax === 'number')  this.redirectMax=redirectMax;
+	Object.defineProperty(this, 'connections', {value: [], enumerable: true});  }
 
 
 HTTP.prototype.maxAttempts=3;  // how many times we should try to connect when there is no response from the server, or we get an unrecognized response status code
@@ -125,20 +127,23 @@ HTTP.prototype.commune=function(connection)  {
 			thisConnector=this,
 			timer;
 
-	if (this.restrictURL  &&   !connection.url.match(this.RegExp.url))
+	if (this.restrictURL  &&  !this.RegExp.url.test(connection.url))
 
     connection.errorNotice="Improper “url” for HTTP request: \n “"+connection.url+"”\n No connection attempt made.";
 
 	else if (HTTP.redirectFilter(connection))  {  // url is OK as given or was changed to a new redirected url
 
-		if (typeof connection.tryAgain != 'function')  connection.tryAgain=function()  { //try «attempts» times, then stop and wait until called upon again
-			if (connection.attempts<thisConnector.maxAttempts)  setTimeout(
-				function() { var passArgs=userArgs.slice(0);  passArgs.unshift(connection);
+		if (!this.connections.includes(connection))  this.connections.push(connection);
+		if (typeof connection.tryAgain !== 'function')  connection.tryAgain=function()  { //try «attempts» times, then stop and wait until called upon again
+			if (connection.attempts<thisConnector.maxAttempts)  {
+				connection.trying=true;
+				if (!thisConnector.connections.includes(connection))  thisConnector.connections.push(connection);
+				setTimeout(function() { var passArgs=userArgs.slice(0);  passArgs.unshift(connection);
 					thisConnector.commune.apply(thisConnector, passArgs);  },
-				thisConnector.retryDelayBuffer );
+				thisConnector.retryDelayBuffer );  }
 			else  {
 				connection.trying=false;  connection.failed=true;
-				if (typeof connection.loadError == 'function')  connection.loadError(thisConnector);  }  }
+				if (typeof connection.loadError === 'function')  connection.loadError(thisConnector);  }  }
 		connection.attempts++;
 		if (!connection.ontimeout)  connection.ontimeout=function()  {
 			//¿does the possiblility occur that the browser may implement this ontimeout method “automatically”?
@@ -153,8 +158,10 @@ HTTP.prototype.commune=function(connection)  {
 			if (connection.readyState>=3  &&  timer)  clearTimeout(timer);
 			if (connection.readyState!=4)  return;
 			connection.trying=false;
-			if (typeof connection.onStatus == 'object'
-			&&  typeof connection.onStatus[connection.status] == 'function'
+			const i=thisConnector.connections.indexOf(connection);
+			if (i>=0)  thisConnector.connections.splice(i, 1);
+			if (typeof connection.onStatus === 'object'
+			&&  typeof connection.onStatus[connection.status] === 'function'
 			&&  connection.onStatus[connection.status].apply(connection, userArgs) !== false)  // ¡¡NOTE how the methods of “onStatus” are applied to the “connection” object!!
 				return;  //if your custom onStatus handler method returns Boolean: “false”, the “onComplete” and then possibly the “standard” handlers below will be used.
 			if (typeof connection.onComplete == 'function'
@@ -166,7 +173,7 @@ HTTP.prototype.commune=function(connection)  {
 				case 203:
 				case 204: if (typeof connection.onFileLoad === 'function')  connection.onFileLoad.apply(connection, userArgs);
 									break status;
-				case 300: if (typeof connection.onMultiple == 'function')  {  //multiple choices offered by the server - user must choose one.  responseText should hold more info
+				case 300: if (typeof connection.onMultiple === 'function')  {  //multiple choices offered by the server - user must choose one.  responseText should hold more info
 										var passArgs=userArgs.slice(0);  passArgs.unshift(thisConnector);
 										connection.onMultiple.apply(connection, passArgs);
 										break status;  }
@@ -176,27 +183,29 @@ HTTP.prototype.commune=function(connection)  {
 				case 402:
 				case 403:
 				case 404:
-				case 410: if (typeof connection.loadError == 'function')
+				case 410: if (typeof connection.loadError === 'function')
 											connection.loadError.apply(connection, userArgs);
 								break status;
 				case 301: HTTP.setPermanentRedirect(connection);  //this is a permanent redirect; below are temporary or “other”
 							/* fall through to redirect by response header [307] */
-				case 201: if (connection.status==201)  {
+				case 201: if (connection.status===201)  {
 										if (thisConnector.autoShuttle_201)  {
 											if (connection.responseText.length<2001
-											&&  connection.responseText.match( thisConnector.RegExp.url ))  {
+											&&  thisConnector.RegExp.url.test(connection.responseText))  {
 												if (thisConnector.redirect(connection, connection.responseText, userArgs))  {
 													connection.method="GET";  delete connection.getQuery;  delete connection.postData;
-													connection.trying=true;  connection.tryAgain.apply(connection, userArgs);  }
+													connection.tryAgain.apply(connection, userArgs);  }
 												break status;  }
 											else  {/* fall through to redirect by response header */}  }
 										else {connection.onFileLoad.apply(connection, userArgs);  break status;}  }
 				case 302:
-				case 303: if (connection.status==302 || connection.status==303)  {
+				case 303: if (connection.status===302 || connection.status===303)  {
 										connection.method="GET";  delete connection.getQuery;  delete connection.postData;  }
 				case 305:
-				case 307: if (thisConnector.redirect(connection, connection.getResponseHeader('location'), userArgs)===false)  break;
-				default:  connection.trying=true;  connection.tryAgain.apply(connection, userArgs);  }  }  }
+				case 307: if (thisConnector.redirect(connection, connection.getResponseHeader('location'), userArgs)===false)  break status;
+				default:  connection.tryAgain.apply(connection, userArgs);  }  }
+			if (thisConnector.connections.length===0
+			&&  typeof thisConnector.onComplete === 'function')  thisConnector.onComplete();  }
 
 		var postData;
 		if (typeof connection.method === 'string')  connection.method=connection.method.toUpperCase();
@@ -332,8 +341,10 @@ HTTP.URIEncodeObject=function(o, encodeMethods)  {
 	width: 85.4%;  }   ≈ Φ + (1-Φ)*Φ
 
 	 ***  *************  ***/
-HTTP.handleMultiple=function(connector)  {
+HTTP.handleMultiple=function handleMultiple(connector)  {
 	if (this === HTTP)  throw new Error('“HTTP.handleMulptile” is meant to be a method of an HTTP connection object');
+	this.trying=true;
+	if (!connector.connections.includes(this))  connector.connections.push(this);
 	var userArgs=Array.prototype.slice.call(arguments, 1),
 			notice=document.createElement('div');
 			container;
@@ -341,15 +352,15 @@ HTTP.handleMultiple=function(connector)  {
 		'<p>The server has notified this automation that a requested file download has multiple choices available.&nbsp;\n'+
 		(this.filename ? ('The file requested is '+this.filename+'.&nbsp;\n') : "")+
 		(this.fileinfo ? this.fileinfo : "")+
-		'The file <abbr>URL</abbr> requested is: '+    // <abbr> is for HTML5; <acronym> is for MSIE-6, and should never have been depreciated.  Consider text-to-speach for visual impaired.  They USUALLY want to hear “U-R-L”, not “uniform-resource-locator” or a synonym for "Earl";  so if you add a title to <abbr> then you must add a classname, and CSS to specify all this, etc… but then FORCE them into this scheme.  Whereas users can set their readers to simply ignore titles in all <acronyms> unless asked for IF THEY WANT TO.
-		'<span class="url">'+this.url+'</span></p>\n'+       //  no title is supplied for URL acronyms here because if the user doesn't understand “U-R-L”,  “uniform-resource-locator” won't be any better!  So using <abbr> here actually won't cause this reader problem; but it will break MSIE6, whereas using <acronym> is just, ahem, "politically incorrect".
+		'The file <abbr>URL</abbr> requested is: '+
+		'<span class="url">'+this.url+'</span></p>\n'+
 		'<p>More specific information from the server may be given below.</p>\n'+
 		'<label>Please enter the selection of you choice: <select></select></label>\n'+
-		'<label><input type="checkbox" /> remember this selection in the future</label>\n'+
+		'<label><input type="checkbox"> remember this selection in the future</label>\n'+
 		'<input type="button" value="Get File" />\n'+
 		'<input type="button" value="abort" />\n';
 	var response=this.responseText.split("\n<!-- end URL list -->\n"),
-			i, urls=response[0].split("\n"),
+			urls=response[0].split("\n"),
 	    op, sel=notice.getElementsByTagName('select')[0],
 	    dat, html, pre;
 	op=document.createElement('option');  op.value="";
@@ -360,7 +371,7 @@ HTTP.handleMultiple=function(connector)  {
 		op=document.createElement('option');  op.value=dat[0];  op.title=dat[2];
 		op.appendChild(document.createTextNode(dat[1]));
 	  sel.appendChild(op);  }
-	if (this.getResponseHeader('Content-Type').match( /html/i ))  {
+	if (( /html/i ).test(this.getResponseHeader('Content-Type')))  {
 		html=document.createDocumentFragment();  html.innerHTML=response[1];
 		notice.appendChild(html);  }
 	else  {
@@ -389,7 +400,7 @@ http://mydomain.com/mypage/jp→日本語→Japanese
 
 	notice.id= (this.handleMultiple_elementId) ?
 		( (container=document.getElementById(this.handleMultiple_elementId))  ?  ""  :  this.handleMultiple_elementId )
-	: arguments.callee.HTML_Element_id;
+	: handleMultiple.HTML_Element_id;
 	container=(container || document);
 	container.appendChild(notice);
 
@@ -400,11 +411,15 @@ http://mydomain.com/mypage/jp→日本語→Japanese
 		if (url  &&  connector.redirect(connection, url, userArgs))  {
 			if (inp[0].checked)  HTTP.setPermanentRedirect(connection);
 			container.removeChild(notice);
-			connection.trying=true;
 			connection.tryAgain.apply(connection, userArgs);  }  }
 	inp[2].onclick=function()  {
-		if (confirm('Do you want to abort loading '+(connection.filename || 'this file')+'?'))
+		if (confirm('Do you want to abort loading '+(connection.filename || 'this file')+'?'))  {
 			container.removeChild(notice);
+			connection.trying=false;
+			const i=connector.connections.indexOf(connection);
+			if (i>=0)  connector.connections.splice(i, 1);
+			if (connector.connections.length===0
+			&&  typeof connector.onComplete === 'function')  connector.onComplete();  }
 		else
 			inp[0].focus();  }
 	setTimeout(function() {inp[0].focus();}, 0);  }
