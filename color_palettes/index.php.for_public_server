@@ -1,5 +1,5 @@
 <?php  /*  charset="UTF-8"
-	color_palettes/index.php  for PUBLIC SERVERS          March 17, 2020
+	color_palettes/index.php  for PUBLIC SERVERS          April 25, 2022
 
 	This dynamically creates a text-based list of all the palettes in the folder
 
@@ -16,11 +16,17 @@
 
   */
 
+// ¡remember for headers, there must be NO content before the opening <?php tag and no BOM in this file when you save it!
+header('Content-Type: text/plain; charset=UTF-8');
+/* Windows® NTFS uses UTF-8; Linux is undefined: it depends on the application saving the file.
+ * This file is encoded in UTF-8 and outputs an extended character set.
+ */
+header('Cache-Control: no-store');
 
 
 define('PALETTE_NAME_EXTENTION', '/\.palette\.json$/i');
 
-
+define('NAK', chr(21));  //  ASCII “negative aknowledge”  ← sent to indicate an error
 
 //echo file_get_contents("php://input");  // this is the raw input data; becomes $_POST if URI-encoded and the content-type header was 'application/x-www-form-urlencoded'
 
@@ -28,7 +34,7 @@ define('PALETTE_NAME_EXTENTION', '/\.palette\.json$/i');
 
 if (isset($_POST['do_delete'])
 ||  isset($_POST['rename'])
-||  isset($_POST['filename']))  {echo "¡Error! : This server does not accept uploads or manage palette files.";}
+||  isset($_POST['filename']))  {echo NAK,"¡Error! : This server does not accept uploads or manage palette files.";}
 else findAllPalettes($userName);
 
 //  echo "color_palettes/baz_bar_foo.txt\n";  //send a false filename to test the JavaScript (“ajax”) loader
