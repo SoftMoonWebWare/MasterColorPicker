@@ -676,9 +676,26 @@ tri-color?</label>
 
 
 <div id='MasterColorPicker_Help' class='pickerPanel help'>
- <h2>MasterColorPicker<mark class='macronym'>™</mark><span title="press F1 for shortcut">☺Help☺</span></h2>
- <div>
-	<h4>Colors with MasterColorPicker</h4>
+ <h2>MasterColorPicker<mark class='macronym'>™</mark><span title="press F1 for shortcuts">☺Help☺</span></h2>
+ <div class='scrollbox'>
+	<nav>
+		<button type='button' section='defining-colors'>defining colors</button>
+		<button type='button' section='Alpha'>using “Alpha” opacity (transparency)</button>
+		<button type='button' section='examples'>example color definitions</button>
+		<button type='button' section='keyboard'>keyboard shortcuts</button>
+		<button type='button' section='MyPalette'>using MyPalette</button>
+			<div>
+			<button type='button' section='MyPalette_alternatives'>alternative color names</button>
+			<button type='button' section='MyPalette_DB'>saving/exporting your palette files</button>
+			<button type='button' section='MyPalette_browserDB'>using the browser’s private storage database</button>
+			<button type='button' section='MyPalette_serverDB'>saving files to a server</button>
+			<button type='button' section='MyPalette_local-file'>saving files to your personal filesystem</button>
+			<button type='button' section='MyPalette_autoload'>auto-loading your palettes when MasterColorPicker<mark class='macronym'>™</mark> starts</button>
+			<button type='button' section='MyPalette_CSS-files'>exporting to a CSS file</button>
+			</div>
+		<button type='button' section='PltMngr'>using the Palette Manager</button>
+	</nav>
+	<h4 id='MasterColorPicker_helpFor_defining-colors'>Colors with MasterColorPicker</h4>
 	<p>MasterColorPicker uses a color-specification based loosely on the CSS4 specs.
 		 It will always output colors according to those specs, with a few exceptions that can activated using “options”:</p>
 		 <ul>
@@ -747,7 +764,7 @@ tri-color?</label>
 			but it must end with either a semicolin <kbd>;</kbd> or a space followed by <kbd>opacity;</kbd>&nbsp;
 			For examples:<br> <kbd>DodgerBlue, 78%;</kbd> <br> <kbd>ANSI: 35 / .84 opacity;</kbd></p>
 	<hr>
-	<h5>Examples:</h5>
+	<h5 id='MasterColorPicker_helpFor_examples'>>Examples:</h5>
 	<ul>
 		<li>These all give the same <span style='color: white; background-color: red; padding: 0 .382em;'>red</span> color:
 			<ul>
@@ -781,13 +798,19 @@ tri-color?</label>
 		</li>
 	</ul>
 	<hr>
-	<h4>Keyboard shortcuts:</h4>
-	<p>See also the Hue-Angle Symbols shortcuts above.</p>
+	<h4 id='MasterColorPicker_helpFor_keyboard'>Keyboard shortcuts:</h4>
+	<p>These are defined for a <abbr>QUERTY</abbr> keyboard; other keyboards may be similar.&nbsp;
+	Hackers can redefine these keys: &nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
+	if their keyboard normally generates different characters than <code>&gt;</code> and <code>&lt;</code>
+	when the <kbd><span>CTRL</span></kbd> key is pressed.&nbsp;
+	Note browsers usually keep <kbd>(<span>SHIFT</span>)?+<span>CTRL</span>+<span>TAB</span></kbd>
+	and <kbd><span>F7</span></kbd> for themselves, but if not…you can use them!&nbsp;
+		See also the Hue-Angle Symbols shortcuts above.</p>
 	<dl>
-		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>CTRL</span>+<span>.&gt;</span></kbd></dt>
+		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>.&gt;</span></kbd></dt>
 		<dd>Tab to the first input box in the top panel or next panel.</dd>
 
-		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>CTRL</span>+<span>,&lt;</span></kbd></dt>
+		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>,&lt;</span></kbd></dt>
 		<dd>Tab to the first input box in the bottom panel or previous panel.</dd>
 
 		<dt><kbd><span>F1</span></kbd></dt>
@@ -804,7 +827,12 @@ tri-color?</label>
 				syncs the Color-Space Lab with that color.</dd>
 
 		<dt><kbd><span>F4</span></kbd></dt>
-		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.</dd>
+		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
+		(usually is availavble even if <kbd><span>F7</span></kbd> is not)</dd>
+
+		<dt><kbd><span>F7</span></kbd></dt>
+		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
+		(this is the typical key for a thesaurus in many aplications)</dd>
 
 		<dt><kbd><span>CTRL</span>+<span>F7</span></kbd></dt>
 		<dd>If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F7</span></kbd>
@@ -815,7 +843,7 @@ tri-color?</label>
 	<tr><th>key</th> <th><kbd><span>CTRL</span></kbd></th> <th><kbd><span>CTRL</span>+<span>SHIFT</span></kbd></th></tr>
 	<tr><td><kbd><span>1!</span></kbd></td> <td><code>●</code></td> <td><code>¡</code></td></tr>
 	<tr><td><kbd><span>2@</span></kbd></td> <td><code>©</code></td> <td><code>®</code></td></tr>
-	<tr><td><kbd><span>5%</span></kbd></td> <td><code></code></td> <td><code>°</code></td></tr>
+	<tr><td><kbd><span>5%</span></kbd></td> <td></td> <td><code>°</code></td></tr>
 	<tr><td><kbd><span>6^</span></kbd></td> <td><code>☺</code></td> <td><code>☻</code></td></tr>
 	<tr><td><kbd><span>7&amp;</span></kbd></td> <td><code>♪</code></td> <td><code>♫</code></td></tr>
 	<tr><td><kbd><span>8*</span></kbd></td> <td><code>×</code></td> <td><code>☼</code></td></tr>
@@ -824,13 +852,13 @@ tri-color?</label>
 	<tr><td><kbd><span>[{</span></kbd></td> <td><code>‘</code></td> <td><code>“</code></td></tr>
 	<tr><td><kbd><span>]}</span></kbd></td> <td><code>’</code></td> <td><code>”</code></td></tr>
 	<tr><td><kbd><span>'"</span></kbd></td> <td><code>π</code></td> <td><code>φ</code></td></tr>
-	<tr><th>key</th> <th><kbd><span>ALT</span></kbd></th> <th><kbd><span>ALT</span>+<span>SHIFT</span></kbd></th></tr>
-	<tr><td><kbd><span>c</span></kbd></td> <td><code>ᶜ</code></td> <td><code></code></td></tr>
-	<tr><td><kbd><span>g</span></kbd></td> <td><code>ᵍ</code></td> <td><code></code></td></tr>
-	<tr><td><kbd><span>r</span></kbd></td> <td><code>ᴿ</code></td> <td><code>ᴿ</code></td></tr>
+	<tr><th>key</th> <th><kbd><span>ALT</span></kbd></th> <th></th></tr>
+	<tr><td><kbd><span>C</span></kbd></td> <td><code>ᶜ</code></td> <td></td></tr>
+	<tr><td><kbd><span>G</span></kbd></td> <td><code>ᵍ</code></td> <td></td></tr>
+	<tr><td><kbd><span>R</span></kbd></td> <td><code>ᴿ</code></td> <td></td></tr>
 	</table>
 	<hr>
-	<h4>Using MyPalette</h4>
+	<h4 id='MasterColorPicker_helpFor_MyPalette'>Using MyPalette</h4>
 	<p>You can use the “MyPalette” interface to create your own Color Palette Tables,
 	give each color a descriptive name if you choose (i.e. what you use it for in your project)
 	organize them into sub-palettes and give each sub-palette a descriptive name,
@@ -880,10 +908,10 @@ tri-color?</label>
 	“<code>Gray</code>” and “<code>grey</code>” but only “<code>Gray</code>” shows in the table;
 	yet the user can type <code>Grey</code> or <code>gray</code>
 	(note color-names are also case-insensitive) and expect the same color.&nbsp;</p>
-	<h6 id='MasterColorPicker_helpFor_MyPalette_browserDB'>Saving/Exporting your Palettes</h6>
+	<h6 id='MasterColorPicker_helpFor_MyPalette_DB'>Saving/Exporting your Palettes</h6>
 	<p>You can save the Palettes you create in various formats at various locations.&nbsp;
 	Each format has a different use and each location has its benefits and drawbacks.</p>
-	<h7>The browser’s private storage</h7>
+	<h7 id='MasterColorPicker_helpFor_MyPalette_browserDB'>The browser’s private storage</h7>
 	<p>When you don't have access to a friendly server, the browser’s private storage
 	can be the option that gives you the fastest, easiest workflow for current projects,
 	as it will allow you to save MyPalette files and have them “autoload” as a
@@ -902,14 +930,14 @@ tri-color?</label>
 	and that <strong>you</strong> may delete them at any time through the browser’s
 	interface as described in the above link.&nbsp;
 	For that reason, you should save your Palette files in another more permenant location for long-term storage.</p>
-	<h7>Storage in a “localhost” server or a server “in the cloud”</h7>
+	<h7 id='MasterColorPicker_helpFor_MyPalette_serverDB'>Storage in a “localhost” server or a server “in the cloud”</h7>
 	<p>This requires that you (or your friends) have control of the server and
 	requires the included <filepath>color_palettes/index.php</filepath> file
 	or a similarly functioning file in another language (it’s a simple short file to translate).&nbsp;
 	A “localhost” server (a private server on your own computer) will offer you the
 	most flexibility and convenience when saving/storing your MyPalette files,
 	while a “shared central hub” server (possibly “in the cloud”) works great for teams that need to share files.</p>
-	<h7>Local file system storage</h7>
+	<h7 id='MasterColorPicker_helpFor_MyPalette_local-file'>Local file system storage</h7>
 	<p>You can always store your MyPalette files in any folder on your computer;
 	however, this is the only option where MasterColorPicker™ does not have direct access
 	to the file (JavaScript in a browser never has direct access to your file system)
@@ -1002,7 +1030,7 @@ tri-color?</label>
 	</p>
 
 	<hr>
-	<h4>Using the PaletteManager</h4>
+	<h4 id='MasterColorPicker_helpFor_PltMngr'>Using the PaletteManager</h4>
 	<p>The PaletteManager will help you keep track of Palette files
 	you save to your browser’s private storage DataBase as well as files
 	you save to a server.&nbsp;
@@ -1012,15 +1040,15 @@ tri-color?</label>
 	For a remote server, this gives you an opportunity to manage the files directly
 	without having to pester Eugene in the <abbr>I.T.</abbr> department.</p>
 	<p>Most functions are self-evident;
-	to rename a file, you can:&nbsp; •double-click, or •shift-click,
+	to rename a file, you can:&nbsp; •double-click, or •shift-click, or •right-click (the “menu click”),
 	or when using browsers for big boys &amp; girls
 	(here’s winkin’ at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/activeElement" target='Mozilla'>►you, Apple®</a>!)
 	from the MasterColorPicker color-input textbox (with the PaletteManager panel open),
-	press <kbd><span>CTRL</span></kbd> <kbd><span>.></span></kbd>
+	press <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>.></span></kbd>
 	until focus is within the PaletteManager panel, then press <kbd><span>TAB</span></kbd>
 	until focus is on the file you want to rename, then
-	you can •double-press <kbd><span>ENTER</span></kbd> or •use <kbd><span>SHIFT</span></kbd> <kbd><span>ENTER</span></kbd>
-	</p>
+	you can •double-press <kbd><span>ENTER</span></kbd> or •use <kbd><span>SHIFT</span>+<span>ENTER</span></kbd>
+	or •use the “menu” key (looks kinda like this: <kbd><span>≡</span></kbd>) when present.</p>
 
 	<hr>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
