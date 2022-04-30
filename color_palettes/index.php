@@ -1,5 +1,5 @@
 <?php  /*  charset="UTF-8"
-	color_palettes/index.php  for PRIVATE SERVERS          April 20, 2022
+	color_palettes/index.php  for PRIVATE SERVERS          April 25, 2022
 
 	¡WARNING!  This PHP file can accept uploads and install them in your server’s file system;
 	¡          it can also delete files (or move them to an existing “trash” folder) on request !
@@ -107,11 +107,13 @@ define('DIRPATH', basename(__DIR__));
  *  for a simple text output.)
  * (you could change them to hard-coded HTML tags, etc., if you want)
  */
-//  ASCII  “shift-in”  and  “shift-out”
+// ↓ ASCII  “shift-in”  and  “shift-out”
 define('SI', chr(15));  // ← filename follows
 define('SO', chr(14));  // ← previous filename ends
-// this deliminates response text sections
+// ↓ this deliminates response text sections
 define('GS', chr(29));  // ASCII “group-separator”
+// ↓ sent to indicate an error
+define('NAK', chr(21));  //  ASCII “negative aknowledge”
 
 //for perplexing debugging sesseions:
 //echo file_get_contents("php://input");  // this is the raw input data; becomes $_POST if URI-encoded and the content-type header was 'application/x-www-form-urlencoded'
@@ -161,10 +163,10 @@ Function uploadPalette($userName, $toDir='users')  {
 	chmod($toDir, DIRECTORY_ACCESS);
 	$fName=$toDir.'/'.filename_safe($_POST['filename']);
 	if (is_file($fName)  AND  $_POST['replace_file']!=='true')  {
-		echo "¡Error! : file already exists: ",SI,DIRPATH,'/',$fName,SO,GS;
+		echo NAK,"¡Error! : file already exists: ",SI,DIRPATH,'/',$fName,SO,GS;
 		return false;  }
 	if (!preg_match(PALETTE_NAME_EXTENTION, $fName))  {
-		echo "¡Error! : illegal filename for upload: ",SI,DIRPATH,'/',$fName,SO,GS;
+		echo NAK,"¡Error! : illegal filename for upload: ",SI,DIRPATH,'/',$fName,SO,GS;
 		return false;  }
 	$F=fopen($fName, "wt");  // note that on Windows® systems, line-endings in this file will be modified to \n\r
 	fwrite($F, preg_replace('/<(\?(php)?|%)/i', "", $_POST['palette']));
@@ -190,17 +192,17 @@ Function deletePalettes($username)  {
 		filename_safe($path, false);
 		if (!preg_match(PALETTE_NAME_EXTENTION, $path)
 		||  substr($path, 0, strlen(DIRPATH)+1)!==DIRPATH.'/')  {
-			echo '¡Error! : illegal filename for delete: ',SI,$path,SO;
+			echo NAK,'¡Error! : illegal filename for delete: ',SI,$path,SO;
 			continue;  }
 		$fName=substr($path, strlen(DIRPATH)+1);
 		if (is_file($fName))  {
 			if ($trash)  {
 				$flag=rename($fName, $trash.basename($fName));
-				echo ($flag ? "" : '¡Error! : '),SI,$path,SO,($flag ? ' ' : ' un'),"sucessfully moved to the trash folder.\n";  }
+				echo ($flag ? "" : (NAK+'¡Error! : ')),SI,$path,SO,($flag ? ' ' : ' un'),"sucessfully moved to the trash folder.\n";  }
 			else  {
 				$flag=unlink($fName);
-				echo ($flag ? "" : '¡Error! : '),SI,$path,SO,($flag ? ' ' : ' un'),"sucessfully deleted.\n";  }  }
-		else  echo '¡Error! : filename not found to delete: ',SI,$path,SO,"\n";  }
+				echo ($flag ? "" : (NAK+'¡Error! : ')),SI,$path,SO,($flag ? ' ' : ' un'),"sucessfully deleted.\n";  }  }
+		else  echo NAK,'¡Error! : filename not found to delete: ',SI,$path,SO,"\n";  }
 	echo GS; //ASCII “group separator”
 	}
 
@@ -208,19 +210,19 @@ Function renamePalette()  {
 	filename_safe($_POST['rename'], false);
 	if (!preg_match(PALETTE_NAME_EXTENTION, $_POST['rename'])
 	||  substr($_POST['rename'], 0, strlen(DIRPATH)+1)!==DIRPATH.'/')  {
-		echo '¡Error! : illegal filename for rename: ',SI,$_POST['rename'],SO,"\n";
+		echo NAK,'¡Error! : illegal filename for rename: ',SI,$_POST['rename'],SO,"\n";
 		$flag=true;  }
 	filename_safe($_POST['new_name'], false);
 	if (!preg_match(PALETTE_NAME_EXTENTION, $_POST['new_name'])
 	||  substr($_POST['new_name'], 0, strlen(DIRPATH)+1)!==DIRPATH.'/')  {
-		echo '¡Error! : illegal filename for rename: ',SI,$_POST['new_name'],SO,"\n";
+		echo NAK,'¡Error! : illegal filename for rename: ',SI,$_POST['new_name'],SO,"\n";
 		$flag=true;  }
 	if ($flag) return;
 	$_POST['rename']=substr($_POST['rename'], strlen(DIRPATH)+1);
 	$_POST['new_name']=substr($_POST['new_name'], strlen(DIRPATH)+1);
 	if (is_file($_POST['rename']))  {
 		$flag=rename($_POST['rename'], $_POST['new_name']);
-		echo ($flag ? "" : '¡Error! : '),SI,$_POST['rename'],SO,($flag ? ' ' : ' un'),'sucessfully renamed to: ',SI,$_POST['new_name'],SO;  }
-	else  echo '¡Error! : filename not found to rename: ',SI,$_POST['rename'],SO;
+		echo ($flag ? "" : (NAK+'¡Error! : ')),SI,$_POST['rename'],SO,($flag ? ' ' : ' un'),'sucessfully renamed to: ',SI,$_POST['new_name'],SO;  }
+	else  echo NAK,'¡Error! : filename not found to rename: ',SI,$_POST['rename'],SO;
 	echo GS; //ASCII “group separator”
 	}
