@@ -280,6 +280,26 @@ span.MCP_fix_Safari {
 	left: auto; }
 #MasterColorPicker_Help h2 span {
 	left: 0; }
+#MasterColorPicker_Help nav {
+	margin: 0;
+	padding: 4px 0 0 0;  /* 4px for the outline of a button */
+	display: block;
+	position: static;
+	overflow: visible;
+	width: 100%;  }
+#MasterColorPicker_Help nav div {
+	margin-left: 1.382em;
+	width: calc( 100% - 1.382em ); }
+#MasterColorPicker_Help nav button {
+	display: block;
+	border: none;
+	padding: 0 .382em;
+	margin: 0;
+	background-color: inherit; }
+#MasterColorPicker_Help nav button:hover,
+#MasterColorPicker_Help nav button:focus {
+	background-color: var(--back-button);
+}
 #MasterColorPicker_Help h2,
 #MasterColorPicker_Help h4,
 #MasterColorPicker_Help h5,
@@ -302,7 +322,7 @@ span.MCP_fix_Safari {
 	cursor: pointer; }
 
 
-#MasterColorPicker_Help > div {
+#MasterColorPicker_Help > div.scrollbox {
 	width: 38.2em;
 	height: 38.2em;
 	overflow: auto;
@@ -310,7 +330,7 @@ span.MCP_fix_Safari {
 	padding: 0 .618em .618em .618em;
 	text-align: center;
 	border-radius: .618em; }
-#MasterColorPicker_Help > div * {
+#MasterColorPicker_Help > div.scrollbox * {
 	text-align: left; }
 #MasterColorPicker_Help ul,
 #MasterColorPicker_Help dl {
@@ -679,17 +699,20 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette fieldset.options label {
 	display: none; }
 /* #MasterColorPicker_MyPalette p+fieldset:has(fieldset:hover),   /* is it just me, or is waiting 10 years for browsers to mature a bit slow? */
-#MasterColorPicker_MyPalette p+fieldset.pseudoHover{      /* class controlled by JavaScript  … pitiful in 2020 ! */
+#MasterColorPicker_MyPalette p+fieldset.pseudoHover,       /* class controlled by JavaScript  … pitiful in 2020 ! */
+#MasterColorPicker_MyPalette p+fieldset.focus-within-options {      /* class controlled by JavaScript  … pitiful in 2020 ! */
 	overflow: visible;
 	z-index: 10; }
-#MasterColorPicker_MyPalette fieldset.options:hover {
+#MasterColorPicker_MyPalette fieldset.options:hover,
+#MasterColorPicker_MyPalette fieldset.options.focus-within { /* class controlled by JavaScript  … pitiful in 2020 ! */
 	border: 1px solid;
 	border-top: none;
 	height: auto;
 	width: auto;
 	background-color: var(--back-text);
 	color: var(--fore-text); }
-#MasterColorPicker_MyPalette fieldset.options:hover label {
+#MasterColorPicker_MyPalette fieldset.options:hover label,
+#MasterColorPicker_MyPalette fieldset.options.focus-within label { /* class controlled by JavaScript  … pitiful in 2020 ! */
 	display: block;
 	z-index: 1; }
 #MasterColorPicker_MyPalette fieldset.options label:hover {
