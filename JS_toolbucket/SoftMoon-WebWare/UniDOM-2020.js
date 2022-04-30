@@ -1,4 +1,4 @@
-/*  UniDOM-2020  version 1.2.6  April 20, 2022
+/*  UniDOM-2020  version 1.3  April 28, 2022
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -28,10 +28,10 @@ RegExp.escape=function (string) {
 */
 
 
-;(function()  { //wrap UniDOM’s private space (to end of file)
+;(function UniDOM_NS()  { //open UniDOM’s private namespace (to end of file)
 
 														 // ↓ optional
-var UniDOM=function(element, passData)  {  /* ALTERNATE ARGUMENTS:
+const UniDOM=function(element, passData)  {  /* ALTERNATE ARGUMENTS:
 									 (ElementWrapper)           // ← passData is irrelevant for elements and ElementWrappers
 									 (CSSQueryString)           // ← passData must be ==false (undefined)
 									 (element‖ElementWrapper, CSSQueryString, passData)   // ← currently passData is irrelevant unless the CSS-Engine fails to return an array
@@ -219,12 +219,12 @@ getEventHandler._apply_=Function.prototype.apply;
 
 
 	//private
-	function getAllEventsInWindow(w, makeNew)  {
-		for (var i in eventedWindows)  {if (w===eventedWindows[i].window)  return allEvents=eventedWindows[i].allEvents;}
+	function getAllEventsInWindow(win, makeNew)  {
+		for (const w of eventedWindows)  {if (win===w.window)  return allEvents=w.allEvents;}
 		if (!makeNew)  return allEvents=false;
-		var ref={window:w, allEvents:new Object};
+		const ref={window:win, allEvents:new Object};
 		eventedWindows.push(ref);
-		w.addEventListener('unload', UniDOM.removeAllEventHandlers, false);
+		win.addEventListener('unload', UniDOM.removeAllEventHandlers, false);
 		return allEvents=ref.allEvents;  }
 
 
@@ -244,18 +244,18 @@ removeEventHandler._apply_=Function.prototype.apply;
 
 
 	//private
-	function cleanWindow(w)  {
+	function cleanWindow(win)  {
 		if (eventedWindows.length===0)  return;
-		for (var i in eventedWindows)  {if (w===eventedWindows[i].window)  break;}
+		for (var i in eventedWindows)  {if (win===eventedWindows[i].window)  break;}
 		for (var id in eventedWindows[i].allEvents)  {return false;}    //if there are any EventHandlers still registered in this window, we can’t yet clean it.
 		eventedWindows.splice(i, 1);
-		w.removeEventListener('unload', UniDOM.removeAllEventHandlers, false);  }
+		win.removeEventListener('unload', UniDOM.removeAllEventHandlers, false);  }
 
 
 // registered to a window or element, or is a property of an element, so “this” is the window or element…
 UniDOM.removeAllEventHandlers=removeAllEventHandlers;
 function removeAllEventHandlers(element, goDeep)  {
-	function remover(element)  {for (var id in allEvents)  {if (allEvents[id].element===element)  allEvents[id].remove();}}
+	function remover(element)  {for (const id in allEvents)  {if (allEvents[id].element===element)  allEvents[id].remove();}}
 	if (UniDOM.isWindow(this))  element=this;
 
 	else  element=xElement(element||this);
@@ -282,7 +282,7 @@ function generateEvent(element, eventType, eSpecs)  {  var i, j, p, d, eT, event
 	eventType=arrayify(eventType);
 	for (i=0; i<eventType.length; i++)  {
 		eT=getEventType(eventType[i]);
-		var subT=eT.match( /wheel|mouse|click|key|focus|dom|resize|scroll|./ );
+		var subT=eT.match( /wheel|mouse|click|key|focus|touch|resize|scroll|./ );
 		switch (eSpecs && eSpecs.view && subT[0])  {
 			case 'wheel':
 				if (typeof WheelEvent === 'function')  {event=new WheelEvent(eT, eSpecs);  break;}
@@ -326,6 +326,34 @@ UniDOM.triggerEvent=function triggerEvent(element, event)  {
 	element=xElement(element);
 	element.dispatchEvent(event);  };
 
+
+
+/* The KeySniffer constructor can accept a KeyboardEvent to allow host software to customize a keyboard response
+ * by asking the end-user to press the desired key for a given function
+ * and that key plus its modifier keys’ states will be captured;
+ * or you can directly specify the keypress by string or keyCode, plus flags for the modifier keys.
+ * Note if you pass modifier key flags, they MUST be Boolean values to match a modifier key state,
+ * or MUST be “undefined” if you don’t care about the state of the modifier key.
+ */
+UniDOM.KeySniffer=KeySniffer;
+function KeySniffer(key, shift, ctrl, alt)  {
+	if (!new.target)  throw new Error('KeySniffer is a contructor, not a function.');
+	if (arguments[0] instanceof KeyboardEvent)  {
+		this.key=arguments[0].keyCode;  // ←a specific key on the keyboard; event.key could be more than one physical key
+		this.shift=arguments[0].shiftKey;
+		this.ctrl=arguments[0].ctrlKey;
+		this.alt=arguments[0].altKey;  }
+	else  {
+		this.key=key;  // ←this could be a numeric keycode for a specific key on the keyboard; or a string that represents more than one physical key
+		this.shift=shift;
+		this.ctrl=ctrl;
+		this.alt=alt;  }  }
+// returns true if the event’s key-press matches this KeySniffer’s key-combo-specs; returns false otherwise.
+KeySniffer.prototype.sniff=function sniff(event)  {
+	return (typeof this.key === 'number' ? event.keyCode : event.key) === this.key  &&
+					(this.shift===undefined || event.shiftKey===this.shift)  &&
+					(this.ctrl===undefined  || event.ctrlKey===this.ctrl)  &&
+					(this.alt===undefined   || event.altKey===this.alt);  }
 
 
 
@@ -435,15 +463,16 @@ if (document.documentElement  && document.documentElement.scrollWidth)  { //  co
 
 
 // If no match is found, false is returned.
-// If goDeep evaluates to false on the first match found, that single element will be returned.
-// If goDeep evaluates to true on the first match found, an “ElementArray” (a simple Array with added “UniDOM power methods”)
+// If goDeep returns false on the first match found, that single element will be returned.
+// If goDeep returns true on the first match found, an “ElementArray” (a simple Array with added “UniDOM power methods”)
 //  is returned (the result may only be one member, or multiple members of elements)
 function getAncestor(cb, goDeep, objFltr, powerSelect)  {
-	if (typeof cb !== 'function')  throw new Error('“UniDOM.getAncestor” requires a callback function; type of “'+(typeof cb)+'” passed in.');
+	if (typeof cb !== 'function')  throw new TypeError('“UniDOM.getAncestor” requires a callback function; type of “'+(typeof cb)+'” passed in.');
 	if (typeof goDeep === 'undefined')  goDeep=function() {return false};
-	else if (typeof goDeep !== 'function')  {var deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+	else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
 	var parent=this.parentNode,
 			found=false;
+//console.log('parent:',parent,' of this:',this);
 	do {
 		if (cb(parent, this, found))  {
 			if (!found  &&  !goDeep(parent, this, found))  return parent;
@@ -475,9 +504,9 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 	function getElements(cb, goDeep, objFltr, powerSelect)  {
 		if (typeof cb !== 'function')  throw new Error('“UniDOM.getElements” requires a callback function; type of “'+(typeof cb)+'” passed in.');
 		if (typeof goDeep === 'undefined')  goDeep=function() {return true;};
-		else if (typeof goDeep !== 'function')  {var deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
 		goDeep.doContinue=true;
-		var found=getKids(this[cb.allNodes ? 'childNodes' : 'children'], cb, goDeep, this);
+		const found=getKids(this[cb.allNodes ? 'childNodes' : 'children'], cb, goDeep, this);
 		if (found.length && (objFltr || powerSelect || UniDOM.powerSelect))  objectify(found, objFltr, powerSelect);
 		return found;  }
 
@@ -499,10 +528,10 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 	function getElders(cb, goDeep, objFltr, powerSelect)  {
 		if (typeof cb !== 'function')  throw new Error('“UniDOM.getElders” requires a callback function; type of “'+(typeof cb)+'” passed in.');
 		if (typeof goDeep === 'undefined')  goDeep=function() {return true};
-		else if (typeof goDeep !== 'function')  {var deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
 		goDeep.doContinue=true;
-		var elder=this,
-				found=new ElementArray;
+		var elder=this;
+		const found=new ElementArray;
 		do {  while (goDeep.doContinue  &&  elder[cb.allNodes ? 'previousSibling' : 'previousElementSibling'])  {
 			elder=elder[cb.allNodes ? 'previousSibling' : 'previousElementSibling'];
 			while (elder.hasChildNodes()  &&  goDeep(elder, this, found)  &&  (cb.allNodes  ||  elder.lastElementChild))  {
@@ -518,7 +547,7 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 	function getJuniors(cb, goDeep, objFltr, powerSelect)  {
 		if (typeof cb !== 'function')  throw new Error('“UniDOM.getJuniors” requires a callback function; type of “'+(typeof cb)+'” passed in.');
 		if (typeof goDeep === 'undefined')  goDeep=function() {return true};
-		else if (typeof goDeep !== 'function')  {var deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
 		goDeep.doContinue=true;
 		var junior=this, cousins,
 				found=new ElementArray;
@@ -535,8 +564,8 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 
 // returns (e) if the element (e) is an ancestor/descendant of this-Element.
 // else returns false.
-	function hasAncestor(e)  {return getAncestor.call(this, function(a) {return (a===e)})}
-	function hasElement(e)  {ta=this;  return  (isElementNode(e)  &&  getAncestor.call(e, function(a) {return (a===ta)}))  ?  e : false;}
+	function hasAncestor(e)  {return getAncestor.call(this, function(a) {return a===e;})}
+	function hasElement(e)  {return  (isElementNode(e)  &&  getAncestor.call(e, a => a===this))  ?  e : false;}
 
 
 	function getElementsByName(n, deep, objFltr, powerSelect)  { var count;
@@ -548,8 +577,8 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 			deep=function(){return true};  }
 		else if (typeof deep === 'function'  &&  deep.count)  count=deep.count;
 		if (typeof objFltr !== 'function')  objFltr=function(e) {return e.name;};
-		var found=getElements.call(this,
-			function(e)  { var flag=(typeof e.name === 'string'  &&  n.test(e.name));
+		const found=getElements.call(this,
+			function(e)  { const flag=(typeof e.name === 'string'  &&  n.test(e.name));
 				if (flag && count)  deep.doContinue=(--count);
 				return flag;  },
 			deep, objFltr, powerSelect);
@@ -596,9 +625,9 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 		var logic= data.logic || 'and',   // data.logic should be either:  'and'  'or'  'nor'  'not'  'nand'  'xor'  'xnor'  'xnot'
 				xFlag=false, i, c=0;
 		if (logic==='nor')  logic='not'
-		for (i=0;  i<data.length;  i++)  {  //the Object (Element) or String in question ↓↓
-			if (data[i].logic ?  arguments.callee.call(this, data[i], filter)  :  filter(this, data[i]))
-				switch (logic)  {
+		for (i=0;  i<data.length;  i++)  {  //        the Object (Element) ↓↓ or String in question
+			if (data[i].logic ?  has.call(this, data[i], filter)  :  filter(this, data[i]))
+				switch (logic)  {               //                       the condition ↑↑ to be met
 				case 'not':  return false;
 				case 'or':  return true;
 				case 'xor':  if (xFlag)  return false;  else  xFlag=true;  }
@@ -644,21 +673,21 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 
 	// c must be the string name of the class  or an array of these strings
 	function addClass(c)  {this.className=aClass(this.className, c);}
-	function aClass(cn, ac)  {  //private
-		if (!(ac instanceof Array))  ac=[ac];
-		for (var i=0; i<ac.length; i++)  {
-			if (!(typeof cn === 'string'  &&  ( new RegExp('\\b'+RegExp.escape(ac[i])+'\\b') ).test(cn)))
-				cn+=(cn) ? (" "+ac[i]) : ac[i];  }
+	function aClass(cn, acs)  {  //private
+		if (!(acs instanceof Array))  acs=[acs];
+		for (const ac of acs)  {
+			if (!(typeof cn === 'string'  &&  ( new RegExp('\\b'+RegExp.escape(ac)+'\\b') ).test(cn)))
+				cn+=(cn) ? (" "+ac) : ac;  }
 		cn=cleanClass(cn);
 		return cn;  }
 
 	// c may be the string name of the class or a RegExp  or an array of these
 	function removeClass(c) {this.className=xClass(this.className, c);}
-	function xClass(cn, xc) {  //private
+	function xClass(cn, xcs) {  //private
 		if (typeof cn != 'string')  return;
-		if (!(xc instanceof Array))  xc=[xc];
-		for (var i=0; i<xc.length; i++)  {
-			cn=cn.replace((typeof xc[i] == 'object'  &&  (xc[i] instanceof RegExp)) ?  xc[i]  :  new RegExp('\\b'+RegExp.escape(xc[i])+'\\b', 'g'),  "");
+		if (!(xcs instanceof Array))  xcs=[xcs];
+		for (const xc of xcs)  {
+			cn=cn.replace(xc instanceof RegExp ?  xc  :  new RegExp('\\b'+RegExp.escape(xc)+'\\b', 'g'),  "");
 			cn=cleanClass(cn);  }
 		return cn;  }
 
@@ -681,20 +710,20 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 
 	function swapOutClass(xc, ac, reverse)  {  // xc=remove class   ac=add class
 		if (reverse)  {reverse=xc;  xc=ac;  ac=reverse;}
-		var cn=xClass(this.className, xc);
+		const cn=xClass(this.className, xc);
 		this.className=aClass(cn, ac);  }
 
 
 	function disable(flag, className)  {
 		if (className===undefined)  className='disabled';
 		flag=Boolean(flag);
-		var eventArgs={userArgs: {disable: flag}};
+		const eventArgs={userArgs: {disable: flag}};
 		this.disabled=flag;
 		useClass.call(this, className, flag);
 		try {generateEvent(this, 'onDisabledStateChange', eventArgs);}  catch(e) {console.warn(e);};
-		for (var i=0, fields=getElements.call(this, isInterface, goDeeper);  i<fields.length;  i++)  {
-			fields[i].disabled=flag;
-			try {generateEvent(fields[i], 'onDisabledStateChange', eventArgs);}  catch(e) {};  }
+		for (const field of getElements.call(this, isInterface, goDeeper))  {
+			field.disabled=flag;
+			try {generateEvent(field, 'onDisabledStateChange', eventArgs);}  catch(e) {};  }
 		//private
 		function isInterface(e)  { return  e.getAttribute('tabIndex')!==null  ||  e.getAttribute('contentEdible')!==null  ||
 			e.nodeName==='INPUT' || e.nodeName==='SELECT' || e.nodeName==='TEXTAREA' || e.nodeName==='BUTTON';  }
@@ -929,20 +958,21 @@ var cb,  //private
 		return this;  }
 
 	function getSelectedInputs(forceReturnArray)  {
-		for (var i=0, selected=new ElementArray;  i<this.length;  i++)  {
-			if (this[i].checked)  {
-				if (this[i].type==='radio')  return  forceReturnArray ? (selected.push(this[i]), selected) : this[i];
-				if (this[i].type==='checkbox')  selected.push(this[i]);  }  }
+		const selected=new ElementArray;
+		for (elmnt of this)  { if (elmnt.checked)  switch (elmnt.type)  {
+			case 'radio':  return  forceReturnArray ? (selected.push(elmnt), selected) : elmnt;
+			case 'checkbox':  selected.push(elmnt);  }  }
 		return asArray(selected, forceReturnArray);  }
 
 	function objectify(a, filter, powerSelect)  {
 		if (block)  return;   //block is controlled exclusively by getConglomerate above
-		if (typeof filter !== 'function')  filter=function() {};
-		for (var n, e, i=0;  i<a.length;  i++)  {
-			e=xElement(a[i]);
+		if (typeof filter !== 'function')  filter=null;
+		for (let e of a)  {
+			e=xElement(e);
 			if (e.nodeName==='SELECT' && (powerSelect || (UniDOM.powerSelect && powerSelect!==false)))  {
 				e.getSelected=getSelectedOptions;  e.setSelected=setSelected;  }
-			if (!(n=filter(e)))  continue;  //get a property name corresponding to this array member
+			const n=filter?.(e);  //get a property name corresponding to this array member
+			if (!n)  continue;
 			if (a[n] instanceof ElementArray)  a[n].add(e);
 			else if (a[n])  a[n]=(new ElementArray(a.wrappedElements)).add(a[n], e);  //note that if a[n] was defined before this function was called, and it was an Array-like Object, it will be flattened (recursively) into this new ElementArray
 			else  a[n]=e;  }
@@ -1115,6 +1145,8 @@ NodeList.prototype.boogar=function() {console.log('boogar', this[2]);}
 var NL=document.getElementsByTagName('input');
 NL.boogar();
  */
+
+
 
 UniDOM.isConnected_polyfill=function isConnected_polyfill() {
 // https://developer.mozilla.org/en-US/docs/Web/API/Node/isConnected
