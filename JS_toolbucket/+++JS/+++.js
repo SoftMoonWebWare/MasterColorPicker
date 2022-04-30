@@ -7,11 +7,11 @@ RegExp.escape=function (string) {
 if (Boolean.evalString)  console.warn("Boolean.evalString already exists.");
 else {
 	Boolean.evalString=function boolString(s, d, charset='utf-8')  {
-		if (!boolString[charset])  return Boolean(d);
+		if (!boolString[charset])  return d;
 		if (charset==='utf-8')  s=s.trim().toLowerCase();  //  ((s||"").trim().toLowerCase());
 		if (boolString[charset].truthy.includes(s))  return true;
 		if (boolString[charset].falsey.includes(s))  return false;
-		return Boolean(d);  }
+		return d;  }
 	Boolean.evalString['utf-8']={                                // germ+   fr    it   greek  haw    jp     jp     pol    por    sp   thai+viet
 	 truthy: ['true', 't', 'yes', 'y', 'yep', 'aye', 'affirmative', 'ja', 'oui', 'sì', 'naí', 'ae', 'hai', 'はい', 'tak', 'sim', 'sí', 'ใช่', 'chı̀'],  // source:google-translate
 	 falsey: ['false', 'f', 'no', 'n', 'nope', 'nay', 'negative', 'nej', 'geen', 'non', 'nein', 'oudeís', 'ουδείς', 'aʻole', 'īe', 'いいえ', 'nei', 'negativa', 'mị̀', 'ไม่', 'không'] };
@@ -31,7 +31,7 @@ else Boolean.eval=function (b, d, charset)  {
 	&&  b instanceof Number)  return Boolean(b.valueOf());
 	if (typeof b === 'number'
 	||  d === undefined)  return Boolean(b);
-	return Boolean(d);  }
+	return d;  }
 
 
 if (Object.lock)  console.warn("Object.lock already exists.");
