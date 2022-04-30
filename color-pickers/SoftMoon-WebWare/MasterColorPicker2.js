@@ -119,7 +119,7 @@ SoftMoon.WebWare.canvas_graphics.shapes.polarizedDiamond=function(canvas, r,a, h
 
 /*==================================================================*/
 /*==================================================================*/
-window.addEventListener('load', function ()  {
+window.addEventListener('load', function settings_restorer()  {
 	const err=localStorage.getItem('restoreError');
 	localStorage.setItem('restoreError', "");
 	if (err)  console.error('error saving settings last time: ',err);
@@ -173,7 +173,7 @@ window.addEventListener('load', function ()  {
 //    a  getColor(event)  method  :called by the .prototype.onmouse… and .onclick methods - see their comments
 //    a  swatch    :pointer to the swatch HTML for mouse events
 //    a  txtInd    :pointer to the HTML text indicator on the color-picker for mouse events
-;(function() {  // wrap private members of x_ColorPicker
+;(function x_ColorPicker_NS() {  // open private namespace of x_ColorPicker
 
 var userOptions;
 
@@ -185,7 +185,7 @@ var userOptions;
 	You may also remove it if you simply want to force all pickers to conform to the
 	currently displayed settings, as opposed to the settings automatically changing as a different picker is selected.
  */
-	UniDOM.addEventHandler(window, "onLoad", function() {
+	UniDOM.addEventHandler(window, "onLoad", function x_ColorPicker_onload() {
 
 		//first we set the private global members:  grab all the elements with a 'name' attribute (the <input>s) into an array, with corresponding properties
 		userOptions=UniDOM.getElementsBy$Class(document.getElementById("MasterColorPicker_options"), 'pickerOptions').getElementsBy$Name("", true,
@@ -591,6 +591,10 @@ function MyPalette(HTML, PNAME)  {
 	const optionsHTML=HTML.querySelector('fieldset.options');
 	UniDOM.addEventHandler(optionsHTML, 'onMouseEnter', function(event){UniDOM.addClass(event.currentTarget.parentNode, 'pseudoHover');});
 	UniDOM.addEventHandler(optionsHTML, 'onMouseleave', function(event){UniDOM.remove$Class(event.currentTarget.parentNode, 'pseudoHover');});
+	UniDOM.addEventHandler(optionsHTML, ['tabIn', 'tabOut'], function(event) {
+		const flag= event.type==='tabin'  ||  event.tabbedTo.closest('fieldset.options')===this;
+		UniDOM.useClass(this.parentNode, 'focus-within-options', flag);
+		UniDOM.useClass(this, 'focus-within', flag);  });
 	this.options=UniDOM.getElementsBy$Name(optionsHTML, "", true, function(e){return e.name.match( /_([^_]+)$/ )[1];});
 	UniDOM.addEventHandler(this.options.showColorblind, 'onchange', showColorBlind);
 	function showColorBlind()  {
@@ -614,6 +618,7 @@ function MyPalette(HTML, PNAME)  {
 	UniDOM(HTML).getElementsBy$Name( /_makeSub/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.makeSub();});
 	UniDOM(HTML).getElementsBy$Name( /_port\]?$/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {portHTML.disabled= !portHTML.disabled});
 	UniDOM(HTML).getElementsBy$Name( /_porter/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function(event) {thisPalette.porter(event);});
+
 
 	const
 		_import  =UniDOM.getElementsBy$Name(portHTML, /_import/ , 1)[0],  //the input type=file
@@ -657,7 +662,7 @@ function MyPalette(HTML, PNAME)  {
 	UniDOM.addEventHandler(_filetype, 'onchange', function(event)  {
 		UniDOM.disable(_autoload.parentNode, event.target.value!=='json' );  });
 
-	UniDOM.addEventHandler(Array.from(portHTML.querySelectorAll("note[referto]")), 'click', function findHelp(event)  {
+	UniDOM.addEventHandler(portHTML.querySelectorAll("note[referto]"), 'click', function findHelp(event)  {
 		MasterColorPicker.userOptions.showHelp.checked=true;
 		UniDOM.generateEvent(MasterColorPicker.userOptions.showHelp, 'change');
 		MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
@@ -1204,7 +1209,10 @@ const HTTP=SoftMoon.WebWare.HTTP,
 			Connector= HTTP ? new HTTP() : null,
 			// ↓ these deliminate filenames in MESSAGES (not the index or the path of an uploaded file) returned from the server
 			SI=String.fromCharCode(15),  // ← ASCII “shift in”
-			SO=String.fromCharCode(14);  // ← ASCII “shift out”
+			SO=String.fromCharCode(14),  // ← ASCII “shift out”
+			// ↓ sent by the server to indicate an error message
+			NAK=String.fromCharCode(21),  // ← ASCII “negative aknowledge”
+			ERROR=NAK+'¡Error! :';
 
 function markup(text) {return text.replaceAll(SI, '<filepath>').replaceAll(SO, '</filepath>');}
 
@@ -1215,7 +1223,7 @@ MyPalette.prototype.downloadPalette=function(filename)  {
 		thisPalette=this,
 		connection=HTTP.Connection(filename, 'Can not download Palette from server: no HTTP service available.');
 	connection.onFileLoad=function()  { console.log(' →→ Download response:\n',this.responseText);
-		if (this.responseText.substr(0,10)==='¡Error! : ')  {
+		if (this.responseText.startsWith(ERROR))  {
 			UniDOM.remove$Class(div, 'wait');  div.wait=false;
 			div.innerHTML= '<strong>' + markup(this.responseText) + '</strong>';
 			return;  }
@@ -1301,7 +1309,7 @@ MyPalette.prototype.uploadPalette=function(JSON_Palette) {
   for (pName in palette)  {break;}
 	connection.onFileLoad=function()  { console.log(' ←← Upload response:',this.responseText);
 		const response=this.responseText.split(String.fromCharCode(29))[0];  // ASCII code29=“group separator” : the response may be followed by the index
-		if (response.substr(0,10)==='¡Error! : ')  div.innerHTML= '<strong>' + markup(response) + '</strong>';
+		if (response.startsWith(ERROR))  div.innerHTML= '<strong>' + markup(response) + '</strong>';
 		else  {
 			div.innerHTML= 'Successfully uploaded to:\n<filepath>' + document.URL.substring(0, document.URL.lastIndexOf("/")+1) + response + '</filepath>';
 			UniDOM.generateEvent(window, 'MasterColorPicker_ServerDB_update');  }  };
@@ -1520,7 +1528,7 @@ MyPalette.prototype.savePaletteToBrowserDB=function(JSON_Palette, filename)  {
 
 // =================================================================================================== \\
 
-})();  // close private member wrapper for x_ColorPicker
+})();  // close private namespace wrapper for x_ColorPicker
 
 
 
@@ -1592,7 +1600,7 @@ SoftMoon.WebWare.makeTextReadable=function(elmnt, back)  {
 
 // =================================================================================================== \\
 
-;(function(){ // open a private namespace for the Color-Space Lab
+;(function ColorSpaceLab_NS(){ // open a private namespace for the Color-Space Lab
 
 const
 ColorSpaceLab=new Object,
@@ -1894,9 +1902,9 @@ UniDOM.addEventHandler(window, 'onload', function() {
   UniDOM.addEventHandler(ColorSpaceLab.swatch.closest('button'), 'onKeyUp', function(event)  {  //'onKeyPress'
 		if (event.key==='Enter')  CSL_picker(event);  });
 
-	for (i=settings.length-6; i<settings.length; i++)  {
-		UniDOM.addEventHandler(settings[i], ['tabIn', 'tabOut'], function(event) {
-			UniDOM.useClass(this.closest('fieldset.options'), 'focus-within', event.type==='tabin');  });  }
+	UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Lab fieldset.options'), ['tabIn', 'tabOut'], function(event) {
+		UniDOM.useClass(this, 'focus-within',
+			event.type==='tabin'  ||  event.tabbedTo.closest('fieldset.options')===this);  });
 
 
 	MCP_stylesheet=new UniDOM.StyleSheetShell(['MasterColorPicker_desktop_stylesheet', 'MasterColorPicker_stylesheet']),
@@ -1932,7 +1940,7 @@ UniDOM.addEventHandler(window, 'onload', function() {
 
 
 
-;(function()  { //  private “globals” wrapper for BeezEye Color Picker
+;(function BeezEye_NS()  { //  private namespace wrapper for BeezEye Color Picker
 	var hue, saturation, color_value, settings, RGB_Calc=SoftMoon.WebWare.RGB_Calc;
 
 SoftMoon.WebWare.BeezEye=new SoftMoon.WebWare.x_ColorPicker('BeezEye');
@@ -2116,7 +2124,7 @@ SoftMoon.WebWare.RainbowMaestro.smRainbowRing={inRad: 50/360, outRad: 60/360};
 SoftMoon.WebWare.RainbowMaestro.lgRainbowRing={inRad: 178/360, outRad: 180/360};
 SoftMoon.WebWare.RainbowMaestro.focalHuesRing={outRad: 175/360};  //  inRad is always outRad/2
 
-;(function()  { //wrap private members
+;(function RainbowMaestro_NS()  { //wrap private namepsace
 
 var settings, hexagonSpace, focalHue;
 const
@@ -2474,12 +2482,12 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		settings=UniDOM.getElementsBy$Name(document.getElementById('RainbowMaestro'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <inputs>s) into an array, with corresponding properties
 		if (!settings.colorblind.checked)  //the colorblind provider initiator will build the palette otherwise
 			UniDOM.addEventHandler(window, 'mastercolorpicker_ready', ()=>{RainbowMaestro.buildPalette();});
-		UniDOM.addEventHandler(settings.websafe, 'onclick', RainbowMaestro.makeWebsafe);
-		UniDOM.addEventHandler(settings.splitComplement, 'onclick', RainbowMaestro.makeSplitComplement);
-		UniDOM.addEventHandler(settings.lock, 'onclick', RainbowMaestro.lock);
-		UniDOM.addEventHandler(settings.colorblind, 'onclick', RainbowMaestro.showColorblind);
+		UniDOM.addEventHandler(settings.websafe, 'onchange', RainbowMaestro.makeWebsafe);
+		UniDOM.addEventHandler(settings.splitComplement, 'onchange', RainbowMaestro.makeSplitComplement);
+		UniDOM.addEventHandler(settings.lock, 'onchange', RainbowMaestro.lock);
+		UniDOM.addEventHandler(settings.colorblind, 'onchange', RainbowMaestro.showColorblind);
 		UniDOM.addEventHandler(settings.variety, ['onmouseup', 'onchange', 'onblur'], RainbowMaestro.alterVariety);
-		UniDOM.addEventHandler(settings.focalsOnly, 'onclick', RainbowMaestro.handle_focalsOnly);
+		UniDOM.addEventHandler(settings.focalsOnly, 'onchange', RainbowMaestro.handle_focalsOnly);
 
 		UniDOM.addEventHandler(settings.focalHue, 'onkeydown', function(event) {
 			MasterColorPicker.event=event;
@@ -2504,7 +2512,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		UniDOM.addEventHandler(cnvsWrap, ['onclick', 'oncontextmenu'], [RainbowMaestro, RainbowMaestro.handleClick]);
 	} );
 
-})();  //close  wrap private members
+})();  //close  RainbowMaestro private namespace
 
 
 
@@ -2512,7 +2520,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 /*==================================================================*/
 SoftMoon.WebWare.SimpleSqColorPicker=new SoftMoon.WebWare.x_ColorPicker('Simple²');
 
-;(function() {
+;(function SimpleSqColorPicker_NS() {  // open a private namespace
 	var settings, variety, cnvs, sbcnvs=new Array(),
 			RGB_calc=new SoftMoon.WebWare.RGB_Calc({
 				useHexSymbol: true,
@@ -2724,13 +2732,13 @@ UniDOM.addEventHandler( window, 'onload', function()  { var SimpleSqColorPicker=
 
 	SimpleSqColorPicker.buildPalette();  } );
 
-})();
+})();  // close SimpleSqColorPicker namespace
 /*==================================================================*/
 
 
 
 
-;(function () {// open a private namespace for YinYangNiHong
+;(function YinYangNiHong_NS() {// open a private namespace for YinYangNiHong
 
 //                                    ↓radians    ↓factor(0-1)
 var baseCanvas, mainCanvas, settings, focalHue=0, swatchHue=0, aniOffset=0, Color;
@@ -2978,7 +2986,7 @@ SoftMoon.WebWare.sinebow=function(settings, phase, callback)  { var freq=2*Math.
 
 
 
-;(function() {  // wrap private members of buildSpectralPalette
+;(function SpectralColorPicker_NS() {  // open private namespace of buildSpectralPalette
 var spectral,
 		Spectral_CP=new SoftMoon.WebWare.x_ColorPicker("Spectral"),
 		handleMouse=function(event) {Spectral_CP['on'+event.type](event);};
@@ -3031,7 +3039,7 @@ SoftMoon.WebWare.buildSpectralPalette=function()  {
 	spectral.getElementsByTagName('thead')[0].getElementsByTagName('td')[0].colSpan=""+settings.hue_variety;
 	spectral.getElementsByTagName('thead')[0].getElementsByTagName('td')[0].setAttribute('colspan', ""+settings.hue_variety);
 	}
-})();  //close & execute the anonymous wrapper function holding long-term private variables of buildSpectralPalette
+})();  //close SpectralColorPicker namepsace
 
 
 
@@ -3039,7 +3047,7 @@ SoftMoon.WebWare.buildSpectralPalette=function()  {
 /*==================================================================*/
 
 
-;(function() {  //create a private namespace for the Palette Tables manager/constructor
+;(function TabularColorPicker_NS() {  //create a private namespace for the Palette Tables manager/constructor
 
 
 	// these are the properties of a Palette that MasterColorPicker uses to build Palette Tables
@@ -3614,7 +3622,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 		return tr;  }
 
  }; //close  SoftMoon.WebWare.buildPaletteTable
-})();  //close & execute the private namespace for the Palette Tables manager/constructor
+})();  //close the private namespace for the Palette Tables manager/constructor  TabularColorPicker
 
 
 SoftMoon.WebWare.buildPaletteTable.caption={
@@ -3642,7 +3650,7 @@ SoftMoon.WebWare.buildPaletteTable.referenceMarks=[ '«' , '»' ];  // if a colo
 
 
 
-;(function(){  // open a private namespace for the PaletteManager
+;(function PaletteManager_NS(){  // open a private namespace for the PaletteManager
 
 const PaletteManager=new Object;
 SoftMoon.WebWare.PaletteManager=PaletteManager;
@@ -3664,7 +3672,10 @@ const
 	// ↓ this deliminates ==sections== of text returned by the server
 	GS=String.fromCharCode(29),  // ← ASCII “group separator”
 	// ↓ this is used internally as a temporary property of a palette file — no palette name should ever match
-	FN_PROP= SI +'filename'+ SO;
+	FN_PROP= SI +'filename'+ SO,
+	// ↓ sent by the server to indicate an error message
+	NAK=String.fromCharCode(21),  // ← ASCII “negative aknowledge”
+	ERROR=NAK+'¡Error! :';
 
 function markup(text) {return text.replaceAll(SI, '<filepath>').replaceAll(SO, '</filepath>');}
 
@@ -3924,7 +3935,7 @@ function addAllSelected(event)  {
 				connection.onFileLoad=function()  { console.log(' ←← Upload response:',this.responseText);
 					//  ASCII code 29 is “group separator” — the response may be followed by the new current index or other data
 					const response=this.responseText.split(GS)[0];
-					if (response.substr(0,10)==='¡Error! : ')  div.innerHTML= '<strong>' + markup(response) + '</strong>';
+					if (response.startsWith(ERROR))  div.innerHTML= '<strong>' + markup(response) + '</strong>';
 					else  {
 						div.innerHTML= '<p>Successfully uploaded to:\n<filepath>' + document.URL.substring(0, document.URL.lastIndexOf("/")+1) + response + '</filepath></p>';  }  };
 				connection.loadError=function()  { console.warn(' ←← Upload: HTTP or server Error.');
@@ -3952,14 +3963,17 @@ PaletteManager.renamePalette=renamePalette;
 function renamePalette(event)  {
 	switch (event.target.nodeName)  {
 	case 'LABEL':
-		if ((event.type==='click' && event.detail!==2)
-		||  (event.type==='contextmenu' && event.detail!==1))  return;
+		if ((event.type==='click'  &&  event.detail!==2  &&  !event.shiftKey)
+		||  (event.type==='contextmenu'  &&  event.detail!==1))  return;
 	break;
 	case 'INPUT':
 		if (event.type==='change'  &&  event.target.type==='checkbox'  &&  event.enterKeyed
-		&&  (event.keyedCount===2 || event.shiftKey))  break;
+		&&  (event.keyedCount===2 || event.shiftKey))
+			break;
+		if (event.type==='keydown'  &&  event.target.type==='checkbox'  &&  event.key==='ContextMenu')
+			break;
 	default: return;  }
-	event.preventDefault();
+	event.preventDefault();  //this will not stop the ContextMenu from popping up in Firefox (at least) when you press the “menu” key !?¡¿
 	const
 		file=event.target.closest('label'),
 		port=file.closest('fieldset').parentNode.closest('fieldset').className,
@@ -3974,8 +3988,8 @@ function renamePalette(event)  {
 		return;  }
 	renamer.value=filename;
 	renamer.size=Math.max(32, filename.length+7);
-	renamer.onkeydown=function(event)  { if (event.key==='Escape')  {  //code 27
-		renamer.value=filepath;  }  }
+	var keybounce=true;
+	renamer.onkeydown=function(event)  {if (event.key==='Escape')  renamer.value=filename;}
 	file.removeChild(file.lastChild);
 	file.appendChild(renamer);
 	renamer.onblur=function(event)  {
@@ -4020,7 +4034,7 @@ function renamePalette(event)  {
 			connection.onFileLoad=function()  { console.log(' ←← Upload response:',this.responseText);
 				//  ASCII code 29 is “group separator” — the response may be followed by the new current index or other data
 				const response=markup(this.responseText.split(GS)[0]);
-				if (response.substr(0,10)==='¡Error! : ')  div.innerHTML= '<strong>' + response + '</strong>';
+				if (response.startsWith(ERROR))  div.innerHTML= '<strong>' + response + '</strong>';
 				else  {
 					div.innerHTML= '<p>'+response+'</p>';  }  };
 			connection.loadError=function()  { console.warn(' ←← Upload: HTTP or server Error.');
@@ -4129,7 +4143,7 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
 	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_addSelected"]'),
 		['click', 'buttonpress'], addAllSelected);
 	UniDOM.addEventHandler(HTML.getElementsByTagName('ul'),
-		['click', 'contextmenu', 'change'], renamePalette, true);
+		['click', 'contextmenu', 'change', 'keydown'], renamePalette, true);
 	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_close"]'),
 		['click', 'buttonpress'], function() {UniDOM.disable(HTML, true);});
 	UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open'),
@@ -4173,7 +4187,7 @@ var MasterColorPicker={};  // this is a global variable: a property of the windo
 // This object will be replaced in the window.onload function below:
 
 
-UniDOM.addEventHandler(window, 'onload', function()  {  //until file end:
+UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_onload()  {  //until file end:
 
 
 
@@ -4420,47 +4434,68 @@ UniDOM.addEventHandler(provSelect, 'onchange', function() {
 UniDOM.generateEvent(provSelect, 'onchange');
 
 
-
+UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['click', 'buttonpress'], function(event) {
+ if (event.target.nodeName==="BUTTON")  document.getElementById("MasterColorPicker_helpFor_"+event.target.getAttribute("section")).scrollIntoView();  });
 
 
 	function enhanceKeybrd(event)  {
 		if (!event.target.parentNode  //the Genie may delete them before this handler occurs.
-		||  event.keyCode===9  // ← tab key    ↓ ,<                .> ↓
-		||  (event.ctrlKey && event.keyCode===188 || event.keyCode===190))  return;
+		||  event.key==='Tab'
+		||  MasterColorPicker.panelTabKey.sniff(event)
+		||  MasterColorPicker.panelBacktabKey.sniff(event))  return;
 		if (UniDOM.hasAncestor(event.target, MasterColorPicker.HTML))
 			MasterColorPicker.setTopPanel(event.target.closest('.pickerPanel'));
 		var txt, curPos, color;
 		findKey: {
-			if (event.altKey)  switch (!event.shiftKey && !event.ctrlKey && event.keyCode)  {
-			case 67: txt="ᶜ";   // C
-			break findKey;
-			case 71: txt="ᵍ";   // G
-			break findKey;
-			case 82: txt="ᴿ";   // R
-			break findKey;
+			if (event.altKey)  switch (!event.shiftKey && !event.ctrlKey && event.key)  {
+			case 'c':
+			case 'C':  txt="ᶜ";  break findKey;
+			case 'g':
+			case 'G':  txt="ᵍ";  break findKey;
+			case 'r':
+			case 'R':  txt="ᴿ";  break findKey;
 			default:  return;  }
-			switch (event.keyCode)  {
-			case 49: if (event.ctrlKey)  txt= event.shiftKey ? "¡" : "●";  // 1! key
+			if (event.ctrlKey)  switch (event.key)  {
+			case '1':  txt="●";  break findKey;
+			case '!':  txt="¡";  break findKey;
+			case '2':  txt="©";  break findKey;
+			case '@':  txt="®";  break findKey;
+			case '%':  txt="°";  break findKey;
+			case '6':  txt="☺";  break findKey;
+			case '^':  txt="☻";  break findKey;
+			case '7':  txt="♪";  break findKey;
+			case '&':  txt="♫";  break findKey;
+			case '8':  txt="×";  break findKey;
+			case '*':  txt="☼";  break findKey;
+			case '=':  txt="≈";  break findKey;
+			case '+':  txt="±";  break findKey;
+			case '/':  txt="÷";  break findKey;
+			case '?':  txt="¿";  break findKey;
+			case '[':  txt="‘";  break findKey;
+			case '{':  txt="“";  break findKey;
+			case ']':  txt="’";  break findKey;
+			case '}':  txt="”";  break findKey;
+			case "'":  txt="π";  break findKey;
+			case '"':  txt="φ";  break findKey;  }
+			switch (event.key)  {
+			case 'F1':
+				if (!event.ctrlKey)  {  // F1 function key
+					event.preventDefault();
+					userOptions.showHelp.checked= !event.shiftKey;
+					UniDOM.generateEvent(userOptions.showHelp, 'change');
+					if (!event.ShiftKey)  MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));  }
+				else if (!event.shiftKey)  {
+					event.preventDefault();
+					userOptions.showHelp.checked= true;
+					UniDOM.generateEvent(userOptions.showHelp, 'change');
+					const
+						HelpHTML=document.getElementById('MasterColorPicker_Help'),
+						btn=HelpHTML.querySelector('button');
+					MasterColorPicker.setTopPanel(HelpHTML);
+					HelpHTML.querySelector('div.scrollbox').scrollTop=0;
+					UniDOM.generateEvent(btn, 'tabIn', {bubbles: true});  }
 			break;
-			case 50: if (event.ctrlKey)  txt= event.shiftKey ? "®" : "©";  // 2@ key
-			break;
-			case 53: if (event.ctrlKey && event.shiftKey)  txt="°";  // 5% key
-			break;
-			case 54: if (event.ctrlKey)  txt= event.shiftKey ? "☻" : "☺";  // 6^ key
-			break;
-			case 55: if (event.ctrlKey)  txt= event.shiftKey ? "♫" : "♪";  // 7& key
-			break;
-			case 56: if (event.ctrlKey)  txt= event.shiftKey ? "☼" : "×";  // 8* key
-			break;
-			case 61: if (event.ctrlKey)  txt= event.shiftKey ? "≈" : "±";  // =+ key
-			break;
-			case 112: if (!event.ctrlKey)  {  // F1 function key
-				userOptions.showHelp.checked= !event.shiftKey;
-				UniDOM.generateEvent(userOptions.showHelp, 'change');
-				if (!event.ShiftKey)  MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
-				event.preventDefault();  }
-			break;
-			case 113:   // F2 function key
+			case 'F2':   // F2 function key
 				userOptions.showMyPalette.checked= !event.shiftKey;
 				UniDOM.generateEvent(userOptions.showMyPalette, 'change');
 				if (!event.ShiftKey)  {
@@ -4472,7 +4507,7 @@ UniDOM.generateEvent(provSelect, 'onchange');
 						return;  }  }
 				event.preventDefault();
 			break;
-			case 114:   // F3 function key
+			case 'F3':   // F3 function key
 				userOptions.showLab.checked= !event.shiftKey;
 				UniDOM.generateEvent(userOptions.showLab, 'change');
 				event.preventDefault();
@@ -4483,7 +4518,7 @@ UniDOM.generateEvent(provSelect, 'onchange');
 						SoftMoon.WebWare.ColorSpaceLab.setColor({RGB: color});
 						return;  }  }
 			break;
-			case 115:   // F4 function key
+			case 'F4':   // F4 function key
 				userOptions.showThesaurus.checked= !event.shiftKey;
 				UniDOM.generateEvent(userOptions.showThesaurus, 'change');
 				if (!event.ShiftKey)  {
@@ -4494,7 +4529,7 @@ UniDOM.generateEvent(provSelect, 'onchange');
 						}  }
 				event.preventDefault();
 			break;
-			case 118:   // F7 function key  ¡STOLEN! by the browser…oh well.  SHIFT+F7 is thesaurus in MS Word, CTRL+F7 in LibreOffice
+			case 'F7':   // F7 function key  ¡STOLEN! by the browser…oh well.  SHIFT+F7 is thesaurus in MS Word, CTRL+F7 in LibreOffice
 				userOptions.showThesaurus.checked= !event.shiftKey;
 				UniDOM.generateEvent(userOptions.showThesaurus, 'change');
 				if (!event.ShiftKey)  {
@@ -4504,18 +4539,6 @@ UniDOM.generateEvent(provSelect, 'onchange');
 						document.getElementsByName('MasterColorPicker_Thesaurus_color')[0].value=event.target.value;
 						}  }
 				event.preventDefault();
-			break;
-			case 191:   // /? key
-				if (event.ctrlKey)  txt= event.shiftKey ? '¿' : '÷';
-			break;
-			case 219:   // [{ key
-				if (event.ctrlKey)  txt= event.shiftKey ? '“' : '‘';
-			break;
-			case 221:   // ]} key
-				if (event.ctrlKey)  txt= event.shiftKey ? '”' : '’';
-			break;
-			case 222:   // '" key
-				if (event.ctrlKey)  txt= event.shiftKey ? 'φ' : 'π';
 			break;  }
 		}  // close findKey
 		if (txt)  {
