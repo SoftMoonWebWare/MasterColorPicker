@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4;release-1  April 28, 2022  by SoftMoon-WebWare.
+// Picker.js  Beta-4.0.1   May 1, 2022  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -30,6 +30,7 @@ if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 								//  ↓    ↓  \\
 //  ********  be SURE to READ the comments on applied classNames just below the Picker constructor function  **********
 
+'use strict';
 
 ;(function Picker_NS() {  // create a private namespace for the Picker class
 
@@ -93,7 +94,7 @@ function Picker(mainPanel, opts)  {
 			else  throw new TypeError("picker_select must be a DOM <select> Element Node or an Array of DOM <input type='checkbox|radio'> Element Nodes");  }
 
 		if (!(opts.pickFilters instanceof Array))  opts.pickFilters=[opts.pickFilters];
-		for (i=0; i<opts.pickFilters.length; i++)  {
+		for (let i=0; i<opts.pickFilters.length; i++)  {
 			if (typeof opts.pickFilters[i] === 'function')  this.pickFilters.push(opts.pickFilters[i]);
 			else if (opts.pickFilters[i])  throw new TypeError("Picker “opts.pickFilters["+i+"]” must be a function");  }
 
@@ -103,7 +104,7 @@ function Picker(mainPanel, opts)  {
 
 		if (opts.classNames)  { const errTxt="Picker “classNames” Object is invalid.";
 			if (typeof opts.classNames !== 'object')  throw new TypeError(errTxt);
-			for (p in Picker.CLASSNAMES)  { if (opts.classNames[p] !== undefined)  {
+			for (const p in Picker.CLASSNAMES)  { if (opts.classNames[p] !== undefined)  {
 				if (typeof opts.classNames[p] !== 'string'
 				&&  (p!=='picker'  ||  !(opts.classNames[p] instanceof RegExp)))
 					throw new TypeError(errTxt+" ClassNames must be strings; except “picker” may be a Regular Expression.");
@@ -331,7 +332,8 @@ Picker.prototype.registerTargetElement=function registerTargetElement(element, p
 
 
 Picker.prototype.isInterfaceElement=function(elmnt)  {
-	if (UniDOM.isElementNode(elmnt))  {
+	//a previous event may have removed this element from the DOM
+	if (elmnt?.parentNode  &&  UniDOM.isElementNode(elmnt))  {
 		if (this.interfaceElements?.includes(elmnt))  return true;
 		for (const panel of this.panels)  {if (UniDOM.hasAncestor(elmnt, panel))  return true;}  }
 	return false;  }
@@ -620,7 +622,8 @@ Picker.prototype.registerInterfacePanel=function(panel, actions)  {
 				(PickerInstance.interfaceTarget || PickerInstance.dataTarget || PickerInstance.masterTarget)?.focus?.();  },
 				0);  }
 		if (!PickerInstance.interfaceTarget
-		|| !UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.picker))
+		||  !event.target.parentNode  // a previous event-handler may have removed this element from the DOM
+		||  !UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.picker))
 			PickerInstance.setTopPanel(panel);  }
 
 	function mousedownOnInterfacePanel(event)  {
