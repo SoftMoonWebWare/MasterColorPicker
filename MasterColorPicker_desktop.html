@@ -127,7 +127,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.2.2  April 20, 2022
+      release 2.2.4  May 1, 2022
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -818,8 +818,11 @@ tri-color?</label>
 
 		<dt><kbd><span>F2</span></kbd></dt>
 		<dd>Shows the MyPalette panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
-				If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F2</span></kbd>
-				copies that color to the next open MyPalette entry.</dd>
+				If there is a valid color in the input-box with keyboard-focus,
+				pressing <kbd><span>CTRL</span>+<span>F2</span></kbd>
+				copies that color to the next open MyPalette entry.&nbsp;
+				If keyboard-focus is within MyPalette (you are typing in colors or their names, etc.),
+				pressing <kbd><span>CTRL</span>+<span>F2</span></kbd> creates a new sub-palette.</dd>
 
 		<dt><kbd><span>F3</span></kbd></dt>
 		<dd>Shows the Color-Space Lab panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
