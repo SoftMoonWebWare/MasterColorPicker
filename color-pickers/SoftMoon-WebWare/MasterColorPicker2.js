@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.2.2-alpha   April 20, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.2.4-alpha   May 1, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -500,20 +500,20 @@ function tabbedOut(GENIE_FIELDS, DOM_CRAWL_STOP, event)  {
 	this.popNewField(this.config.groupClass ? UniDOM.getAncestorBy$Class(event.target, this.config.groupClass) : event.target);
 	if (event.ctrlKey)  return;  //the Picker will catch it on the bubble-up to the MyPalette picker-panel
 	if (tabToTarget)  {
-		MasterColorPicker.dataTarget.focus();
+		(MasterColorPicker.dataTarget || MasterColorPicker.masterTarget)?.focus();
 		event.preventDefault();   // stop the browser from controlling the tab
 		event.stopPropagation();  // stop the Picker from controlling the tab
 		return;  }
 	if (event.shiftKey)  //backtab
 		try{
 		do {e=old[i++]}  while (!e.isConnected);
-		}catch(e){  event.preventDefault();  event.stopPropagation();  return;}
+		}catch(e){event.preventDefault();  event.stopPropagation();  return;}
 	else  {//forward tab
 		if (!(e=event.target).isConnected)  do {e=old[i++]}  while (!e.isConnected);
 		SoftMoon.WebWare.Picker.goDeep.className=MasterColorPicker.classNames.picker;
 		SoftMoon.WebWare.Picker.goDeep.picker_select=MasterColorPicker.picker_select;
 		e=UniDOM.getJuniors(e, SoftMoon.WebWare.Picker.isTabStop, SoftMoon.WebWare.Picker.goDeep)[0];  }
-	UniDOM.generateEvent(e, 'tabIn', {bubbles:true});
+	UniDOM.generateEvent(e, 'tabIn', {bubbles:true, userArgs:{relatedTarget: event.target, tabbedfrom: event.target}});
 	event.preventDefault();
 	event.stopPropagation();
 	return;  }
@@ -692,18 +692,18 @@ function MyPalette(HTML, PNAME)  {
 			const isit=(e.name && e.name.indexOf(inpName[0])>=0);
 			if (isit) goDeep.doContinue=false;
 			return isit;  }
-		if (event.keyCode===113  &&  event.ctrlKey)  {  // F2 key
+		if (event.key==='F2'  &&  event.ctrlKey)  {  
 			event.stopPropagation();
 			event.preventDefault();
 			inpName=thisPalette.makeSub().querySelector("input[name$='[Name]']");
-			UniDOM.generateEvent(inpName, 'tabIn', {bubbles:true});   }
+			UniDOM.generateEvent(inpName, 'tabIn', {bubbles:true, userArgs:{relatedTarget: event.target, tabbedFrom: event.target}});   }
 		else
-		if ( ( event.keyCode===38  ||  event.keyCode===40)  //verticle tab ↑ ↓
+		if ( (event.key==='ArrowUp'  ||  event.key==='ArrowDown')  //verticle tab ↑ ↓
 		&&  (inpName=event.target.name.match( /selected|definition|[Nn]ame/ ))
-		&&  (inpName= (event.keyCode===38) ?
+		&&  (inpName= (event.key==='ArrowUp') ?
 								UniDOM.getElders(event.target, getTabStop, goDeep)[0]
 							: UniDOM.getJuniors(event.target, getTabStop, goDeep)[0] ) )  {
-			UniDOM.generateEvent(inpName, 'tabIn', {bubbles:true});
+			UniDOM.generateEvent(inpName, 'tabIn', {bubbles:true, userArgs:{relatedTarget: event.target, tabbedFrom: event.target}});
 			event.preventDefault();  }  });
 
 	UniDOM.addEventHandler(this.table, 'buttonpress', function(event)  {
@@ -4493,7 +4493,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 						btn=HelpHTML.querySelector('button');
 					MasterColorPicker.setTopPanel(HelpHTML);
 					HelpHTML.querySelector('div.scrollbox').scrollTop=0;
-					UniDOM.generateEvent(btn, 'tabIn', {bubbles: true});  }
+					UniDOM.generateEvent(btn, 'tabIn', {bubbles: true, userArgs:{relatedTarget: event.target, tabbedFrom: event.target}});  }
 			break;
 			case 'F2':   // F2 function key
 				userOptions.showMyPalette.checked= !event.shiftKey;
@@ -4568,19 +4568,20 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 		UniDOM.addEventHandler(inp, ['onkeyup', 'onpaste', 'onchange'], syncLabAndSwatch, false, true);
 		return Object.getPrototypeOf(this).registerTargetElement.call(this, inp);  };
 
-	for (var i=0, inps=document.getElementsByTagName('input');  i<inps.length;  i++)  {
-		if (inps[i].getAttribute('type').toLowerCase() === 'mastercolorpicker'
-		||  (inps[i].hasAttribute('pickerType') && inps[i].getAttribute('pickerType').toLowerCase() === 'mastercolorpicker'))
-			MasterColorPicker.registerTargetElement(inps[i]);  }
+	for (const inp of document.getElementsByTagName('input'))  {
+		if (inp.getAttribute('type').toLowerCase() === 'mastercolorpicker'
+		||  (inp.hasAttribute('pickerType')  &&  inp.getAttribute('pickerType').toLowerCase() === 'mastercolorpicker'))
+			MasterColorPicker.registerTargetElement(inp);  }
 	UniDOM.addEventHandler(MasterColorPicker.HTML, 'onKeyDown', enhanceKeybrd);
 	UniDOM.addEventHandler(MasterColorPicker.HTML, ['onKeyUp','onPaste','onChange'], syncLabAndSwatch);
 
 	UniDOM.addEventHandler(mainHTML, 'tabIn', function(event)  {
 		if (event.target!==this)  return;
-		for (var tabTo, i=0;  i<MasterColorPicker.pickers.length;  i++)  {
-			if ( MasterColorPicker.picker_select.isChosenPicker(MasterColorPicker.pickers[i])
-			&&  (tabTo=UniDOM.getElements(MasterColorPicker.pickers[i], SoftMoon.WebWare.Picker.isTabStop, SoftMoon.WebWare.Picker.goDeep)[0]) )  {
-				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true, userArgs:{tabbedFrom: event.tabbedFrom}});
+		var tabTo;
+		for (const picker of MasterColorPicker.pickers)  {
+			if ( MasterColorPicker.picker_select.isChosenPicker(picker)
+			&&  (tabTo=UniDOM.getElements(picker, SoftMoon.WebWare.Picker.isTabStop, SoftMoon.WebWare.Picker.goDeep)[0]) )  {
+				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true, userArgs:{relatedTarget: event.tabbedFrom, tabbedFrom: event.tabbedFrom}});
 				return;  }  }
 		setTimeout(function() {MasterColorPicker.dataTarget.focus();}, 0);  });
 
