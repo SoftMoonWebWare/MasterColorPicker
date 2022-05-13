@@ -294,7 +294,8 @@ on this page:
 	<li><a href='#using_MasterColorPicker'>Using MasterColorPicker</a></li>
 	<li><a href='#using_picker'>Using the Picker</a></li>
 	<li><a href='#using_swatch'>“color swatches”</a></li>
-	<li><a href='#'>Targets beyond <code>&lt;input&gt;</code></a></li>
+	<li><a href='#your_target'>Targets beyond <code>&lt;input&gt;</code></a></li>
+	<li><a href='#your_filesystem'>Integrating into your filesystem</a></li>
 	<li><a href='#your_structure'>Structuring your own <abbr>HTML</abbr> and <abbr>CSS</abbr></a></li>
 	<li><a href='#add_rmv_pckr'>Adding &amp; removing color-pickers</a></li>
 	<li><a href='#building pickers'>Building your own color-pickers</a></li>
@@ -355,7 +356,7 @@ allowing complete and simple management of all colors used throughout an entire 
 
 <dt>The Color-Space Lab</dt>
 <dd>gives you direct control of, and displays a color’s definitive values
-in the RGB, HSV/HSB, HSL, HSG, HWB, &amp; CMYK color-spaces.&nbsp;
+in the RGB, HSV/HSB, HSL, HCG, HWB, &amp; CMYK color-spaces.&nbsp;
 It also allows you to add an Alpha (opacity) value to your selected color, automatically if you choose.&nbsp;
 It can update automatically as you hover over a color in a palette;
 or you can use it to manually make color-space conversions.</dd>
@@ -408,7 +409,9 @@ With <code>file://</code> protocol usage, you must manually add and remove links
 You can find info on doing such in MasterColorPicker’s ☺Help☺ panel while it is up-and-running.
 Both <code>http://</code> and <code>file://</code> protocol usages
 allow you to create, save &amp; load MyPalette and other named-color-table-palette files
-to &amp; from your computer’s local filesystem, so without a server you are not high-and-dry;
+to &amp; from your computer’s local filesystem,
+or the borwser’s private storeage database,
+so without a server you are not high-and-dry;
 the advantage of server usage is the simplified autoload feature,
 and having a centralized project host center for multiple developers.&nbsp;
 </p>
@@ -580,8 +583,8 @@ for more details on using the “color swatch”.</p>
 and even document text-nodes are automatically recognized by the <code>MasterColorPicker.pick()</code> method.&nbsp;
 By default, the JavaScript<mark class='macronym'>™</mark> value of
 <code>MasterColorPicker.dataTarget.value</code> is set when a color is picked.&nbsp;
-If no <code>dataTarget</code> is set then the <code>MasterColorPicker.masterDataTarget</code> is used, if any.&nbsp;
-The <code>dataTarget</code> and <code>masterDataTarget</code> each may be any
+If no <code>dataTarget</code> is set then the <code>MasterColorPicker.masterTarget</code> is used, if any.&nbsp;
+The <code>dataTarget</code> and <code>masterTarget</code> each may be any
 JavaScript<mark class='macronym'>™</mark> Object.&nbsp;
 Or they may be <code>&lt;input type='hidden'&gt;</code> if you don't care to show the user the dirty color-code,
 but want to send the value back to the server with a form-submittal.&nbsp;
@@ -590,6 +593,33 @@ Array of <code>MasterColorPicker.pickFilters</code>.&nbsp;
 To replace this functionality, replace the <code>MasterColorPicker.pick</code> method with your own function.&nbsp;
 See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> for more details.</p>
 
+
+<h3 id='your_filesystem'>MasterColorPicker<mark class='macronym'>™</mark>’s file system structure.</h3>
+
+<p>The MasterColorPicker<mark class='macronym'>™</mark> JavaScript<mark class='macronym'>™</mark> codebase does not rely on
+any particular file-system structure or filenames,
+<strong>¡except!</strong> for the <code class='filename'>color_palettes/</code> folder
+and its <code class='filename'>index.…</code> file
+when using <code>http://</code> protocol to load your web-page (i.e. it is loaded from a server).&nbsp;
+As noted above, the included <code class='filename'>index.php</code> file may be replaced
+by another <code class='filename'>index.…</code> file in another programming language
+or even a simple text file, but it <strong>must</strong> be named “index”
+for the server to automatically find it.&nbsp;
+The <code class='filename'>color_palettes/</code> folder may be renamed if need be;
+however, you must then modify the value <code>SoftMoon.colorPalettes_defaultPath</code>
+either directly (<strong>¡before</strong> the color-palettes load!)
+or by modifying the file <code class='filename'>JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js</code>
+(at the file’s beginning).</p>
+<p>Other folders and filenames may be changed or moved to suit your filesystem arrangement and organization.&nbsp;
+You simply need to modify the <code>&lt;script&gt;</code> tags that actually load the files to match your new filepaths.&nbsp;
+¡The order the <code>&lt;script&gt;</code> files load is important!&nbsp;
+You can <code>defer</code> them for faster page rendering.&nbsp;
+As of 2022, the hard-coded <code>&lt;script&gt;</code> tag that defines the
+<code>SoftMoon.WebWare</code> &amp; <code>SoftMoon.loaded_palettes</code> namespace properties
+should always go before any other MasterColorPicker<mark class='macronym'>™</mark> files or Palette files.</p>
+<p>Developers should note that the files in the folder <code class='filename'>+++JS/</code>
+modify standard JavaScript<mark class='macronym'>™</mark> Objects and/or their <code>prototypes</code>.&nbsp;
+That is why they have been given thier own folder — to make it easier to keep track of in case of conflicts.</p>
 
 
 <h3 id='your_structure'>Structuring your own <abbr>HTML</abbr> and <abbr>CSS</abbr></h3>
