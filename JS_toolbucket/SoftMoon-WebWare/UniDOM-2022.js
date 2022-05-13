@@ -1,4 +1,6 @@
-/*  UniDOM-2020  version 1.3  April 28, 2022
+
+	//  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
+/*  UniDOM-2022  version 1  May 9, 2022
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -18,13 +20,12 @@
 		You should have received a copy of the GNU General Public License
 		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
 
-//  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
 
-/*  this is now part of the now required file:  JS_toolbucket/+++JS/+++.js
-RegExp.escape=function (string) {
-	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
-  return string && string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-}
+/*  required support file:  JS_toolbucket/+++JS/+++.js
+ *  for:
+	RegExp.escape
+	Object.lock
+	Object.prototype.has
 */
 
 
@@ -40,14 +41,13 @@ const UniDOM=function(element, passData)  {  /* ALTERNATE ARGUMENTS:
 */
 	if (!element)  return null;
 	element=xElement(element);
-	if (isElementNode(element))  {
+	if (isElement(element))  {
 		if (CSSEngine  &&  typeof arguments[1] === 'string')  return UniDOM(UniDOM.$(arguments[1], element), arguments[2]);
 		else  return new ElementWrapper(element);  }
 	else
-	if (typeof arguments[0] === 'object'  &&  "length" in arguments[0])  {  //(arguments[0] instanceof Array) would not work with DOM_Node_Lists
-		var i,
-				wrapped=(arguments[0] instanceof ElementArray) ? (arguments[0].wrappedElements=true, arguments[0]) : new ElementArray(true);
-		for (i in arguments[0])  {wrapped[i]=UniDOM(arguments[0][i], passData);}
+	if (isArrayish(arguments[0]))  {
+		const wrapped=(arguments[0] instanceof ElementArray) ? (arguments[0].wrappedElements=true, arguments[0]) : new ElementArray(true);
+		for (const i in arguments[0])  {wrapped[i]=UniDOM(arguments[0][i], passData);}
 		return  wrapped;  }
 	else
 	if (passData)  return arguments[0];
@@ -60,8 +60,8 @@ const UniDOM=function(element, passData)  {  /* ALTERNATE ARGUMENTS:
 	var CSSEngine;  //private
 
 	function $query(CSSString, element, objFltr, powerSelect)  {
-		var EA=(new ElementArray).concat(CSSEngine.call(xElement(element), CSSString));
-		if (EA.length && (objFltr || powerSelect || UniDOM.powerSelect))  objectify(EA, objFltr, powerSelect);
+		const EA=(new ElementArray).concat(CSSEngine.call(xElement(element), CSSString));
+		if (EA.length && (objFltr || powerSelect || UniDOM.doPowerSelects))  EA.objectify(objFltr, powerSelect);
 		return EA;  }
 
 
@@ -70,11 +70,11 @@ const UniDOM=function(element, passData)  {  /* ALTERNATE ARGUMENTS:
 //  ☆☆☆ ¡ if you call  UniDOM.globalize()       ☆☆☆
 //  ☆☆☆ UniDOM’s $ will overwrite window.$ !    ☆☆☆
 UniDOM.$=function() {
-	if (typeof UniDOM.CSSEngine == 'function')  CSSEngine=UniDOM.CSSEngine;
+	if (typeof UniDOM.CSSEngine === 'function')  CSSEngine=UniDOM.CSSEngine;
 	else
-	if (typeof window.Sizzle == 'function')  CSSEngine=function(s) {return Sizzle(s, this)};  // http://sizzlejs.com/   https://github.com/jquery/sizzle/wiki
+	if (typeof window.Sizzle === 'function')  CSSEngine=function(s) {return Sizzle(s, this)};  // http://sizzlejs.com/   https://github.com/jquery/sizzle/wiki
 	else
-	if (typeof window.Slick == 'function')   CSSEngine=function(s) {return Slick(s, this)};   // http://mootools.net/docs/core/Slick/Slick  now defunct…
+	if (typeof window.Slick === 'function')   CSSEngine=function(s) {return Slick(s, this)};   // http://mootools.net/docs/core/Slick/Slick  now defunct…
 	if (CSSEngine)  {
 		UniDOM.$=$query;          // auto-plugin Engine
 		return $query.apply(UniDOM, arguments);  }
@@ -83,18 +83,19 @@ UniDOM.$=function() {
 // if you don’t want to use Sizzle, Slick, or a similar package, remove the above function from UniDOM,
 // and the UniDOM constructor method will supply a more appropriate Error message for debugging.
 
-if (typeof Element.prototype.querySelectorAll == 'function')
+if (typeof Element.prototype.querySelectorAll === 'function')
 	UniDOM.CSSEngine=Element.prototype.querySelectorAll;
 // PS I'm already brainstorming while I sleep on an Engine to utilize UniDOM’s more powerful query methods…
 
 
 
- /* ======The first half=========
+ /* ======= event-centric functions =======
 	*
 	*/
 	//private
-	function arrayify(v)  {return  (v instanceof Array) ? v : [v];}
-	function getEventType(eT)  {eT=eT.toLowerCase().match( /^(?:on)?(.+)$/ );  return eT[1];}
+	function isArrayish(a) {return a instanceof Array || a instanceof HTMLCollection || a instanceof NodeList}
+	function arrayify(v) {return  (v instanceof Array) ? v : [v];}
+	function getEventType(eT) {return eT.toLowerCase().match( /^(?:on)?(.+)$/ )[1];}
 	const aSlice=Array.prototype.slice;
 
 	var handlerCounter=0, eventCounter=0;
@@ -102,69 +103,71 @@ if (typeof Element.prototype.querySelectorAll == 'function')
 UniDOM.addEventHandler=addEventHandler;
 function addEventHandler(element, eventType, handler, useCapture)  {
 	element=xElement(element);
-	if (element instanceof Array
-	||  element instanceof HTMLCollection
-//	||  element instanceof HTMLFormControlsCollection
-//	||  element instanceof HTMLOptionsCollection
-	||  element instanceof NodeList)  {
+	if (isArrayish(element))  {
 		const allAdded=new Array;
 		for (const elmnt of element)  {
 			allAdded.push(addEventHandler(elmnt, eventType, handler, useCapture));  }
 		return allAdded;  }
-	eventType=arrayify(eventType);  handler=arrayify(handler);  useCapture=Boolean(useCapture);
 	const
 		userArgs=aSlice.call(arguments, 4),
-		wrapper=new Array;
+		wrappers=new Array,
+		doWrap=useCapture?.doWrap;
+	eventType=arrayify(eventType);  handler=arrayify(handler);  useCapture=Boolean(typeof useCapture === 'object' ? useCapture.useCapture : useCapture);
 	for (let i=0; i<eventType.length; i++)  {
-		let etype=getEventType(eventType[i]);
+		const etype=getEventType(eventType[i]);
 		if (UniDOM.getEventHandler(element, etype, handler, useCapture) !== false)  {
-			console.error('UniDOM will not double-bind event handlers.\n •Element: ',element,'\n •event type: '+etype+' with'+(useCapture ? "" : "out")+' capture\n •handler: ',handler);
+			console.error('UniDOM will not double-bind event handlers.\n •Element: '+element+'\n •event type: '+etype+' with'+(useCapture ? "" : "out")+' capture\n •handler: '+handler);
 			if (UniDOM.addEventHandler.errorOnDoubleBind)
 				throw new Error('UniDOM will not double-bind event handlers.');
 			else  continue;  }
-		if (document.addEventListener)  {
-			wrapper[i]=function UniDOM_EventHandlerWrapper(event)  {
+		addingHandler=true;
+		if (doWrap  ||  handler.length>1  ||  userArgs.length>0
+		||  (typeof handler[0]['on'+etype] === 'function')
+		||  (typeof handler[0].handleEvent === 'function'))  {
+			wrappers[i]=function UniDOM_EventHandlerWrapper(event)  {
 				if (handler.suspend)  return;
 				const pass=userArgs.slice(0);  pass.unshift(event);
-				if (( /click|mouse/ ).test(event.type)  &&  event.offsetX===undefined)  setMouseEventOffsets(event);
 				event.id=eventCounter++;
 				event.doContinue=true;
 				for (let j=0;  event.doContinue && j<handler.length;  j++)  {
 					if (typeof handler[j]['on'+event.type] === 'function')  handler[j]['on'+event.type](...pass);
 					else if (typeof handler[j].handleEvent === 'function')  handler[j].handleEvent(...pass);
 					else  handler[j].apply(element, pass);  }  }
-			element.addEventListener(etype, wrapper[i], useCapture);  }
+			element.addEventListener(etype, wrappers[i], useCapture);
+			wrappers[eventType[i]]=new UniDOM.EventHandler(element, etype, handler, useCapture, wrappers[i], userArgs);  }
+		else  {
+			element.addEventListener(etype, handler[0], useCapture);
+			wrappers[eventType[i]]=new UniDOM.EventHandler(element, etype, handler[0], useCapture);  }  }
 
-		else throw new Error('Implementation can not add UniDOM Event Handler.');
+	return wrappers;  }
 
-		addingHandler=true;
-		wrapper[eventType[i]]=new UniDOM.EventHandler(element, etype, handler, useCapture, wrapper[i], userArgs);  }
-	return wrapper;  }
 addEventHandler.errorOnDoubleBind=true;  // false quietly ignores double-binds
-addEventHandler.apply=applyToElement; // (element, Array→[eventType, handler, useCapture])
-addEventHandler._apply_=Function.prototype.apply;
 
 	//private
-	var addingHandler=false,  eventedWindows=new Array,  allEvents, capturers, customEvents;
+	var addingHandler=false,
+			allEvents;
+	const eventedWindows=new Array;
 
-// (PS don't forget addEventHandler returns a plain Object with properties that relate event-types to “EventHandler”s:
-//  added=UniDOM.addEventHandler(e, 'onclick', h);  added.onclick.handler.push(another_h);  added.onclick.remove();
-//  whereas getEventHandler returns only the EventHandler:
-//  EH=UniDOM.getEventHandler(e, 'onclick', h);  EH.handler.push(another_h);  EH.remove();
-//  in-other-words:  UniDOM.addEventHandler(e, 'onclick', h).onclick === UniDOM.getEventHandler(e, 'onclick', h) )
+// (PS don't forget addEventHandler returns an Array–Object with case-sensitive properties that relate event-types to “EventHandler”s:
+//  added=UniDOM.addEventHandler(e, 'onClick', [h1, h2]);  added.onClick.handler.push(another_h);  added.onClick.remove();
+//  whereas getEventHandler returns only the EventHandler and is case-INsensitive for event-types:
+//  EH=UniDOM.getEventHandler(e, 'onclick', [h1, h2]);  EH.handler.push(another_h);  EH.remove();
+//  in-other-words:  UniDOM.addEventHandler(e, 'onClick', [h1, h2]).onClick === UniDOM.getEventHandler(e, 'onclick', [h1, h2]) )
 /*
 	* a UniDOM.EventHandler Object has the following properties and method:
 			id         unique id  ←do NOT change this value
 			element    ←do NOT change this value, it is not live
 			eventType  ←do NOT change this value, it is not live
-			handler    {{LIVE}}  an array of the handlers that are executed in order for each event
-			handler.suspend   {{LIVE}}  Boolean value to temporarily suspend calling the handlers (but the wrapper is still active)
+			handler    {{LIVE}}  an array of the handlers that are executed in order for each event;
+									or a single basic handler with no user-arguments to pass, and wrapper will be “undefined” (see below).
+			handler.suspend   {{LIVE}}  Boolean value to temporarily suspend calling the handlers
+									in the handler Array (but the wrapper is still active)
 			wrapper    ←do NOT change this value, it is not generally live.
 									the wrapper function that is actually added as an event handler to the element.
 									You may invoke this wrapper directly to simulate an event.
-									MSIE uses this property to simulate event capturing, so in that case,
-									during the simulated capture & bubble phases, this property is {{live}}
-			userArgs   {{LIVE}}  an array of user arguments; each passed as an argument to each handler function by the wrapper.
+									For a single basic handler with no user-arguments to pass, the wrapper will be “undefined”.
+			userArgs   {{LIVE}}  an array of user arguments — each passed as an argument to each handler function by the wrapper;
+									For a single basic handler with no user-arguments to pass, userArgs will be “undefined”.
 			remove()   this method removes the event handler wrapper from the element and sets the id to false;
 */
 
@@ -181,19 +184,22 @@ function EventHandler(element, eventType, handler, useCapture, wrapper, userArgs
 	this.id=id;
 	this.element=element;
 	this.eventType=eventType;
-	this.handler=handler;  // this is an Array and it may be modified
-	this.useCapture=useCapture;  //  ♪ ♫ ♪ I’m a capturah; soul adventurah… … … ♫ ♪ ♫
-	this.wrapper=wrapper;
-	this.userArgs=userArgs;  // this is an Array and it may be modified
-	Object.freeze(this);  }
+	this.handler=handler;  // this is an Array and it may be modified; or a single basic handler with no user-arguments to pass
+	this.useCapture=useCapture;  /*    ♪ ♫ ♪ I’m a capturah; soul adventurah… … … ♫ ♪ ♫    */
+	this.wrapper=wrapper;  // the wrapper function; or “undefined” for a single basic handler with no user-arguments to pass
+	this.userArgs=userArgs;  // this is an Array and it may be modified; or it may be “undefined” for a single basic handler with no user-arguments to pass
+//	Object.freeze(this);  }
+	Object.lock(this);  }  // properties may not be modified, but new properties may be added by the user
 
 EventHandler.prototype.remove=function()  {
-	if (!UniDOM.isElementNode(this.element)  &&  !UniDOM.isWindow(this.element))
+	// since EventHandler objects are now frozen/locked (they could not be when UniDOM was created and JavaScript was young)
+	// there should be no way to throw Errors; but just in case…we leave the sanity checks.
+	if (!isElement(this.element)  &&  !isWindow(this.element))
 		throw new Error("Can not remove “UniDOM.EventHandler”: its “element reference” has been corrupted.");
-	var w=(this.element.ownerDocument  ||  this.element.document  ||  this.element).defaultView;  // ← (ElementNode || window || document)
+	const w=(this.element.ownerDocument  ||  this.element.document  ||  this.element).defaultView;  // ← (ElementNode || window || document)
 	getAllEventsInWindow(w, false);
 	if (allEvents[this.id] !== this)  throw new Error("Can not remove “UniDOM.EventHandler”: its “id” has been corrupted.");
-	this.element.removeEventListener(this.eventType, this.wrapper, this.useCapture);
+	this.element.removeEventListener(this.eventType, this.wrapper || this.handler, this.useCapture);
 	delete allEvents[this.id];
 	this.id=false;
 	cleanWindow(w);  }
@@ -205,17 +211,15 @@ function getEventHandler(element, eventType, handler, useCapture)  {
 	element=xElement(element);
 	eventType=getEventType(eventType);
 	handler=arrayify(handler);
-	var EH, id, j;
 	getAllEventsInWindow((element.ownerDocument  ||  element.document  ||  element).defaultView, false);
-	if (allEvents)  for (id in allEvents)  {
-		EH=allEvents[id];
+	if (allEvents)  loopAllEvents: for (const id in allEvents)  {
+		const EH=allEvents[id];
 		if (element===EH.element  &&  eventType===EH.eventType  &&  useCapture==EH.useCapture
-		&&  handler.length===EH.handler.length)  {
-			for (j=0; j<handler.length; j++)  {if (handler[j]!==EH.handler[j])  return false;}
+		&&  ((typeof EH.handler === 'funciton'  &&  handler.length===1  &&  EH.handler===handler[0])
+				 ||  handler.length===EH.handler.length))  {
+			for (let j=0; j<handler.length; j++)  {if (handler[j]!==EH.handler[j])  continue loopAllEvents;}
 			return EH;  }  }
 	return false;  }
-getEventHandler.apply=applyToElement; // (element, Array→[eventType, handler, useCapture])
-getEventHandler._apply_=Function.prototype.apply;
 
 
 	//private
@@ -224,7 +228,8 @@ getEventHandler._apply_=Function.prototype.apply;
 		if (!makeNew)  return allEvents=false;
 		const ref={window:win, allEvents:new Object};
 		eventedWindows.push(ref);
-		win.addEventListener('unload', UniDOM.removeAllEventHandlers, false);
+		// crusty fossilized dinosaur browsers (MSIE) had memory leaks — but ¿maybe you still want to do this for some reason?
+		// win.addEventListener('unload', UniDOM.removeAllEventHandlers, false);
 		return allEvents=ref.allEvents;  }
 
 
@@ -239,88 +244,64 @@ function removeEventHandler(element, eventType, handler, useCapture)  {
 		if (EH===false)
 			throw new Error("Can not remove unknown event: \nElement: "+element+" id: "+element.id+"\neventType: "+eventType+" useCapture: "+useCapture+"\n"+handler);  }
 	EH.remove();  }
-removeEventHandler.apply=applyToElement;  // (element, Array→[eventType, handler, useCapture])
-removeEventHandler._apply_=Function.prototype.apply;
 
 
 	//private
 	function cleanWindow(win)  {
 		if (eventedWindows.length===0)  return;
-		for (var i in eventedWindows)  {if (win===eventedWindows[i].window)  break;}
-		for (var id in eventedWindows[i].allEvents)  {return false;}    //if there are any EventHandlers still registered in this window, we can’t yet clean it.
+		for (var i=0;  i<eventedWindows.length;  i++)  {if (win===eventedWindows[i].window)  break;}
+		for (const id in eventedWindows[i].allEvents)  {return false;}    //if there are any EventHandlers still registered in this window, we can’t yet clean it.
 		eventedWindows.splice(i, 1);
-		win.removeEventListener('unload', UniDOM.removeAllEventHandlers, false);  }
+		// crusty fossilized dinosaur browsers (MSIE) had memory leaks —
+		// win.removeEventListener('unload', UniDOM.removeAllEventHandlers, false);
+		}
 
 
 // registered to a window or element, or is a property of an element, so “this” is the window or element…
 UniDOM.removeAllEventHandlers=removeAllEventHandlers;
 function removeAllEventHandlers(element, goDeep)  {
 	function remover(element)  {for (const id in allEvents)  {if (allEvents[id].element===element)  allEvents[id].remove();}}
-	if (UniDOM.isWindow(this))  element=this;
+	if (isWindow(this))  element=this;
 
 	else  element=xElement(element||this);
 
-	if (!UniDOM.isElementNode(element)  &&  !UniDOM.isWindow(element))  {
+	if (!isElement(element)  &&  !isWindow(element))  {
 		throw new Error('UniDOM.removeAllEventHandlers is a method of a DOM Element or window, or must be supplied an element or window as an argument.');  }
 	getAllEventsInWindow((element.ownerDocument  ||  element.document  ||  element).defaultView, false);
-	if (UniDOM.isElementNode(element))  { // DOM element passed in
+	if (isElement(element))  { // DOM element passed in
 		remover(element);
 		if (goDeep)  UniDOM.getElements(element, remover, goDeep);  }
 	else   // a window passed in
 		for (var id in allEvents)  {allEvents[id].remove();}  }
-removeAllEventHandlers.apply=applyToElement;  // (element, Array→[eventType, handler, useCapture])
-removeAllEventHandlers._apply_=Function.prototype.apply;
 
 
-
-//For MSIE9 both event paradigms may be triggered if UniDOM.addEventHandler.retroMSIE9=null
-//  only old-MSIE ‖or‖ Standards may be triggered if UniDOM.addEventHandler.retroMSIE9=Boolean(true‖false)
 UniDOM.generateEvent=generateEvent;
-function generateEvent(element, eventType, eSpecs)  {  var i, j, p, d, eT, event;
+function generateEvent(element, eventType, eSpecs, userArgs)  {
 	element=xElement(element);
-	if (typeof eSpecs !== 'object')  eSpecs={bubbles: false};  //new Object;
 	eventType=arrayify(eventType);
-	for (i=0; i<eventType.length; i++)  {
-		eT=getEventType(eventType[i]);
-		var subT=eT.match( /wheel|mouse|click|key|focus|touch|resize|scroll|./ );
-		switch (eSpecs && eSpecs.view && subT[0])  {
-			case 'wheel':
-				if (typeof WheelEvent === 'function')  {event=new WheelEvent(eT, eSpecs);  break;}
+	for (let eT of eventType)  {
+		eT=getEventType(eT);
+		let
+			subT=eT.match( /wheel|mouse|click|key|focus|touch|resize|scroll|./ ),
+			event;
+		switch (subT[0])  {
+			case 'wheel': event=new WheelEvent(eT, eSpecs);
+			break;
 			case 'mouse':
-			case 'click':
-				if (typeof MouseEvent === 'function')  event=new MouseEvent(eT, eSpecs); //allow newer properties when possible
-				else  { event=document.createEvent('MouseEvent');
-					event.initMouseEvent(eT, eSpecs.bubbles, eSpecs.cancelable,
-						eSpecs.view, eSpecs.detail,
-						eSpecs.screenX, eSpecs.screenY, eSpecs.clientX, eSpecs.clientY,
-						eSpecs.ctrlKey, eSpecs.altKey, eSpecs.shiftKey, eSpecs.metaKey,
-						eSpecs.button, eSpecs.relatedTarget);  }   //Note IE9 (at least) *requires* all arguments be passed. undefined values convert by default except:  eT, view, relatedTarget  are required valid
+			case 'click': event=new MouseEvent(eT, eSpecs);
 			break;
-			case 'key':
-				if (typeof KeyboardEvent === 'function')  {event=new KeyboardEvent(eT, eSpecs);  break;}
-			case 'focus':
-				if (subT[0]==='focus'  &&  typeof FocusEvent === 'function')  {event=new FocusEvent(eT, eSpecs);  break;}
-			case 'touch':
-				if (subT[0]==='touch'  &&  typeof TouchEvent === 'function')  {event=new TouchEvent(eT, eSpecs);  break;}
+			case 'key': event=new KeyboardEvent(eT, eSpecs);
+			break;
+			case 'focus': event=new FocusEvent(eT, eSpecs);
+			break;
+			case 'touch': event=new TouchEvent(eT, eSpecs);
+			break;
 			case 'resize':
-			case 'scroll':
-				if (typeof UIEvent === 'function')  event=new UIEvent(eT, eSpecs);
-				else  { event=document.createEvent('UIEvent');
-					event.initUIEvent(eT, eSpecs.bubbles, eSpecs.cancelable,
-						eSpecs.view, eSpecs.detail);  } //it is unclear what “detail” has to do with the keyboard, or how to set a key value except maybe through the eSpecs.userArgs
+			case 'scroll': event=new UIEvent(eT, eSpecs);
 			break;
-			default:  //Mouse & UI Events without user-defined eSpecs “should” auto-generate appropriate real-time values
-				if (eSpecs  &&  eSpecs.detail!==undefined  &&  typeof CustomEvent === 'function')  event=new CustomEvent(eT, eSpecs);
-				else
-				if (typeof Event === 'function')  event=new Event(eT, eSpecs);
-				else  { event=document.createEvent('Event');
-					event.initEvent(eT, eSpecs.bubbles, eSpecs.cancelable);  }  }
-		//for (p in eSpecs)  {if (event[p] === undefined  &&  !event.hasOwnProperty(p))  event[p]=eSpecs[p];}
-		if (eSpecs.userArgs)  for (p in eSpecs.userArgs)  {event[p]=eSpecs.userArgs[p];}
+			default: event=new CustomEvent(eT, eSpecs);  }
+		if (userArgs)  for (p in userArgs)  {event[p]=userArgs[p];}
 		element.dispatchEvent(event);  }  }
-generateEvent.apply=applyToElement;  // (element, Array→[eventType, eSpecs])
-generateEvent._apply_=Function.prototype.apply;
-
 
 UniDOM.triggerEvent=function triggerEvent(element, event)  {
 	element=xElement(element);
@@ -358,27 +339,20 @@ KeySniffer.prototype.sniff=function sniff(event)  {
 
 
 
-UniDOM.setMouseEventOffsets=setMouseEventOffsets;
-function setMouseEventOffsets(event)  {  //returns the event object, modified to reflect the offset-values.
-		var offset=UniDOM.getElementOffset(event.target, true);
-		event.offsetX=event.clientX-offset.x;
-		event.offsetY=event.clientY-offset.y;
-		event.fixedOffset=offset.fixed;
-		try { var offset=UniDOM.getElementOffset(event.currentTarget, true);
-			event.currentX=event.clientX-offset.x;
-			event.currentY=event.clientY-offset.y;  }
-		catch(e) {}
-		return event;  }
-
-
 UniDOM.getMouseOffset=getMouseOffset;
 function getMouseOffset(element, event)  {  //returns an offset-values object; event object is not modified.
-		element=xElement(element);
-		var offset=UniDOM.getElementOffset(element, true);
-		offset.x=event.clientX-offset.x;
-		offset.y=event.clientY-offset.y;
-		return offset;  }
+	element=xElement(element);
+	var offset=UniDOM.getElementOffset(element, true);
+	offset.x=event.clientX-offset.x;
+	offset.y=event.clientY-offset.y;
+	return offset;  }
 
+
+
+/* ======= DOM-centric functions =======
+ *
+ *
+ */
 
 //  Returns the element offset from the window’s top-left corner if scroll=true;
 //  or if  scroll=false  from the document’s top-left corner.
@@ -389,7 +363,7 @@ function getElementOffset(element, scroll)  {
 	var x=0, y=0, scrl=false, fixed=false, ancestor=null;
 	element=xElement(element);
 	if (typeof scroll === 'boolean')  scrl=scroll;
-	else if (isElementNode(arguments[1]))  ancestor=arguments[1];
+	else if (isElement(arguments[1]))  ancestor=arguments[1];
 //	console.log('---');
 	while (!fixed  &&  (s=getComputedStyle(element, null))
 			&&  element!==ancestor  &&  element.offsetParent)  {
@@ -398,68 +372,33 @@ function getElementOffset(element, scroll)  {
 		x+= element.offsetLeft - (scrl? element.offsetParent.scrollLeft : 0);
 		y+= element.offsetTop - (scrl? element.offsetParent.scrollTop : 0);
 		element=element.offsetParent;  }
-	if (scrl)  {x-=UniDOM.getScrollX();  y-=UniDOM.getScrollY();}  //console.log('pageYOffset: '+window.pageYOffset);
+	if (scrl)  {x-=window.pageXOffset;  y-=window.pageYOffset;}  //console.log('pageYOffset: '+window.pageYOffset);
 //	console.log('---');
 	return {x:x, y:y, fixed:fixed};  }
 
 
-UniDOM.isElementNode=isElementNode;
-function isElementNode(e)  {return  typeof e == 'object'  &&  (e instanceof Element  ||  (e instanceof Node  &&  e.nodeType===Node.ELEMENT_NODE));};
-
 UniDOM.isElement=isElement;
-function isElement(e, i) {return isElementNode(e)  &&   e===e.parentNode.children[i];}
+function isElement(e, i) {return (e instanceof Element)  &&  (typeof i !== 'number'  ||   e===e.parentNode?.children[i]);}
 
 UniDOM.isNode=isNode;
-function isNode(n, i) {return (n instanceof Node)  &&  n===n.parentNode.childNodes[i];}
+function isNode(n, i) {return (n instanceof Node)  &&  (typeof i !== 'number'  ||   n===n.parentNode?.childNodes[i]);}
 
 UniDOM.isFirst=isFirst;
-function isFirst(e) {return e===e.parentNode.firstElementChild;}
+function isFirst(e) {return (e instanceof Element)  &&   e===e.parentNode?.firstElementChild;}
 
 UniDOM.isFirstNode=isFirstNode;
-function isFirstNode(e) {return e===e.parentNode.firstChild;}
+function isFirstNode(n) {return (n instanceof Node)  &&   n===n.parentNode?.firstChild;}
 
 UniDOM.isLast=isLast;
-function isLast(e) {return e===e.parentNode.lastElementChild;}
+function isLast(e) {return (e instanceof Element)  &&   e===e.parentNode?.lastElementChild;}
 
 UniDOM.isLastNode=isLastNode;
-function isLastNode(e) {return e===e.parentNode.lastChild;}
+function isLastNode(e) {return (n instanceof Node)  &&   n===n.parentNode?.lastChild;}
+
+UniDOM.isWindow=isWindow;
+function isWindow(w)  {return  w instanceof Window;}
 
 
-
-UniDOM.isWindow=(Window  &&  (window instanceof Window)) ?
-	function(e)  {return  e instanceof Window;}
-: function(e)  {return  typeof e == 'object'  &&  ((e=e.toString()) && e.match( /wIndOw/i ));};
-
-
-window.addEventListener('load', function()  {  // support UniDOM’s legacy for crusty old fossil crutches
-
-//position of the browser window on the desktop:
-if (window.screenLeft)  {
-	UniDOM.getScreenX=function(w)  {return  (w  ||  window).screenLeft;};
-	UniDOM.getScreenY=function(w)  {return  (w  ||  window).screenTop;};  }
-else
-if (window.screenX)  {
-	UniDOM.getScreenX=function(w)  {return  (w  ||  window).screenX;};
-	UniDOM.getScreenY=function(w)  {return  (w  ||  window).screenY;};  }
-
-
-if (window.innerWidth)  { // console.log('using standard:  window.innerWidth');
-	UniDOM.getInnerWidth=function(w)  {return  (w  ||  window).innerWidth;};
-	UniDOM.getInnerHeight=function(w)  {return  (w  ||  window).innerHeight;};
-	UniDOM.getScrollX=function(w)  {return  (w  ||  window).pageXOffset;};
-	UniDOM.getScrollY=function(w)  {return  (w  ||  window).pageYOffset;};  }
-
-if (document.documentElement  && document.documentElement.scrollWidth)  { //  console.log('using legacy MSIE with a DOCTYPE:  document.documentElement.scrollWidth');
-	UniDOM.getDocumentWidth=function(w)  {return  (w  ||  window).document.documentElement.scrollWidth;};
-	UniDOM.getDocumentHeight=function(w)  {return  (w  ||  window).document.documentElement.scrollHeight;};  }
-});
-
-
-
-/* ========The second half======
- *
- *
- */
 
 
 // If no match is found, false is returned.
@@ -469,17 +408,16 @@ if (document.documentElement  && document.documentElement.scrollWidth)  { //  co
 function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 	if (typeof cb !== 'function')  throw new TypeError('“UniDOM.getAncestor” requires a callback function; type of “'+(typeof cb)+'” passed in.');
 	if (typeof goDeep === 'undefined')  goDeep=function() {return false};
-	else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+	else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=()=>deep;}
 	var parent=this.parentNode,
 			found=false;
-//console.log('parent:',parent,' of this:',this);
 	do {
 		if (cb(parent, this, found))  {
 			if (!found  &&  !goDeep(parent, this, found))  return parent;
 			if (!found)  found=new ElementArray;
 			found.push(parent);  }  }
 	while ((!found || goDeep(parent, this, found))  &&  (parent=parent.parentNode));
-	if (found && (objFltr || powerSelect || UniDOM.powerSelect))  objectify(found, objFltr, powerSelect);
+	if (found && (objFltr || powerSelect || UniDOM.doPowerSelects))  found.objectify(objFltr, powerSelect);
 	return found;  }
 
 
@@ -487,27 +425,30 @@ function getAncestor(cb, goDeep, objFltr, powerSelect)  {
 // cb → callBack function should decide whether each element passed to it is the/an
 //  ancestor/descendant/elder/junior of choice and return a Boolean value indicating such choice.
 // cb.allNodes → Boolean: true crawls all DOM Nodes, false (default) crawls only Element Nodes (¡not for getAncestor!);
-//  this value may be changed while crawling by cb or goDeep.
+//  this value may be changed by cb or goDeep while crawling.
 // goDeep → may be •Boolean (default is false for Ancestors, true for the rest) or
 //  a •function that evaluates each individual element passed to it and returns a Boolean value.
 // goDeep.doContinue → Boolean may be changed to false by goDeep or cb while crawling to end query immediately (¡not for getAncestor!)
 // objFltr → may be a filter-function returning Object-property names.  See the  objectify()  function down below.
 // powerSelect → Boolean: ¿apply nonstandard methods (getSelected() & setSelected()) to <select> elements?
 
-//you can use the following function as the value of goDeep for getElements, getElders, & getjuniors
+//you can use the following function as the value of  goDeep  for getElements, getElders, & getjuniors
+//these functions will use it by default anyway if  goDeep  is undefined
 //then your cb() can include something like: function(){ … … if (done_with_search)  UniDOM.alwaysTrue.doContinue=false; … … }
-Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){return true}});
+Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:alwaysTrue});
+function alwaysTrue() {return true}
+
 
 // returns an array of HTML elements (though there may only be one array member)
 // returns an empty array if no matches found
 //  a.k.a. getDescendents()  …“getElements” reflects the standard DOM method names, but this can gather Nodes of other types also.
 	function getElements(cb, goDeep, objFltr, powerSelect)  {
 		if (typeof cb !== 'function')  throw new Error('“UniDOM.getElements” requires a callback function; type of “'+(typeof cb)+'” passed in.');
-		if (typeof goDeep === 'undefined')  goDeep=function() {return true;};
-		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+		if (typeof goDeep === 'undefined')  goDeep=alwaysTrue;
+		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=()=>deep;}
 		goDeep.doContinue=true;
 		const found=getKids(this[cb.allNodes ? 'childNodes' : 'children'], cb, goDeep, this);
-		if (found.length && (objFltr || powerSelect || UniDOM.powerSelect))  objectify(found, objFltr, powerSelect);
+		if (found.length && (objFltr || powerSelect || UniDOM.doPowerSelects))  found.objectify(objFltr, powerSelect);
 		return found;  }
 
 	//private
@@ -527,8 +468,8 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 // returns an empty array if no matches found
 	function getElders(cb, goDeep, objFltr, powerSelect)  {
 		if (typeof cb !== 'function')  throw new Error('“UniDOM.getElders” requires a callback function; type of “'+(typeof cb)+'” passed in.');
-		if (typeof goDeep === 'undefined')  goDeep=function() {return true};
-		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+		if (typeof goDeep === 'undefined')  goDeep=alwaysTrue;
+		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=()=>deep;}
 		goDeep.doContinue=true;
 		var elder=this;
 		const found=new ElementArray;
@@ -538,7 +479,7 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 				elder=elder[cb.allNodes ? 'lastChild' : 'lastElementChild'];  }
 			if (cb(elder, this, found))  found.push(elder);  }  }
 		while (goDeep.doContinue  &&  (elder=elder.parentNode)  &&  (cb(elder, this, found) ? found.push(elder) : true));
-		if (found.length && (objFltr || powerSelect || UniDOM.powerSelect))  objectify(found, objFltr, powerSelect);
+		if (found.length && (objFltr || powerSelect || UniDOM.doPowerSelects))  found.objectify(objFltr, powerSelect);
 		return found;  }
 
 
@@ -546,8 +487,8 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 // returns an empty array if no matches found
 	function getJuniors(cb, goDeep, objFltr, powerSelect)  {
 		if (typeof cb !== 'function')  throw new Error('“UniDOM.getJuniors” requires a callback function; type of “'+(typeof cb)+'” passed in.');
-		if (typeof goDeep === 'undefined')  goDeep=function() {return true};
-		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=function() {return deep;};}
+		if (typeof goDeep === 'undefined')  goDeep=alwaysTrue;
+		else if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=()=>deep;}
 		goDeep.doContinue=true;
 		var junior=this, cousins,
 				found=new ElementArray;
@@ -558,24 +499,24 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 			&&  (cousins=getKids(junior[cb.allNodes ? 'childNodes' : 'children'], cb, goDeep, this)).length)
 				found=found.concat(cousins);  }  }
 		while (goDeep.doContinue  &&  (junior=junior.parentNode)  &&  goDeep(junior, this, found));
-		if (found.length && (objFltr || powerSelect || UniDOM.powerSelect))  objectify(found, objFltr, powerSelect);
+		if (found.length && (objFltr || powerSelect || UniDOM.doPowerSelects))  found.objectify(objFltr, powerSelect);
 		return found;  }
 
 
 // returns (e) if the element (e) is an ancestor/descendant of this-Element.
 // else returns false.
-	function hasAncestor(e)  {return getAncestor.call(this, function(a) {return a===e;})}
-	function hasElement(e)  {return  (isElementNode(e)  &&  getAncestor.call(e, a => a===this))  ?  e : false;}
+	function hasAncestor(e)  {return getAncestor.call(this, a => a===e)}
+	function hasElement(e)  {return  (isElement(e)  &&  getAncestor.call(e, a => a===this))  ?  e : false;}
 
 
 	function getElementsByName(n, deep, objFltr, powerSelect)  { var count;
 		if (n===""  ||  typeof n === 'undefined'  ||  n===null)  n=new RegExp('^.+$');
 		else
 		if (typeof n !== 'object'  ||  !(n instanceof RegExp))  n=new RegExp('^'+RegExp.escape(n)+'$');
-		if (typeof deep === 'number')  { //should be >0 or no limit will be reached.
-			count=deep;
-			deep=function(){return true};  }
-		else if (typeof deep === 'function'  &&  deep.count)  count=deep.count;
+		if (typeof deep === 'number')  {
+			count=Math.max(1,deep);
+			deep=alwaysTrue;  }
+		else if (typeof deep === 'function'  &&  deep.count)  count=Math.max(1,deep.count);
 		if (typeof objFltr !== 'function')  objFltr=function(e) {return e.name;};
 		const found=getElements.call(this,
 			function(e)  { const flag=(typeof e.name === 'string'  &&  n.test(e.name));
@@ -587,10 +528,10 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 
 	function getElementsByClass(c, deep, objFltr, powerSelect)  {
 		if (typeof c === 'string')  {c=cleanClass(c);  c=c.split(" ");}
-		if (typeof deep === 'number')  { //should be >0 or no limit will be reached.
-			var count=deep;
-			deep=function(){return true};  }
-		else if (typeof deep === 'function'  &&  deep.count)  count=deep.count;
+		if (typeof deep === 'number')  {
+			var count=Math.max(1,deep);
+			deep=alwaysTrue;  }
+		else if (typeof deep === 'function'  &&  deep.count)  count=Math.max(1,deep.count);
 		return getElements.call(this,
 			function(e)  { var flag=hasClass.call(e, c);
 				if (flag && count)  deep.doContinue=(--count);
@@ -609,36 +550,23 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 
 	function getElementsByComplex(conditions, deep, objFltr, powerSelect)  {
 		return getElements.call(this,
-			function(e) {return has.call(e, conditions.data, conditions.filter);},
+			function(e) {return e.has(conditions.data, conditions.filter);},
+			//function(e) {return has.call(e, conditions.data, conditions.filter);},
 			deep, objFltr, powerSelect );  }
 
 	function getAncestorByComplex(conditions, deep, objFltr, powerSelect)  {
 		return getAncestor.call(this,
-			function(e) {return has.call(e, conditions.data, conditions.filter);},
+			function(e) {return e.has(conditions.data, conditions.filter);},
+			//function(e) {return has.call(e, conditions.data, conditions.filter);},
 			deep, objFltr, powerSelect );  }
 
 
-	//data is a random-length array of a user-defined set of “conditions” to be met
-	//data members that have a “logic” property should be Arrays that are considered a sub-set of conditions
-	// ¡ NOTE how NOT≡NOR but XNOT≠XNOR !
-	function has(data, filter)  { // filter-function should return true if each data “condition” is met, false if not
-		var logic= data.logic || 'and',   // data.logic should be either:  'and'  'or'  'nor'  'not'  'nand'  'xor'  'xnor'  'xnot'
-				xFlag=false, i, c=0;
-		if (logic==='nor')  logic='not'
-		for (i=0;  i<data.length;  i++)  {  //        the Object (Element) ↓↓ or String in question
-			if (data[i].logic ?  has.call(this, data[i], filter)  :  filter(this, data[i]))
-				switch (logic)  {               //                       the condition ↑↑ to be met
-				case 'not':  return false;
-				case 'or':  return true;
-				case 'xor':  if (xFlag)  return false;  else  xFlag=true;  }
-			else switch (logic)  {
-				case 'and':  return false;
-				case 'xnot':  if (xFlag)  return false;  else  xFlag=true;  continue;
-				case 'xnor':
-				case 'nand':  c++;  }  }
-		return logic==='and' || logic==='not' || xFlag || (logic==='nand' && c<i) || (logic==='xnor' && (c===0 || c===i));  }
-
-
+	/* adding to Object.prototype is an extreme condition — maybe we should not depend on it…
+	 * but code “should” run faster if we do
+	 *
+	const has=Object.prototype.has;  // ← see the file  JS_toolbucket/+++JS/+++.js
+	 *
+	 */
 
 	/* ===== SPECIAL NOTE: ======
 		if you pass in multiple class names as a string with a space, the className property of a matching element must
@@ -662,7 +590,8 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 		if (typeof this.className !== 'string' || this.className==="")  return false;
 		if (!(cna instanceof Array))  cna=[cna];
 		if (logic) cna.logic=logic;  // see function “has” (above) for legal values for “logic”
-		return has.call(this, cna, function(e, c)  { //is passed one className in the cna at a time
+		return this.has(cna, function(e, c)  { //is passed one className in the cna at a time
+		//return has.call(this, cna, function(e, c)  { //is passed one className in the cna at a time
 			var not=false;
 			if (typeof c === 'function')  return c(e)^c.not;
 			if (typeof c !== 'object'  ||  !(c instanceof RegExp))  {
@@ -684,7 +613,7 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 	// c may be the string name of the class or a RegExp  or an array of these
 	function removeClass(c) {this.className=xClass(this.className, c);}
 	function xClass(cn, xcs) {  //private
-		if (typeof cn != 'string')  return;
+		if (typeof cn !== 'string')  return;
 		if (!(xcs instanceof Array))  xcs=[xcs];
 		for (const xc of xcs)  {
 			cn=cn.replace(xc instanceof RegExp ?  xc  :  new RegExp('\\b'+RegExp.escape(xc)+'\\b', 'g'),  "");
@@ -714,19 +643,18 @@ Object.defineProperty(UniDOM, 'alwaysTrue', {enumerable:true, value:function(){r
 		this.className=aClass(cn, ac);  }
 
 
-	function disable(flag, className)  {
+	function disable(flag, className, bubbles)  {
 		if (className===undefined)  className='disabled';
 		flag=Boolean(flag);
-		const eventArgs={userArgs: {disable: flag}};
 		this.disabled=flag;
 		useClass.call(this, className, flag);
-		try {generateEvent(this, 'onDisabledStateChange', eventArgs);}  catch(e) {console.warn(e);};
+		try {generateEvent(this, 'onDisabledStateChange', {bubbles:bubbles}, {disable:flag});}  catch(e) {console.warn(e);};
 		for (const field of getElements.call(this, isInterface, goDeeper))  {
 			field.disabled=flag;
-			try {generateEvent(field, 'onDisabledStateChange', eventArgs);}  catch(e) {};  }
+			try {generateEvent(field, 'onDisabledStateChange', {bubbles:bubbles}, {disable:flag});}  catch(e) {};  }
 		//private
-		function isInterface(e)  { return  e.getAttribute('tabIndex')!==null  ||  e.getAttribute('contentEdible')!==null  ||
-			e.nodeName==='INPUT' || e.nodeName==='SELECT' || e.nodeName==='TEXTAREA' || e.nodeName==='BUTTON';  }
+		function isInterface(e)  { return  e.nodeName==='INPUT' || e.nodeName==='SELECT' || e.nodeName==='TEXTAREA' || e.nodeName==='BUTTON'  ||
+			e.getAttribute('tabIndex')!==null  ||  e.getAttribute('contentEdible')!==null;  }
 		function goDeeper(e) {return !e.disabled  &&  !hasClass.call(e, className);};  }
 
 
@@ -767,16 +695,15 @@ function ElementWrapper(element)  {
 ElementWrapper.prototype.$=function(CSSString, objFltr, powerSelect)  {
 	return UniDOM(UniDOM.$(CSSString, this.element, objFltr, powerSelect));  };
 
-ElementWrapper.prototype.addEventHandler=function()  {return addEventHandler.apply(this.element, arguments);};
-ElementWrapper.prototype.removeEventHandler=function()  {removeEventHandler.apply(this.element, arguments);  return this;};
+ElementWrapper.prototype.addEventHandler=function()  {return addEventHandler(this.element, ...arguments);};
+ElementWrapper.prototype.removeEventHandler=function()  {removeEventHandler(this.element, ...arguments);  return this;};
 ElementWrapper.prototype.removeAllEventHandlers=function(goDeep)  {removeAllEventHandlers(this.element, goDeep);  return this;};
-ElementWrapper.prototype.generateEvent=function()  {generateEvent.apply(this.element, arguments);  return this;};
+ElementWrapper.prototype.generateEvent=function()  {generateEvent(this.element, ...arguments);  return this;};
 ElementWrapper.prototype.triggerEvent=function(event)  {UniDOM.triggerEvent(this.element, event);  return this;};
 
 ElementWrapper.prototype.getOffset=function(scroll)  {return getElementOffset(this.element, scroll);}
 ElementWrapper.prototype.getMouseOffset=function(event)  {return getMouseOffset(this.element, event);}
 
-ElementWrapper.prototype.isElementNode=function()  {return isElementNode(this.element);}
 ElementWrapper.prototype.isElement=function(i)  {return isElement(this.element, i);}
 ElementWrapper.prototype.isNode=function(i)  {return isNode(this.element, i);}
 ElementWrapper.prototype.isFirst=function()  {return isFirst(this.element);}
@@ -808,7 +735,7 @@ ElementWrapper.prototype.getSelected= function() {
 	return  this.element.nodeName==='SELECT' ?
 			getSelectedOptions.call(this.element)
 		: getElementsByName.apply(this.element, aSlice.call(arguments, 1)).getSelected();  };
-ElementWrapper.prototype.setSelected=function() {if (this.element.nodeName==='SELECT') return setSelected.apply(this.element, arguments);};
+ElementWrapper.prototype.setSelected=function() {if (this.element.nodeName==='SELECT') return setSelectedOptions.apply(this.element, arguments);};
 
 
 
@@ -835,8 +762,8 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 	getAncestorByComplex() {cb=getAncestorByComplex;  return getConglomerate.apply(this, arguments);}
   getElementsByTagName()  {cb=Element.prototype.getElementsByTagName;  return getConglomerate.apply(this, arguments);}
 
-	setAttributes(n,v) {this.forEach(function(e){if (isElementNode(e))  e.setAttribute(n,v);});  return this;}
-	removeAttributes(n) {this.forEach(function(e){if (isElementNode(e))  e.removeAttribute(n);});  return this;}
+	setAttributes(n,v) {this.forEach(function(e){if (isElement(e))  e.setAttribute(n,v);});  return this;}
+	removeAttributes(n) {this.forEach(function(e){if (isElement(e))  e.removeAttribute(n);});  return this;}
 	hasAttributes(n) {cb=Element.prototype.hasAttribute;  return applyToAll.apply(this. arguments)}
 	getAttributes(n) {cb=Element.prototype.getAttribute;  return applyToAll.apply(this. arguments)}
 
@@ -857,19 +784,43 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 	generateEvent() {cb=generateEvent;  return applyToAll.apply(this, arguments);}
 	triggerEvent() {cb=triggerEvent;  return applyToAll.apply(this, arguments);}
 
-	isElementNode() {cb=isElementNode;  return invokeAll.apply(this);}
+	isElement() {cb=isElement;  return invokeAll.apply(this);}
 
-	getSelected() {return getSelectedInputs.apply(this, arguments);}
-	setSelected() {return setSelected.apply(this, arguments);}
-	getValues(includeEmpty, goDeep) { var r=new Array, deep;
-		if (typeof goDeep !== 'function')  {deep=Boolean(goDeep);  goDeep=function(){return deep;}}
+	getSelected(forceReturnArray)  {
+		const selected=new ElementArray;
+		for (const elmnt of this)  { if (elmnt?.checked)  switch (elmnt.type)  {
+			case 'radio':  return  forceReturnArray ? (selected.push(elmnt), selected) : elmnt;
+			case 'checkbox':  selected.push(elmnt);  }  }
+		return asArray(selected, forceReturnArray);  }
+
+	setSelected(value)  {
+		if (!(value instanceof Array))  value=[value];
+		for (const elmnt of this)  { if (elmnt?.nodeName==='INPUT')  switch (elmnt.type)  {
+			case 'radio':
+			case 'checkbox': elmnt.checked=values.includes(elmnt.value);  }  }
+		return this;  }
+
+	getValues(includeEmpty, goDeep)  { var r=new Array;
+		if (typeof goDeep !== 'function')  {const deep=Boolean(goDeep);  goDeep=()=>deep;}
 		function gatherValue(e)  { //note we never gather any elements, just extract their data
 			if (includeEmpty || (('value' in e) && e.value!==undefined && e.value!==""))  r.push(e.value);
 			if (e.children.length  &&  goDeep(e))  getElements.call(e, gatherValue, false);  }
 		this.forEach(gatherValue);
 		return r;  }
 
-	objectify(filter, powerSelect) {objectify(this, filter, powerSelect);  return this;}
+	objectify(filter, powerSelect)  {
+		if (block)  return;   //block is controlled exclusively by getConglomerate below
+		if (typeof filter !== 'function')  filter=null;
+		for (let e of this)  {
+			e=xElement(e);
+			if (e.nodeName==='SELECT' && (powerSelect || (UniDOM.doPowerSelects && powerSelect!==false)))  {
+				e.getSelected=getSelectedOptions;  e.setSelected=setSelectedOptions;  }
+			const n=filter?.(e);  //get a property name corresponding to this array member
+			if (!n)  continue;
+			if (this[n] instanceof ElementArray)  this[n].add(e);
+			else if (this[n])  this[n]=(new ElementArray(this.wrappedElements)).add(this[n], e);  //note that if this[n] was defined before this function was called, and it was an Array-like Object, it will be flattened (recursively) into this new ElementArray
+			else  this[n]=e;  }
+		return this;  }
 
 	wrap(flag, doso)  { this.wrappedElements=(flag===undefined) ? true : Boolean(flag);
 		if (doso)  this.alignWrappedState();
@@ -916,21 +867,21 @@ var cb,  //private
 //↓private----===========*********===========----
 	function getConglomerate(xData, deep, objFltr, powerSelect)  {
 		var r=new ElementArray(this.wrappedElements);
-		block=true;  //see objectify() below
-		try  { for (var i=0, t;  i<this.length;  i++)  {
-			t=cb.apply(xElement(this[i]), arguments);
-			r=r.concat(this.wrappedElements ? UniDOM(t, true) : t);  }  }
+		block=true;  //see objectify() above in the ElementArray class
+		try  { for (let e of this)  {
+			e=cb.apply(xElement(e), arguments);
+			r=r.concat(this.wrappedElements ? UniDOM(e, true) : e);  }  }
 		finally {block=false;}
-		if (objFltr || powerSelect)  objectify(r, objFltr, powerSelect);
+		if (objFltr || powerSelect)  r.objectify(objFltr, powerSelect);
 		return r;  }
 
-	function applyToAll() {
-		for (var i=0, r=new Array;  i<this.length;  i++)  {r[i]=cb.apply(xElement(this[i]), arguments);}
+	function applyToAll() { const r=new Array;
+		for (const e of this)  {r.push(cb.apply(xElement(e), arguments));}
 		return r;  }
 
-	function invokeAll()  {
-		for (var args, i=0, r=new Array;  i<this.length;  i++)  {
-			args=aSlice.call(arguments, 0);  args.unshift(xElement(this[i]));
+	function invokeAll()  { var r=new Array;
+		for (const e of this)  {
+			const args=aSlice.call(arguments, 0);  args.unshift(xElement(e));
 			r=r.concat(cb.apply(UniDOM, args));  }
 		return r;  }
 
@@ -943,65 +894,35 @@ var cb,  //private
 	function getSelectedOptions(forceReturnArray)  {
 		if (this.type==='select-one')  { var s= (this.selectedIndex>=0) ? this.options[this.selectedIndex] : null;
 			return  forceReturnArray ? [s] : s;  }
-		for (var i=0, selected=new Array;  i<this.options.length;  i++)  {
-			if (this.options[i].selected)  selected.push(this[i]);  }
-		return asArray(selected, forceReturnArray);  }
+		return asArray(this.selectedOptions, forceReturnArray);  }
 
-	function setSelected(value)  { var i, j;
-		if (!(value instanceof Array))  value=[value];
-		for (i=0; i<this.length; i++)  { for (j=0; j<value.length; j++)  {
-			if (this.nodeName==='SELECT')  {
-				if (this.options[i].hasAttribute('value'))
-					this.options[i].selected= (this.options[i].value==value[j]);
-				else this.options[i].selected= (this.options[i].text==value[j]);  }
-			else  this[i].checked= (this[i].value==value[j]);  }  }
+	function setSelectedOptions(values)  {
+		if (!(values instanceof Array))  values=[values];
+		for (const opt of this.options)  {
+			if (opt.hasAttribute('value'))
+				opt.selected= values.includes(opt.value);
+			else  opt.selected= values.includes(opt.text);  }
 		return this;  }
 
-	function getSelectedInputs(forceReturnArray)  {
-		const selected=new ElementArray;
-		for (elmnt of this)  { if (elmnt.checked)  switch (elmnt.type)  {
-			case 'radio':  return  forceReturnArray ? (selected.push(elmnt), selected) : elmnt;
-			case 'checkbox':  selected.push(elmnt);  }  }
-		return asArray(selected, forceReturnArray);  }
-
-	function objectify(a, filter, powerSelect)  {
-		if (block)  return;   //block is controlled exclusively by getConglomerate above
-		if (typeof filter !== 'function')  filter=null;
-		for (let e of a)  {
-			e=xElement(e);
-			if (e.nodeName==='SELECT' && (powerSelect || (UniDOM.powerSelect && powerSelect!==false)))  {
-				e.getSelected=getSelectedOptions;  e.setSelected=setSelected;  }
-			const n=filter?.(e);  //get a property name corresponding to this array member
-			if (!n)  continue;
-			if (a[n] instanceof ElementArray)  a[n].add(e);
-			else if (a[n])  a[n]=(new ElementArray(a.wrappedElements)).add(a[n], e);  //note that if a[n] was defined before this function was called, and it was an Array-like Object, it will be flattened (recursively) into this new ElementArray
-			else  a[n]=e;  }
-		return a;  };
 
 var xTimes=0
 
-	//applyToElement replaces the prototyped “apply” method for certain (non-OO) UniDOM >functions< (see event-related)
-	//to allow passing arguments as an array through the ElementWrapper prototype methods (which don’t take an Element argument)
-	//The true Function.apply method is scuttled to the _apply_ alias.
-	function applyToElement(element, args)  { var aa=aSlice.call(args, 0);  aa.unshift(element);
-		return this._apply_(UniDOM, aa);  } //the functions never actually reference the UniDOM Object through “this”, but may do so in the future; to pass arguments as an array, we must never-the-less have an Object to apply to…
 	function invoke(Obj, method /* , firstArg «, secondArg «, thirdArg, … … … »» , moreArgumentsArray */ )  {    //currently unused by UniDOM
-		var aa=aSlice.call(arguments[arguments.length-1], 0);
+		const aa=aSlice.call(arguments[arguments.length-1], 0);
 		aa.unshift(aSlice.call(arguments, 2, -1));
 		return method.apply(Obj, aa);  };
 
 
 //some nice static convenience functions:
 UniDOM.getSelectedOptions=function(select, forceReturnArray) {return getSelectedOptions.call(select, forceReturnArray);};
-UniDOM.setSelectedOptions=function(select, value) {return setSelected.call(select, value);};
-UniDOM.addPowerSelect=function(select) {select.getSelected=getSelectedOptions;  select.setSelected=setSelected;  return select;};
+UniDOM.setSelectedOptions=function(select, values) {return setSelectedOptions.call(select, values);};
+//note the point of “getSelected” & “addSelected” is to have identical method names for <select> elements and UniDOM.ElementArrays of <input type='radio‖checkbox'>
+//JavaScript can then easily work with either when gathered by name and the HTML “form” content is freed up a bit for the front-end developer’s choice
+UniDOM.addPowerSelect=function(select) {select.getSelected=getSelectedOptions;  select.setSelected=setSelectedOptions;  return select;};
 
-UniDOM.objectifyArray=objectify;
+UniDOM.doPowerSelects=false;  // if “true”, UniDOM’s element-gathering functions will always add “getSelected()” & “setSelected()” methods to <select> elements
+
 UniDOM.invoker=invoke;
-UniDOM.objHas=function(obj, conditions, filter) {return has.call(obj, conditions, filter);};
-
-Array.objectify=objectify;
-Object.has=has;   //  myObject={};  myObject.has=Object.has;  flag=myObject.has(conditions, filter);
 
 
 // ******************************************************************** \\
@@ -1077,13 +998,12 @@ UniDOM.globalize=function(myWindow)  { //hog the space
 		console.log('============================================');  }
 
 
-UniDOM.prototypify=function(objectsToo)  { //invade the DOM
-//  https://developer.mozilla.org/en-US/docs/Web/JavaScript/The_performance_hazards_of__[[Prototype]]_mutation
+UniDOM.prototypify=function()  { //invade the DOM
 
 	if (CSSEngine)
 	Element.prototype.$=function(CSSString, objFltr, powerSelect)  {
 		var EA=(new ElementArray).concat(CSSEngine.call(this, CSSString), false);
-		if (EA.length && (objFltr || powerSelect || UniDOM.powerSelect))  objectify(EA, objFltr, powerSelect);
+		if (EA.length && (objFltr || powerSelect || UniDOM.doPowerSelects))  EA.objectify(objFltr, powerSelect);
 		return EA;  }
 
 	Element.prototype.getAncestor=getAncestor;
@@ -1111,11 +1031,11 @@ UniDOM.prototypify=function(objectsToo)  { //invade the DOM
 	Element.prototype.useClass=useClass;
 	Element.prototype.disable=disable;
 
-	Element.prototype.addEventHandler=function() {addEventHandler.apply(this, arguments);};
-	Element.prototype.removeEventHandler=function() {removeEventHandler.apply(this, arguments);};
-	Element.prototype.removeAllEventHandlers=function(goDeep) {removeAllEventHandlers(this, goDeep);};
-	Element.prototype.getEventHandler=function() {getEventHandler.apply(this, arguments);};
-	Element.prototype.generateEvent=function() {generateEvent.apply(this, arguments);};
+	Element.prototype.addEventHandler=function() {return addEventHandler(this, ...arguments);};
+	Element.prototype.removeEventHandler=function() {return removeEventHandler(this, ...arguments);};
+	Element.prototype.removeAllEventHandlers=function(goDeep) {return removeAllEventHandlers(this, goDeep);};
+	Element.prototype.getEventHandler=function() {return getEventHandler(this, ...arguments);};
+	Element.prototype.generateEvent=function() {return generateEvent(this, ...arguments);};
 
 	Object.defineProperties(Node.prototype, {
 		isFirstNode: {enumerable:true, get: function() {return this===this.parentNode.firstChild;}, configurable:true},
@@ -1130,14 +1050,26 @@ UniDOM.prototypify=function(objectsToo)  { //invade the DOM
 	Element.prototype.getMouseOffset=function(event)  {return UniDOM.getMouseOffset(this, event);};
 
 	Select.prototype.getSelected=getSelectedOptions;
-	Select.prototype.setSelected=setSelected;
+	Select.prototype.setSelected=setSelectedOptions;
 
-	Fieldset.prototype.getSelected=function() {getSelectedInputs.apply(this.elements, arguments)}
-	Fieldset.prototype.setSelected=function() {setSelected.apply(this.elements, arguments);}
+	Fieldset.prototype.getSelected=function(forceReturnArray, disabled='disabled')  {
+		function goDeep(e) {return !e.disabled && !e.has$Class(disabled);}
+		const selected=this.getElements( elmnt => {
+				if (!elmnt.disabled  &&  elmnt.checked)  switch (elmnt.type)  {
+				case 'radio':  goDeep.doContinue=false;
+				case 'checkbox':  return true;  }  },
+			goDeep);
+		return asArray(selected, forceReturnArray);  }
 
-	if (!objectsToo)  return;
-	Object.defineProperty(Object.prototype, "has", {value: has});
-	Object.defineProperty(Array.prototype, "objectify", {value: function(nameFilter) {objectify(this, nameFilter);  return this;}});
+	Fieldset.prototype.setSelected=function(value, forceReturnArray, disabled='disabled') {
+		function goDeep(e) {return !e.disabled && !e.has$Class(disabled);}
+		const selected=this.getElements( elmnt => {
+				if (!elmnt.disabled)  switch (elmnt.type)  {
+				case 'radio':  goDeep.doContinue=false;
+				case 'checkbox':  return elmnt.checked=(value.includes(elmnt.value));  }  },
+			goDeep);
+		return asArray(selected, forceReturnArray);  }
+
 	}
 /*  still waiting………
 HTMLCollection.prototype.
