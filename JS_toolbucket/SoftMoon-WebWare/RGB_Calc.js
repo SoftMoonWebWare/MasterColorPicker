@@ -39,6 +39,7 @@ if (!SoftMoon.defaultPalette)  SoftMoon.defaultPalette='HTML';
 
 if (typeof SoftMoon.palettes !== 'object')  SoftMoon.palettes=new Object;
 
+if (!SoftMoon.colorPalettes_defaultPath)  SoftMoon.colorPalettes_defaultPath='color_palettes/';
 
 
 
@@ -138,7 +139,6 @@ SoftMoon.WebWare.loadPalettes.userPaletteMask= /\/users\//i
 SoftMoon.WebWare.loadPalettes.autoloadPaletteMask= /\/autoload\//i
 SoftMoon.WebWare.loadPalettes.trashMask= /\/trash\//i
 
-if (!SoftMoon.colorPalettes_defaultPath)  SoftMoon.colorPalettes_defaultPath='color_palettes/';
 
 // This function will return an initially empty array, with three added properties:  db,  store,  paletteIndexRequest.
 // Once the index is asynchronously loaded, the array will fill with database request (IDBRequest) objects, one for each palette being loaded.
