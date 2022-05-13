@@ -1,3 +1,8 @@
+//  character-encoding: UTF-8 Unix   tab-spacing: 2   word-wrap: no
+//  last updated May 9, 2022
+
+if (RegExp.escape)  console.warn("RegExp.escape already exists.");
+else
 RegExp.escape=function (string) {
 	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
   return string && string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -36,8 +41,12 @@ else Boolean.eval=function (b, d, charset)  {
 
 if (Object.lock)  console.warn("Object.lock already exists.");
 else  Object.lock=function(o, deep)  {
+	// ¡¡¡ this function is NOT INFINATELY-RECURSION PROOF !!!
+	// ¡¡¡ deep objects may not reference shallow objects !!!
 	if (deep  &&  typeof deep !== 'number')  deep=Infinity;
-	const props=Object.getOwnPropertyNames(o);
+	const
+		props=Object.getOwnPropertyNames(o),
+		cycled=new Array;
 	for (const p of props)  {
 		if (deep  &&  typeof o[p] === 'object')  Object.lock(o[p], deep-1);
 		const d=Object.getOwnPropertyDescriptor(o, p);
@@ -45,3 +54,27 @@ else  Object.lock=function(o, deep)  {
 			d.configurable=false;
 			if ('writable' in d)  d.writable=false;
 			Object.defineProperty(o, p, d);  }  }  }
+
+
+if (Object.prototype.has)  console.warn("Object.prototype.has already exists.");
+else
+	//data is a random-length array of a user-defined set of “conditions” to be met
+	//data members that have a “logic” property should be Arrays that are considered a sub-set of conditions
+	// ¡ NOTE how NOT≡NOR but XNOT≠XNOR !
+Object.defineProperty(Object.prototype, 'has', {enumerable:false, configurable:true, writable:true,
+	value: function has(data, filter)  { // filter-function should return true if each data “condition” is met, false if not
+		var logic= data.logic || 'and',   // data.logic should be either:  'and'  'or'  'nor'  'not'  'nand'  'xor'  'xnor'  'xnot'
+				xFlag=false, i, c=0;
+		if (logic==='nor')  logic='not'
+		for (i=0;  i<data.length;  i++)  {  //        the Object (Element) ↓↓ or String in question
+			if (data[i].logic ?  has.call(this, data[i], filter)  :  filter(this, data[i]))
+				switch (logic)  {               //                       the condition ↑↑ to be met
+				case 'not':  return false;
+				case 'or':  return true;
+				case 'xor':  if (xFlag)  return false;  else  xFlag=true;  }
+			else switch (logic)  {
+				case 'and':  return false;
+				case 'xnot':  if (xFlag)  return false;  else  xFlag=true;  continue;
+				case 'xnor':
+				case 'nand':  c++;  }  }
+		return logic==='and' || logic==='not' || xFlag || (logic==='nand' && c<i) || (logic==='xnor' && (c===0 || c===i));  }});
