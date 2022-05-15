@@ -594,7 +594,7 @@ To replace this functionality, replace the <code>MasterColorPicker.pick</code> m
 See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> for more details.</p>
 
 
-<h3 id='your_filesystem'>MasterColorPicker<mark class='macronym'>™</mark>’s file system structure.</h3>
+<h3 id='your_filesystem'>MasterColorPicker’s<mark class='macronym'>™</mark> file system structure.</h3>
 
 <p>The MasterColorPicker<mark class='macronym'>™</mark> JavaScript<mark class='macronym'>™</mark> codebase does not rely on
 any particular file-system structure or filenames,
@@ -609,7 +609,21 @@ The <code class='filename'>color_palettes/</code> folder may be renamed if need 
 however, you must then modify the value <code>SoftMoon.colorPalettes_defaultPath</code>
 either directly (<strong>¡before</strong> the color-palettes load!)
 or by modifying the file <code class='filename'>JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js</code>
-(at the file’s beginning).</p>
+(at the file’s beginning).&nbsp;
+The <code class='filename'>color_palettes/html-indexer.php</code> file is optional, but its name also must remain unchanged.&nbsp;
+It will allow end-users the ability to get an <abbr>HTML</abbr>-based index with hyperlinks of the
+<code class='filename'>color_palettes/</code> folder and its sub-folders by simply typing something like:
+<kbd>http://mywebsite.com/color_palettes/?html</kbd> in their browser’s address bar.&nbsp;
+Then the included <code class='filename'>color_palettes/index.php</code> file
+(which the server will automatically use when no filename is specified in the folder)
+will call the <code class='filename'>color_palettes/html-indexer.php</code> file
+instead of generating a simple flat text-based index.&nbsp;
+If you have sub-folders in your <code class='filename'>color_palettes/</code> folder,
+you can then copy the <code class='filename'>html-indexer.php</code> file
+into those sub-folders, but then rename it <code class='filename'>index.php</code> in those sub-folders
+so the server will automatically use it.&nbsp;
+Don’t copy the included <code class='filename'>color_palettes/index.php</code> file into sub-folders;
+it is not needed.</p>
 <p>Other folders and filenames may be changed or moved to suit your filesystem arrangement and organization.&nbsp;
 You simply need to modify the <code>&lt;script&gt;</code> tags that actually load the files to match your new filepaths.&nbsp;
 ¡The order the <code>&lt;script&gt;</code> files load is important!&nbsp;
