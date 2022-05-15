@@ -1,5 +1,5 @@
 <?php  /*  charset="UTF-8"
-	color_palettes/index.php  for PRIVATE SERVERS          April 25, 2022
+	color_palettes/index.php  for PRIVATE SERVERS          May 14, 2022
 
 	¡WARNING!  This PHP file can accept uploads and install them in your server’s file system;
 	¡          it can also delete files (or move them to an existing “trash” folder) on request !
@@ -76,13 +76,21 @@
 
   */
 
-
 // ¡remember for headers, there must be NO content before the opening <?php tag and no BOM in this file when you save it!
+header('Cache-Control: no-store');
+
+// end-users can request an HTML-based index with clickable links:
+//   color_palettes/?html
+if ( (isset($_GET['html'])  or  isset($_GET['HTML']))
+and  is_file('html-indexer.php'))  {
+	header('Content-Type: text/html; charset=UTF-8');
+	include 'html-indexer.php';
+	exit;  }
+
 header('Content-Type: text/plain; charset=UTF-8');
 /* Windows® NTFS uses UTF-8; Linux is undefined: it depends on the application saving the file.
  * This file is encoded in UTF-8 and outputs an extended character set.
  */
-header('Cache-Control: no-store');
 
 
 define('DIRECTORY_ACCESS', 0644);	 // Read and write for owner, read for everybody else
