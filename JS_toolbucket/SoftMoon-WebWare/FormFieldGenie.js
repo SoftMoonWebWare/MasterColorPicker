@@ -1,6 +1,6 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.2 (March 25, 2020)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
+/* FormFieldGenie version 4.2.1 (May 16, 2022)  written by and Copyright © 2010,2011,2012,2015,2019,2020 Joe Golembieski, Softmoon-Webware
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatable with early versions of MSIE =*=*=*
 
@@ -24,7 +24,7 @@ if (typeof SoftMoon.WebWare !== 'object')  SoftMoon.WebWare=new Object;
 
 
 
-;(function(){  // ===================here we wrap the “private members/methods” of this class=======================
+;(function FormFieldGenie_NS(){  // open a private namespace
 
 
 
@@ -35,7 +35,7 @@ SoftMoon.WebWare.FormFieldGenie=FormFieldGenie;
 function FormFieldGenie(opts, HTML_clipMenu)  {
 	if (!new.target)  throw new Error("“FormFieldGenie” is a constructor, not a function or method.");
 	this.config=new FormFieldGenie.ConfigStack(this, opts);
-	this.clipboard=new Object;
+	this.clipboard=new Array;  //new Object; ← the Array acts like a simple Object
 	this.HTML_clipMenu=HTML_clipMenu;
 	this.tabbedOut=false;
 	this.catchTab=this.catchTab.bind(this);  }
@@ -84,8 +84,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 	update_HTML_clipMenu()   this method is also called internally by other user-methods as a worker-method, but you may utilize it if manually updating the clipboard.
 
 	The publicly accessible (and user-replacable) worker-methods of a FormFieldGenie instance are:
-	isActiveField(fieldNode)  ← this is called internally by user methods
-  dumpEmpties(elmnt)        ← this is called internally by user methods
+	isActiveField(fieldNode, cbParams)  ← this is called internally by user methods
 	catchTab(event)  ← this is to be utilized (called by) by your “onKeyDown” event handler
 	catchKey(event)  ← this is NOT defined natively, but is recognized and called by the standard “catchTab” method of an instance
 
@@ -164,7 +163,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 			updateValue: 'all' | 'non-implicit' | 'non-indexed' | 'indexed' | 'implicit'
 				Controls the application of updating _values_ instead of _names_ in
 						checkbox and radio-button fields that have _values_ formatted similar to "[0]"
-				Any other (string value) condition passed yields no values updated (use "no" or "none" or "nope" or "nay" or "nyet" etc).
+				Any other (string value) condition passed yields no values updated (use "no" or "none" or "nope" or "nay" etc).
 				No passed condition yields the default action "all".
 						=== examples ===
 				all             name  name[string]  name[number]  name[]
@@ -300,8 +299,10 @@ FormFieldGenie.ConfigStack.prototype={
 	climbTiers: true,
 	updateValue: "all",
 	focusField: 0,
-	dumpEmpties: dumpEmpties,      /*Boolean  or  user function returns Boolean|null*/
-	minTotal: 1,   /* min number of inputs in a group when checking to dump empties */
+	doFocus: null,
+	isActiveField: undefined,   /*Boolean  or  user function returns Boolean;  see also isActiveField() method*/
+	dumpEmpties: dumpEmpties,   /*Boolean  or  user function returns Boolean|null*/
+	minFields: 1,   /* min number of input-fields in a group when checking to dump empties */
 	nodeName: null,  /*specific nodeName of Elements in a group when checking to dump empties*/
 	checkForEmpty: "one",
 	checkField: 0,
@@ -309,7 +310,6 @@ FormFieldGenie.ConfigStack.prototype={
 	cloneCustomizer: null,  /*user function*/
 	eventRegistrar: null,   /*user function*/
 	fieldsetCustomizer: null,   /*user function*/
-	doFocus: null,
 	groupClass: "",       /* string  or  RegExp */
 	groupTag: null,        /* htmlTagNameString.toUpper() */
 	minPixWidth: 4,  //for an input to be "active"
@@ -363,6 +363,7 @@ FormFieldGenie.prototype.catchTab=function(event)  {
 		event.target.catchKey=new Function(event.target.getAttribute('catchkey'));
 	if (typeof event.target.catchKey === 'function')  return event.target.catchKey(event);
  */
+	if (typeof this.catchKey === 'function')  return this.catchKey(event);
 	return true;  }
 
 
@@ -372,9 +373,9 @@ FormFieldGenie.prototype.catchTab=function(event)  {
 //  You may add/subtract your own rules, perhaps checking the status of another element.
 //  Inactive elements will not be considered when deciding to pop a new fieldNodeGroup or dump an empty one.
 // 	Your function should return true/false.
-FormFieldGenie.prototype.isActiveField=function(fieldNode)  {
+FormFieldGenie.prototype.isActiveField=function(fieldNode, cbParams)  {
 	switch (typeof this.config.isActiveField)  {
-		case 'function': return this.config.isActiveField(fieldNode);
+		case 'function': return this.config.isActiveField(fieldNode, cbParams);
 		case 'boolean':  return this.config.isActiveField;  }
 	if ( typeof fieldNode.offsetWidth === 'number'
 	&&  ( fieldNode.offsetWidth<this.config.minPixWidth
@@ -400,7 +401,7 @@ function dumpEmpties(elmnt)  {
 		&&  ( typeof config.nodeName !== 'string'
 			||  elmnt[i].nodeName===config.nodeName ) )
 				count++;  }
-	return (count>config.minTotal);  }
+	return (count>config.minFields);  }
 
 
 
@@ -830,7 +831,7 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
 
 
 
-})()  //close and invoke the wrapper for private members/functions
+})()  //close and invoke the NameSpace wrapper for private members/functions
 
 
 
@@ -845,19 +846,19 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
  *  the end-user copies/cuts to.
  *
 <menu id='myGenie_popUpMenu' standardItems='genie'>
-	<li>insert:<span onclick='myGenie.popNewField(this.getAnscestorByClass(myGenie.config.groupClass), {doso:"insert"})'>empty field</span>
-							<ul onclick='if (event.phase===BUBBLING_PHASE) myGenie.pasteField(this.getAnscestorByClass(myGenie.config.groupClass), {doso:"insert", clip:event.target.innerHTML})'>
+	<li>insert:<span onclick='myGenie.popNewField(this.closest("."+myGenie.config.groupClass), {doso:"insert"})'>empty field</span>
+							<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteField(this.closest("."+myGenie.config.groupClass), {doso:"insert", clip:event.target.className})'>
 								<li class='genie'>all clips</li>
 							</ul></li>
-	<li>copy to:<ul onclick='if (event.phase===BUBBLING_PHASE) myGenie.copyField(this.getAnscestorByClass(myGenie.config.groupClass), {clip:event.target.innerHTML})'>
+	<li>copy to:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.copyField(this.closest("."+myGenie.config.groupClass), {clip:event.target.className})'>
 								<li class='genie'>new clip</li>
 							</ul></li>
-	<li>cut to:<ul onclick='if (event.phase===BUBBLING_PHASE) myGenie.cutField(this.getAnscestorByClass(myGenie.config.groupClass), {clip:event.target.innerHTML})'>
+	<li>cut to:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.cutField(this.closest("."+myGenie.config.groupClass), {clip:event.target.className})'>
 								<li class='genie'>new clip</li>
 							</ul></li>
-	<li>paste from:<ul onclick='if (event.phase===BUBBLING_PHASE) myGenie.pasteField(this.getAnscestorByClass(myGenie.config.groupClass), {clip:event.target.innerHTML})'>
+	<li>paste from:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteField(this.closest("."+myGenie.config.groupClass), {clip:event.target.className})'>
 								</ul></li>
-	<li onclick='if (confirm("Do you want to delete this fieldNodeGroup?")) myGenie.deleteField(this.getAnscestorByClass(myGenie.config.groupClass))'>delete</li>
+	<li onclick='if (confirm("Do you want to delete this fieldNodeGroup?")) myGenie.deleteField(this.closest("."+myGenie.config.groupClass))'>delete</li>
 	<li onclick='myGenie.clearClipboard();'>clear clipboard</li>
 </menu>
  *
