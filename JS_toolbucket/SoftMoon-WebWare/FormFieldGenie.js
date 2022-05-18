@@ -356,7 +356,7 @@ Object.defineProperties( FormFieldGenie.ConfigStack.prototype, {
 //  Alternatively, you may utilize the “eventRegistrar” functional option (see the config options above)
 //  to add on a handler that calls this method, or any additional handlers, to newly cloned form fields as needed.
 FormFieldGenie.prototype.catchTab=function(event)  {
-	this.tabbedOut=(event.keyCode===9);
+	this.tabbedOut=(event.key==='Tab');
 /*
 	// ¡NOTE! the HTML-attribute is “catchkey” (all lowercase) while the method on the Element is “catchKey” (camelCase)
 	if (typeof event.target.catchKey !== 'function'  &&  event.target.hasAttribute('catchkey'))
