@@ -356,13 +356,12 @@ Object.defineProperties( FormFieldGenie.ConfigStack.prototype, {
 //  Alternatively, you may utilize the “eventRegistrar” functional option (see the config options above)
 //  to add on a handler that calls this method, or any additional handlers, to newly cloned form fields as needed.
 FormFieldGenie.prototype.catchTab=function(event)  {
-	this.tabbedOut=(event.key==='Tab');
-/*
+	this.tabbedOut=(event.key==='Tab' && !event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey
+									&& !event.getModifierState('AltGraph') && !event.getModifierState('OS'));
 	// ¡NOTE! the HTML-attribute is “catchkey” (all lowercase) while the method on the Element is “catchKey” (camelCase)
-	if (typeof event.target.catchKey !== 'function'  &&  event.target.hasAttribute('catchkey'))
-		event.target.catchKey=new Function(event.target.getAttribute('catchkey'));
+	if (typeof event.target.catchKey !== 'function'  &&  event.target.hasAttribute('catchkey'))  {
+		try {event.target.catchKey=new Function('event', event.target.getAttribute('catchkey'));} catch(e){}  }
 	if (typeof event.target.catchKey === 'function')  return event.target.catchKey(event);
- */
 	if (typeof this.catchKey === 'function')  return this.catchKey(event);
 	return true;  }
 
@@ -395,11 +394,10 @@ FormFieldGenie.prototype.isActiveField=function(fieldNode, cbParams)  {
 // Your custom dumpEmpties function may utilize this second value passed by deleteField()
 // to make a distinction between a user request and an automatic “cleanup”.
 function dumpEmpties(elmnt)  {
-	elmnt=elmnt.parentNode.childNodes;
+	elmnt=elmnt.parentNode.children;
 	for (var count=0, i=0; i<elmnt.length; i++)  {
-		if ( elmnt[i].nodeType===Node.ELEMENT_NODE
-		&&  ( typeof config.nodeName !== 'string'
-			||  elmnt[i].nodeName===config.nodeName ) )
+		if (typeof config.nodeName !== 'string'
+		||  elmnt[i].nodeName===config.nodeName)
 				count++;  }
 	return (count>config.minFields);  }
 
