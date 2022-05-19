@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.0.2   May 9, 2022  by SoftMoon-WebWare.
+// Picker.js  Beta-4.0.3   May 19, 2022  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -180,9 +180,9 @@ Picker.prototype.doKeepInterfaceFocus=false;
 	Note for now, the CTRL key must be pressed for panel-tabbing to work if you customize these keys – it is hardcoded into the function itself.
 	These keys defined ↓ below ↓ control tabbing •from the data-target to the picker-select or a panel, or •from one panel to another
 */
-Picker.prototype.panelTabKey=new UniDOM.KeySniffer('>', undefined, true, false);
-Picker.prototype.panelBacktabKey=new UniDOM.KeySniffer('<', undefined, true, false);
-
+Picker.prototype.panelTabKey=new UniDOM.KeySniffer('>', undefined, true, false, false, false, false);
+Picker.prototype.panelBacktabKey=new UniDOM.KeySniffer('<', undefined, true, false, false, false, false);
+                                                  //   key  shift      ctrl  alt    meta   altGraph  OS
 
 Picker.prototype.setTopPanel=function setTopPanel(panel, rotate)  {
 	if (panel===this.panels[this.panels.length-1])  return;
