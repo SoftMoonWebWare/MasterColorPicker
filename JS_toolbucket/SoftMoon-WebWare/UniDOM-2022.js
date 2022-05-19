@@ -1,5 +1,4 @@
-
-	//  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
+//  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
 /*  UniDOM-2022  version 1  May 9, 2022
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
@@ -317,24 +316,43 @@ UniDOM.triggerEvent=function triggerEvent(element, event)  {
  * or MUST be “undefined” if you don’t care about the state of the modifier key.
  */
 UniDOM.KeySniffer=KeySniffer;
-function KeySniffer(key, shift, ctrl, alt)  {
+function KeySniffer(key, shift, ctrl, alt, meta, graph, os, capsLock, numLock, scrollLock)  {
+//function KeySniffer(event, checkCapsLock, checkNumLock, checkScrollLock)  {  // ← alternative arguments
 	if (!new.target)  throw new Error('KeySniffer is a contructor, not a function.');
 	if (arguments[0] instanceof KeyboardEvent)  {
 		this.key=arguments[0].keyCode;  // ←a specific key on the keyboard; event.key could be more than one physical key
 		this.shift=arguments[0].shiftKey;
 		this.ctrl=arguments[0].ctrlKey;
-		this.alt=arguments[0].altKey;  }
+		this.alt=arguments[0].altKey;
+		this.meta=arguments[0].metaKey;
+		this.graph=arguments[0].getModifierState('AltGraph');
+		this.os=arguments[0].getModifierState('OS');
+		this.capslock= arguments[1] ? arguments[0].getModifierState('CapsLock') : undefined;
+		this.numlock= arguments[2] ? arguments[0].getModifierState('NumLock') : undefined;
+		this.scrolllock= arguments[3] ? arguments[0].getModifierState('ScrollLock') : undefined;  }
 	else  {
 		this.key=key;  // ←this could be a numeric keycode for a specific key on the keyboard; or a string that represents more than one physical key
 		this.shift=shift;
 		this.ctrl=ctrl;
-		this.alt=alt;  }  }
+		this.alt=alt;
+		this.meta=meta;
+		this.graph=graph;  //  remember, the “AltGraph” modifier state can also be triggered by a CTRL ALT key-combo, not only the ALTGRAPH key
+		this.os=os;
+		this.capsLock=capsLock;
+		this.numLock=numLock;
+		this.scrollLock=scrollLock;  }  }
 // returns true if the event’s key-press matches this KeySniffer’s key-combo-specs; returns false otherwise.
-KeySniffer.prototype.sniff=function sniff(event)  {
+KeySniffer.prototype.sniff=function sniffKeyEvent(event)  {
 	return (typeof this.key === 'number' ? event.keyCode : event.key) === this.key  &&
 					(this.shift===undefined || event.shiftKey===this.shift)  &&
 					(this.ctrl===undefined  || event.ctrlKey===this.ctrl)  &&
-					(this.alt===undefined   || event.altKey===this.alt);  }
+					(this.alt===undefined   || event.altKey===this.alt)  &&
+					(this.meta===undefined  || event.metaKey===this.meta)  &&
+					(this.graph===undefined || event.getModifierState('AltGraph')===this.graph)  &&
+					(this.os===undefined    || event.getModifierState('OS')===this.os)  &&
+					(this.capsLock===undefined   || event.getModifierState('CapsLock')===this.os)  &&
+					(this.numLock===undefined    || event.getModifierState('NumLock')===this.os)  &&
+					(this.scrollLock===undefined || event.getModifierState('ScrollLock')===this.os);  }
 
 
 
