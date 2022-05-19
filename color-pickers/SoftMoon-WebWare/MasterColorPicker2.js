@@ -3618,13 +3618,15 @@ function buildPaletteTable(pName, id, pData, className)  {
 			const flagBackRef= backRefAll||clr;
 			if (flagBackRef) colors[c]=flagBackRef;
 			clr=MasterColorPicker.RGB_calc(clr||colors[c]);
-			const td=document.createElement('td');
+			const td=document.createElement('td'),
+						spacer=(clr==null  &&  /^!spacer\d*$/.test(c));
 			td.appendChild(document.createElement('span')).appendChild(document.createTextNode(
-				(fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c ));
+				spacer ? "" : ((fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c )));
 			td.style.backgroundColor= clr ? clr.hex : "";
 			td.style.color= clr ? clr.contrast : "";
-			if (flagBackRef)  td.title=colors[c];
-			td.getColor_cb=addGridEntry;
+			if (!spacer)  {
+				if (flagBackRef)  td.title=colors[c];
+				td.getColor_cb=addGridEntry;  }
 			tr.appendChild(td);  }
 		for (j=0; j<columns-i; j++)  {tr.appendChild(document.createElement('td')).className='filler';}
 		return tr;  }
