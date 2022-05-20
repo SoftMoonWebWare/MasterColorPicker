@@ -14,7 +14,8 @@ if (!SoftMoon.WebWare)  Object.defineProperty(SoftMoon, 'WebWare', {value: {}, e
 window.addEventListener("load", function plusplusplusInput() {
 	const inps=document.getElementsByTagName('input');
 	for (const input of inps)  { if (input.hasAttribute('type'))  switch (input.getAttribute('type')?.toLowerCase())  {
-		case 'numeric':  SoftMoon.WebWare.register_input_type_numeric(input);
+		case 'numeric':
+		case 'numeric-slider':  SoftMoon.WebWare.register_input_type_numeric(input);
 		break;
 		case 'filename':
 		case 'filepath': SoftMoon.WebWare.register_input_type_file(input);  }  }  });
@@ -61,7 +62,10 @@ SoftMoon.WebWare.register_input_type_file=function register_input_type_file(inpu
 
 SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeric(input)	{
 
-	const iBase=parseInt(input.getAttribute('base')) || 10;
+	const
+		iBase=parseInt(input.getAttribute('base')) || 10,
+		iType=input.getAttribute('type');
+	if (iType==='numeric-slider'  &&  iBase!==10)  throw new Error('“numeric-slider” <input> types must use base 10.');
 
 	if (iBase<=10)  {
 		/* In the past (not sure now), browsers returned ambiguous “unpredictable” variable “typeof” values to JavaScript when using <input type='number'>
@@ -73,9 +77,25 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 		// The hope is that by changing the type to text BEFORE the click that gives focus to the input, the cursor-position will not be reset to the beginning.
 		// This is, unfortunately, not the case.
 		//input.addEventListener('mousedown', function() {if (this.type!=='text')  this.type='text';});
-		input.addEventListener('focus', function() {if (this.type!=='text')  {this.type='text';  this.focus();  this.selectionStart=this.value.length;}});
-		input.addEventListener('blur', function() {this.type='number';});
-		input.type='number';  }
+		switch (iType)  {
+		case 'numeric':
+			input.addEventListener('focus', function() {if (this.type!=='text')  {this.type='text';  this.focus();  this.selectionStart=this.value.length;}});
+		break;
+		case 'numeric-slider':
+			input.addEventListener('keydown', function(event) {
+				if (this.type!=='text'
+				&&  ((event.key>='0' && event.key<='9')  ||  event.key==='NumLock'))  {
+					this.type='text';
+					if (event.key!=='NumLock')  this.value="";  //event.key;  //Firefox will still add the keystroke to the text-input
+					this.focus();
+					this.selectionStart=this.value.length;  }  });  }
+		input.addEventListener('change', function(event)  {
+			const v=parseFloat(this.value);
+			if (this.hasAttribute('min')  &&  (this.value===""  ||  v<parseFloat(this.getAttribute('min'))))  this.value=this.getAttribute('min');
+			else
+			if (this.hasAttribute('max')  &&  v>parseFloat(this.getAttribute('max')))  this.value=this.getAttribute('max');  });
+		input.addEventListener('blur', function() {this.type= (iType==='numeric-slider' ? 'range' : 'number');});
+		input.type= (iType==='numeric-slider' ? 'range' : 'number');  }
 	else
 		input.addEventListener('blur', function() {this.value=this.value.toUpperCase();});
 
