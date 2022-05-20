@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.4[b]  April 20, 2022  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.4.1[b]  May 20, 2022  by SoftMoon WebWare.
 //  [b] release has extra garbage baggage for MasterColorPicker
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022 Joe Golembieski, SoftMoon WebWare
@@ -304,8 +304,8 @@ RegExp.cmyk= new window.RegExp( '^' +p+ sep +p+ sep +p+ sep +p+ '$' );
 RegExp.cmyka= new window.RegExp( '^' +p+ sep +p+ sep +p+ sep +p+ aSep + f + '$' );
 RegExp.cmyk_a= new window.RegExp( '^' +p+ sep +p+ sep +p+ sep +p+ '(?:' +aSep + f + ')?$' );
 
-const h_=  '\\s*(-?[0-9]+(?:\\.[0-9]*)?|-?0?\\.[0-9]+)(deg|°|g?rad|ʳ|ᴿ|ᶜ|ᴳ|ᵍ|%|turn|●)?\\s*',    //captures the postfix text (i.e. the “unit”) separately  →  m[1]='123' , m[2]='deg'
-			h='\\s*((?:-?[0-9]+(?:\\.[0-9]*)?|-?0?\\.[0-9]+)(?:deg|°|g?rad|ʳ|ᴿ|ᶜ|ᴳ|ᵍ|%|turn|●)?)\\s*';  //does not capture postfix text separately: it is included with the numerical data  →  m[1]='123deg'
+const h_=  '\\s*(-?[0-9]+(?:\\.[0-9]*)?|-?0?\\.[0-9]+)(deg|°|g?rad|ᴿ|ᶜ|ᵍ|%|turn|●)?\\s*',    //captures the postfix text (i.e. the “unit”) separately  →  m[1]='123' , m[2]='deg'
+			h='\\s*((?:-?[0-9]+(?:\\.[0-9]*)?|-?0?\\.[0-9]+)(?:deg|°|g?rad|ᴿ|ᶜ|ᵍ|%|turn|●)?)\\s*';  //does not capture postfix text separately: it is included with the numerical data  →  m[1]='123deg'
 							//hsl,hsv,hsb,hcg:   "v¹, v², v³"  where
 							// v¹=(±float)(unit),   and  ( 0 <= (float)(v²,v³) <= 100 )
 							// →→→ v¹ may or may not have (unit);  v²,v³ may or may not end with a percent sign %
@@ -471,12 +471,10 @@ ColorWheel_Color.prototype.toString=function(format)  {
 		break;
 		case 'rad':
 		case "ᶜ":
-		case "ᴿ":
-		case "ʳ":  hueAngleUnit= this.config.useAngleUnitSymbol ? "ᴿ" : 'rad';
+		case "ᴿ":  hueAngleUnit= this.config.useAngleUnitSymbol ? "ᴿ" : 'rad';
 		break;
 		case 'grad':
-		case "ᵍ":
-		case "ᴳ":   hueAngleUnit= this.config.useAngleUnitSymbol ? "ᵍ" : 'rad';
+		case "ᵍ":   hueAngleUnit= this.config.useAngleUnitSymbol ? "ᵍ" : 'rad';
 		break;
 		case 'turn':
 		case "●":  hueAngleUnit= this.config.useAngleUnitSymbol ? "●" : 'turn';  }
@@ -505,12 +503,10 @@ ColorWheel_Color.hueUnitPrecision=
 		'deg':  {value: 2, enumerable: true},
 		"°":    {value: 2, enumerable: true},
 		'grad': {value: 2, enumerable: true},
-		'ᴳ':    {value: 2, enumerable: true},
 		'ᵍ':    {value: 2, enumerable: true},
 		'rad':  {value: 5, enumerable: true},
 		"ᶜ":    {value: 5, enumerable: true},
 		"ᴿ":    {value: 5, enumerable: true},
-		"ʳ":    {value: 5, enumerable: true},
 		"%":    {value: 4, enumerable: true},
 		'turn': {value: 6, enumerable: true},
 		"●":    {value: 6, enumerable: true}  });
@@ -792,7 +788,7 @@ function getAlphaFactor(v)  {
 
 function factorize(a, stop, start)  {
 	if (start  &&  (a[0]=this.getHueFactor(a[0])) === false)  return false;
-	for (var i=start||0; i<stop; i++)  {if ( (a[i]=getFactorValue.call(this, a[i])) === false )  return false;}
+	for (var tmp, i=start||0; i<stop; i++)  {if ( (tmp=getFactorValue.call(this, a[i])) === false )  return false;  else  a[i]=tmp;}
 	if (a[stop] !== undefined)  a[stop]=getAlphaFactor(a[stop]);
 	return a;  }
 
@@ -988,7 +984,7 @@ RGB_Calc.ConfigStack.prototype={
 
 	onError: function(clr, ct)  {
 		if (this.throwErrors  ||  this.logErrors)  {
-			const message= ct ?  ('Bad values for '+ct+' conversion: “'+clr+'”.')
+			var message= ct ?  ('Bad values for '+ct+' conversion: “'+clr+'”.')
 												:  ('The color “'+clr+'” is undefined.');  }
 		if (this.logErrors)
 			console.error(message);
@@ -1041,10 +1037,8 @@ RGB_Calc.hueAngleUnitFactors=  //you may add to these …but replacing them alto
 		'rad':  {value: 2*Math.PI, enumerable: true},
 		"ᶜ":    {value: 2*Math.PI, enumerable: true},
 		"ᴿ":    {value: 2*Math.PI, enumerable: true},
-		"ʳ":    {value: 2*Math.PI, enumerable: true},
 		'grad': {value: 400,       enumerable: true},
 		'ᵍ':    {value: 400,       enumerable: true},
-		'ᴳ':    {value: 400,       enumerable: true},
 		"%":    {value: 100,       enumerable: true},
 		'turn': {value: 1,         enumerable: true},
 		"●":    {value: 1,         enumerable: true}  });
