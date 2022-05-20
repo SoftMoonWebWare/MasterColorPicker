@@ -1,5 +1,6 @@
 SoftMoon.loaded_palettes.push(
-{"Material Design 2014": {
+{"Material Design": {
+"header": "color-scheme developed in 2014",
 "footer": "https://material.io/design/color/the-color-system.html#tools-for-picking-colors",
 "display": "grid",
 "columns": 14,
@@ -256,10 +257,10 @@ SoftMoon.loaded_palettes.push(
 "Brown 700": "#5D4037",
 "Brown 800": "#4E342E",
 "Brown 900": "#3E2723",
-"!spacer1": "",
-"!spacer2": "",
-"!spacer3": "",
-"!spacer4": "",
+"◊spacer1◊": "",
+"◊spacer2◊": "",
+"◊spacer3◊": "",
+"◊spacer4◊": "",
 
 "Blue Gray 50": "#ECEFF1",
 "Blue Gray 100": "#CFD8DC",
@@ -271,10 +272,10 @@ SoftMoon.loaded_palettes.push(
 "Blue Gray 700": "#455A64",
 "Blue Gray 800": "#37474F",
 "Blue Gray 900": "#263238",
-"!spacer5": "",
-"!spacer6": "",
-"!spacer7": "",
-"!spacer8": "",
+"◊spacer5◊": "",
+"◊spacer6◊": "",
+"◊spacer7◊": "",
+"◊spacer8◊": "",
 
 "Gray 50": "#FAFAFA",
 "Gray 100": "#F5F5F5",
