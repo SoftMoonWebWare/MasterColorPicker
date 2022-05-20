@@ -356,10 +356,10 @@ span.MCP_fix_Safari {
 	padding-left: 1.382em; }
 #MasterColorPicker_Help table {
 	margin: .681em auto;
-	border: 1px solid;
-	text-align: center; }
+	border: 1px solid; }
+#MasterColorPicker_Help table th,
 #MasterColorPicker_Help table td {
-	text-align: center; }
+	text-align: center !important; }
 #MasterColorPicker_Help code.multiline {
 	display: block;
 	white-space: pre-wrap; }
