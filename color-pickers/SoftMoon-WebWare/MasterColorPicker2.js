@@ -487,8 +487,10 @@ SoftMoon.WebWare.x_ColorPicker.tabbedOut=tabbedOut;
 // The first two (2) arguments and the value of “this” are bound by/to the Genies.
 // The “event” Object argument is passed by UniDOM.
 function tabbedOut(GENIE_FIELDS, DOM_CRAWL_STOP, event)  {
-	if (!( GENIE_FIELDS.test(event.target.name)                    //            === ,<                 === .>
-			&&  (this.tabbedOut=(event.keyCode===9  ||  (event.ctrlKey && (event.keyCode===188 || event.keyCode===190)))) ))  return;
+	if (!( GENIE_FIELDS.test(event.target.name)
+			&&  (this.tabbedOut=(
+				event.key==='Tab' || MasterColorPicker.panelTabKey.sniff(event) || MasterColorPicker.panelBacktabKey.sniff(event))) ))
+		return;
 	function isTabStop(e)  {
 		const isI=(SoftMoon.WebWare.Picker.isInput(e)  &&  !e.disabled);
 		if (isI  &&  DOM_CRAWL_STOP.test(e.name))  goDeep.doContinue=false;
@@ -2494,14 +2496,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		UniDOM.addEventHandler(settings.variety, ['onmouseup', 'onchange', 'onblur'], RainbowMaestro.alterVariety);
 		UniDOM.addEventHandler(settings.focalsOnly, 'onchange', RainbowMaestro.handle_focalsOnly);
 
-		UniDOM.addEventHandler(settings.focalHue, 'onkeydown', function(event) {
-			MasterColorPicker.event=event;
-			if (MasterColorPicker.debug)  MasterColorPicker.debug.log.write('MasterColorPicker — keydown  — keyPressed= '+event.keyCode+' ¦ keepKey= now unknown here');
-			});
 		UniDOM.addEventHandler(settings.focalHue, 'onchange', function(event)  {
-			var key=MasterColorPicker.event && MasterColorPicker.event.keyCode;
-			if (MasterColorPicker.debug)  MasterColorPicker.debug.log.write('MasterColorPicker — onchange — keyPressed= '+key+' ¦ synFlag= '+event.enterKeyed);
-			if (key  &&  key!==13  &&  key!==9)  return;    // fix Opera − onchange “should” only occur in tandem with onblur when using keyboard input but occurs with every “characterized keystroke” when using Opera
 			settings.websafe.checked=false;
 			this.value.replace( /[^-0-9.]/ , "");
 			this.value=Math.roundTo(
@@ -2533,7 +2528,8 @@ SoftMoon.WebWare.SimpleSqColorPicker=new SoftMoon.WebWare.x_ColorPicker('Simple�
 				useHexSymbol: true,
 				inputAsFactor: true,
 				RGBAFactory: Array,
-				onError: function() {throw null;}});
+				throwErrors: true });
+//				onError: function() {throw null;}});
 
 RGB_calc.to.config=Object.create(RGB_calc.config, {inputAsFactor: {value:false}});
 
@@ -2552,15 +2548,16 @@ RGB_calc.to.config=Object.create(RGB_calc.config, {inputAsFactor: {value:false}}
 SoftMoon.WebWare.SimpleSqColorPicker.buildPalette=function(event)  {
 	if (event  &&  event.type==='change'  &&  (!event.enterKeyed  ||  event.enterKeyPressCount>1))  return;
 	cnvs=initBuild('Simple²wrapper');
-	var space={ x: cnvs.width/(variety+1),
-							y: cnvs.height/variety },
-			centerX=cnvs.width/2,
-			x, y;
+	const
+		space={ x: cnvs.width/(variety + (variety%2 ? 0 : 1)),
+						y: cnvs.height/variety },
+		centerX=cnvs.width/2;
+	var x, y;
 	for (x=0; x<cnvs.width; x+=space.x)  { for (y=0; y<cnvs.height; y+=space.y)  {
 		try {
 			cnvs.context.fillStyle=RGB_calc.to.hex(RGB_calc.from.hcg([
 				y/cnvs.height,
-				1-Math.abs((centerX-x-space.x/2)/(centerX-space.x/2)),
+				1-Math.abs((centerX-x-space.x/2)/centerX),
 				(x<centerX) ? 0 : 1
 			]));
 		} catch(e) {continue;}   //round-off errors at high-end of palette
@@ -2572,11 +2569,11 @@ SoftMoon.WebWare.SimpleSqColorPicker.buildPalette=function(event)  {
 var space, c, hue=.5, sat=.5, lvl=.5;
 function build_sats(model)  {
 	var y;  //
-	for (y=0; y<variety+1; y++)  {
-		sbcnvs[c].context.fillStyle=RGB_calc.to.hex(RGB_calc.from[model]([hue, y/variety, lvl]));
+	for (y=0; y<variety; y++)  {
+		sbcnvs[c].context.fillStyle=RGB_calc.to.hex(RGB_calc.from[model]([hue, 1-(y/(variety-1)), lvl]));
 		sbcnvs[c].context.beginPath();
 		sbcnvs[c].context.fillRect(0, y*space,  sbcnvs[c].width, space+.5);  }
-	y=sat*variety*space+space/2;
+	y=sbcnvs[c].height-(sat*(variety-1)*space+space/2);
 	sbcnvs[c].context.strokeWidth=2.618;
 	sbcnvs[c].context.strokeStyle='#000000';
 	sbcnvs[c].context.beginPath();
@@ -2593,11 +2590,11 @@ function build_sats(model)  {
 
 function build_lvls(model)  {
 	var x;
-	for (x=0; x<variety+1; x++)  {
-		sbcnvs[c].context.fillStyle=RGB_calc.to.hex(RGB_calc.from[model]([hue, sat, x/variety]));
+	for (x=0; x<variety; x++)  {
+		sbcnvs[c].context.fillStyle=RGB_calc.to.hex(RGB_calc.from[model]([hue, sat, x/(variety-1)]));
 		sbcnvs[c].context.beginPath();
 		sbcnvs[c].context.fillRect(x*space, 0,  space+.5, sbcnvs[c].height);  }
-	x=lvl*variety*space+space/2;
+	x=lvl*(variety-1)*space+space/2;
 	sbcnvs[c].context.strokeWidth=2.618;
 	sbcnvs[c].context.strokeStyle='#000000';
 	sbcnvs[c].context.beginPath();
@@ -2614,22 +2611,22 @@ function build_lvls(model)  {
 
 SoftMoon.WebWare.SimpleSqColorPicker.build_hSv=function()  {
 	sbcnvs[c=0]=initBuild('Simple²hSv');
-	space=sbcnvs[c].height/(variety+1);
+	space=sbcnvs[c].height/(variety);
 	build_sats('hsv');  }
 
 SoftMoon.WebWare.SimpleSqColorPicker.build_hSl=function()  {
 	sbcnvs[c=1]=initBuild('Simple²hSl');
-	space=sbcnvs[c].height/(variety+1),
+	space=sbcnvs[c].height/(variety),
 	build_sats('hsl');  }
 
 SoftMoon.WebWare.SimpleSqColorPicker.build_hsV=function()  {
 	sbcnvs[c=2]=initBuild('Simple²hsV');
-	space=sbcnvs[c].width/(variety+1);
+	space=sbcnvs[c].width/(variety);
 	build_lvls('hsv');  }
 
 SoftMoon.WebWare.SimpleSqColorPicker.build_hsL=function()  {
 	sbcnvs[c=3]=initBuild('Simple²hsL');
-	space=sbcnvs[c].width/(variety+1);
+	space=sbcnvs[c].width/(variety);
 	build_lvls('hsl');  }
 
 var moHue, moSat, moLvl;
@@ -2643,10 +2640,12 @@ SoftMoon.WebWare.SimpleSqColorPicker.getColor=function(event, colorSpace)  {
 
 SoftMoon.WebWare.SimpleSqColorPicker.getColor.hcg=function(event)  {
 	if (event.offsetX<0 || event.offsetY<0 || event.offsetX>cnvs.width || event.offsetY>cnvs.height)  return false;
-	var satBlock=Math.floor((event.offsetX/(cnvs.width/(variety+1)))),
-			fullSatBlock=Math.floor(variety/2);
-	moHue=Math.floor((event.offsetY/cnvs.height)*variety)/variety,
-	moSat=1-Math.abs(fullSatBlock-satBlock)/fullSatBlock;
+	const
+		vrtyX=variety + (variety%2 ? 0 : 1),
+		spaceX=cnvs.width/vrtyX,
+		blockX=Math.ceil(event.offsetX/spaceX);
+	moHue=Math.floor((event.offsetY/cnvs.height)*variety)/variety;
+	moSat=1-Math.abs((vrtyX+1)/2-blockX)*2/vrtyX;
 	return getColor('hcg', moHue, moSat, Math.floor(event.offsetX/(cnvs.width/2)));  }
 
 
@@ -2678,22 +2677,22 @@ function updateAllSubs()  {
 
 SoftMoon.WebWare.SimpleSqColorPicker.getColor.hSl=function(event)  {
 	if (event.offsetX<0 || event.offsetY<0 || event.offsetX>sbcnvs[0].width || event.offsetY>sbcnvs[0].height)  return false;
-	moSat=Math.floor(event.offsetY/(sbcnvs[0].height/(variety+1)))/variety;
+	moSat=1-Math.floor(event.offsetY/(sbcnvs[0].height/(variety)))/(variety-1);
 	return getColor('hsl', hue, moSat, lvl);  }
 
 SoftMoon.WebWare.SimpleSqColorPicker.getColor.hSv=function(event)  {
 	if (event.offsetX<0 || event.offsetY<0 || event.offsetX>sbcnvs[1].width || event.offsetY>sbcnvs[1].height)  return false;
-	moSat=Math.floor(event.offsetY/(sbcnvs[1].height/(variety+1)))/variety;
+	moSat=1-Math.floor(event.offsetY/(sbcnvs[1].height/(variety)))/(variety-1);
 	return getColor('hsv', hue, moSat, lvl);  }
 
 SoftMoon.WebWare.SimpleSqColorPicker.getColor.hsV=function(event)  {
 	if (event.offsetX<0 || event.offsetY<0 || event.offsetX>sbcnvs[2].width || event.offsetY>sbcnvs[2].height)  return false;
-	moLvl=Math.floor(event.offsetX/(sbcnvs[2].width/(variety+1)))/variety;
+	moLvl=Math.floor(event.offsetX/(sbcnvs[2].width/(variety)))/(variety-1);
 	return getColor('hsv', hue, sat, moLvl);  }
 
 SoftMoon.WebWare.SimpleSqColorPicker.getColor.hsL=function(event)  {
 	if (event.offsetX<0 || event.offsetY<0 || event.offsetX>sbcnvs[3].width || event.offsetY>sbcnvs[3].height)  return false;
-	moLvl=Math.floor(event.offsetX/(sbcnvs[3].width/(variety+1)))/variety;
+	moLvl=Math.floor(event.offsetX/(sbcnvs[3].width/(variety)))/(variety-1);
 	return getColor('hsl', hue, sat, moLvl);  }
 
 function updateIndicators()  {  //private
@@ -3619,7 +3618,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 			if (flagBackRef) colors[c]=flagBackRef;
 			clr=MasterColorPicker.RGB_calc(clr||colors[c]);
 			const td=document.createElement('td'),
-						spacer=(clr==null  &&  /^!spacer\d*$/.test(c));
+						spacer=(clr==null  &&  /^◊spacer\d*◊$/.test(c));
 			td.appendChild(document.createElement('span')).appendChild(document.createTextNode(
 				spacer ? "" : ((fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c )));
 			td.style.backgroundColor= clr ? clr.hex : "";
@@ -4455,6 +4454,9 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 		||  MasterColorPicker.panelBacktabKey.sniff(event))  return;
 		if (UniDOM.hasAncestor(event.target, MasterColorPicker.HTML))
 			MasterColorPicker.setTopPanel(event.target.closest('.pickerPanel'));
+		if (event.metaKey
+		||  event.getModifierState('AltGraph')
+		||  event.getModifierState('OS'))  return;
 		var txt, curPos, color;
 		findKey: {
 			if (event.altKey)  switch (!event.shiftKey && !event.ctrlKey && event.key)  {
