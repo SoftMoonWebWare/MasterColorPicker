@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.2.2  April 20, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.2.7  May 21, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -1499,14 +1499,10 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	}
 #MasterColorPicker_mainPanel table.color_chart tbody.grid > tr > td {
 	padding: 1.162em 0 0 0;
-	background: linear-gradient(var(--back-palette), var(--back-palette)) top left / 100% 1.162em no-repeat scroll border-box;  /* padding-top, this box */
+	background-color: transparent;
 	text-align: center;
+	overflow: hidden;  /* block the outline (which is background filler for this TD) of the table-child */
 	position: relative; }
-#MasterColorPicker_mainPanel table.color_chart tbody.grid > tr > td {
-	background: linear-gradient(var(--back-palette), var(--back-palette)) top left / 100% 1.162em no-repeat scroll border-box;  /* padding-top, this box */
-	background: paint(griddyBack); }  /* we need to custom-paint the background to allow “none” and “unknown” colors to show through the transparency */
-#MasterColorPicker_mainPanel table.color_chart tbody.grid > tr > td {
-	background-color: var(--back-palette); }  /* this is the reality for now… …until FireFox catches up on painting backgrounds */
 
 #MasterColorPicker_mainPanel table.color_chart tr.footnote p {
 	padding: 0;
@@ -1518,11 +1514,15 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	table-layout: fixed;
 	border-collapse: separate;
 	border-spacing: 0;
-	border: 2px solid var(--back-palette); }
+	border: 2px solid var(--back-palette);
+	outline: 162em solid var(--back-palette); /* this outline acts as the background-filler for the TD that holds this sub-table
+		- that allows semi-transparent colors (and unknown-colors) to show through to whatever is behind the picker-panel */
+	}
 #MasterColorPicker_mainPanel table.color_chart tbody.grid table.grid td {
 	width: 1em;
 	padding: 0.5em 0 0.5em 0;
 	border: 2px solid var(--back-palette); }
+#MasterColorPicker_mainPanel table.color_chart tbody.grid table.grid td.spacer,
 #MasterColorPicker_mainPanel table.color_chart tbody.grid table.grid td.filler {
 	background-color: var(--back-palette);  }
 #MasterColorPicker_mainPanel table.color_chart tbody.grid table.grid td span {
@@ -1723,6 +1723,14 @@ table#BeezEye tr:nth-child(2) label span {
 	color: black;
 	padding-left: 1.618em;  }
 
+table#BeezEye tr:nth-child(2) label input[type="text"] {
+	color: black;
+	background-color: white;
+	transform: rotate(-270deg);
+	position: relative;
+	top: -2.618em;  /* since the containing <label> is rotated, this appears to be “left” not “top” */
+	bottom: auto; }
+
 table#BeezEye tr:nth-child(3) td {
 	position: relative;
 	vertical-align: bottom;
@@ -1881,6 +1889,13 @@ table#Simple² label {
 	font-weight: bold;
 	padding: 0;
 	transform: rotate(270deg); }
+table#Simple² tr:nth-child(2) td:nth-child(5) div {
+	transform: rotate(90deg); }
+table#Simple² tr:nth-child(2) td:nth-child(6) input[type="text"] {
+	transform: rotate(-270deg);
+	position: relative;
+	top: -6.18em;  /* since the containing <label> is rotated, this appears to be “left” not “top” */
+	bottom: auto; }
 table#Simple² tr:nth-child(3) td:first-child label {
 	width: auto;
 	margin: -2.618em -1.27em; } /* adjust if content changes */
