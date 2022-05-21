@@ -2,7 +2,8 @@ SoftMoon.loaded_palettes.push(
 { "ANSI": {
 	"requireSubindex": false,
 	"useShortChains": true,
-	"header": ["You do not need to specify “bit-size” sub-palettes for colors.",
+	"header": ["ANSI “escape-code” colors",
+						 "You do not need to specify “bit-size” sub-palettes for colors.",
 						 "You do not need to specify any sub-palettes for 8-bit colors."],
 	"footer": ["https://en.wikipedia.org/wiki/ANSI_escape_code#Colors"],
 	"display": "grid",
