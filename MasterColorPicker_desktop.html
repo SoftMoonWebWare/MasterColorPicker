@@ -803,15 +803,23 @@ tri-color?</label>
 	<p>These are defined for a <abbr>QUERTY</abbr> keyboard; other keyboards may be similar.&nbsp;
 	Hackers can redefine these keys: &nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
 	if their keyboard normally generates different characters than <code>&gt;</code> and <code>&lt;</code>
-	when the <kbd><span>CTRL</span></kbd> key is pressed.&nbsp;
-	Note browsers usually keep <kbd>(<span>SHIFT</span>)?+<span>CTRL</span>+<span>TAB</span></kbd>
+	when the <kbd><span>CTRL</span></kbd> key is pressed.</p>
+	<p>Some specific “input-sliders” may be temporarily changed to text-based numeric inputs
+	when using browsers for big boys &amp; girls
+	(here’s winkin’ at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/activeElement" target='Mozilla'>►you, Apple®</a>!).
+	Focus the “slider” by clicking on it or by using the <kbd><span>Tab</span></kbd> key
+	then press a numeric key (<kbd><span>0</span></kbd> – <kbd><span>9</span></kbd>) to modify the value directly,
+	or <kbd><span>NumLock</span></kbd> to see the current value that you can then modify.</p>
+	<p>Note browsers usually keep <kbd>(<span>SHIFT</span>)?+<span>CTRL</span>+<span>TAB</span></kbd>
 	and <kbd><span>F7</span></kbd> for themselves, but if not…you can use them!&nbsp;
-		See also the Hue-Angle Symbols shortcuts above.</p>
+	See also the Hue-Angle Symbols shortcuts above.</p>
 	<dl>
-		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>.&gt;</span></kbd></dt>
+		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd></dt>
+		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>.&gt;</span></kbd></dt>
 		<dd>Tab to the first input box in the top panel or next panel.</dd>
 
-		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>TAB</span></kbd> |or| <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>,&lt;</span></kbd></dt>
+		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>TAB</span></kbd></dt>
+		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>,&lt;</span></kbd></dt>
 		<dd>Tab to the first input box in the bottom panel or previous panel.</dd>
 
 		<dt><kbd><span>F1</span></kbd></dt>
@@ -1163,7 +1171,7 @@ tri-color?</label>
 </tr>
 <tr>
 	<td rowspan='2'><canvas width='360' height='360'></canvas></td>
-	<td><label>Brightness <span>Value</span><input type='range' name='BeezEye_value' value='50' min='0' max='100'></label></td>
+	<td><label>Brightness <span>Value</span><input type='numeric-slider' name='BeezEye_value' value='50' min='0' max='100'></label></td>
 </tr>
 <tr>
 	<td valign='bottom'><fieldset>
@@ -1173,7 +1181,7 @@ tri-color?</label>
 	</td>
 </tr>
 <tr>
-	<td><label>Hue Variety<input type='range' name='BeezEye_variety' value='15' min='5' max='89' step='2' tabToTarget='true'></label></td>
+	<td><label>Hue Variety<input type='numeric-slider' name='BeezEye_variety' value='15' min='5' max='89' step='2' tabToTarget='true'></label></td>
 	<td rowspan='2' id='BeezEye_swatch'></td>
 </tr>
 <tr><td id='BeezEye_indicator'> </td></tr>
@@ -1191,7 +1199,7 @@ tri-color?</label>
 	<label><input type='checkbox' name='RainbowMaestro_lock' value='true'>lock focal hue</label>
 	</td></tr>
 	<tr><td colspan='2'>
-	<label>variety<input type='range' name='RainbowMaestro_variety' value='6' min='6' max='32'></label>
+	<label>variety<input type='numeric-slider' name='RainbowMaestro_variety' value='6' min='6' max='32'></label>
 	<label><input type='checkbox' name='RainbowMaestro_focalsOnly' value='true'>focals only</label>
 	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue' value='0' step='any' tabToTarget='true'>
 		<span class='hueIndicator'>&nbsp;</span><p>Hue given in <span class='hueAngleUnit'>degrees (0.0°–359.99°)</span>.</p></label>
@@ -1222,11 +1230,11 @@ tri-color?</label>
 <tr>
 <td colspan='3'><div class='indicator' id='Simple²saturation'>99.99%</div></td>
 <td colspan='2'   style='border: 1px solid; border-bottom: none'
-		>Chroma<br><span class='lft'>0→</span>←‖1‖→<span class='rt'>←0</span></td>
+		>Chroma<br><span class='lft'>«0→</span>←‖1‖→<span class='rt'>←0»</span></td>
 <td colspan='2'><div class='indicator' id='Simple²hue'>359.999°</div></td>
 </tr>
 <tr>
-<td   style='border-top: 1px solid; border-bottom: 1px solid;'
+<td style='border-top: 1px solid; border-bottom: 1px solid;'
 		><div><span class='lft'>0→</span>←←Saturation→→<span class='rt'>←1</span></div></td>
 <td id="Simple²hSl"><canvas width='18' height='360'></canvas></td>
 <td id="Simple²hSv" style='border-left: 1px solid;'
@@ -1234,37 +1242,37 @@ tri-color?</label>
 <td id="Simple²wrapper" colspan='2'   style='border-left: 1px solid'
 		><canvas width='360' height='360'></canvas></td>
 <td   style='border: 1px solid; border-left: none'
-		><div><span class='lft'>«0°→→</span>←←Hue→→<span class='rt'>←←360°»</span></div></td>
+		><div><span class='lft'>«360°→→</span>←←Hue→→<span class='rt'>←←0°</span></div></td>
 <td id="Simple²interface"><label>variety<input
-	type='range' name='Simple²_variety' value='12' min='12' max='360' step='2' backtabTo='MasterColorPicker_palette_select'></label></td>
+	type='numeric-slider' name='Simple²_variety' value='12' min='12' max='360' step='2' backtabTo='MasterColorPicker_palette_select'></label></td>
 </tr>
 <tr>
 <td rowspan='5'  style='border-bottom: 1px solid' valign='bottom'
 		><label for='Simple²_lock'>← lock ↑</label><input type='checkbox' name='Simple²_lock' value='locked' tabToTarget='true'></td>
-<td   style='border-left: 1px solid'><div>HSL</div></td>
-<td   style='border-left: 1px solid'><div>HSV</div></td>
-<td    style='border: 1px solid; border-top: none'>Gray=0</td><td   style='border: 1px solid; border-top: none'>Gray=1</td>
+<td style='border-left: 1px solid'><div>HSL</div></td>
+<td style='border-left: 1px solid'><div>HSV</div></td>
+<td style='border: 1px solid; border-top: none'>Gray=0</td><td   style='border: 1px solid; border-top: none'>Gray=1</td>
 <td id="Simple²swatch" colspan='2' rowspan='6' style='border: 1px solid white'></td>
 </tr>
 <tr>
-<td   style='border-left: 1px solid'></td>
-<td   style='border-left: 1px solid'></td>
+<td style='border-left: 1px solid'></td>
+<td style='border-left: 1px solid'></td>
 <td id="Simple²hsV" colspan='2'><canvas width='360' height='18'></canvas></td>
 </tr>
 <tr>
-<td   style='border-left: 1px solid'></td>
-<td   style='border-left: 1px solid; border-bottom: 1px solid'></td>
+<td style='border-left: 1px solid'></td>
+<td style='border-left: 1px solid; border-bottom: 1px solid'></td>
 <td colspan='2'   style='border-bottom: 1px solid'
 		><span class='lft'>0→</span>←←Brightness / Value→→<span class='rt'>←1</span></td>
 </tr>
 <tr>
-<td   style='border-left: 1px solid'></td>
+<td style='border-left: 1px solid'></td>
 <td></td>
 <td id="Simple²hsL" colspan='2'><canvas width='360' height='18'></canvas></td>
 </tr>
 <tr>
-<td   style='border-left: 1px solid; border-bottom: 1px solid'><div class='indicator' id='Simple²lvl'>99.99%</div></td>
-<td   style='border-bottom: 1px solid'></td>
+<td style='border-left: 1px solid; border-bottom: 1px solid'><div class='indicator' id='Simple²lvl'>99.99%</div></td>
+<td style='border-bottom: 1px solid'></td>
 <td colspan='2'   style='border-bottom: 1px solid'
 		><span class='lft'>0→</span>←←Lightness→→<span class='rt'>←1</span></td>
 </tr>
