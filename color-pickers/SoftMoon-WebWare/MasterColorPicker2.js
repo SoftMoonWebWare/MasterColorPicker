@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.2.5-alpha   May 9, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.2.7-alpha   May 21, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -3512,7 +3512,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 				if (colors[c].palette)  {             // ←← this has the original palette data
 					subs[c]=get_subP(pData.palette[c]); // ←← this has the Palette class instance
 					continue;  }
-				if (ignore
+				if (ignore  &&  colors[c]!=='◊'
 				&&  MasterColorPicker.RGB_calc( checkIsRef(colors[c], referenceMarks) || colors[c] ) == null)
 					continue;
 				row[c]=colors[c];
@@ -3613,17 +3613,18 @@ function buildPaletteTable(pName, id, pData, className)  {
 		var i=0, j;
 		const tr=document.createElement('tr');
 		for (const c in colors)  { i++;
-			let clr=checkIsRef(colors[c], referenceMarks);
-			const flagBackRef= backRefAll||clr;
-			if (flagBackRef) colors[c]=flagBackRef;
-			clr=MasterColorPicker.RGB_calc(clr||colors[c]);
-			const td=document.createElement('td'),
-						spacer=(clr==null  &&  /^◊spacer\d*◊$/.test(c));
-			td.appendChild(document.createElement('span')).appendChild(document.createTextNode(
-				spacer ? "" : ((fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c )));
-			td.style.backgroundColor= clr ? clr.hex : "";
-			td.style.color= clr ? clr.contrast : "";
-			if (!spacer)  {
+			const td=document.createElement('td');
+			if (colors[c]==='◊')
+				td.className='spacer';
+			else {
+				let clr=checkIsRef(colors[c], referenceMarks);
+				const flagBackRef= backRefAll||clr;
+				if (flagBackRef) colors[c]=flagBackRef;
+				clr=MasterColorPicker.RGB_calc(clr||colors[c]);
+				td.appendChild(document.createElement('span')).appendChild(document.createTextNode(
+					(fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c ));
+				td.style.backgroundColor= clr ? clr.hex : "";
+				td.style.color= clr ? clr.contrast : "";
 				if (flagBackRef)  td.title=colors[c];
 				td.getColor_cb=addGridEntry;  }
 			tr.appendChild(td);  }
