@@ -128,7 +128,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.2.5  May 9, 2022
+      release 2.2.7  May 21, 2022
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -804,12 +804,7 @@ tri-color?</label>
 	Hackers can redefine these keys: &nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
 	if their keyboard normally generates different characters than <code>&gt;</code> and <code>&lt;</code>
 	when the <kbd><span>CTRL</span></kbd> key is pressed.</p>
-	<p>Some specific “input-sliders” may be temporarily changed to text-based numeric inputs
-	when using browsers for big boys &amp; girls
-	(here’s winkin’ at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/activeElement" target='Mozilla'>►you, Apple®</a>!).
-	Focus the “slider” by clicking on it or by using the <kbd><span>Tab</span></kbd> key
-	then press a numeric key (<kbd><span>0</span></kbd> – <kbd><span>9</span></kbd>) to modify the value directly,
-	or <kbd><span>NumLock</span></kbd> to see the current value that you can then modify.</p>
+
 	<p>Note browsers usually keep <kbd>(<span>SHIFT</span>)?+<span>CTRL</span>+<span>TAB</span></kbd>
 	and <kbd><span>F7</span></kbd> for themselves, but if not…you can use them!&nbsp;
 	See also the Hue-Angle Symbols shortcuts above.</p>
@@ -869,6 +864,14 @@ tri-color?</label>
 	<tr><td><kbd><span>G</span></kbd></td> <td><code>ᵍ</code></td> <td></td></tr>
 	<tr><td><kbd><span>R</span></kbd></td> <td><code>ᴿ</code></td> <td></td></tr>
 	</table>
+
+	<p>Some specific “input-sliders” may be temporarily changed to text-based numeric inputs
+	when using browsers for big boys &amp; girls
+	(here’s winkin’ at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/activeElement" target='Mozilla'>►you, Apple®</a>!).
+	Focus the “slider” by clicking on it or by using the <kbd><span>Tab</span></kbd> key
+	then press a numeric key (<kbd><span>0</span></kbd> – <kbd><span>9</span></kbd>) to modify the value directly,
+	or <kbd><span>NumLock</span></kbd> to see the current value that you can then modify.</p>
+
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_MyPalette'>Using MyPalette</h4>
 	<p>You can use the “MyPalette” interface to create your own Color Palette Tables,
@@ -1242,7 +1245,7 @@ tri-color?</label>
 <td id="Simple²wrapper" colspan='2'   style='border-left: 1px solid'
 		><canvas width='360' height='360'></canvas></td>
 <td   style='border: 1px solid; border-left: none'
-		><div><span class='lft'>«360°→→</span>←←Hue→→<span class='rt'>←←0°</span></div></td>
+		><div><span class='lft'>0°→→</span>←←Hue→→<span class='rt'>←←360°»</span></div></td>
 <td id="Simple²interface"><label>variety<input
 	type='numeric-slider' name='Simple²_variety' value='12' min='12' max='360' step='2' backtabTo='MasterColorPicker_palette_select'></label></td>
 </tr>
