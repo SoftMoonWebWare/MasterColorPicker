@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.2.7  May 21, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.2.8  May 22, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -1463,7 +1463,6 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker_mainPanel table.color_chart tfoot tr:first-child td {
 	border-top: 1px solid; }
 
-/* table.color_chart tr.noColor td, */
 #MasterColorPicker_mainPanel table.color_chart tbody.list td {
 	white-space: nowrap;
 /*	font-size: 1em;  */
@@ -1471,13 +1470,14 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	background-origin: padding-box;
 	border: 2px solid var(--back-palette);
 	cursor: default; }  /* you may want to use “cursor: pointer” */
+#MasterColorPicker_mainPanel table.color_chart tbody.list tr.unknown-color td {
+	border: 2px dashed var(--back-palette);  }
 #MasterColorPicker_mainPanel table.color_chart tr.noColor td:first-child,
 #MasterColorPicker_mainPanel table.color_chart tbody.list td:first-child {
 	position: relative;
 	width: 2.618em;  }
 /* styling the td above sort-of works.  Sometimes…
  * styling this span can cause an unwanted scroll bar at the bottom of the mainPanel
-#MasterColorPicker_mainPanel table.color_chart tr.noColor td:first-child span,
 #MasterColorPicker_mainPanel table.color_chart tbody.list td:first-child span {
 	display: inline-block;
 	height: 100%;
@@ -1499,7 +1499,6 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	}
 #MasterColorPicker_mainPanel table.color_chart tbody.grid > tr > td {
 	padding: 1.162em 0 0 0;
-	background-color: transparent;
 	text-align: center;
 	overflow: hidden;  /* block the outline (which is background filler for this TD) of the table-child */
 	position: relative; }
@@ -1522,6 +1521,8 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	width: 1em;
 	padding: 0.5em 0 0.5em 0;
 	border: 2px solid var(--back-palette); }
+#MasterColorPicker_mainPanel table.color_chart tbody.grid table.grid td.unknown-color {
+	border: 2px dashed var(--back-palette); }
 #MasterColorPicker_mainPanel table.color_chart tbody.grid table.grid td.spacer,
 #MasterColorPicker_mainPanel table.color_chart tbody.grid table.grid td.filler {
 	background-color: var(--back-palette);  }
