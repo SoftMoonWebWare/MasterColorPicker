@@ -1,0 +1,32 @@
+A note from the developer:
+
+First, always use UTF-8.
+
+Second, you might find that you need to clear your browser's cache every time you update this package.
+[[ for FireFox:
+click on "settings" in the Application Menu (upper-left corner)
+click on "privacy & security"
+scroll down to "cookies and site data"
+click on "clear data"
+you should probably UN-select "delete cookies" or you will get signed out of your favorite websites and your bank will hassle you about using a new device.
+click "clear"
+]]
+
+Third:
+I have been developing this project since my laptop was new, and it came with the premier Internet Exploder 9; I installed Opera®, FireFox®, Chrome®, and Safari® on Windows® to test this project.  Those were the bad-old-days, when no browser conformed to the "international specs", and the attempts to conform to parts of the specs were buggy at best.  Test, test, test; rewrite the CSS; test, test, test; rewrite the CSS; repeat...
+
+Safari® was the first to go... it would fire-up my hard-drive for 10 minutes every time I booted up my computer, apparently searching every file (?) maybe looking for illegal copies of Apple® software (?)... Then it would upload data to the internet.  Whatever it was doing, it locked up access to my drive and slowed the entire computer down (and the software wasn't even opened in a window!); and as far as I'm concerned, it was a complete invasion of privacy.
+
+Opera® was the preferred browser of the time.  It (almost) always rendered any page correctly with any CSS. (if memory and understanding are correct, its code was made open-source and became the backbone of Blink which became the modern Chromium). But it would update itself without warning and clear all my user-data (bookmarks) and that would set me back a day.  It was the next to be removed from my system.
+
+Chrome® was the best browser for a while...then Mozilla® announced a "breakthrough" in their SpiderMonkey® JavaScript™ engine, and the performance of this package became almost like a native application on my system (Intel Core I7), while Google’s® V8 JavaScript™ engine remained a bit sluggish.  About that same time Google® started to fully embrace the dark-side (so much for "do no evil") since they became a public corporation.  I quit using Chrome, and when I re-installed a new OS, I did not install Chrome.
+
+The current MasterColorPicker package is currently only tested while being developed using FireFox®.  Since all major browsers now use the Chromium package in their code-base, and seem to adhere to most standard JavaScript specs, this, ahem, "should" not be a problem.
+
+A friend of mine has an Apple® laptop, and MasterColorPicker seemed to work correctly on his system a couple years ago. He could not tell me what version of Safari® it was, when it was installed or how old the computer was, or if it updates itself.
+
+I recently saw display computers at the store that were connected to the internet.  I got to actually see Microsoft’s Edge browser render the package...no problems that I could find in a very short test.  I also got to see Chrome® on a Chromebook.  It was failing basic tests.  Apparently not conforming to very basic standard JavaScript rules.
+
+So here it is folks:  get a real browser if this project seems to not work for you:  FireFox!
+
+Ditch that user-profiling tool that Google created to find out more about YOU!
