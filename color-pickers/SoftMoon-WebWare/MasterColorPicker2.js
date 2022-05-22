@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.2.7-alpha   May 21, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.2.8-alpha   May 22, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -3433,18 +3433,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 			cpt.appendChild(document.createElement('span')).appendChild(document.createTextNode(buildPaletteTable.caption.text));  }  }
 	tbl.appendChild(cpt);
 	if (pData.header)  tbl.appendChild(buildTableHdFt(pData.header, 'thead', 'th'));
-/*
-	if (pData.display!=='grid')
-		tbl.appendChild(buildTableRow('td', [
-			{ stylez:{border: '2px dotted'},
-				onclick: handleClick,
-				getColor_cb: noColor  },
-			{ text:'none',
-				onclick: handleClick,
-				getColor_cb: noColor  },
-			],
-		'noColor'));
- */
+
 	tbl.appendChild(buildTableBodys(pData, displayChain, clickChain));
 	if (footer.length)  tbl.appendChild(buildTableHdFt(footer, 'tfoot', 'td'));
 	UniDOM.addEventHandler(tbl, ["onMouseOver", "onClick"], x_CP);
@@ -3547,10 +3536,11 @@ function buildPaletteTable(pName, id, pData, className)  {
 				else html=undefined;
 				tb.appendChild(buildTableRow('td', [
 					{ html: html,
-						stylez: {backgroundColor: clrOb ? clrOb.hex : "",  color: clrOb ? clrOb.contrast : ""},
+						stylez: {backgroundColor: clrOb ? clrOb.hex : "", color: clrOb ? clrOb.contrast : ""},
 						getColor_cb: clrOb ? (flagBakRef ?  addBackRef : returnNext) : undefined },
 					{ text: flagFwdRef ? (clr||colors[c]) : c,
-						getColor_cb: clrOb ? (flagFwdRef ?  addRef : addEntry) : undefined }  ]));  }
+						getColor_cb: clrOb ? (flagFwdRef ?  addRef : addEntry) : undefined }  ],
+					clrOb ? undefined : "unknown-color"));  }
 			if (tb)  addTB(tb, 'list');  }
 
 		if (display === 'none')
@@ -3594,7 +3584,6 @@ function buildPaletteTable(pName, id, pData, className)  {
 
 	function buildTableRow(chlds, data, className)  {
 		const tr=document.createElement('tr');
-		//if (tr.className)  tr.className=className;
 		if (className)  tr.className=className;
 		for (const i in data)  {
 			const td=document.createElement(chlds); // td ‖ th
@@ -3625,6 +3614,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 					(fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c ));
 				td.style.backgroundColor= clr ? clr.hex : "";
 				td.style.color= clr ? clr.contrast : "";
+				if (!clr)  td.className='unknown-color';
 				if (flagBackRef)  td.title=colors[c];
 				td.getColor_cb=addGridEntry;  }
 			tr.appendChild(td);  }
