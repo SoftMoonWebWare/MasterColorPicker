@@ -1,7 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.4.1[b]  May 20, 2022  by SoftMoon WebWare.
-//  [b] release has extra garbage baggage for MasterColorPicker
+// RGB_Calc.js  release 1.4.1  May 22, 2022  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022 Joe Golembieski, SoftMoon WebWare
 
@@ -33,9 +32,9 @@ if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 // this is the palette that is checked first, without needing a palette identifier.
 // with the default value given:
 /* var rgb = new SoftMoon.WebWare.RGB_Calc;
- *  rgb('green').hex === rgb('HTML: green').hex
+ *  rgb('green').hex === rgb('CSS4: green').hex
  */
-if (!SoftMoon.defaultPalette)  SoftMoon.defaultPalette='HTML';
+if (!SoftMoon.defaultPalette)  SoftMoon.defaultPalette='CSS4';
 
 if (typeof SoftMoon.palettes !== 'object')  SoftMoon.palettes=new Object;
 
@@ -820,7 +819,7 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 // • as a string of four comma-separated RGBA values "v¹, v², v³, v4" (see RegExp section at top)
 // • as a string — standard formats for naming colors using color-models or Palettes (see RegExp section at top)
 // • as a string specifying a color name on found the default Palette (the default Palette must be loaded)
-//    (note that the HTML palette is the initial (default) “default Palette”)
+//    (note that the CSS4 palette is the initial (default) “default Palette”)
 // NOTE: that while byte values passed in should technically be (int) in the range of 0-255,
 //  when passed in as 3 individual values or as an array of 3 values, values outside this range
 //  are allowed, but are “truncated” or “reflected” back into the legal range.  (float)s are rounded to (int)s.
