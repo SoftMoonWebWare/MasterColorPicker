@@ -29,5 +29,5 @@ YinYang NíHóng Color Picker™
 All these graphical color pickers, except for the YinYang NíHóng color picker, are designed to show colors in definite “steps” of progression, allowing you to easily work with gradients (see our Rainbow-Maker projects) and find “matching” colors from other hues/tints/tones/shades.  The number of steps, or variety of colors, is user-controllable in real-time, from just a few to “high resolution”.
 
 See the working demo at:
-http://softmoon-webware.com/MasterColorPicker_instructions.php
+https://softmoon-webware.com/MasterColorPicker_instructions.php
 (no ads, no cookies, no tracking, no b.s!)
