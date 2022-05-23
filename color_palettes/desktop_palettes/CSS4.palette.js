@@ -1,5 +1,5 @@
 SoftMoon.loaded_palettes.push(
-{"CSS4": {
+{"CSS": {
 	"header": ["CSS4 specs for HTML and SVG", "This is a subset of X11 with notable differences."],
 	"alternatives": "UPPERCASE",
 	"palette": {
