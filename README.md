@@ -30,3 +30,4 @@ All these graphical color pickers, except for the YinYang NíHóng color picker,
 
 See the working demo at:
 http://softmoon-webware.com/MasterColorPicker_instructions.php
+(no ads, no cookies, no tracking, no b.s!)
