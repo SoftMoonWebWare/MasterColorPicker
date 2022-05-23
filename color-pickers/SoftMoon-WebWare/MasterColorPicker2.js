@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.2.8-alpha   May 22, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.2.9-alpha   May 23, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -3612,11 +3612,12 @@ function buildPaletteTable(pName, id, pData, className)  {
 				clr=MasterColorPicker.RGB_calc(clr||colors[c]);
 				td.appendChild(document.createElement('span')).appendChild(document.createTextNode(
 					(fwdRefAll||checkIsRef(c, referenceMarks)) ? colors[c] : c ));
-				td.style.backgroundColor= clr ? clr.hex : "";
-				td.style.color= clr ? clr.contrast : "";
-				if (!clr)  td.className='unknown-color';
-				if (flagBackRef)  td.title=colors[c];
-				td.getColor_cb=addGridEntry;  }
+				if (clr)  {
+					td.style.backgroundColor=clr.hex;
+					td.style.color=clr.contrast;
+					td.getColor_cb=addGridEntry;  }
+				else  td.className='unknown-color';
+				if (flagBackRef)  td.title=colors[c];  }
 			tr.appendChild(td);  }
 		for (j=0; j<columns-i; j++)  {tr.appendChild(document.createElement('td')).className='filler';}
 		return tr;  }
