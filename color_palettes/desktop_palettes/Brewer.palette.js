@@ -3,10 +3,13 @@ SoftMoon.loaded_palettes.push(
 	"requireSubindex": "true",
 	"display": "grid",
 	"columns": 12,
+	"header": [
+"ColorBrewer color-schemes for cartography",
+"https://colorbrewer2.org/"],
 	"footer": [
 "Apache-Style Software License for ColorBrewer software and ColorBrewer Color Schemes, Version 1.1",
 "Copyright © 2002 Cynthia Brewer, Mark Harrower, and The Pennsylvania State University. All rights reserved.",
-"This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).",
+"This product includes color specifications and designs developed by Cynthia Brewer (https://colorbrewer.org/).",
 "The name “ColorBrewer” must not be used to endorse or promote products derived from this software without prior written permission. For written permission, please contact Cynthia Brewer at cbrewer@psu.edu."],
 	"palette": {
 	"accent3": { "palette": {
