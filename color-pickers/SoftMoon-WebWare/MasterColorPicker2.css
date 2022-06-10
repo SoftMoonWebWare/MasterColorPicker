@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.2.8  May 22, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.3  June 10, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -1334,8 +1334,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker p.underConstruction span {
 	display: block;
 	font-size: 1.162em; }
-#MasterColorPicker_Gradientor p.underConstruction,
-#MasterColorPicker_Thesaurus p.underConstruction {
+#MasterColorPicker_Gradientor p.underConstruction {
 	position: absolute;
 	font-size: 1.618em;
 	background-color: #FFFFFFA0;
@@ -1357,9 +1356,22 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	left: 0; }
 #MasterColorPicker_Thesaurus label {
 	display: block; }
-#MasterColorPicker_Thesaurus input {
-	width: 17em; }
-
+#MasterColorPicker_Thesaurus input[type="text"] {
+	width: 17em;
+	border: 1px solid;
+	margin-right: .382em; }
+#MasterColorPicker_Thesaurus fieldset {
+	max-height: 17em;
+	overflow-y: auto; }
+#MasterColorPicker_Thesaurus ol {
+	max-height: 7em;
+	overflow-y: auto; }
+#MasterColorPicker_Thesaurus .disparity {
+	font-family: monospace; }
+#MasterColorPicker_Thesaurus .swatch {
+	margin-right: .162em;
+	color: transparent;
+	border: 1px solid; }
 
 #MasterColorPicker_mainPanel.pickerPanel,
 #MasterColorPicker_mainPanel.pickerPanel.activeInterface,

@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.2.9-alpha   May 23, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.3-alpha   June 10, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,6 @@
 // requires  SoftMoon.WebWare.Picker   → → → →   JS_toolbucket/SoftMoon-WebWare/Picker.js
 // requires  SoftMoon.WebWare.FormFieldGenie   → → → →  JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js  → → → →  for MyPalette and ColorFilter
 // requires  SoftMoon.WebWare.HTTP   → → → →  JS_toolbucket/SoftMoon-WebWare/HTTP.js  → → → →  for Palette load/save on a server - not with  file://  protocol use
-// requires  Softmoon.WebWare.Log  if you want to log with “event grouping” for easier debugging (see this file's end)
 // subject to move to unique files (with more functions and features) in the future:
 //  • SoftMoon.WebWare.canvas_graphics
 
@@ -4169,6 +4168,106 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
 // =================================================================================================== \\
 
 
+
+
+
+SoftMoon.WebWare.ColorThesaurus=new Object;
+
+
+SoftMoon.WebWare.ColorThesaurus.refreshPaletteList=function refreshPaletteList()  {
+	const fs=document.querySelector('#MasterColorPicker_Thesaurus .palette-list');
+	while (fs.lastChild.nodeName!=='LEGEND') {fs.removeChild(fs.lastChild);}
+	for (const pltName in SoftMoon.palettes)  {
+		const
+			lbl=fs.appendChild(document.createElement('label')),
+			inp=document.createElement('input');
+		inp.type='checkbox';
+		inp.value=pltName;
+		lbl.append(inp, pltName);  }
+	fs.lastChild.firstChild.setAttribute('tabToTarget', 'true');  }
+
+SoftMoon.WebWare.ColorThesaurus.matchColor=function matchColor(color)  { /* as an event-handler, “color” is not a color, its an Event object and is ignored */
+	const html=document.querySelector('#MasterColorPicker_Thesaurus');
+	while (html.lastChild.tagName!=='FIELDSET')  html.removeChild(html.lastChild);
+	if (!(color instanceof SoftMoon.WebWare.RGBA_Color))  /* if you pass in a color, it MUST have a valid format */
+		color=MasterColorPicker.RGB_calc(document.querySelector('#MasterColorPicker_Thesaurus input').value);
+	if (!color)  {
+		html.appendChild(document.createElement('p')).append('Invalid or unknown color.');
+		return;  }
+	const
+		plts=document.querySelectorAll('#MasterColorPicker_Thesaurus input'),
+		results=[];
+	for (var i=1; i<plts.length; i++)  {if (plts[i].checked)  searchPalette(SoftMoon.palettes[plts[i].value], plts[i].value);}
+	if (results.length===0)   {
+		html.appendChild(document.createElement('p')).append('Please select palette(s) to search.');
+		return;  }
+	results.sort((a,b) => a.disparity-b.disparity);
+	const
+		ol=document.createElement('ol');
+	for (const clr of results)  {
+		const
+			span=document.createElement('span'),
+			swatch=document.createElement('span');
+		span.className='disparity';
+		span.append(clr.disparity.toFixed(7));
+		swatch.className='swatch';
+		swatch.style.backgroundColor=clr.color.hex;
+		swatch.style.color=clr.color.contrast;
+		ol.appendChild(document.createElement('li')).append(span, " — ", swatch, clr.name);  }
+	html.appendChild(document.createElement(p)).append('disparity —');
+	html.append(ol);
+	function searchPalette(plt, name, alts, refMarks, requireSubIndex)  {
+		if (plt.alternatives)  alts=plt.alternatives;
+		if (plt.referenceMarks)  refMarks=plt.referenceMarks;
+		if (plt.requireSubindex)  requireSubIndex=plt.requireSubindex;
+		for (const pClr in plt.palette)  {
+			if (plt.palette[pClr].palette)  {
+				searchPalette(plt.palette[pClr], name+(requireSubIndex ? (': '+pClr) : ""), alts, refMarks, requireSubIndex);
+				continue;  }
+			if (alts  /* do not consider “alternative” color names */
+			&&  ((alts==='UPPERCASE'  &&  pClr===pClr.toUpperCase())
+				|| (alts==='lowercase'  &&  pClr===pClr.toLowerCase())))  continue;
+			if (refMarks  /* do not consider “unnamed” colors */
+			&&  pClr.substr(0, refMarks[0].length)===refMarks[0]
+			&&  pClr.substr(-refMarks[1].length)===refMarks[1])  continue;
+			const pltClr=MasterColorPicker.RGB_calc(plt.palette[pClr]);
+			if (pltClr==null)  continue;
+			results.push({
+				name: name+': '+pClr,
+				color: pltClr,
+				disparity: SoftMoon.WebWare.ColorThesaurus.compare(color.to.hcg, pltClr.to.hcg) });  }  }  }
+
+/*
+	c1 & c2 should each be a SoftMoon.WebWare.HCGA_Color (or a SoftMoon.WebWare.ColorWheel_Color as an HCG color)
+		or provide similar properties.
+	a “disparity” value is returned: 0 =< disparity < 1
+		0 = no disparity – colors match exactly
+		1 = complete mismatch (can never actually reach this level because achromatic values don’t consider hues)
+*/
+SoftMoon.WebWare.ColorThesaurus.compare=function compareColors(c1, c2)  {
+	var hdif=Math.abs( c1.hue - c2.hue );
+	if (hdif>0.5)  hdif=1-hdif;
+	return (
+					Math.min(c1.chroma, c2.chroma)*hdif*2 +
+					(1-Math.max(c1.chroma, c2.chroma))*Math.abs(c1.gray-c2.gray) +
+					Math.abs(c1.chroma-c2.chroma)
+				 )/2;  }
+
+UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
+	//SoftMoon.WebWare.ColorThesaurus.refreshPaletteList();
+	UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Thesaurus button.refresh'),
+		['click', 'buttonpress'], SoftMoon.WebWare.ColorThesaurus.refreshPaletteList);
+	UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Thesaurus button.match'),
+		['click', 'buttonpress'], SoftMoon.WebWare.ColorThesaurus.matchColor);  });
+
+
+/*==================================================================*/
+
+
+
+// =================================================================================================== \\
+
+
 /*
 
 
@@ -4500,6 +4599,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 					UniDOM.generateEvent(btn, 'tabIn', {bubbles: true}, {relatedTarget: event.target, tabbedFrom: event.target});  }
 			break;
 			case 'F2':   // F2 function key
+				event.preventDefault();
 				userOptions.showMyPalette.checked= !event.shiftKey;
 				UniDOM.generateEvent(userOptions.showMyPalette, 'change');
 				if (!event.ShiftKey)  {
@@ -4509,12 +4609,11 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 					&&  MasterColorPicker.RGB_calc(event.target.value))  {
 						MasterColorPicker.MyPalette.addColor(event.target.value);
 						return;  }  }
-				event.preventDefault();
 			break;
 			case 'F3':   // F3 function key
+				event.preventDefault();
 				userOptions.showLab.checked= !event.shiftKey;
 				UniDOM.generateEvent(userOptions.showLab, 'change');
-				event.preventDefault();
 				if (!event.ShiftKey)  {
 					MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Lab'));
 					if (event.ctrlKey    //sync color in user-input box to ColorSpaceLab
@@ -4522,27 +4621,21 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 						SoftMoon.WebWare.ColorSpaceLab.setColor({RGB: color});
 						return;  }  }
 			break;
-			case 'F4':   // F4 function key
-				userOptions.showThesaurus.checked= !event.shiftKey;
-				UniDOM.generateEvent(userOptions.showThesaurus, 'change');
-				if (!event.ShiftKey)  {
-					MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Thesaurus'));
-					if (event.ctrlKey //match color in user-input box using Thesaurus  ¡STOLEN! by the browser…oh well.
-					&&	MasterColorPicker.RGB_calc(event.target.value))  {
-						document.getElementsByName('MasterColorPicker_Thesaurus_color')[0].value=event.target.value;
-						}  }
+			case 'F4':   // F4 function key  ¡this key shortcut may be removed or changed in the future
+			case 'F7':   // F7 function key  ¡STOLEN! by the browser…oh well. (¡now in 2022, F7 works in at least FireFox & Chrome! ¡yea!)
+									 // SHIFT+F7 is thesaurus in MS Word, CTRL+F7 in LibreOffice
 				event.preventDefault();
-			break;
-			case 'F7':   // F7 function key  ¡STOLEN! by the browser…oh well.  SHIFT+F7 is thesaurus in MS Word, CTRL+F7 in LibreOffice
 				userOptions.showThesaurus.checked= !event.shiftKey;
 				UniDOM.generateEvent(userOptions.showThesaurus, 'change');
 				if (!event.ShiftKey)  {
 					MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Thesaurus'));
 					if (event.ctrlKey //match color in user-input box using Thesaurus  this key-combo works in FireFox
 					&&	MasterColorPicker.RGB_calc(event.target.value))  {
-						document.getElementsByName('MasterColorPicker_Thesaurus_color')[0].value=event.target.value;
+						const inp=document.getElementsByName('MasterColorPicker_Thesaurus_color')[0];
+						inp.value=event.target.value;
+						MasterColorPicker.colorSwatch(inp);
+						SoftMoon.WebWare.ColorThesaurus.matchColor();
 						}  }
-				event.preventDefault();
 			break;  }
 		}  // close findKey
 		if (txt)  {
