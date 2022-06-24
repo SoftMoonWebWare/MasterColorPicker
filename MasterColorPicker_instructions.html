@@ -362,8 +362,8 @@ It can update automatically as you hover over a color in a palette;
 or you can use it to manually make color-space conversions.</dd>
 
 <dt>The Color Thesaurus</dt>
-<dd><span class='construction'>(Under Construction)</span> shows you the nearest
-“named color” in any one of the color-table-palettes that you choose.</dd>
+<dd>shows you the nearest
+“named color” in any one of the named-color-table-palettes that you choose.</dd>
 
 <dt>The Gradientor</dt>
 <dd><span class='construction'>(Under Construction)</span> gives you measured color-stops in a gradient,
@@ -393,12 +393,12 @@ But some smaller monitors may still be manageable.
 It can be placed in a folder on your personal computer and
 loaded into a browser using the <code>file://</code> protocol
 (you click on the file in your filesystem for example);
-or it can be placed on a server and loaded into a browser using the <code>http://</code> protocol.&nbsp;
+or it can be placed on a server and loaded into a browser using the <code>http://</code> or <code>https://</code> protocol.&nbsp;
 The server may be remote, public or private (in “the cloud” or in a private network);
 or be a <code>localhost/</code> on your personal computer.&nbsp;
 Both protocols offer similar functionality, but server-based usage is much more convenient
 if you plan on adding or deleting named-color database tables on a regular basis.&nbsp;
-With server-based (<code>http://</code> protocol) usage,
+With server-based (<code>http://</code> or <code>https://</code> protocol) usage,
 you simply create the named-color database file and add it to the proper folder; that’s it.&nbsp;
 Or you can use the MyPalette interface to create your named-color-table and save your file to the server,
 and not even worry about which folders where … or about the file formatting details …
@@ -407,7 +407,7 @@ Simply remove your database file from the folder when you are done with it.&nbsp
 With <code>file://</code> protocol usage, you must manually add and remove links to each of the named-color tables
 <strong>if you want them to auto-load when MasterColorPicker starts</strong>.&nbsp;
 You can find info on doing such in MasterColorPicker’s ☺Help☺ panel while it is up-and-running.
-Both <code>http://</code> and <code>file://</code> protocol usages
+Both <code>file://</code> and <code>http://</code> (&amp; <code>https://</code>) protocol usages
 allow you to create, save &amp; load MyPalette and other named-color-table-palette files
 to &amp; from your computer’s local filesystem,
 or the borwser’s private storeage database,
@@ -430,7 +430,7 @@ and also of the subtle differences in the CSS and how the palette files are load
 ¡Note both files support being used with a server!&nbsp;
 There are two simple, primary differences between the files:&nbsp;
 First, the <code class='filename'>.html</code> file adds hardcoded links to the named-color-table files;
-(¡note both files recognize the environment they are active in, and if served from a server (via <code>http://</code>)
+(¡note both files recognize the environment they are active in, and if served from a server (via <code>http://</code> or <code>https://</code>)
 the <code class='filename'>.html</code> file will still allow you save &amp; load palette files to/from the server-host!)&nbsp;
 Second, the <code class='filename'>.html</code> file adds a copy of some of the <abbr>CSS</abbr> styling
 directly into the HTML markup, which is needed for MasterColorPicker to work,
@@ -441,7 +441,7 @@ including its own <abbr>CSS</abbr> stylesheet file (unless the user selects them
 
 
 <p>The named-colors database files themselves need to be adapted to the protocol they are used in.&nbsp;
-With server based (<code>http://</code> protocol) usage,
+With server based (<code>http://</code> or <code>https://</code> protocol) usage,
 these files are <acronym title='JavaScript Object Notation'>JSON</acronym> formatted,
 and loaded using JavaScript<mark class='macronym'>™</mark>
 to make HTTP calls back to the server (think ajax);
@@ -468,10 +468,12 @@ and even it can be replaced with a simple <code class='filename'>.txt</code> fil
 and many of the files are very long, these database files only come packaged in one format:
 for <code>file://</code> protocol usage (extention <code class='filename'>.js</code>).&nbsp;
 There is an included <abbr>PHP</abbr> powered converter which will convert all the files
-to the server (<code>http://</code> protocol) usage format (extention <code class='filename'>.json</code>).&nbsp;
+to the server (<code>http://</code> or <code>https://</code> protocol)
+usage format (extention <code class='filename'>.json</code>).&nbsp;
 There is also an instruction file which explains the details on how to do this using the included converter,
 and also how to do this by hand (which is remarkably simple) if you don't have <abbr>PHP</abbr> installed.&nbsp;
-These two files, <code class='filename'>convert_palette_formats.php</code> and <code class='filename'>converting_palette_formats.odt</code>,&nbsp;
+These two files, <code class='filename'>convert_palette_formats.php</code>
+and <code class='filename'>converting_palette_formats.odt</code>,&nbsp;
 can be found in the <code class='filename'>color_palettes/</code> folder.</p>
 
 <p>Building your own named-color-tables by hand is simple to do using any basic text-editor.&nbsp;
@@ -600,7 +602,7 @@ See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code>
 any particular file-system structure or filenames,
 <strong>¡except!</strong> for the <code class='filename'>color_palettes/</code> folder
 and its <code class='filename'>index.…</code> file
-when using <code>http://</code> protocol to load your web-page (i.e. it is loaded from a server).&nbsp;
+when using <code>http://</code> or <code>https://</code> protocol to load your web-page (i.e. it is loaded from a server).&nbsp;
 As noted above, the included <code class='filename'>index.php</code> file may be replaced
 by another <code class='filename'>index.…</code> file in another programming language
 or even a simple text file, but it <strong>must</strong> be named “index”
@@ -613,7 +615,7 @@ or by modifying the file <code class='filename'>JS_toolbucket/SoftMoon-WebWare/R
 The <code class='filename'>color_palettes/html-indexer.php</code> file is optional, but its name also must remain unchanged.&nbsp;
 It will allow end-users the ability to get an <abbr>HTML</abbr>-based index with hyperlinks of the
 <code class='filename'>color_palettes/</code> folder and its sub-folders by simply typing something like:
-<kbd>http://mywebsite.com/color_palettes/?html</kbd> in their browser’s address bar.&nbsp;
+<kbd>https://mywebsite.com/color_palettes/?html</kbd> in their browser’s address bar.&nbsp;
 Then the included <code class='filename'>color_palettes/index.php</code> file
 (which the server will automatically use when no filename is specified in the folder)
 will call the <code class='filename'>color_palettes/html-indexer.php</code> file
