@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.3-alpha   June 10, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.3.1-alpha   June 24, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -4245,10 +4245,15 @@ SoftMoon.WebWare.ColorThesaurus.matchColor=function matchColor(color)  { /* as a
 		1 = complete mismatch (can never actually reach this level because achromatic values don’t consider hues)
 */
 SoftMoon.WebWare.ColorThesaurus.compare=function compareColors(c1, c2)  {
+	if (c1.alpha===0 ^ c2.alpha===0) return 1;
+	if (c1.alpha===0 && c2.alpha===0)  return 0;
 	var hdif=Math.abs( c1.hue - c2.hue );
 	if (hdif>0.5)  hdif=1-hdif;
+	//const hChromaFactor= Math.min(c1.chroma, c2.chroma)
+	//const hChromaFactor= c2.chroma===0 ? 0 : c1.chroma;
+	const hChromaFactor= (c1.chroma===0 || c2.chroma===0) ? 0 : ((c1.chroma+c2.chroma)/2);
 	return (
-					Math.min(c1.chroma, c2.chroma)*hdif*2 +
+					hChromaFactor*hdif*2 +
 					(1-Math.max(c1.chroma, c2.chroma))*Math.abs(c1.gray-c2.gray) +
 					Math.abs(c1.chroma-c2.chroma)
 				 )/2;  }
