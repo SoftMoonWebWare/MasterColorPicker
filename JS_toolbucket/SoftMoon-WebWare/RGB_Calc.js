@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.4.2  May 23, 2022  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.4.3  June 24, 2022  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022 Joe Golembieski, SoftMoon WebWare
 
@@ -376,14 +376,14 @@ function RGBA_Color($r, $g, $b, $a, $config)  {
 							$r=parseInt($h[3], 16);  $g=parseInt($h[4], 16);  $b=parseInt($h[5], 16);
 							if ($h[6])  $a=parseInt($h[6], 16)/255;  }  },
 					enumerable: true},
-		contrast: {get: contrastRGB.bind(ThisColorObject, rgb),  enumerable: true},
-		shade: {get: shadeRGB.bind(ThisColorObject, rgb),  enumerable: true},
+		contrast: {get: contrastRGB.bind(ThisColorObject, rgba),  enumerable: true},
+		shade: {get: shadeRGB.bind(ThisColorObject, rgba),  enumerable: true},
 		to: {enumerable: true,  value: Object.defineProperties(new Object, {
-			hsv:  {get:  toHSV.bind(ThisColorObject, rgb),  enumerable: true},
-			hsb:  {get:  toHSB.bind(ThisColorObject, rgb),  enumerable: true},
-			hsl:  {get:  toHSL.bind(ThisColorObject, rgb),  enumerable: true},
-			hcg:  {get:  toHCG.bind(ThisColorObject, rgb),  enumerable: true},
-			cmyk: {get: toCMYK.bind(ThisColorObject, rgb),  enumerable: true}  })}  });
+			hsv:  {get:  toHSV.bind(ThisColorObject, rgba),  enumerable: true},
+			hsb:  {get:  toHSB.bind(ThisColorObject, rgba),  enumerable: true},
+			hsl:  {get:  toHSL.bind(ThisColorObject, rgba),  enumerable: true},
+			hcg:  {get:  toHCG.bind(ThisColorObject, rgba),  enumerable: true},
+			cmyk: {get: toCMYK.bind(ThisColorObject, rgba),  enumerable: true}  })}  });
 	};
 
 Object.defineProperties(RGBA_Color.prototype, {
