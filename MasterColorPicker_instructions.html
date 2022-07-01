@@ -1,120 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 <head>
-<meta charset="UTF-8" />
-<meta name='description' content='MasterColorPicker: a JavaScript color-picker delivering all the color you can handle.' />
-<meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker' />
-<meta name='author' content='Joe Golembieski, SoftMoon-WebWare' />
-<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare' />
-<title>MasterColorPicker Instructions from SoftMoon WebWare</title>
+<meta charset="UTF-8">
+<meta name='description' content='MasterColorPicker: a JavaScript color-picker delivering all the color you can handle.'>
+<meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker'>
+<meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
+<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare'>
+<title>MasterColorPicker Instructions from SoftMoon-WebWare</title>
+<link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <style type="text/css">
-body, section, header, footer, div, h1, h2, h4, h5, img, ul, ol, dl, menu, li {
+body, header, main, section, footer, figure, div, h1, h2, h4, h5, img, ul, ol, dl, menu, li {
 	margin: 0;
 	padding: 0; }
-mark {
-	background-color: inherit; }
 body {
-	min-width: 800px;
-	font-family: Times, "Times New Roman", serif;
+	min-width: 67em;
+	font-family: serif;
 	color: #000000;
-	background: #FFDEAD url(images/SoftMoon.repeat-y.png) repeat-y; }
+	background-color: #FFDEAD;
+	background-image:  /* SteelBlue */
+		linear-gradient(to right, #4682B4FF, 304px, #4682B400 800px),
+		linear-gradient(to bottom, #4682B4FF, 266px, #4682B400 700px),
+		linear-gradient(to top, #4682B4FF, 38px, #4682B400 100px);
+	}
 
-#top {
-	position: relative;
-	height: 700px;
-	min-height: 42em;
-	background: #FFDEAD url(images/SoftMoon.repeat-x.png) repeat-x; }
-#top, .content, footer {
-	min-width: 62em;
-	opacity: .62;
-	-moz-opacity: .62;
-	filter: alpha(opacity=62); }
-#top h1:first-child {
+header h1 {
 	font-size: 1.618em;
 	font-weight: bold;
-	font-family: "Cooper Black", serif;
-	padding: .618em 0 0 1em; }
-#top h1 span {
+	clear: both;
+	text-align: center;  }
+header h1:first-child {
+	font-family: sans-serif;
+	padding: .618em 1em 0 1em;
+	text-align: left; }
+header h1 span {
 	padding: 0 0 0 2.618em;
 	font-size: .764em }  /* ≈ Φ + ((1-Φ) - (1-Φ)*Φ) */
-#top h1:last-child {
-	position: absolute;
-	bottom: 17px;
-	left: 0px;
-	text-align: center;
-	width: 100%; }
-#top figure {
-	position: absolute;
-	top: 2.618em;
-	left: 1em; }
+
+header figure {
+	margin-left: .382rem;
+	float: left; }
 #logo {
+	opacity: .78;
 	font-size: 1.618em; /*for alt text*/
 	font-weight: bold;
 	line-height: 150%; }
-#top figcaption {
+header figcaption {
 	font-size: 1.382em;
 	font-weight: bold;
 	text-align: center;
 	width: 27em; }
-#top h1 span,
-#top figcaption span {
+header h1 span,
+header figcaption span {
 	display: block;
 	font-style: oblique; }
-#top figcaption span em {
-	text-transform: uppercase;
-	font-weight: bold }
-#top menu {
-	position: absolute;
-	bottom: 13em;
-	right: 7px;
-	z-index: 618;
-	color: #000000;
-	font-size: 1.382em;
-	list-style-type: none;
-	overflow: visible; }
-#top menu#sub_nav {
-	position: relative;
-	top: 0;
-	right: 0;
-	font-size: 100%;
-	margin-left: 1.618em; }
-#top menu a {
-	display: block;
-	padding: 0 2px 1px 2px;
-	color: #000080; }
-#top menu a:visited {
-	color: #000080; }
-#top menu a:hover {
-	color: #FFFF00;
-	background-color: #000080;
-	text-decoration: none; }
-#top li.current {
-	font-weight: bold;
-	font-style: oblique;
-	position: relative;
-	right: 3.618em; }
 
-body > header + div {
-	position: relative;
-	min-width: 62em;
-	height: 0px; }
-kbd span {
-	display: inline-block;
-	position: static;
-	border: 1px solid #8080FF;
-	border-bottom: 2px solid #404080;
-	border-right: 2px solid #404080;
-	border-radius: 1.618em / 2em;
-	color: white;
-	background-color: #202040;
-	text-align: center;
-	margin: 0 .382em;
-	padding: 0 .618em;  }
-p kbd span {
-	font-size: 85.4%;  }
-kbd {
-	break-before: avoid;
-	break-after: avoid; }
+header + div {
+	position: relative; }
 
 nav {
 	position: absolute;
@@ -134,96 +75,111 @@ nav a {
 	text-align: justify; }
 
 
-.content {
-	width: 100%;	/* fix MS and IE: crash 'n' trash	(yet another "hasLayout" bug?) */
-	background: #FFDEAD;
+main {
 	text-align: center;
 	z-index: 1; }
-.content > p,
-.content dl {
+main > p,
+main dl {
 	text-align: justify;
 	text-indent: -.618em;
 	font-size: 1.236em;
 	width: 27em;
 	margin: 0 auto 0 auto;
 	padding: 0 1em 1em 1em; }
-.content > p *,
-.content dl * {
+main > p *,
+main dl * {
 	text-indent: 0; }
-.content > p:first-letter {
+main > p:first-letter {
 	font-size: 1.618em;
 	font-weight: bold;
 	color: #000040; }
-.content ol {
+main ol {
 	font-size: 1.236em;
 	width: 27em;
 	margin: -1em auto 0 auto;
 	padding-left: 1.618em;
 	list-style-type: circle;
 	text-align: left; }
-.content code + p,
-.content ol + p {
+main code + p,
+main ol + p {
 	text-indent: 0; }
-.content code + p:first-letter,
-.content ol + p:first-letter {
+main code + p:first-letter,
+main ol + p:first-letter {
 	font-size: inherit;
 	font-weight: normal;
 	color: inherit; }
-.content dt {
+main dt {
 	text-align: left;
 	font-weight: bold; }
-.content dd {
+main dd {
 	text-indent: .618em;
 	margin: 0 .618em 0 .618em;  }
-.content code, .content a, .word {
+main code, main a, .word {
 	white-space: nowrap; }
-.content p code {
+main p code {
 	display: inline-block;
 	text-align: left; }
-.content > code {
+main > code {
 	display: block;
 	text-align: left;
 	white-space: pre;
 	width: 37em;
 	margin: -.618em auto 0 auto;
-	font-size: 1.236em;
- }
-.content h3 {
+	font-size: 1.236em; }
+main h3 {
 	float: right;
 	position: relative;
 	top: -1em;
 	width: 10.618em;
 	margin-right: .618em; }
-.content > ul {
+main > ul {
 	list-style-type: none;
 	margin: 0 11.618em;
 	font-size: 1.236em; }
-.content > ul > li {
+main > ul > li {
 	margin-bottom: .618em; }
-.content > ul ul {
+main > ul ul {
 	display: inline-block;
 	list-style-type: disc;
 	list-style-position: outside;
 	margin-left: 1.618em;
 	max-width: 37em;
 	text-align: left; }
-.content > ul ul ul {
+main > ul ul ul {
 	list-style-type: circle; }
 
-
-footer {
-	position: relative;
-	height: 100px;
-	background: #FFDEAD url(images/SoftMoon.footer.back.png) repeat-x bottom; }
 footer p {
-	position: absolute;
-	left: 1.618em;
-	bottom: .618em;
+	margin: 0 1.618em;
 	font-size: .78em;
 	font-weight: bold; }
-footer .notice {
+footer note {
+	margin-right: 2.618em; }
+footer note:last-child {
+	margin-right: 0; }
+
+kbd {
 	white-space: nowrap;
-	margin-right: 7.618em; }
+	font-family: monospace;
+	break-before: avoid;
+	break-after: avoid; }
+kbd span {
+	display: inline-block;
+	position: static;
+	border: 1px solid #8080FF;
+	border-bottom: 2px solid #404080;
+	border-right: 2px solid #404080;
+	border-radius: 1.618em / 2em;
+	color: white;
+	background-color: #202040;
+	text-align: center;
+	margin: 0 .382em;
+	padding: 0 .618em;  }
+p kbd span {
+	font-size: 85.4%;  }
+
+mark {
+	color: inherit;
+	background-color: inherit; }
 .numerance {
 	font-size: .618em;
 	vertical-align: .618em;
@@ -237,47 +193,28 @@ abbr.macronym {
 	font-size: .382em;
 	vertical-align: 1.1618em;
 	border-bottom: none; }
-code {
-	font-family: "consolas", "monospace"; }
-code.filename,
-code .filename {
-	color: #0066FF; }
+code {font-family: monospace;}
+.filename {color: #0066FF;}
 .attention {color: red;}
-big {
-	font-size: 1.382em;
-	line-height: .618em; }
-strong em {
-	text-transform: uppercase; }
-#tester, #tester2 {
-	position: fixed;
-	bottom: 0;
-	right: 1em;
-	width: 10em;
-	height: 1em;
-	z-index: 1618;
-	background-color: black;
-	color: white; }
-#tester2 {
-	right: 12em; }
-dd {
-	position: relative; }
+strong em {text-transform: uppercase;}
+
+main dd {
+	position: relative;
 .construction {
-	color: red;
-	font-weight: bold;
-	border: 1px. dotted red;
 	position: absolute;
 	left: 2.618em;
 	top: -.618em;
 	transform: rotate(-13.1deg);
-}
+	color: red;
+	font-weight: bold;
+	border: 1px. dotted red; }
 </style>
-
 </head>
 <body>
-<header id='top'>
+<header>
 <h1>Custom Web Software Development</h1>
 <figure>
-<img id='logo' src="images/SoftMoon.gif" alt="SoftMoon WebWare">
+<img id='logo' src="images/SoftMoon.gif" alt="SoftMoon-WebWare">
 <figcaption>JavaScript<mark class='macronym'>™</mark>, <abbr>HTML 5</abbr>, <abbr>CSS 4</abbr>, &amp; <abbr>PHP 8</abbr>:
 <span>Innovative Enterprise level Scripting for interactive sites, <acronym title='software as a service'>SaaS</acronym>, &amp; cross-platform desktop apps</span></figcaption>
 </figure>
@@ -304,8 +241,8 @@ on this page:
 </nav>
 </div>
 
-<section id='content' class='content'>
-<p>SoftMoon WebWare’s MasterColorPicker package delivers five JavaScript<mark class='macronym'>™</mark> powered professional quality
+<main id='content'>
+<p>SoftMoon-WebWare’s MasterColorPicker package delivers five JavaScript<mark class='macronym'>™</mark> powered professional quality
 interactive graphical color-pickers, plus a named-color-table based color-picker framework with nine
 named-color database files included: <abbr>ANSI</abbr>, Brewer, common, Crayola, <abbr>CSS</abbr>, Material Design, OpenOffice, universal, &amp; X11.&nbsp;
 Your chosen colors can be returned in the most popular color-space models including hexadecimal-<abbr>RGB</abbr>,
@@ -419,7 +356,7 @@ and having a centralized project host center for multiple developers.&nbsp;
 <p>You will find these two (2) files in the root folder that are <strong>tools</strong>
 for digital media developers to find the colors of their dream’s desire:
 <code class='filename'>MasterColorPicker_desktop.html</code> and
-<code class='filename'>MasterColorPicker_desktop.php</code><br />
+<code class='filename'>MasterColorPicker_desktop.php</code><br>
 With the <code class='filename'>.html</code> file, no server is needed;
 just click on the file and it will open in your browser.&nbsp;
 With the <code class='filename'>.php</code> file you of course need a server with <abbr>PHP</abbr> installed,
@@ -867,30 +804,28 @@ it will pop-up and pop-down with the main panel, or if you know <abbr>CSS</abbr>
 it’s a simple modification to the <abbr>CSS</abbr> file to achieve the same result.&nbsp;</p  -->
 
 
-</section><!-- close .content -->
+</main><!-- close #content -->
+
 <footer>
-<p>All content found on this page &amp; site Copyright © 2010, 2012, 2013, 2014, 2015, 2019, 2020, 2021, 2022  by SoftMoon WebWare and its owner,
+<p>SoftMoon-WebWare and its websites do not use or store “cookies” or other data on your computer/device
+(except for application demos that require your intent to do so, to store “settings” and the data you generate and desire to save).&nbsp;
+No personal data is transferred to any other entity
+(except with your intent as previously stated while using “demos”,
+and said data is only transferred to SoftMoon-WebWare.com and is <em>not</em> saved).&nbsp;
+You are not being tracked, quanitified, or mined for data when visiting our sites.&nbsp;
+We hope you enjoy the advertisement-free experience that shuns the growing worldwide corporate-fascism movement.</p>
+<p>All content found on this page &amp; site Copyright © 2010, 2012, 2013, 2014, 2015, 2019, 2020, 2021, 2022  by SoftMoon-WebWare and its owner,
 all rights reserved, unless otherwise specifically noted.&nbsp;
-Trademarks and Service-Marks are property of SoftMoon WebWare and its owner,
-all rights reserved, unless otherwise specifically noted.<br />
-
-<span class='notice'>“JavaScript<mark class='macronym'>™</mark>” is a trademark of Oracle Corporation.</span>
-
-<span class='notice'>“Google<mark class='macronym'>®</mark>” &amp;
-“Chrome<mark class='macronym'>®</mark>” are trademarks of Google, Inc.</span>
-
-<span class='notice'>“Opera<mark class='macronym'>®</mark>” &amp;
-“Opera<mark class='macronym'>®</mark> Mobile<mark class='macronym'>®</mark>” are trademarks of Opera Software ASA.</span>
-
-<span class='notice'>“Apple<mark class='macronym'>®</mark>” &amp;
-“Safari<mark class='macronym'>®</mark>” are trademarks of Apple, Inc.</span>
-
-<span class='notice'>“Mozilla<mark class='macronym'>®</mark>” &amp;
-“Firefox<mark class='macronym'>®</mark>” are trademarks of Mozilla, Inc.</span>
-
-<span class='notice'>“Microsoft<mark class='macronym'>®</mark>” &amp;
-“Internet Explorer<mark class='macronym'>®</mark>” are trademarks of Microsoft, Inc.</span>
-
+Trademarks and Service-Marks are property of SoftMoon-WebWare and its owner,
+all rights reserved, unless otherwise specifically noted.</p>
+<p>
+<note>“JavaScript” is a trademark of Oracle Corporation.</note>
+<note>“Mozilla” &amp; “Firefox” are trademarks of Mozilla Corporation / Mozilla Foundation.</note>
+<note>“Google” &amp; “Chrome” are trademarks of Google LLC.</note>
+<note>“Opera” &amp; “Opera Mobile” are trademarks of Opera Software ASA.</note>
+<note>“Apple” &amp; “Safari” are trademarks of Apple Inc.</note>
+<note>“Microsoft,” “Edge,” &amp; “Internet Explorer” are trademarks of Microsoft Corporation.</note>
+</p>
 </footer>
 </body>
 </html>
