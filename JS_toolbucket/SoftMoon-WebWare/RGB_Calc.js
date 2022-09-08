@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.4.3  June 24, 2022  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.5  September 4, 2022  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022 Joe Golembieski, SoftMoon WebWare
 
@@ -18,9 +18,9 @@
 		You should have received a copy of the GNU General Public License
 		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
 
-// requires  “+++.js”  in  JS_toolbucket/+++.js/
-// requires  “+++Math.js”  in  JS_toolbucket/+++.js
-// requires   “HTTP.js”  in  JS_toolbucket/SoftMoon-WebWare/    ← only when downloading color-palette tables from the web via ajax.  They may be included in other ways.
+// requires  “+++.js”  ←in  JS_toolbucket/+++JS/
+// requires  “+++Math.js”  ←in  JS_toolbucket/++JS/
+// requires  “HTTP.js”  ←in  JS_toolbucket/SoftMoon-WebWare/    ← only when downloading color-palette tables from the web via ajax.  They may be included in other ways.
 
 'use strict';
 
@@ -31,13 +31,16 @@ if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 
 // this is the palette that is checked first, without needing a palette identifier.
 // with the default value given:
-/* var rgb = new SoftMoon.WebWare.RGB_Calc;
+/*  const rgb = new SoftMoon.WebWare.RGB_Calc;
  *  rgb('green').hex === rgb('CSS: green').hex
  */
 if (!SoftMoon.defaultPalette)  SoftMoon.defaultPalette='CSS';
 
 if (typeof SoftMoon.palettes !== 'object')  SoftMoon.palettes=new Object;
 
+/*  the  colorPalettes_defaultPath  should typically be relative to the HTML document that loads this file
+ *  and MUST end with a  /
+ */
 if (!SoftMoon.colorPalettes_defaultPath)  SoftMoon.colorPalettes_defaultPath='color_palettes/';
 
 
@@ -112,19 +115,23 @@ SoftMoon.WebWare.loadPalettes=function loadPalettes(   // ←required  ↓all op
 		paletteIndexConnection=SoftMoon.WebWare.HTTP.Connection($path, 'Can not access color palettes: no HTTP service available.', $logError);
 	if (paletteIndexConnection === null)  return false;
 	paletteIndexConnection.onFileLoad=function()  {
-		if (typeof this.responseText !== 'string'  ||  this.responseText==="")  connections.noneGiven=true;
-		else  for (var paletteIndex=this.responseText.split("\n"), i=0; i<paletteIndex.length; i++)  {
-			if ( paletteIndex[i]!==""
-			&&   loadPalettes.paletteMask.test(paletteIndex[i])
-			&&   !loadPalettes.trashMask.test(paletteIndex[i])
-			&&  ( !loadPalettes.userPaletteMask.test(paletteIndex[i])
-				 ||  loadPalettes.autoloadPaletteMask.test(paletteIndex[i]) ) )  {
-				const connection=SoftMoon.WebWare.HTTP.Connection(paletteIndex[i]);
-				connection.onFileLoad=$addPalette;
-				connection.loadError=$loadError;
-				connection.onMultiple=$onMultiple;
-				connections.push(connection);
-				connector.commune(connection);  }  }
+		connections.noneGiven=true;
+		var paletteIndex;
+		if (typeof this.responseText === 'string'  &&  this.responseText!=="")  {
+			paletteIndex=this.responseText.split("\n");
+			for (const path of paletteIndex)  {
+				if ( path!==""
+				&&   loadPalettes.paletteMask.test(path)
+				&&   !loadPalettes.trashMask.test(path)
+				&&  ( !loadPalettes.userPaletteMask.test(path)
+					||  loadPalettes.autoloadPaletteMask.test(path) ) )  {
+					const connection=SoftMoon.WebWare.HTTP.Connection($path+path);
+					connection.onFileLoad=$addPalette;
+					connection.loadError=$loadError;
+					connection.onMultiple=$onMultiple;
+					connections.noneGiven=false;
+					connections.push(connection);
+					connector.commune(connection);  }  }  }
 		if (typeof $onIndexLoad === 'function')  $onIndexLoad(connections, paletteIndex, this.responseText);  };
 	paletteIndexConnection.loadError=$loadError;
 	paletteIndexConnection.onMultiple=$onMultiple;
@@ -134,9 +141,9 @@ SoftMoon.WebWare.loadPalettes=function loadPalettes(   // ←required  ↓all op
 	return connections;  }
 SoftMoon.WebWare.loadPalettes.paletteNameExtension='.palette.json';
 SoftMoon.WebWare.loadPalettes.paletteMask= /^(.+\/)?([^\/]+)\.palette\.json$/i
-SoftMoon.WebWare.loadPalettes.userPaletteMask= /\/users\//i
-SoftMoon.WebWare.loadPalettes.autoloadPaletteMask= /\/autoload\//i
-SoftMoon.WebWare.loadPalettes.trashMask= /\/trash\//i
+SoftMoon.WebWare.loadPalettes.userPaletteMask= /\/users\/|(^users\/)/i
+SoftMoon.WebWare.loadPalettes.autoloadPaletteMask= /\/autoload\/|(^autoload\/)/i
+SoftMoon.WebWare.loadPalettes.trashMask= /\/trash\/|(^trash\/)/i
 
 
 // This function will return an initially empty array, with three added properties:  db,  store,  paletteIndexRequest.
@@ -840,9 +847,9 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 					&&  (SoftMoon.palettes[SoftMoon.defaultPalette] instanceof SoftMoon.WebWare.Palette)
 					&&  (pClr=$string.match(RegExp.addOnAlpha))
 					&&  (matches=SoftMoon.palettes[SoftMoon.defaultPalette].getColor(pClr[1])) )  {
-						calc.config.push(SoftMoon.palettes[SoftMoon.defaultPalette].config);
+						calc.config.stack(SoftMoon.palettes[SoftMoon.defaultPalette].config);
 						matches=calc(matches);
-						calc.config.pop();
+						calc.config.cull();
 						if (matches  &&  pClr[2])  matches=calc.config.applyAlpha(matches, calc.getAlpha(pClr[2]), 'Palette color');
 						return matches;  }
 					if (matches=($string.match(RegExp.stdWrappedColor)  ||  $string.match(RegExp.stdPrefixedColor)))  {
@@ -853,9 +860,9 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 							if (p.toLowerCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
 								matches=matches[2].match(RegExp.addOnAlpha);
 								let a=matches[2];
-								calc.config.push(SoftMoon.palettes[p].config);
+								calc.config.stack(SoftMoon.palettes[p].config);
 								matches=calc(SoftMoon.palettes[p].getColor(matches[1]));
-								calc.config.pop();
+								calc.config.cull();
 								if (matches  &&  a)  matches=calc.config.applyAlpha(matches, calc.getAlpha(a), 'Palette color');
 								return matches;  }  }  }  }  }
 			//return calc.from.rgba.apply(calc.from, arguments);  };
@@ -999,9 +1006,9 @@ RGB_Calc.ConfigStack.prototype={
 };
 
 Object.defineProperties( RGB_Calc.ConfigStack.prototype, {
-	push: { value: function($newConfig) {
+	stack: { value: function($newConfig) {
 			return this.owner.config=Object.create(this, $newConfig);  }  },
-	pop: { value: function() {
+	cull: { value: function() {
 			if (!this.hasOwnProperty("owner"))  this.owner.config=Object.getPrototypeOf(this);
 			return this.owner.config;  }  },
 	reset: { value: function() {
@@ -1097,9 +1104,9 @@ Object.defineProperty(RGB_Calc, 'to', {
 	value: Object.create(RGB_Calc, {definer: {value: { quick: {}, audit: {} }}})  });
 
 function convertColor(args, converter, model) {
-	this.config.push({RGBAFactory: {value:Array}});
+	this.config.stack({RGBAFactory: {value:Array}});
 	const _color=this.$(args[0]);
-	this.config.pop();
+	this.config.cull();
 	return (args[0]=_color) ?  converter.apply(this, args)  :  this.config.onError(args, 'RGB_Calc.to.'+model);  };
 
 
