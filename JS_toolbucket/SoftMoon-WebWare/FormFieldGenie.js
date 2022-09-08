@@ -148,7 +148,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 			======= this “options” Object is optional to pass at all, as are all of its properties ========
 		opts = {
 
-			maxTotal: maximum number of clones (fieldNodeGroups) in the fieldNodeGroupFieldset.
+			maxGroups: maximum number of clones (fieldNodeGroups) in the fieldNodeGroupFieldset.
 				There is no minTotal, as this would impose restrictions on how the fieldNodeGroupFieldset is structured.
 				To retain a minimum total, use a custom function for  dumpEmpties  which can make this distinction.
 
@@ -251,10 +251,10 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 			doso: true | "insert" | "paste"
 				========= this applies to popNewField() and pasteField() only =========
 				If you pass (Boolean)true when using popNewField(), a new field will be popped at the end regardless of whether the last field is empty;
-					but not exceeding maxTotal.  Empty fieldNodeGroups may be removed as usual.
+					but not exceeding maxGroups.  Empty fieldNodeGroups may be removed as usual.
 				Empty fieldNodeGroups will NOT be automatically removed if "insert" when using popNewField().
 				If you pass "insert" or "paste" when using popNewField(), a new field will be popped and inserted BEFORE the passed fieldNodeGroup,
-					regardless of whether the last field is empty; but not exceeding maxTotal.
+					regardless of whether the last field is empty; but not exceeding maxGroups.
 				With popNewField(), “insert” inserts an empty fieldNodeGroup.
 				With pasteField(), “insert” inserts the selected clip.
 				With popNewField(), “paste” inserts the selected clip.
@@ -294,7 +294,7 @@ FormFieldGenie.ConfigStack.prototype={
 	constructor: FormFieldGenie.ConfigStack,
 
 //you may re-define defaults globally through these properties
-	maxTotal: 100,
+	maxGroups: 100,
 	indxTier: 0,
 	climbTiers: true,
 	updateValue: "all",
@@ -394,13 +394,19 @@ FormFieldGenie.prototype.isActiveField=function(fieldNode, cbParams)  {
 // Your custom dumpEmpties function may utilize this second value passed by deleteField()
 // to make a distinction between a user request and an automatic “cleanup”.
 function dumpEmpties(elmnt)  {
+	var count=0;
+	for (const group of elmnt.parentNode.children)  {
+		if (isGroup(group))  count++;  }
+	return count>config.minGroups;  }
+/*
+function dumpEmpties(elmnt)  {
 	elmnt=elmnt.parentNode.children;
 	for (var count=0, i=0; i<elmnt.length; i++)  {
 		if (typeof config.nodeName !== 'string'
 		||  elmnt[i].nodeName===config.nodeName)
 				count++;  }
 	return (count>config.minFields);  }
-
+*/
 
 
 
@@ -589,7 +595,7 @@ function dumpEmpties(elmnt)  {
 	if (opts  &&  (opts.doso==='insert'  ||  opts.doso==='paste'))  {
 		var fieldPos=0, offSet;
 		while (fieldNode)  {
-			if (++fieldCount>config.maxTotal)  return false;
+			if (++fieldCount>config.maxGroups)  return false;
 			else  {
 				if (fieldNode===fieldNodeGroup)  fieldPos=fieldCount-1;
 				fieldNode=getNextGroup(fieldNode);  }  }
@@ -651,7 +657,7 @@ function dumpEmpties(elmnt)  {
 				if (removedCount<0)  updateGroupNames(fieldNode, removedCount, false);  }  }  }
 	while (nextNode!==null  &&  (fieldNode=nextNode));
 
-	if (fieldCount<config.maxTotal
+	if (fieldCount<config.maxGroups
 	&&  (getField(lastGroup=getLastGroup(), "isFull?")	||  (opts && (opts.doso || opts.addTo))))  {
 	// create a new node containing an empty text-input field
 	//  clone the node at the end of the <fieldset> (or other <parent>) of the node passed to keep names sequential

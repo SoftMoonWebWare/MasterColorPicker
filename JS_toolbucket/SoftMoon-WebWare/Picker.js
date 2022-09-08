@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.0.3   May 19, 2022  by SoftMoon-WebWare.
+// Picker.js  Beta-4.0.6   August 6, 2022  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -278,7 +278,10 @@ Picker.prototype.pick=function pick(chosen)  {
 		case 'SELECT':    currentTarget.options[this.currentTarget.options.length]=chosen;
 											currentTarget.selectedIndex=currentTarget.options.length-1;
 		break;
-		case 'TEXTAREA':  currentTarget.value+=chosen;
+		case 'TEXTAREA':
+			if (currentTarget.getAttribute('type')?.match(/colorPicker/i))
+											currentTarget.value=chosen;
+			else  					currentTarget.value+=chosen;
 		break;
 		case 'INPUT':     const dl=document.getElementById(currentTarget.list);
 											if (dl)  dl.options[dl.options.length]=chosen;
@@ -370,7 +373,12 @@ function is_UserData_InputType(e)  { return (
 		&&  (e.nodeName==='SELECT'
 			|| e.nodeName==='TEXTAREA'
 			|| (e.nodeName==='INPUT' && inpTypes.includes(e.type))
-			|| (e.nodeName==='LABEL' && has_UserData_InputType(e)) ) );  }
+/*
+ *   this is a hang-up: with it, browser(s) now fail to keep focus on the target due to event.preventDefault();
+ *   without it, you can not focus an <input> by clicking on its label
+			|| (e.nodeName==='LABEL' && has_UserData_InputType(e))
+ */
+			) );  }
 function has_UserData_InputType(e)  {
 	function hasit(c) {const isit=is_UserData_InputType(c);  if (isit) UniDOM.alwaysTrue.doContinue=false;  return isit;}
 	return UniDOM.getElements(e, hasit, UniDOM.alwaysTrue)[0];  }
@@ -466,6 +474,11 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 		UniDOM.addEventHandler(element, 'focusIn', function focusInInPanel(event)  {
 			if (is_UserData_InputType(event.target))  focusOnInterfaceElement(event);  });  }
 
+	UniDOM.addEventHandler(element, 'change', function refocusFileInput()  {
+		if (event.target.type==='file')  {
+			PickerInstance.setActivePickerState(true);
+			event.target.focus();  }  });
+
 // If you ever want to manually focus an InterfaceElement, you should generate a “tabin” event on it
 // unless it is guaranteed to already be displayed to the user.
 	function focusOnInterfaceElement(event)  {
@@ -532,8 +545,8 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 						return;  }  }
 				catch(e) {console.error("Custom tab expression failed in Picker’s “interfaceElement.onKeyDown” handler:",e);};
 			const
-				tabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget), null),
-				backtabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget), null);
+				tabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)),
+				backtabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget));
 			if ((!shifted  &&  (tabToTarget  ||  (actions?.tabToTarget  &&  tabToTarget!==false)))
 			||  (shifted  &&  (backtabToTarget  ||  (actions?.backtabToTarget  &&  backtabToTarget!==false))))
 				try {
@@ -595,6 +608,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 				&&  event.relatedTarget!==PickerInstance.masterTarget ))
 		&&  !PickerInstance.isInterfaceElement(event.relatedTarget))
 			PickerInstance.setActivePickerState(false);  }
+
 
 } // close  registerInterfaces()
 

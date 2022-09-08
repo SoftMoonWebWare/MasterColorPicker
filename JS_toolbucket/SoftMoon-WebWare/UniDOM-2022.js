@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1  May 9, 2022
+/*  UniDOM-2022  version 1.0.1  September 6, 2022
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -797,10 +797,10 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 	swapOut$Class() {cb=swapOutClass;  return applyToAll.apply(this, arguments);}
 	disable() {cb=disable; return applyToAll.apply(this, arguments);}
 
-	addEventHandler() {cb=addEventHandler;  return applyToAll.apply(this, arguments);}
-	removeEventHandler() {cb=removeEventHandler;  return applyToAll.apply(this, arguments);}
-	generateEvent() {cb=generateEvent;  return applyToAll.apply(this, arguments);}
-	triggerEvent() {cb=triggerEvent;  return applyToAll.apply(this, arguments);}
+	addEventHandler() {cb=addEventHandler;  return invokeAll.apply(this, arguments);}
+	removeEventHandler() {cb=removeEventHandler;  return invokeAll.apply(this, arguments);}
+	generateEvent() {cb=generateEvent;  return invokeAll.apply(this, arguments);}
+	triggerEvent() {cb=triggerEvent;  return invokeAll.apply(this, arguments);}
 
 	isElement() {cb=isElement;  return invokeAll.apply(this);}
 
@@ -899,7 +899,7 @@ var cb,  //private
 
 	function invokeAll()  { var r=new Array;
 		for (const e of this)  {
-			const args=aSlice.call(arguments, 0);  args.unshift(xElement(e));
+			const args=Array.from(arguments);  args.unshift(xElement(e));
 			r=r.concat(cb.apply(UniDOM, args));  }
 		return r;  }
 
