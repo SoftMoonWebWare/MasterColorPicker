@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.3  June 10, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.3  September 6, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -194,8 +194,9 @@ span.MCP_fix_Safari {
 	background-color: var(--back-text);
 	border: 2px solid var(--border-cold);
 	border-radius: .618em / 1em; }
-#MasterColorPicker .pickerPanel.activePicker,
-#MasterColorPicker .pickerPanel.activeInterface {
+#MasterColorPicker .pickerPanel.activePicker,     /* the “currentTarget” input or whatever has focus */
+#MasterColorPicker .pickerPanel.activeInterface,  /* an input control for the MasterColorPicker user-interface has focus */
+#MasterColorPicker.stasis .pickerPanel {          /* a user-action is occuring that would normally hide the display */
 	display: block;  }
 #MasterColorPicker .pickerPanel.disabled {
 	display: none;  }
@@ -602,12 +603,13 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_PaletteManager h2 span,
 #MasterColorPicker_MyPalette h2 span {
 	position: absolute;
-	top: 3.382em;
-	left: -1.27em;
+	top: 1.618em;
+	left: 0.382em;
 	right: auto;
 	padding: 0;
 	border: none;
-	transform: rotate(270deg); }
+	writing-mode: vertical-rl;
+	transform: rotate(180deg); }
 #MasterColorPicker_PaletteManager h2 span:hover,
 #MasterColorPicker_MyPalette h2 span:hover {
 	outline: 1px solid var(--border-hover); }
@@ -616,10 +618,7 @@ select#MasterColorPicker_palette_select {
 	left: 0;
 	right: auto;  }
 #MasterColorPicker_PaletteManager h2 {
-	margin-left: -.618em; }
-#MasterColorPicker_PaletteManager h2 span {
-	top: 4.618em;
-	left: -2.8em;  }
+	margin-left: -.854em; }
 #MasterColorPicker_PaletteManager fieldset {
 	border: 1px solid;
 	margin: 0;
@@ -953,14 +952,21 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	   interference with your page layout. */
 	display: none; }
 
-#MasterColorPicker_Filter {
+#MasterColorPicker_Mixer {
 	margin-top: 2em;
 	margin-top: calc(2em + 2px);
 	top: 0;
 	right: 18.37em;
 	text-align: center; }
-#MasterColorPicker_Filter h2 span {
+#MasterColorPicker_Mixer h2 span {
 	right: 4.62em; }
+#MasterColorPicker_Mixer h3 {
+	margin: .162em 0;
+	font-size: 1em; }
+#MasterColorPicker_Mixer.filter #MasterColorPicker_Blender,
+#MasterColorPicker_Mixer.blender #MasterColorPicker_Filter {
+	display: none; }
+
 #MasterColorPicker_Filter p {
 	max-width: 27.618em;
 	margin: 0 auto; }
@@ -1008,8 +1014,41 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker_Filter td:nth-child(2) input {
 	width: 7em; }
 #MasterColorPicker_Filter span.swatch {
-	border: 2px solid black;
+	border: 2px solid var(--fore-text);
 	margin-left: .382em; }
+
+#MasterColorPicker_Blender {
+	position: relative; }
+#MasterColorPicker_Blender fieldset {
+	z-index: 2; }
+#MasterColorPicker_Blender textarea {
+	width: 4em;
+	height: 4em;
+	margin: 2px;
+	position: relative;
+	z-index: 2; }
+#MasterColorPicker_Blender textarea.passive {
+	color: transparent;
+	cursor: move; }
+
+#MasterColorPicker_Blender playground {
+	display: block;
+	position: relative;
+	background-position: center;
+	min-height: 7em;
+	min-width: 24em;
+	resize: both;
+	border: 2px solid var(--fore-text);
+	overflow: hidden;
+	z-index: 1; }
+#MasterColorPicker_Blender playground img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: auto;
+	bottom: auto;
+	z-index: 1; }
+
 
 
 #MasterColorPicker_Lab {
@@ -1284,49 +1323,44 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 
 
 #MasterColorPicker_Gradientor {
-	margin-top: 2em;
 	margin-top: calc(2em + 2px);
 	top: 0;
-	right: 15em; }
+	right: 15em;
+	width: auto;
+	min-width: calc(256px + 1.236em); }  /* width-of-canvas + canvas-container-padding */
 #MasterColorPicker_Gradientor h2 span {
 	right: 2em; }
+#MasterColorPicker_Gradientor label,
 #MasterColorPicker_Gradientor fieldset {
-	position: relative;
-	white-space: noWrap; }
-#MasterColorPicker_Gradientor fieldset label {
-	display: inline-block;
-	text-align: center;
-	position: relative; }
-#MasterColorPicker_Gradientor fieldset label input,
-#MasterColorPicker_Gradientor fieldset label select {
-	display: block;
-	margin: auto; }
-#MasterColorPicker_Gradientor label:last-child {
-	padding-left: 1em; }
-#MasterColorPicker_Gradientor fieldset label:last-child {
-	position: absolute;
-	top: 100%;
-	right: -1px;
-	left: auto;
-	border: 1px solid;
-	border-top: none;
-	background-color: var(--back-text);
-	padding: .618em; }
-#MasterColorPicker_Gradientor fieldset label:last-child.disabled {
+	display: block; }
+#MasterColorPicker_Gradientor.linear #MasterColorPicker_Gradientor_triadic-colors,
+#MasterColorPicker_Gradientor.triadic #MasterColorPicker_Gradientor_linear-colors {
 	display: none; }
-#MasterColorPicker_Gradientor fieldset label span.swatch {
-	position: absolute;
-	top: -.382em;
-	right: auto;
-	left: 0; }
-#MasterColorPicker_Gradientor fieldset label:nth-child(2) span.swatch {
-	right: 0;
-	left: auto; }
-#MasterColorPicker_Gradientor fieldset label:last-child span.swatch {
-	top: .2em; }
-#MasterColorPicker_Gradientor div {
+#MasterColorPicker_Gradientor_linear-colors p {
+	width: 20em;
+	margin: 0 auto;
+	padding: 0;
+	white-space: normal;
+	text-align: justify; }
+#MasterColorPicker_Gradientor_linear-colors label,
+#MasterColorPicker_Gradientor_linear-colors fieldset {
+	white-space: nowrap;
+	padding: 0 .382em;
+	border: none;
+	border-bottom: 2px solid; }
+#MasterColorPicker_Gradientor_linear-colors fieldset:last-child {
+	border-bottom: none; }
+#MasterColorPicker_Gradientor_linear-colors input {
+	display: inline;
+	margin: 0; }
+#MasterColorPicker_Gradientor_linear-colors input:last-child {
+	width: 7em; }
+#MasterColorPicker_Gradientor span.swatch {
+	vertical-align: middle; }
+#MasterColorPicker_Gradientor div { /* canvas container */
 	padding: .618em; }
 #MasterColorPicker_Gradientor canvas { border: 1px solid black; }
+
 
 #MasterColorPicker p.underConstruction {
 	color: red !important;
@@ -1338,7 +1372,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	position: absolute;
 	font-size: 1.618em;
 	background-color: #FFFFFFA0;
-	top: 2em;
+	top: 2.618em;
 	left: 1em;
 	rotate: 337deg;
 	transform: rotate(337deg);
@@ -2036,16 +2070,17 @@ div#paletteLoadingAlert h4 {
 	background-color: transparent;
 	text-align: center;
 	padding: 0;
-	margin: 0; }
-div#paletteLoadingAlert  p {
+	margin: 1.382em 0 0 0; }
+div#paletteLoadingAlert p {
 	max-width: 16.18em;
-	font-size: 1.618em;
+	font-size: 1.382em;
 	font-weight: bold;
 	color: var(--fore-text-warn);
 	background-color: transparent;
-	padding-top: .618em;
+	padding: .162em .382em .382em .382em;
+	margin: 0 auto;
 	text-align: center;  }
-div#paletteLoadingAlert  h3+p {
+div#paletteLoadingAlert h3+p {
 	max-width: none;  }
 div#paletteLoadingAlert strong {
 	font-variant: small-caps;
