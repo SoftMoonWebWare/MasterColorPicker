@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 <head>
 <meta charset="UTF-8">
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
 <meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2021,2022 Joe Golembieski, SoftMoon-WebWare'>
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
+<link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css'>
 <style type='text/css' id='MasterColorPicker_desktop_stylesheet'>
 body, section, div {
@@ -61,19 +62,20 @@ p img {
 const SoftMoon={};
 Object.defineProperties(SoftMoon, {
 	WebWare: {value: {}, enumerable: true},
-	uploaded_palettes: {value: [], enumeralble: true}});
+	loaded_palettes: {value: [], enumeralble: true}});
 </script>
 <script type='text/javascript' src='JS_toolbucket/+++JS/+++.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/+++input_type.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2022.js' defer></script><!--  !! ESSENTIAL !!  -->
-<!--  script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
+<!-- script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
-<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden-colorblind_websafe-table_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline-colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!--  supports MyPalette & ColorFilter  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!--  supports MyPalette & Color-Mixers & Gradientor -->
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer></script>
+
 
 
 <!--  These load the palette files for a  file://  based usage
@@ -127,7 +129,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.3  June 10, 2022
+      release 2.3  September 6, 2022
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -206,9 +208,9 @@ but to retain the settings this file may be included inside an existing web <for
 <label>¿<input type='checkbox' name='MasterColorPicker_showLab' id='MasterColorPicker_showLab' value='true'
 		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Lab"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show Color-Space Lab? <kbd><span>F3</span></kbd></label>
-<label>¿<input type='checkbox' name='MasterColorPicker_showFilter' id='MasterColorPicker_showFilter' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Filter"), !this.checked); /*  if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
-		checked>show/use Color-Filter?</label>
+<label>¿<input type='checkbox' name='MasterColorPicker_showMixer' id='MasterColorPicker_showMixer' value='true'
+		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Mixer"), !this.checked); /*  if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
+		checked>show/use Color-Mixer?</label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showGradientor' id='MasterColorPicker_showGradientor' value='true'
 		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show Gradientor?</label>
@@ -292,16 +294,16 @@ or pin it to the window when it is pinned to the page.
 		<ul></ul>
 	</fieldset>
 </fieldset>
-<fieldset class='server disabled' disabled><legend>Server Based</legend>
+<fieldset class='server disabled' disabled><legend>Server Based:&emsp;</legend>
 	<button type='button' name='MasterColorPicker_PaletteMngr_refresh'>refresh</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_load'>load selected</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_delete'>delete selected</button>
-	<fieldset class='autoload_palettes'><legend>Auto-load</legend>
+	<fieldset class='autoload_palettes'><legend>Auto-load: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
 	</fieldset>
-	<fieldset class='palettes'><legend>All users</legend>
+	<fieldset class='palettes'><legend>All users: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
@@ -421,9 +423,9 @@ or pin it to the window when it is pinned to the page.
 		<td class='colorblind' colorblind='deutan' toggleBorder='no'></td>
 		<td class='colorblind' colorblind='tritan' toggleBorder='no'></td>
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][definition]'
-			interfaceTarget='true' swatch="this.closest('.MyColor').firstElementChild" value=''></td>
+			interfaceTarget='true' swatch="this.closest('.MyColor').firstElementChild" value='' placeholder='color definition'></td>
 		<td class='dragHandle' title='drag from here or right-click for menu'>↕</td>
-		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value=''></td></tr>
+		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' placeholder='color name'></td></tr>
 	</tbody>
 </table>
 <menu class='MyPalette_ColorGenieMenu' standardItems='genie' title="">
@@ -447,9 +449,15 @@ or pin it to the window when it is pinned to the page.
 </div><!--  close  MyPalette  -->
 
 
-<div id='MasterColorPicker_Filter' class='pickerPanel'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Color-Filter</span></h2>
-<p>The colors selected within this tool will mix with future colors selected from the color palettes.</p>
+<div id='MasterColorPicker_Mixer' class='pickerPanel filter'>
+<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Color-Mixer</span></h2>
+<fieldset onchange='UniDOM.swapOut$Class(this.parentNode, ["filter", "blender"], event.target.value);'>
+	<label><input type='radio' name='MasterColorPicker_mixerMode' value='filter' checked>Color-picker Filter</label>
+	<label><input type='radio' name='MasterColorPicker_mixerMode' value='blender'>Alpha-Blender</label>
+</fieldset>
+<div id='MasterColorPicker_Filter'>
+<h3>Color-picker Filter</h3>
+<p>The colors selected within this tool will mix with future colors selected from the color-picker palettes.</p>
 <p>(choose color(s) using any color-picker or type directly)</p>
 	<fieldset>
 	  <label><span>¿Average all filter-colors and apply the result, or apply each filter-color individually and progressively?</span>
@@ -467,7 +475,7 @@ or pin it to the window when it is pinned to the page.
 	</thead>
 	<tbody>
 	<tr class='filterColor'>
-		<td><input type='text' name='MasterColorPicker_Filter_color[0]' value=''
+		<td><input type='text' name='MasterColorPicker_Filter_color[0]' value='' placeholder='color'
 			interfaceTarget='true' swatch='this.nextSibling'><span class='swatch'></span></td>
 		<td><input type='text' name='MasterColorPicker_Filter_factor[0]' title='factor (0.0-1.0) or percent (0%-100%)' value='50%'
 			tabTo='s=this.parentNode.parentNode.lastElementChild.firstChild,  (s.disabled && s.getAttribute("tabToTarget")==="true") ? MasterColorPicker.dataTarget : ""'></td>
@@ -476,7 +484,16 @@ or pin it to the window when it is pinned to the page.
 	</tbody>
 	</table>
 </div><!--  close  MasterColorPicker_Filter  -->
-
+<div id='MasterColorPicker_Blender'>
+	<h3>Alpha-Blender</h3>
+	<label>background image:<input type='file' accept='image/*' name='MasterColorPicker_alpha-blender-background'></label>
+	<!-- ¡NO whitespace in the following fieldset! -->
+	<fieldset title='triple-click to return all swatches here'><textarea title='double-click to edit'
+		type='colorPicker' interfaceTarget='true' swatch='this' placeholder='color with alpha'
+		spellcheck="false" tabToTarget='true'></textarea></fieldset>
+	<playground title='triple-click to return any image'></playground>
+</div><!--  close  MasterColorPicker_Blender  -->
+</div><!--  close  MasterColorPicker_Mixer  -->
 
 
 <div id='MasterColorPicker_Lab' class='pickerPanel'>
@@ -620,33 +637,51 @@ or pin it to the window when it is pinned to the page.
 
 
 
-<div id='MasterColorPicker_Gradientor' class='pickerPanel'>
+<div id='MasterColorPicker_Gradientor' class='pickerPanel linear'>
 <h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Gradientor</span></h2>
 <p class='underConstruction'><span>Under Construction:</span> no functionality</p>
-<fieldset><legend>(choose colors using any color-picker or type directly)</legend>
- <label>color 1
-	<input type='text' name='MasterColorPicker_Gradientor_color1' value='blue'
-		interfaceTarget='true' swatch='this.nextSibling' backtabToTarget='true'><span class='swatch'></span></label>
- <label>↔through color-space↔
+<fieldset onchange='UniDOM.swapOut$Class(this.parentNode, ["linear", "triadic"], event.target.value)'><legend>mix format:</legend>
+<label><input type='radio' name='MasterColorPicker_Gradientor_format' value='linear' checked backtabToTarget>
+multistop linear</label>
+<label><input type='radio' name='MasterColorPicker_Gradientor_format' value='triadic'>
+triadic</label>
+</fieldset>
+<label>grade through color-space:
  	<select name='MasterColorPicker_Gradientor_colorSpace'>
 		<option selected>RGB</option>
-		<option>HSB</option>
 		<option>HSL</option>
+		<option>HSB</option>
 		<option>HCG</option>
 		<option>CMYK</option>
  	</select></label>
- <label>color 2
-	<input type='text' name='MasterColorPicker_Gradientor_color2'
-		interfaceTarget='true' swatch='this.nextSibling' value='red'><span class='swatch'></span></label>
- <label id='MasterColorPicker_Gradientor_color3'>color 3
-	<input type='text' name='MasterColorPicker_Gradientor_color3'
-		interfaceTarget='true' swatch='this.nextSibling' value='lime'><span class='swatch'></span></label>
+<fieldset id='MasterColorPicker_Gradientor_linear-colors'><legend>(choose colors using any color-picker or type directly)</legend>
+ <p>You may use <code>pixels</code> or percents <code>%</code> or a mix as units for the offsets.&nbsp;
+		If you use <code>pixels</code>, you must supply a total gradient width value in pixels.</p>
+ <label>Gradient width: <input type='numeric' min='0' name='MasterColorPicker_Gradientor_pixelWidth' value="" placeholder='256'>pixels</label>
+ <fieldset><span class='swatch'></span>
+	<input type='text' name='MasterColorPicker_Gradientor_color[1]' placeholder='color'
+		interfaceTarget='true' swatch='this.previousElementSibling' value="">
+	<input type='numeric' min='0' units='%, pixels, px' name='MasterColorPicker_Gradientor_offset[1]' value="" placeholder='offset'>
+ </fieldset>
+ <fieldset><span class='swatch'></span>
+	<input type='text' name='MasterColorPicker_Gradientor_color[2]' placeholder='color'
+		interfaceTarget='true' swatch='this.previousElementSibling' value="">
+	<input type='numeric' min='0' units='%, pixels, px' name='MasterColorPicker_Gradientor_offset[2]' value="" placeholder='offset'>
+ </fieldset>
 </fieldset>
+<fieldset id='MasterColorPicker_Gradientor_triadic-colors'><legend>(choose colors using any color-picker or type directly)</legend>
+ <label><span class='swatch'></span>
+	<input type='text' name='MasterColorPicker_Gradientor_color1'
+		interfaceTarget='true' swatch='this.previousElementSibling' value=""></label>
+ <label><span class='swatch'></span>
+	<input type='text' name='MasterColorPicker_Gradientor_color2'
+		interfaceTarget='true' swatch='this.previousElementSibling' value=""></label>
+ <label><span class='swatch'></span>
+	<input type='text' name='MasterColorPicker_Gradientor_color3'
+		interfaceTarget='true' swatch='this.previousElementSibling' value=""></label>
+</fieldset>
+<label title='2 — 256'>steps: <input type='numeric' name='MasterColorPicker_Gradientor_steps' min='2' max='256' step='1' value='16' tabToTarget></label>
 <div><canvas width='256' height='38'></canvas></div>
-<label title='2 — 256'>steps: <input type='number' name='MasterColorPicker_Gradientor_steps' min='2' max='256' step='1' value='16'></label>
-<label>¿<input type='checkbox' name='MasterColorPicker_Gradientor_tricolor' value='tricolor' tabToTarget='true'
-	onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor_color3"), !this.checked);'>
-tri-color?</label>
 </div><!--  close  MasterColorPicker_Gradientor  -->
 
 
@@ -670,7 +705,7 @@ tri-color?</label>
 
 
 <div id='MasterColorPicker_Help' class='pickerPanel help'>
- <h2>MasterColorPicker<mark class='macronym'>™</mark><span title="press F1 for shortcuts">☺Help☺</span></h2>
+ <h2>MasterColorPicker<mark class='macronym'>™</mark><span title="press F1 for shortcut">☺Help☺</span></h2>
  <div class='scrollbox'>
 	<nav>
 		<button type='button' section='defining-colors'>defining colors</button>
@@ -1298,6 +1333,11 @@ tri-color?</label>
 <tr><td colspan='3'>All 16,777,216 different colors the modern computer can show within 2 clicks.</td></tr>
 </tfoot>
 </table>
+
+<div class='picker palette' id='EyeDropper'><h6>Eye-Dropper color picker</h6>
+<label>Choose an image file or drag an image or its file here:
+<input type='file' accept='.png,.jpg,.jpeg,.bmp,'></label>
+</div>
 
 <!-- /div><!-- close MasterColorPicker_palettes -->
 <div id='MasterColorPicker_paletteTables'></div>
