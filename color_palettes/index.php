@@ -1,5 +1,5 @@
 <?php  /*  charset="UTF-8"
-	color_palettes/index.php  for PRIVATE SERVERS          May 14, 2022
+	color_palettes/index.php  for PRIVATE SERVERS          Sept 6, 2022
 
 	¡WARNING!  This PHP file can accept uploads and install them in your server’s file system;
 	¡          it can also delete files (or move them to an existing “trash” folder) on request !
@@ -104,7 +104,9 @@ define('DIRECTORY_ACCESS', 0644);	 // Read and write for owner, read for everybo
 define('PALETTE_NAME_EXTENTION', '/\.palette\.(json|css|gpl)$/i');
 
 
-define('DIRPATH', basename(__DIR__));
+// Old versions had this directory’s name included in a palette’s filepath for all transactions.
+// That befuddled placing this directory anywhere but the same folder as the calling webpage was in.
+// define('DIRPATH', basename(__DIR__));
 
 /* these are used to deliminate filenames in reply text MESSAGES:
  * (they do not deliminate filenames in the “index” text-block
@@ -151,15 +153,15 @@ exit;
 
 
 
-Function findAllPalettes($userName, $match=PALETTE_NAME_EXTENTION, $preg=true, $dir='../'.DIRPATH)  {
-	$D=opendir($dir);
+Function findAllPalettes($userName, $match=PALETTE_NAME_EXTENTION, $preg=true, $dir='')  {
+	$D=opendir('./'.$dir);
 	while ($F=readdir($D))  {
 		if (substr($F, 0, 1)==='.'
 		||  (substr($F, 0, 1)==='~'  AND  $F!==$userName))  continue;
-		if (is_dir($dir."/".$F))  {findAllPalettes($userName, $match, $preg, $dir."/".$F);  continue;}
-		if (($preg  AND  preg_match($match, substr($dir, 3)."/".$F))
+		if (is_dir($dir.$F))  {findAllPalettes($userName, $match, $preg, $dir.$F.'/');  continue;}
+		if (($preg  AND  preg_match($match, $dir.$F))
 		OR  (!$preg  AND  $F===$match))
-			echo substr($dir, 3),"/",$F, "\n";  }  }
+			echo $dir,$F, "\n";  }  }
 
 
 Function uploadPalette($userName, $toDir='users')  {
@@ -171,15 +173,15 @@ Function uploadPalette($userName, $toDir='users')  {
 	chmod($toDir, DIRECTORY_ACCESS);
 	$fName=$toDir.'/'.filename_safe($_POST['filename']);
 	if (is_file($fName)  AND  $_POST['replace_file']!=='true')  {
-		echo NAK,"¡Error! : file already exists: ",SI,DIRPATH,'/',$fName,SO,GS;
+		echo NAK,"¡Error! : file already exists: ",SI,$fName,SO,GS;
 		return false;  }
 	if (!preg_match(PALETTE_NAME_EXTENTION, $fName))  {
-		echo NAK,"¡Error! : illegal filename for upload: ",SI,DIRPATH,'/',$fName,SO,GS;
+		echo NAK,"¡Error! : illegal filename for upload: ",SI,$fName,SO,GS;
 		return false;  }
 	$F=fopen($fName, "wt");  // note that on Windows® systems, line-endings in this file will be modified to \n\r
 	fwrite($F, preg_replace('/<(\?(php)?|%)/i', "", $_POST['palette']));
 	fclose($F);
-	echo DIRPATH,'/',$fName,GS;  }
+	echo $fName,GS;  }
 
 Function filename_safe(&$name, $forbidPaths=true)  {
 	$except=array(':', '*', '?', '"', '<', '>', '|', '..');
@@ -198,17 +200,19 @@ Function deletePalettes($username)  {
 	if (is_dir('trash'))  $trash='trash/';
 	foreach ($names as $path)  {
 		filename_safe($path, false);
-		if (!preg_match(PALETTE_NAME_EXTENTION, $path)
-		||  substr($path, 0, strlen(DIRPATH)+1)!==DIRPATH.'/')  {
-			echo NAK,'¡Error! : illegal filename for delete: ',SI,$path,SO;
+		if (!preg_match(PALETTE_NAME_EXTENTION, $path))  {
+			echo NAK,'¡Error! : illegal filename for delete: ',SI,$path,SO,'\n';
 			continue;  }
-		$fName=substr($path, strlen(DIRPATH)+1);
-		if (is_file($fName))  {
+		if (is_file($path))  {
 			if ($trash)  {
-				$flag=rename($fName, $trash.basename($fName));
+				$trashpath=$trash.basename($path);
+				while (is_file($trashpath))  {
+					if (preg_match('/^(.+?)\.\[(\d+)\]$/', $trashpath, $m))  $trashpath=$m[1].'.['.($m[2]+1).']';
+					else  $trashpath.='.[1]';  }
+				$flag=rename($path, $trashpath);
 				echo ($flag ? "" : (NAK+'¡Error! : ')),SI,$path,SO,($flag ? ' ' : ' un'),"sucessfully moved to the trash folder.\n";  }
 			else  {
-				$flag=unlink($fName);
+				$flag=unlink($path);
 				echo ($flag ? "" : (NAK+'¡Error! : ')),SI,$path,SO,($flag ? ' ' : ' un'),"sucessfully deleted.\n";  }  }
 		else  echo NAK,'¡Error! : filename not found to delete: ',SI,$path,SO,"\n";  }
 	echo GS; //ASCII “group separator”
@@ -216,18 +220,14 @@ Function deletePalettes($username)  {
 
 Function renamePalette()  {
 	filename_safe($_POST['rename'], false);
-	if (!preg_match(PALETTE_NAME_EXTENTION, $_POST['rename'])
-	||  substr($_POST['rename'], 0, strlen(DIRPATH)+1)!==DIRPATH.'/')  {
+	if (!preg_match(PALETTE_NAME_EXTENTION, $_POST['rename']))  {
 		echo NAK,'¡Error! : illegal filename for rename: ',SI,$_POST['rename'],SO,"\n";
 		$flag=true;  }
 	filename_safe($_POST['new_name'], false);
-	if (!preg_match(PALETTE_NAME_EXTENTION, $_POST['new_name'])
-	||  substr($_POST['new_name'], 0, strlen(DIRPATH)+1)!==DIRPATH.'/')  {
+	if (!preg_match(PALETTE_NAME_EXTENTION, $_POST['new_name']))  {
 		echo NAK,'¡Error! : illegal filename for rename: ',SI,$_POST['new_name'],SO,"\n";
 		$flag=true;  }
 	if ($flag) return;
-	$_POST['rename']=substr($_POST['rename'], strlen(DIRPATH)+1);
-	$_POST['new_name']=substr($_POST['new_name'], strlen(DIRPATH)+1);
 	if (is_file($_POST['rename']))  {
 		$flag=rename($_POST['rename'], $_POST['new_name']);
 		echo ($flag ? "" : (NAK+'¡Error! : ')),SI,$_POST['rename'],SO,($flag ? ' ' : ' un'),'sucessfully renamed to: ',SI,$_POST['new_name'],SO;  }

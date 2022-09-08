@@ -43,13 +43,13 @@ exit;
 
 
 
-Function findAllPalettes($userName, $match=PALETTE_NAME_EXTENTION, $preg=true, $dir='../color_palettes')  {
+Function findAllPalettes($userName, $match=PALETTE_NAME_EXTENTION, $preg=true, $dir='./')  {
 $D=opendir($dir);
 while ($F=readdir($D))  {
 	//echo '==$F==',$F,'  ==is dir?',is_dir($F),"\n";
 	if (substr($F, 0, 1)==='.'
 	||  (substr($F, 0, 1)==='~'  AND  $F!==$userName))  continue;
-	if (is_dir($dir."/".$F))  {findAllPalettes($userName, $match, $preg, $dir."/".$F);  continue;}
-	if (($preg  AND  preg_match($match, substr($dir, 3)."/".$F))
+	if (is_dir($dir.$F))  {findAllPalettes($userName, $match, $preg, $dir.$F."/");  continue;}
+	if (($preg  AND  preg_match($match, $F))
 	OR  (!$preg  AND  $F===$match))
-		echo substr($dir, 3),"/",$F, "\n";  }  }
+		echo $F, "\n";  }  }
