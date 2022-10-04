@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.0.1  September 6, 2022
+/*  UniDOM-2022  version 1.1.0  September 21, 2022
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -763,9 +763,13 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
  *  In the process, it will call this constructor and pass an integer value for the array length.
  *  Users of this class are therefore forced to pass in a Boolean value for wrapElements, or the default value will be used.
  */
-	constructor(wrapElements)  { super();
+	constructor(wrapElements)  {
+		if (arguments[0] instanceof Node)  {super(...arguments);  wrapElements=false;}
+		else if (arguments[0] instanceof ElementWrapper)  {super(...arguments);  wrapElements=true;}
+		else if (typeof arguments[0]==='number')  super(arguments[0]);
+		else  super();
 		Object.defineProperty(this, 'wrappedElements', { writable: true,
-			value: ((typeof wrapElements === 'boolean') ? wrapElements : ElementArray.wrappedElements) } );  }
+			value: (typeof wrapElements === 'boolean') ? wrapElements : ElementArray.wrappedElements } );  }
 
 	/*******  see the private variable  cb  (callBack) below this class  *******/
 
@@ -778,7 +782,7 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 	getAncestorBy$Class() {cb=getAncestorByClass;  return getConglomerate.apply(this, arguments);}
 	getElementsByComplex() {cb=getElementsByComplex;  return getConglomerate.apply(this, arguments);}
 	getAncestorByComplex() {cb=getAncestorByComplex;  return getConglomerate.apply(this, arguments);}
-  getElementsByTagName()  {cb=Element.prototype.getElementsByTagName;  return getConglomerate.apply(this, arguments);}
+  getElementsByTagName() {cb=Element.prototype.getElementsByTagName;  return getConglomerate.apply(this, arguments);}
 
 	setAttributes(n,v) {this.forEach(function(e){if (isElement(e))  e.setAttribute(n,v);});  return this;}
 	removeAttributes(n) {this.forEach(function(e){if (isElement(e))  e.removeAttribute(n);});  return this;}

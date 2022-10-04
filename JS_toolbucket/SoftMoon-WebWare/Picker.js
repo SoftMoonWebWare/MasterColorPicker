@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.0.6   August 6, 2022  by SoftMoon-WebWare.
+// Picker.js  Beta-4.0.7   October 2, 2022  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -530,9 +530,9 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 				UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabTo: tabTo});
 				return;  }
 			if ((!shifted
-					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabTo)  ||  actions?.tabTo)))
+					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabTo)  ||  event.target[PickerInstance.ATTRIBUTE_NAMES.tabTo]  ||  actions?.tabTo)))
 			||  (shifted
-					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabTo)  ||  actions?.backtabTo))))
+					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabTo)  ||  event.target[PickerInstance.ATTRIBUTE_NAMES.backtabTo]  ||  actions?.backtabTo))))
 				try {
 					if (typeof tabTo === 'string')  {
 						if (tabTo==='{none}')  return;
@@ -587,7 +587,9 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 				}  }
 		if (escaped)  {
 			if (actions?.onEscape?.(event))  return;
-			try {(PickerInstance.dataTarget || PickerInstance.masterTarget)?.focus?.();}catch(e){}  }  } );
+			const tabTo=PickerInstance.dataTarget || PickerInstance.masterTarget;
+			UniDOM.generateEvent(event.target, 'tabout', {bubbles:true}, {tabbedTo: tabTo} );
+			try {tabTo?.focus?.();}catch(e){}  }  });
 
 
 	var enterKeyPressCount=0, enterKeyPressRepeatTimeout;
