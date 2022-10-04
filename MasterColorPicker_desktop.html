@@ -129,7 +129,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.3  September 6, 2022
+      release 2.4  September 30, 2022
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -145,6 +145,7 @@ but to retain the settings this file may be included inside an existing web <for
 <option>BeezEye</option>
 <option>Simple²</option>
 <option>YinYang NíHóng</option>
+<option value='MasterColorPicker_EyeDropper'>EyeDropper</option>
 </select></label>
 
 
@@ -488,10 +489,10 @@ or pin it to the window when it is pinned to the page.
 	<h3>Alpha-Blender</h3>
 	<label>background image:<input type='file' accept='image/*' name='MasterColorPicker_alpha-blender-background'></label>
 	<!-- ¡NO whitespace in the following fieldset! -->
-	<fieldset title='triple-click to return all swatches here'><textarea title='double-click to edit'
+	<fieldset title='CTRL-click or triple-click to return all swatches here'><textarea title='double-click to edit'
 		type='colorPicker' interfaceTarget='true' swatch='this' placeholder='color with alpha'
 		spellcheck="false" tabToTarget='true'></textarea></fieldset>
-	<playground title='triple-click to return any image'></playground>
+	<playground title='CTRL-click or triple-click to return any image'></playground>
 </div><!--  close  MasterColorPicker_Blender  -->
 </div><!--  close  MasterColorPicker_Mixer  -->
 
@@ -1334,9 +1335,20 @@ triadic</label>
 </tfoot>
 </table>
 
-<div class='picker palette' id='EyeDropper'><h6>Eye-Dropper color picker</h6>
+
+<div class='picker palette' id='MasterColorPicker_EyeDropper'><h6>Eye-Dropper color picker</h6>
+<fieldset><button title='full-screen' backtabTo='MasterColorPicker_palette_select'>╬</button><button title='panel'>□</button></fieldset>
 <label>Choose an image file or drag an image or its file here:
-<input type='file' accept='.png,.jpg,.jpeg,.bmp,'></label>
+<input type='file' accept='image/*'></label>
+<button title='cut'>&#9988;</button>
+<fieldset>
+	<label>Zoom: <button title='zoom in'>+</button><button title='no zoom'>&empty;</button><button title='zoom out'>−</button></label>
+	<label><input type='checkbox' checked>smooth zoom</label>
+</fieldset>
+<label>Background: <input type='range' value='128' min='0' max='255' tabToTarget>
+<note>The background color will not be eye-dropped; it is only for visual contrast in images with transparency.</note></label>
+<indicator> <swatch></swatch></indicator>
+<playground title='CTRL-click or triple-click to return any image'></playground>
 </div>
 
 <!-- /div><!-- close MasterColorPicker_palettes -->
