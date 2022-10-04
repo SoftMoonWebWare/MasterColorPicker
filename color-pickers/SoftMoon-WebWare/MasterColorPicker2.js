@@ -4435,7 +4435,6 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 			case 'full-screen':  if (fs)  {
 				if (event.tabbedFrom===EyeDropper.screenCtrls[1])  tabTo=MasterColorPicker.picker_select;
 				else  tabTo=EyeDropper.screenCtrls[1];
-console.log('retabbing to:',tabTo)
 				UniDOM.generateEvent(this, 'tabout', {bubbles:true}, {tabbedTo: tabTo} );
 				UniDOM.generateEvent(tabTo, 'tabin', {bubbles:true}, {tabbedFrom: this});  }  }  });
 	UniDOM.addEventHandler(EyeDropper.HTML, 'tabout', function(event)  {
