@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.3  September 6, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.4  Oct 2, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -8,7 +8,8 @@ body.MCP_init {
 body.MCP_drag {
 	cursor: move; }
 
-body.MCP_dragMyPaletteColor {
+body.MCP_dragMyPaletteColor,
+body.MCP_we-be-a-cuttin {
 	cursor: not-allowed; }
 
 /* MSIE is no longer supported.  This might could be updated....
@@ -39,6 +40,8 @@ body.MCP_dragMyPaletteColor {
 	--back-palette: black;
 	--fore-button: black;
 	--back-button: lightSkyBlue;
+	--back-button-active: paleGreen;
+	--back-button-toggled: orange;
 	--border-cold: gray;  /* inactive picker panel */
 	--border-hot: red;    /* active picker panel, etc. */
 	--border-hover: skyBlue;  /* over picker panel */
@@ -207,6 +210,7 @@ span.MCP_fix_Safari {
 	position: fixed;  }
 #MasterColorPicker .pickerPanel.scrollable {
 	position: absolute;  }
+
 
 /* “expanding” panels have no set max-height based on the dynamically expanding HTML */
 #MasterColorPicker .pickerPanel.expanding  {
@@ -952,6 +956,8 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	   interference with your page layout. */
 	display: none; }
 
+
+
 #MasterColorPicker_Mixer {
 	margin-top: 2em;
 	margin-top: calc(2em + 2px);
@@ -1031,23 +1037,131 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	color: transparent;
 	cursor: move; }
 
+#MasterColorPicker_EyeDropper playground,
 #MasterColorPicker_Blender playground {
 	display: block;
 	position: relative;
-	background-position: center;
-	min-height: 7em;
+	min-height: 14.832em;
 	min-width: 24em;
 	resize: both;
 	border: 2px solid var(--fore-text);
 	overflow: hidden;
 	z-index: 1; }
+#MasterColorPicker_EyeDropper playground {
+	margin: 0, auto;
+	/* how to make the "resize" thingy in the corner visible? (native-black on styled-black background now) */
+	color: var(--fore-palette);
+	background-color: var(--back-palette);
+	color-scheme: dark;
+	/* We don't NEED to style the colors above, unless they actually make the "resize" thingy visible */
+	border-color: var(--fore-palette); }
+#MasterColorPicker_EyeDropper.fullscreen playground {
+	resize: none;
+	width: 100%;
+	height: 100%;  }
+#MasterColorPicker_EyeDropper playground canvas,
 #MasterColorPicker_Blender playground img {
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: auto;
 	bottom: auto;
-	z-index: 1; }
+	z-index: 1;
+	cursor: move; }
+#MasterColorPicker_EyeDropper playground canvas {
+	cursor: crosshair; }
+
+#MasterColorPicker_EyeDropper {
+	text-align: center; }
+#MasterColorPicker_EyeDropper fieldset {
+	display: inline-block;
+	position: relative;
+	border: none;
+	margin: 0;
+	padding: 0; }
+#MasterColorPicker_EyeDropper fieldset:first-of-type {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	left: auto;
+	bottom: auto; }
+#MasterColorPicker_EyeDropper fieldset > button:last-child,
+#MasterColorPicker_EyeDropper.fullscreen fieldset > button:first-child {
+	display: none; }
+#MasterColorPicker_EyeDropper.fullscreen fieldset > button:last-child {
+	display: inline; }
+#MasterColorPicker_EyeDropper fieldset label:last-child {
+	display: none; }
+#MasterColorPicker_EyeDropper fieldset:hover label:last-child,
+#MasterColorPicker_EyeDropper fieldset:focus-within label:last-child,
+#MasterColorPicker_EyeDropper fieldset.focus-within label:last-child {
+	display: block;
+	position: absolute;
+	top: 100%;  left: 0px;
+	bottom: auto;  right: auto;
+	padding: .162em 0 0 0;
+	white-space: nowrap;
+	color: var(--fore-palette);
+	background-color: var(--back-palette);
+	border: 1px solid var(--fore-palette);
+	border-top: none; }
+#MasterColorPicker_EyeDropper input[type='range'] {
+	background: linear-gradient(to right, black, white); }
+#MasterColorPicker_EyeDropper note {
+	display: none; }
+#MasterColorPicker_EyeDropper label:first-of-type {
+	display: block; }
+#MasterColorPicker_EyeDropper > button {
+	margin-right: .618em; }
+#MasterColorPicker_EyeDropper > button.cutting {
+	background-color: var(--back-button-active); }
+#MasterColorPicker_EyeDropper > button.uncut {
+	text-decoration: line-through;
+	background-color: var(--back-button-toggled); }
+#MasterColorPicker_EyeDropper label:last-of-type {
+	margin-left: .618em;
+	position: relative; }
+#MasterColorPicker_EyeDropper label:hover note {
+	display: block;
+	position: absolute;
+	color: var(--fore-text-note);
+	background-color: var(--back-text-note);
+	top: 100%;
+	bottom: auto;
+	left: 1em;
+	right: auto;
+	width: 14em;
+	margin: 0;
+	padding: .382em;
+	z-index: 13; }
+#MasterColorPicker_EyeDropper indicator {
+	display: block;
+	margin: 0;
+	padding: .162em 0;
+	min-height: 1.382em; }
+#MasterColorPicker_EyeDropper swatch {
+	float: right;
+	display: inline-block;
+	width: 2.618em;
+	height: 1.382em; }
+#MasterColorPicker_EyeDropper input[type='file'] {
+	display: block;
+	text-align: left; }
+/*  see file top
+body.we-be-a-cuttin * {
+	cursor: not-allowed; }
+ */
+body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
+	cursor: crosshair; }
+#MasterColorPicker_EyeDropper playground span {
+	position: absolute;
+	box-sizing: border-box;
+	border: 1px dashed var(--fore-palette);
+	outline: 1px dashed var(--back-palette);
+	color: transparent;
+	background-color: transparent;
+	z-index: 1000; }
+
 
 
 
@@ -1433,7 +1547,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 																	 * We fill only the padding/margin area with default palette background-color. */
 	}
 
-#MasterColorPicker_mainPanel table.palette {
+#MasterColorPicker_mainPanel .palette {
 	background-color: var(--back-palette);
 	padding-right: 1.016em;  /* for scroll bar on mainPanel, ¡or it will cover the table!
 													  * With this padding, the scroll-bar will cover the padding and that part of the table-border.
@@ -1480,20 +1594,20 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	background-color: transparent; }
 
 #MasterColorPicker_mainPanel table.color_chart,
-#MasterColorPicker_mainPanel table.palette {
+#MasterColorPicker_mainPanel .palette {
 	border: 1px solid;
 	margin-bottom: 1.618em; }
 #MasterColorPicker_mainPanel table.color_chart caption,
-#MasterColorPicker_mainPanel table.palette caption {
+#MasterColorPicker_mainPanel .palette caption {
 	background-color: var(--back-palette);
 	color: inherit; }
-#MasterColorPicker_mainPanel table.color_chart caption h6,
-#MasterColorPicker_mainPanel table.palette caption h6 {
+#MasterColorPicker_mainPanel table.color_chart h6,
+#MasterColorPicker_mainPanel .palette h6 {
 	font-size: 1.162em;
 	margin: 0;
 	padding: 0; }
 #MasterColorPicker_mainPanel table.color_chart caption strong,
-#MasterColorPicker_mainPanel table.palette caption h6 {
+#MasterColorPicker_mainPanel .palette h6 {
 	font-variant: small-caps; }
 #MasterColorPicker_mainPanel table.color_chart caption span {
 	font-size: .764em;  /* ≈ Φ + ((1-Φ) - (1-Φ)*Φ) */
@@ -1612,26 +1726,37 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker_mainPanel table.palette {
 	border-spacing: 0;
 	border-collapse: collapse;}
-#MasterColorPicker_mainPanel table.palette table tr:first-child { }
-#MasterColorPicker_mainPanel table.palette table td:first-child {
+#MasterColorPicker_mainPanel .palette table tr:first-child { }
+#MasterColorPicker_mainPanel .palette table td:first-child {
 	font-weight: bold; }
-#MasterColorPicker_mainPanel table.palette table tr:first-child td:first-child {
+#MasterColorPicker_mainPanel .palette table tr:first-child td:first-child {
 	font-weight: normal; }
-#MasterColorPicker_mainPanel table.palette table tr:first-child td:first-child label {
+#MasterColorPicker_mainPanel .palette table tr:first-child td:first-child label {
 	display: inline-block;
 	width: 32%;
 	text-align: center; }
-#MasterColorPicker_mainPanel table.palette > tbody td {
+#MasterColorPicker_mainPanel .palette > tbody td {
 	height: .618em;
 	margin: 0;
 	padding: 0;
 	line-height: 1em; }
-#MasterColorPicker_mainPanel table.palette {
+#MasterColorPicker_mainPanel .palette {
 	position: relative; }
-#MasterColorPicker_mainPanel table.palette input {
+#MasterColorPicker_mainPanel .palette.fullscreen {
+	/* once again we battle an unknown scrollbar that we ASSume is 1em wide………*/
+	position: fixed;
+	width: calc(100% - 1em);
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 1em;
+}
+
+#MasterColorPicker_mainPanel .palette input {
 	margin: 2px;
 	padding: 0; }
-#MasterColorPicker_mainPanel table.palette mark.footmark {
+#MasterColorPicker_mainPanel .palette mark.footmark {
 	font-size: .618em;
 	position: relative;
 	bottom: .382em;
@@ -1641,7 +1766,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	padding: 0;
 	color: inherit;
 	background-color: inherit; }
-#MasterColorPicker_mainPanel table.palette > tfoot td {
+#MasterColorPicker_mainPanel .palette > tfoot td {
 	text-align: center; }
 
 
@@ -1649,9 +1774,9 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker_mainPanel .picker {
 	display: none;  /* JavaScript will display these when the time comes */
 }
-#MasterColorPicker_mainPanel table.picker:hover,
-#MasterColorPicker_mainPanel table.picker.activePicker,
-#MasterColorPicker_mainPanel table.picker.activePickerInterface {
+#MasterColorPicker_mainPanel .picker:hover,
+#MasterColorPicker_mainPanel .picker.activePicker,
+#MasterColorPicker_mainPanel .picker.activePickerInterface {
 	display: block; }   /* For historical reasons, the layout depends on this being “block” not “table”.
 											 * That “makes it harder” for screen-readers to interpret, they say.
 											 * But the tables are so simple, that matters little; they should have no problem.

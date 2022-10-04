@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.3.1-alpha   September 6, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.4-alpha   September 30, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -114,6 +114,31 @@ SoftMoon.WebWare.canvas_graphics.shapes.polarizedDiamond=function(canvas, r,a, h
 	atVertex(vertexes[0][0], vertexes[0][1]);
 //	for (i=0; i<4; i++)  {out+=vertexes[i][0]+'     '+vertexes[i][1]+'\n';}  alert(out);
 	return vertexes;  };
+
+
+// drawImage() creates a “smooth” bitmap when the scale>1
+// copyPixels creates a “rough” bitmap when the scale>1
+SoftMoon.WebWare.canvas_graphics.copyPixels=function copyPixels(src, dst, sx, sy, sw, sh, dx, dy, dw, dh)  {
+	var img, x,y,b,scalerX,scalerY;
+	if (src.tagname!=='CANVAS')  {
+		img=src;
+		src=document.createElement('canvas');
+		src.width=img.naturalWidth;  src.height=img.naturalHeight;  }
+	src.context??=src.getContext('2d');  dst.context??=dst.getContext('2d');
+	if (img)  src.context.drawImage(img,0,0);
+	const
+		sPix=src.context.getImageData(sx,sy,sw,sh).data,
+		dIDO=dst.context.createImageData(dw,dh),
+		dPix=dIDO.data,
+		xScale=dw/sw,
+		yScale=dh/sh;
+	// ↓↑ note the destination should be => the source and the “scale” should be a positive integer; however if scale=1, drawImage is faster!
+	for (y=0; y<sh; y++)  { for (scalerY=0; scalerY<yScale; scalerY++) {
+		for (x=0; x<sw; x++)  { for (scalerX=0; scalerX<xScale; scalerX++)  {
+			for (b=0; b<4; b++)  {
+				dPix[((y*yScale+scalerY)*dw + x*xScale+scalerX)*4 + b]  =  sPix[(y*sw + x)*4 + b];  }  }  }  }  }
+	dst.context.putImageData(dIDO,dx,dy);
+	return dIDO;  }
 
 
 /*==================================================================*/
@@ -1148,7 +1173,7 @@ MyPalette.prototype.porter=function(event)  {
 	switch (portMode)  {
 	case 'import':  switch (port)  {
 		case 'current':
-			if (palette=SoftMoon.palettes[pName=MasterColorPicker.picker_select.getSelected().firstChild.data])  {
+			if (palette=SoftMoon.palettes[pName=MasterColorPicker.picker_select.getSelected().firstChild.data])  {   // .value
 				div=this.portNotice(BUILDING_NOTICE, true);
 				setTimeout(function() {thisPalette.fromJSON({[pName]: palette});  div.parentNode.removeChild(div);},  38);  }
 			else this.portNotice('<strong>Please choose a MasterColorPicker™ Palette Table from the main palette-select.</strong>');
@@ -4286,50 +4311,217 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
 UniDOM.addEventHandler(window, 'onload', function()  {  //the onchange handler is embedded in the HTML ↓↓
 	UniDOM.generateEvent(document.querySelector('#MasterColorPicker_Mixer fieldset input:checked'), 'change', {bubbles:true});  });
 
-;(function(){  //open a private namespace for the Blender
+;(function(){  //open a private namespace for the Blender & EyeDropper (they share similar functionality)
 
 const
-	playground=document.querySelector('#MasterColorPicker_Blender playground'),
+	EyeDropper=new SoftMoon.WebWare.x_ColorPicker('EyeDropper'),
 	Blender=new Object;
-SoftMoon.WebWare.Blender=Blender
+SoftMoon.WebWare.EyeDropper=EyeDropper;
+SoftMoon.WebWare.Blender=Blender;
+EyeDropper.name='EyeDropper';
+Blender.name='Blender';
 
-Blender.applyBG=function applyBG(bgFile)  {
+
+function loadBG(bgFile, asCanvas=false)  {
 	const
-		bgImage=new Image();
+		bgImage=new Image(),
+		playground=this.playground;
+	this.bgImage=bgImage;
 	bgImage.onload=function()  {
-		URL.revokeObjectURL(bgImage.url);
-		if (Blender.bgImage)  playground.removeChild(Blender.bgImage);
-		Blender.bgImage=bgImage;
-		playground.appendChild(bgImage);  }
-	bgImage.onerror=function(e)  {
-		console.log('error loading file for the Blender background:',e);  }
+		URL.revokeObjectURL(this.url);
+		if (asCanvas)  {
+			scale=1; x= y= undefined;
+			EyeDropper.sizzors.classList.remove('uncut');
+			EyeDropper.sizzors.title='cut';  }
+		applyBG(this, playground, asCanvas);  }
+	bgImage.onerror=(e) => {
+		console.log('error loading file for the '+this.name+' background:',e);  }
 	bgImage.url=URL.createObjectURL(bgFile);
 	bgImage.src=bgImage.url;  }
 
+var scale=1, x, y;
 
-UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Blender_onload()  {
+function applyBG(img, playground, asCanvas, x=0, y=0, w, h)  {
+	if (playground.bgElement?.isConnected)  playground.removeChild(playground.bgElement);
+	if (asCanvas)  {
+		var canvas=document.createElement('canvas');
+		w??=img.naturalWidth;  h??=img.naturalHeight;
+		w=Math.round(w);  h=Math.round(h);
+		canvas.title='SHIFT-click to drag this image';
+		canvas.width=w*scale;
+		canvas.height=h*scale;
+		canvas.context=canvas.getContext('2d');
+		img.clip={x:x, y:y, w:w, h:h};
+		if (scale<2  ||  EyeDropper.zoomSmooth.checked)
+			canvas.context.drawImage(img,x,y,w,h,0,0,canvas.width,canvas.height);
+		else
+			SoftMoon.WebWare.canvas_graphics.copyPixels(img,canvas,x,y,w,h,0,0,canvas.width,canvas.height);  }
+	playground.bgElement=canvas||img;
+	playground.appendChild(canvas||img);  }
+
+
+EyeDropper.loadBG=
+Blender.loadBG= loadBG;
+
+// this is called by the x_ColorPicker prototyped event-handlers
+EyeDropper.getColor=function getEyeDropperColor(event)  {
+	if (event.target.tagName!=='CANVAS')  return null;
+	const pixel=event.target.context.getImageData(event.offsetX, event.offsetY, 1,1).data;
+	return new EyeDropper_Color(new SoftMoon.WebWare.RGBA_Color(pixel[0],pixel[1],pixel[2],pixel[3]/255));  }
+
+SoftMoon.WebWare.EyeDropper_Color=EyeDropper_Color;
+function EyeDropper_Color(RGB)  {
+	if (!new.target)  throw new Error('“EyeDropper_Color” is a constructor, not a function.');
+	this.RGB=RGB;
+	this.model='RGB';  }
+
+
+UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_Blender_onload()  {
+	EyeDropper.HTML=document.getElementById('MasterColorPicker_EyeDropper');
+	Blender.HTML=document.getElementById('MasterColorPicker_Blender');
+	EyeDropper.playground=EyeDropper.HTML.querySelector('playground');
+	Blender.playground=Blender.HTML.querySelector('playground');
+	EyeDropper.screenCtrls=EyeDropper.HTML.querySelectorAll('fieldset > button');
+	EyeDropper.porter=EyeDropper.HTML.querySelector('input[type="file"]');
+	EyeDropper.txtInd=EyeDropper.HTML.querySelector('indicator');
+	EyeDropper.swatch=EyeDropper.HTML.querySelector('swatch');
+	EyeDropper.zoomSmooth=EyeDropper.HTML.querySelector('input[type="checkbox"]');
+	EyeDropper.sizzors=EyeDropper.HTML.querySelector('button[title="cut"]');
 	const
-		dropzone=document.getElementById('MasterColorPicker_Blender'),
-		swatches=dropzone.querySelector('fieldset'),
+		dropzones=[EyeDropper.HTML, Blender.HTML],
+		swatches=Blender.HTML.querySelector('fieldset'),
+		playgrounds=[EyeDropper.playground, Blender.playground],
 		genie=new SoftMoon.WebWare.FormFieldGenie({
 			minGroups: 1,
 			maxGroups: 7,
 			groupTag:'TEXTAREA',
 			doFocus: true,
-			cloneCustomizer: function(txta) {
+			cloneCustomizer: function(txta)  {
 				const style=txta.style;
 				style.border="";  style.color="";  style.backgroundColor="";
 				style.left="";  style.top="";  style.zIndex='1';
 				txta.value="";  }});
-	UniDOM.addEventHandler(dropzone, ['dragEnter', 'dragOver'], function(e)  {
+	dropzones[0].tool=EyeDropper;  dropzones[0].imageAsCanvas=true;
+	dropzones[1].tool=Blender;
+	UniDOM.addEventHandler(dropzones, ['dragEnter', 'dragOver'], function(e)  {
 		e.stopPropagation();
 		e.preventDefault();  });
-	UniDOM.addEventHandler(dropzone, 'drop', function(e)  {
+	UniDOM.addEventHandler(dropzones, 'drop', function(e)  {
 		e.stopPropagation();
 		e.preventDefault();
-		Blender.applyBG(e.dataTransfer.files[0]);  });
-	UniDOM.addEventHandler(dropzone.querySelector('input[name*="alpha-blender-background"]'),
-		'change',  function() {Blender.applyBG(this.files[0]);});
+		this.tool.loadBG(e.dataTransfer.files[0], this,imageAsCanvas);  });
+	UniDOM.addEventHandler(dropzones, 'change',  function(event) {
+		if (event.target.type==='file')
+			this.tool.loadBG(event.target.files[0], this.imageAsCanvas);});
+	UniDOM.addEventHandler(EyeDropper.screenCtrls, ['click', 'buttonpress'], function(event)  {
+		switch (event.target.title)  {
+			case 'panel': EyeDropper.HTML.classList.remove('fullscreen');
+			break;
+			case 'full-screen':
+				EyeDropper.HTML.classList.add('fullscreen');
+				EyeDropper.playground.style.width= EyeDropper.playground.style.height= "";
+			break;
+			default: console.log('Whoa, there, fella!  We got an HTML/JavaScript mismatch goin’ on in the EyeDropper!');  }  });
+	UniDOM.addEventHandler(EyeDropper.screenCtrls, 'tabin', function(event)  {
+		const fs=EyeDropper.HTML.classList.contains('fullscreen');
+		var tabTo;
+		switch (this.title)  {
+			case 'panel': if (!fs)  {
+				if (event.tabbedFrom===EyeDropper.screenCtrls[0])  tabTo=EyeDropper.porter;
+				else  tabTo=EyeDropper.screenCtrls[0];
+				UniDOM.generateEvent(this, 'tabout', {bubbles:true}, {tabbedTo: tabTo} );
+				UniDOM.generateEvent(tabTo, 'tabin', {bubbles:true}, {tabbedFrom: this});  }
+			break;
+			case 'full-screen':  if (fs)  {
+				if (event.tabbedFrom===EyeDropper.screenCtrls[1])  tabTo=MasterColorPicker.picker_select;
+				else  tabTo=EyeDropper.screenCtrls[1];
+console.log('retabbing to:',tabTo)
+				UniDOM.generateEvent(this, 'tabout', {bubbles:true}, {tabbedTo: tabTo} );
+				UniDOM.generateEvent(tabTo, 'tabin', {bubbles:true}, {tabbedFrom: this});  }  }  });
+	UniDOM.addEventHandler(EyeDropper.HTML, 'tabout', function(event)  {
+		if (!UniDOM.hasAncestor(event.tabbedTo, this))  EyeDropper.HTML.classList.remove('fullscreen');  });
+
+	const box=document.createElement('span');
+	var cutter, weBeACuttin=false;
+	UniDOM.addEventHandler(EyeDropper.sizzors, ['click'], function(event)  {
+		const thisButton=this, sizzors={
+			onmousedown: function (event) {
+				if (event.target!==EyeDropper.playground.bgElement)  {closeCutter();  return;}
+				event.stopPropagation();  event.preventDefault();
+				x=event.offsetX;  y=event.offsetY;
+				EyeDropper.playground.appendChild(box);
+				box.style.width= box.style.height= '0px';
+				box.style.left=parseInt(event.target.style.left||0)+x+'px';
+				box.style.top=parseInt(event.target.style.top||0)+y+'px';  },
+			onmousemove: function (event) {
+				event.stopPropagation();  event.preventDefault();
+				if (x===undefined)  return;
+				const
+					canvas=EyeDropper.playground.bgElement,
+					offset=canvas.getBoundingClientRect(),
+					mx=Math.max(offset.x, Math.min(event.clientX, offset.right)),
+					my=Math.max(offset.y, Math.min(event.clientY, offset.bottom)),
+					w=mx-offset.x-x,
+					h=my-offset.y-y,
+					bs=box.style;
+				bs.width=Math.abs(w)+'px';  bs.height=Math.abs(h)+'px';
+				bs.left=parseInt(canvas.style.left||0)+x+(w<0 ? w : 0)+'px';
+				bs.top=parseInt(canvas.style.top||0)+y+(h<0 ? h : 0)+'px';
+				},
+			onmouseup: function (event) {
+				event.stopPropagation();  event.preventDefault();
+				const
+					canvas=EyeDropper.playground.bgElement,
+					offset=canvas.getBoundingClientRect(),
+					mx=Math.max(offset.x, Math.min(event.clientX, offset.right)),
+					my=Math.max(offset.y, Math.min(event.clientY, offset.bottom)),
+					w=mx-offset.x-x,
+					h=my-offset.y-y;
+				applyBG(EyeDropper.bgImage, EyeDropper.playground, true,
+								(x+(w<0 ? w : 0))/scale,
+								(y+(h<0 ? h : 0))/scale,
+								Math.abs(w)/scale,
+								Math.abs(h)/scale);
+				thisButton.classList.replace('cutting','uncut');  thisButton.title='uncut';
+				closeCutter();  }  };
+		function closeCutter()  {
+			weBeACuttin=false;
+			document.body.classList.remove('MCP_we-be-a-cuttin');
+			thisButton.classList.remove('cutting');
+			if (box.isConnected)  EyeDropper.playground.removeChild(box);
+			if (cutter)  {
+				cutter.onMouseDown.remove();  cutter.onMouseMove.remove();  cutter.onMouseUp.remove();  }
+			cutter=undefined;  }
+		if (weBeACuttin)  {closeCutter();  x= y= undefined;  return;}  // ←this shouldn’t happen unless we allow buttonpress events on this “cut” button: the sizzors’ mousedown will block it.
+		else  {
+			if (x===undefined)  {
+				weBeACuttin=true;
+				document.body.classList.add('MCP_we-be-a-cuttin');
+				thisButton.classList.add('cutting')
+				cutter=UniDOM.addEventHandler(document.body, ['onMouseDown','onMouseMove','onMouseUp'], sizzors, true);  }
+			else  {
+				x= y= undefined;
+				thisButton.classList.remove('cutting', 'uncut');  thisButton.title='cut';
+				applyBG(EyeDropper.bgImage, EyeDropper.playground, true);  }  }  });
+	UniDOM.addEventHandler(EyeDropper.HTML.querySelectorAll('label button'), ['click', 'buttonpress'], function(event)  {
+		if (!EyeDropper.bgImage)  return;
+		switch (event.target.title)  {
+			case 'zoom in': if (scale<1)  scale+=.1;  else if (scale<10)  scale=Math.round(scale)+1;
+			break;
+			case 'zoom out': if (scale>1)  scale=Math.round(scale)-1;  else if (scale>.2)  scale-=.1;
+			break;
+			case 'no zoom':  scale=1;
+			break;
+			default: console.log('Whoa, there, fella!  We got an HTML/JavaScript mismatch goin’ on in the EyeDropper!');  }
+		const clip=EyeDropper.bgImage.clip;
+		applyBG(EyeDropper.bgImage, EyeDropper.playground, true, clip.x, clip.y, clip.w, clip.h);  });
+	UniDOM.addEventHandler(EyeDropper.zoomSmooth, 'change', function()  {
+		if (scale<2  ||  !EyeDropper.bgImage)  return;
+		const clip=EyeDropper.bgImage.clip;
+		applyBG(EyeDropper.bgImage, EyeDropper.playground, true, clip.x, clip.y, clip.w, clip.h);  });
+	UniDOM.addEventHandler(EyeDropper.zoomSmooth, ['tabin', 'blur'], function(event)  {
+		this.closest('fieldset').classList.toggle('focus-within', event.type==='tabin');  });
+
 	UniDOM.addEventHandler(swatches, 'focusIn', function(event)  {
 		genie.tabbedOut=false;
 		const textarea=event.target;
@@ -4347,14 +4539,14 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Blender_onlo
 		setTimeout(()=>{textarea.style.color="";}, 1);  });
 	UniDOM.addEventHandler(swatches, 'mouseDown', function(event)  {
 		if (event.target===swatches)  {
-			if (event.detail===3)  {
+			if (event.detail===3
+			||  (event.detail===1  &&  event.ctrlKey))  {
 				const sws=swatches.querySelectorAll('textarea');
 				for (const s of sws)  {s.style.left=0;  s.style.top=0;}  }
 			return;  }
 		const
 			textarea=event.target,
 			notResize= !(event.offsetX>textarea.offsetWidth-14  &&  event.offsetY>textarea.offsetHeight-14);
-			//console.log(event.offsetX, textarea.offsetWidth-14, event.offsetY, textarea.offsetHeight-14);
 		// only allow focus on double-click once a color is selected
 		if (textarea.value!==""  &&  event.detail!==2
 		&&  notResize)
@@ -4367,21 +4559,31 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Blender_onlo
 			kids.push(textarea);
 			for (var i=0; i<l; i++)  {kids[i].style.zIndex=(i+10).toString();}  }
 		if (notResize  &&  event.detail===1)  dragger(event);  });
-	UniDOM.addEventHandler(playground, 'mouseDown', function(event)  {
-		if (event.detail===3)  {
-			const s=playground.querySelector('img')?.style;
+	UniDOM.addEventHandler(playgrounds, 'mouseDown', function(event)  {
+		if (event.detail===3
+		||  (event.detail===1  &&  event.ctrlKey))  {
+			const s=this.querySelector('img, canvas')?.style;
 			if (s)  {s.left=0;  s.top=0;}
 			return;  }
-		const resize= (event.offsetX>playground.offsetWidth-14  &&  event.offsetY>playground.offsetHeight-14);
+		const resize= (event.offsetX>this.offsetWidth-14  &&  event.offsetY>this.offsetHeight-14);
 		if (resize  &&  event.detail===1)  {
 			event.stopPropagation();
 			MasterColorPicker.HTML.classList.add('stasis');
 			setTimeout(function(){(MasterColorPicker.currentTarget ||  MasterColorPicker.defaultTarget)?.focus();}, 0);
 			return;  }
 		if (!resize  &&  event.detail===1
-		&&  event.target.tagName==='IMG')  dragger(event);  });
- 	UniDOM.addEventHandler(playground, 'mouseUp', function(event)  {
+		&&  (event.target.tagName==='IMG'
+			 ||  (event.target.tagName==='CANVAS'  &&  event.shiftKey)))  dragger(event);  });
+ 	UniDOM.addEventHandler(playgrounds, 'mouseUp', function(event)  {
  			MasterColorPicker.HTML.classList.remove('stasis');  });
+	UniDOM.addEventHandler(playgrounds[0], ['mouseMove', 'mouseOut', 'click'], EyeDropper);  // x_ColorPicker prototype handles these
+	const bgGray=dropzones[0].querySelector('input[type="range"]');
+	function setBG()  {
+		const gray=this.value.toString();
+		playgrounds[0].style.backgroundColor='RGB('+gray+','+gray+','+gray+')';  }
+	UniDOM.addEventHandler(bgGray, 'change', setBG);
+	bgGray.setBG=setBG;  //for your hacking convenience
+	bgGray.setBG();
 
 	function dragger(event)  {
 		const
@@ -4394,7 +4596,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Blender_onlo
 			endDrag=UniDOM.addEventHandler(document.body, 'onMouseUp', function(event)  {
 				drag.onMouseMove.remove();  endDrag.onMouseUp.remove();  });  }  });
 
-})();  // close Blender private namespace
+})();  // close EyeDropper / Blender private namespace
 
 
 /*==================================================================*/
