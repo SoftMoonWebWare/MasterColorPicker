@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.4-alpha   September 30, 2022   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.4.1-alpha   October 16, 2022   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -4347,7 +4347,7 @@ function applyBG(img, playground, asCanvas, x=0, y=0, w, h)  {
 		var canvas=document.createElement('canvas');
 		w??=img.naturalWidth;  h??=img.naturalHeight;
 		w=Math.round(w);  h=Math.round(h);
-		canvas.title='SHIFT-click to drag this image';
+//		canvas.title='SHIFT-click to drag this image';
 		canvas.width=w*scale;
 		canvas.height=h*scale;
 		canvas.context=canvas.getContext('2d');
@@ -4541,7 +4541,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 			if (event.detail===3
 			||  (event.detail===1  &&  event.ctrlKey))  {
 				const sws=swatches.querySelectorAll('textarea');
-				for (const s of sws)  {s.style.left=0;  s.style.top=0;}  }
+				for (const s of sws)  {s.style.position='relative';  s.style.left=0;  s.style.top=0;}  }
 			return;  }
 		const
 			textarea=event.target,
@@ -4557,22 +4557,44 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 			kids.splice(kids.indexOf(textarea), 1);
 			kids.push(textarea);
 			for (var i=0; i<l; i++)  {kids[i].style.zIndex=(i+10).toString();}  }
-		if (notResize  &&  event.detail===1)  dragger(event);  });
+		if (notResize  &&  event.detail===1)  {
+			const
+				swatch=event.target,
+				s=swatch.style,
+				r=swatch.getBoundingClientRect(),
+				mXoff=event.clientX-r.left,
+				mYoff=event.clientY-r.top,
+				drag=UniDOM.addEventHandler(document.body, 'onMouseMove', function(event)  {
+					const
+						fr=swatches.getBoundingClientRect(),      //swatches’ fieldset rectangle
+						br=Blender.HTML.getBoundingClientRect();  //tool panel’s rectangle
+					if (event.clientX<br.left  ||  event.clientX>br.right
+					||  event.clientY<br.top   ||  event.clientY>br.bottom)  {
+						s.position='fixed';
+						s.left=(event.clientX-mXoff)+"px";
+						s.top= (event.clientY-mYoff)+"px";  }
+					else
+					if (event.clientX<fr.left  ||  event.clientX>fr.right
+					||  event.clientY<fr.top   ||  event.clientY>fr.bottom)  {
+						s.position='absolute';
+						s.left=(event.clientX-br.x-mXoff)+"px";
+						s.top= (event.clientY-br.y-mYoff)+"px";  }
+					else  {
+						if (s.position!=='relative'  ||  !swatch.homeRect)  {
+							s.position='relative';  s.left='0px';  s.top='0px';
+							swatch.homeSpot=swatch.getBoundingClientRect();  }
+						s.left=(event.clientX-swatch.homeSpot.x-mXoff)+"px";
+						s.top= (event.clientY-swatch.homeSpot.y-mYoff)+"px";  }  }),
+				endDrag=UniDOM.addEventHandler(document.body, 'onMouseUp', function(event)  {
+					drag.onMouseMove.remove();  endDrag.onMouseUp.remove();  });  }  });
 	UniDOM.addEventHandler(playgrounds, 'mouseDown', function(event)  {
-		if (event.detail===3
-		||  (event.detail===1  &&  event.ctrlKey))  {
-			const s=this.querySelector('img, canvas')?.style;
-			if (s)  {s.left=0;  s.top=0;}
-			return;  }
 		const resize= (event.offsetX>this.offsetWidth-14  &&  event.offsetY>this.offsetHeight-14);
 		if (resize  &&  event.detail===1)  {
 			event.stopPropagation();
 			MasterColorPicker.HTML.classList.add('stasis');
 			setTimeout(function(){(MasterColorPicker.currentTarget ||  MasterColorPicker.defaultTarget)?.focus();}, 0);
 			return;  }
-		if (!resize  &&  event.detail===1
-		&&  (event.target.tagName==='IMG'
-			 ||  (event.target.tagName==='CANVAS'  &&  event.shiftKey)))  dragger(event);  });
+		});
  	UniDOM.addEventHandler(playgrounds, 'mouseUp', function(event)  {
  			MasterColorPicker.HTML.classList.remove('stasis');  });
 	UniDOM.addEventHandler(playgrounds[0], ['mouseMove', 'mouseOut', 'click'], EyeDropper);  // x_ColorPicker prototype handles these
@@ -4582,18 +4604,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 		playgrounds[0].style.backgroundColor='RGB('+gray+','+gray+','+gray+')';  }
 	UniDOM.addEventHandler(bgGray, 'change', setBG);
 	bgGray.setBG=setBG;  //for your hacking convenience
-	bgGray.setBG();
-
-	function dragger(event)  {
-		const
-			s=event.target.style,
-			mX=event.clientX-(parseFloat(s.left)||0),
-			mY=event.clientY-(parseFloat(s.top)||0),
-			drag=UniDOM.addEventHandler(document.body, 'onMouseMove', function(event)  {
-				s.left=(event.clientX-mX)+"px";
-				s.top=(event.clientY-mY)+"px";  }),
-			endDrag=UniDOM.addEventHandler(document.body, 'onMouseUp', function(event)  {
-				drag.onMouseMove.remove();  endDrag.onMouseUp.remove();  });  }  });
+	bgGray.setBG();  });  // close window onload
 
 })();  // close EyeDropper / Blender private namespace
 

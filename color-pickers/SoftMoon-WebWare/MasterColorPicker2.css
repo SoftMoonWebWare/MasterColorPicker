@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.4  Oct 2, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.4.1  Oct 16, 2022  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -1026,12 +1026,16 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker_Blender {
 	position: relative; }
 #MasterColorPicker_Blender fieldset {
-	z-index: 2; }
+	z-index: 2;
+	min-height: calc(4em + 4px); }
 #MasterColorPicker_Blender textarea {
 	width: 4em;
 	height: 4em;
 	margin: 2px;
-	position: relative;
+	position: relative;  /* JavaScript controls this directly as the swatch is dragged:
+											  * relative when inside the swatches’ fieldset
+											  * absolute when inside the Blender panel
+											  * fixed when outside the Blender panel */
 	z-index: 2; }
 #MasterColorPicker_Blender textarea.passive {
 	color: transparent;
@@ -1045,7 +1049,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	min-width: 24em;
 	resize: both;
 	border: 2px solid var(--fore-text);
-	overflow: hidden;
+	overflow: auto;
 	z-index: 1; }
 #MasterColorPicker_EyeDropper playground {
 	margin: 0, auto;
@@ -1066,8 +1070,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	left: 0;
 	right: auto;
 	bottom: auto;
-	z-index: 1;
-	cursor: move; }
+	z-index: 1; }
 #MasterColorPicker_EyeDropper playground canvas {
 	cursor: crosshair; }
 
