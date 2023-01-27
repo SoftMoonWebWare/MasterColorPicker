@@ -1,7 +1,7 @@
 //  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
-/*   written by and Copyright © 2019, 2022 Joe Golembieski, SoftMoon WebWare */
+/*   written by and Copyright © 2019, 2022, 2023 Joe Golembieski, SoftMoon WebWare */
 
-// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated July 21, 2022
+// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated January 22, 2023
 // input type='file…………'  April 20, 2022
 
 'use strict';
@@ -73,9 +73,9 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 	input.units=units;  //you may modify this Array of units in real-time; the “units” attribute is only read once when first registered…
 
 	function reset_type() {return iType==='numeric-slider' ? 'range' : (input.units ? 'text' : 'number');}
-	function getValueUnitIndex() {return /[^-0-9.]/.exec(input.value)?.index;}
+	function getValueUnitIndex() {return /[^-−+0-9.]/.exec(input.value)?.index;}
   function usesUnit(data) {
-		const unit=data.match(/^([-−\d.]*)([\D]+)$/);
+		const unit=data.match(/^([-−+\d.]*)([\D]+)$/);
 		if (unit  &&  input.units)  for (const u of input.units)  {
 			if (u.toUpperCase()===unit[2])  {unit[2]=u;  return unit;}  }
 		return false;  }
@@ -107,24 +107,29 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 					this.focus();
 					this.selectionStart=this.value.length;  }  });  }
 		input.addEventListener('change', function(event)  {
-			const v=parseFloat(this.value);
-			if (this.hasAttribute('min')  &&  (this.value===""  ||  v<parseFloat(this.getAttribute('min'))))  this.value=this.getAttribute('min');
-			else
-			if (this.hasAttribute('max')  &&  v>parseFloat(this.getAttribute('max')))  this.value=this.getAttribute('max');  });
+			if (this.value===""
+			&&  this.hasAttribute('default-value'))  this.value=this.getAttribute('default-value');
+			else  {
+				const v=parseFloat(this.value);
+				if (this.hasAttribute('min')  &&
+						(this.value===""  ||  v<parseFloat(this.getAttribute('min'))))  this.value=this.getAttribute('min');
+				else
+				if (this.hasAttribute('max')  &&  v>parseFloat(this.getAttribute('max')))  this.value=this.getAttribute('max');  }  });
 		input.addEventListener('blur', function() {this.type= reset_type();});
 		input.type= reset_type();  }
 	else
 		input.addEventListener('blur', function() {this.value=this.value.toUpperCase();});
 
 	input.addEventListener('beforeinput', function(event)  {
-		var s, allowNegative, allowDecimal, uIndex,
+		var s, allowNegative, allowPositive, allowDecimal, uIndex,
 				data=event.data?.toUpperCase();
 		if (!data)  return;
 		const
 			base=parseInt(this.getAttribute('base')) || 10,
 			testAllowNegative=() => allowNegative=(!this.hasAttribute('min')  ||  parseFloat(this.getAttribute('min'))<0),
+			testAllowPositive=() => allowPositive=((!this.hasAttribute('max')  ||  parseFloat(this.getAttribute('max'))>=0)  &&  this.hasAttribute('allow-plus-sign')),
 			testAllowDecimal=() => allowDecimal=(!this.hasAttribute('step')  ||  (s=this.getAttribute('step'))==='any'  ||  s.includes('.')),
-			cleanNum=(data) => data.replace(RegExp('[^' + (testAllowNegative() ? '-−' : "") + (testAllowDecimal() ? '.' : "") + '\\d]', "g"), ""),
+			cleanNum=(data) => data.replace(RegExp('[^' + (testAllowNegative() ? '-−' : "") + (testAllowPositive() ? '+' : "") + (testAllowDecimal() ? '.' : "") + '\\d]', "g"), ""),
 			addData=(doAdd) => {
 				const curPos=this.selectionStart;
 				data=this.value.substr(0,curPos)+data+this.value.substr(this.selectionEnd||curPos);
@@ -134,7 +139,7 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 					this.selectionStart=
 					this.selectionEnd=curPos+data.length;  }  };
 		if (data.length===1)  {  // all keypress events and single-character paste events
-			if (data>='0'  &&  data<(base>9 ? ':' : base.toString()))  {  // ←  the colan  :  is one ASCII point beyond   9
+			if (data>='0'  &&  data<(base>9 ? ':' : base.toString()))  {  // ←  the colan  :  is one ASCII point beyond  9
 				if (this.units
 				&&  typeof (uIndex=getValueUnitIndex()) === 'number'
 				&&  this.selectionStart > uIndex)  event.preventDefault();
@@ -146,7 +151,12 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 				case '-':  // ← standard dash (typically masquerades as a negative sign)
 				case '−':  // ← true mathematical minus/negative sign (not typically found on a keyboard)
 					if (testAllowNegative()
-					&&  !this.value.includes('-')  &&  !this.value.includes('−')
+					&&  !this.value.includes('-')  &&  !this.value.includes('−')  &&  !this.value.includes('+')
+					&&  this.selectionStart===0)  return;
+				break;
+				case '+':
+					if (testAllowPositive()
+					&&  !this.value.includes('+')  &&  !this.value.includes('-')  &&  !this.value.includes('−')
 					&&  this.selectionStart===0)  return;
 				break;
 				case '.':
@@ -156,7 +166,7 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 				default:
 					event.preventDefault();
 					if (this.selectionStart!==this.value.length
-					||  /[^-0-9.]/.test(this.value))  return;
+					||  /[^-−+0-9.]/.test(this.value))  return;
 					for (const unit of this.units)  { if (unit.substr(0,1).toUpperCase()===data)  {
 						data=unit;  addData(true);  return;  }  }  }
 			event.preventDefault();  return;  }
@@ -175,8 +185,10 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 				const old=data;
 				if (allowDecimal)  {if ((i=data.indexOf('.')+1)>0)   data=data.substr(0,i)+data.substr(i).replace( /\./g, "");}
 				else  data=data.replace( /\./g, "");
-				if (allowNegative)  data=data.substr(0,1)+data.substr(1).replace( /-−/g, "");
-				else  data=data.replace( /-−/g, "");
+				if (allowNegative)  data=data.substr(0,1)+data.substr(1).replace( /\-−/g, "");
+				else  data=data.replace( /\-−/g, "");
+				if (allowPositive)  data=data.substr(0,1)+data.substr(1).replace( /\+/g, "");
+				else  data=data.replace( /\+/g, "");
 				if (old!==data)  {
 				//the cursor position may be adversely affectled if a decimal point is removed past the current cursor postion,
 				//or the input was corrupted with a negative sign past the cursor position

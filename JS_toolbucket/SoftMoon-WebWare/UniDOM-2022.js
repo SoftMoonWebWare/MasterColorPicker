@@ -1,6 +1,6 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.1.0  September 21, 2022
- *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
+/*  UniDOM-2022  version 1.2.0  January 26, 2023
+ *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
  *  http://softmoon-webware.com/UniDOM_instructions.htm
@@ -661,8 +661,8 @@ function alwaysTrue() {return true}
 		this.className=aClass(cn, ac);  }
 
 
-	function disable(flag, className, bubbles)  {
-		if (className===undefined)  className='disabled';
+	function disable(flag, className='disabled', bubbles)  {
+		if (this.hasAttribute('lock-disabled-state'))  return;
 		flag=Boolean(flag);
 		this.disabled=flag;
 		useClass.call(this, className, flag);
@@ -819,7 +819,7 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 		if (!(value instanceof Array))  value=[value];
 		for (const elmnt of this)  { if (elmnt?.nodeName==='INPUT')  switch (elmnt.type)  {
 			case 'radio':
-			case 'checkbox': elmnt.checked=values.includes(elmnt.value);  }  }
+			case 'checkbox': elmnt.checked=value.includes(elmnt.value);  }  }
 		return this;  }
 
 	getValues(includeEmpty, goDeep)  { var r=new Array;
