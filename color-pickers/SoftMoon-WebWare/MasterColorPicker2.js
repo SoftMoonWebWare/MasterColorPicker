@@ -1,7 +1,7 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.4.1-alpha   October 16, 2022   by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon WebWare
+// MasterColorPicker2.js   ~release ~2.4.2-alpha   January 27, 2023   by SoftMoon WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 // requires  “+++Math.js”  → → → →  JS_toolucket/+++JS/+++Math.js/
 // requires  “+++input_type.js”  → → → →  JS_toolucket/+++JS/+++input_type.js/
 // requires  SoftMoon.WebWare.RGB_Calc   → → → →  JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js
-// requires  SoftMoon-WebWare’s UniDOM-2020 package   → → → →  JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js
+// requires  SoftMoon-WebWare’s UniDOM-2022 package   → → → →  JS_toolbucket/SoftMoon-WebWare/UniDOM-2022.js
 // requires  SoftMoon.WebWare.Picker   → → → →   JS_toolbucket/SoftMoon-WebWare/Picker.js
 // requires  SoftMoon.WebWare.FormFieldGenie   → → → →  JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js  → → → →  for MyPalette and ColorFilter
 // requires  SoftMoon.WebWare.HTTP   → → → →  JS_toolbucket/SoftMoon-WebWare/HTTP.js  → → → →  for Palette load/save on a server - not with  file://  protocol use
@@ -55,14 +55,14 @@ SoftMoon.WebWare.canvas_graphics={
 		context.lineTo(ep.x, ep.y);
 		context.stroke();  },
 	shapes: {}  };
-//                                                           centerpoint ↓   # of ↓ vertexes   ↓ pass in function− typically “lineTo”
-SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon=function(canvas, x,y, h,w, vCount, atVertex, rotate)  {
-	var i, pX, pY, angle;  //, out='';      //     before rotation ↑           radian value ↑ ¡not degrees!
+//                                                                              centerpoint ↓    ↓ height,width before rotation
+SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon=function(context, atVertex, vCount, x,y, h,w, rotate=0)  {
+	var i, pX, pY, angle;  //           pass in function− typically “lineTo” ↑    # of ↑ vertexes       ↑ radian value ¡not degrees!
 	const vertexes=[];
 	if (typeof rotate !== 'number')  rotate=0;
 	if (rotate+=_['90°'])  {pX=Math.cos(rotate)*w+x;  pY=y-Math.sin(rotate)*h;}  // place odd-point at top
 	else {pX=x+w;  pY=y;}
-	canvas.moveTo(pX, pY);            angle=rotate;
+	context.moveTo(pX, pY);            angle=rotate;
 	for (i=1;  vertexes.push([pX, pY, angle]), i<vCount;  i++)  {
 		angle=(_['π×2']/vCount)*i+rotate;
 		pX=x+Math.cos(angle)*w;
@@ -141,6 +141,7 @@ SoftMoon.WebWare.canvas_graphics.copyPixels=function copyPixels(src, dst, sx, sy
 	return dIDO;  }
 
 
+
 /*==================================================================*/
 /*==================================================================*/
 window.addEventListener('load', function settings_restorer()  {
@@ -168,6 +169,7 @@ window.addEventListener('load', function settings_restorer()  {
 			const allValues={};
 			for (const p in allSettings)  {
 				if (( /^[0-9]+$/ ).test(p)
+				||  ( /^MasterColorPicker_Gradientor/ ).test(p)
 				||  ( /^MasterColorPicker_PaletteMngr/ ).test(p)
 				||  (( /^MasterColorPicker_MyPalette/ ).test(p)
 						 &&  (allSettings[p] instanceof Array || !allSettings[p].closest('.options'))))  continue;
@@ -845,20 +847,20 @@ MyPalette.prototype.onDelete=function()  {
 		if (this.trs[i].children[0].nodeName==='TH'
 		&&  ( /\bMyPaletteBody\b/ ).test(this.trs[i].parentNode.className)
 		&&  UniDOM.getElementsBy$Name(this.trs[i].children[0], /selectThis/ , 1)[0].checked)
-			this.SubPaletteGenie.deleteField(this.trs[i--].parentNode);
+			this.SubPaletteGenie.deleteGroup(this.trs[i--].parentNode);
 		else
 		if (this.trs[i].children[0].children[0].checked)
-			this.ColorGenie.deleteField(this.trs[i--]);  }
+			this.ColorGenie.deleteGroup(this.trs[i--]);  }
 	UniDOM.getElementsBy$Name(this.table, /selectAll/ ).map(function(e) {e.checked=false;});  }
 
 MyPalette.prototype.moveColor=function(from, to)  {
-		this.ColorGenie.cutField(from, {clip:"MCP_system", dumpEmpties:false});
+		this.ColorGenie.cutGroup(from, {clip:"MCP_system", dumpEmpties:false});
 		this.ColorGenie.pasteField(to, {clip:"MCP_system", doso:"insert", dumpEmpties:false, doFocus:false});  }
 
 //Note we can always do a simple cut/paste with fields, because there is always an empty field at the end to “insertBefore” — not so with moving subPalettes
 
 MyPalette.prototype.moveSub=function(from, to)  {
-		this.SubPaletteGenie.cutField(from, {clip:"MCP_system", dumpEmpties:false});
+		this.SubPaletteGenie.cutGroup(from, {clip:"MCP_system", dumpEmpties:false});
 		this.SubPaletteGenie.popNewField(to||this.table, {clip:"MCP_system", doso:"paste", addTo:!to, dumpEmpties:false, doFocus:false});  }
 
 MyPalette.prototype.makeSub=function()  {
@@ -941,11 +943,11 @@ MyPalette.prototype.onColorGenieMenuSelect=function(event)  {
 		case 'SPAN':               return this.ColorGenie.popNewField(myColor, {doso:"insert"});
 		case 'LI':  if (event.target.parentNode.tagName==='UL')  switch (event.target.parentNode.parentNode.firstChild.data.trim())  {
 			case 'insert:':          return this.ColorGenie.pasteField(myColor, {doso:"insert", clip:event.target.innerHTML});
-			case 'copy to:':         return this.ColorGenie.copyField(myColor, {clip:event.target.innerHTML});
-			case 'cut to:':          return this.ColorGenie.cutField(myColor, {clip:event.target.innerHTML});
+			case 'copy to:':         return this.ColorGenie.copyGroup(myColor, {clip:event.target.innerHTML});
+			case 'cut to:':          return this.ColorGenie.cutGroup(myColor, {clip:event.target.innerHTML});
 			case 'paste from:':      return this.ColorGenie.pasteField(myColor, {clip:event.target.innerHTML});  }
 			else if (event.detail===3)  switch (event.target.innerHTML)  {
-			case 'delete':           return this.ColorGenie.deleteField(myColor);
+			case 'delete':           return this.ColorGenie.deleteGroup(myColor);
 			case 'clear clipboard':  return this.ColorGenie.clearClipboard(true);  }  }  }
 
 MyPalette.prototype.clearPalette=function()  {
@@ -954,9 +956,9 @@ MyPalette.prototype.clearPalette=function()  {
 	paletteMeta=UniDOM.getElementsBy$Name(paletteMeta, /header|footer/ );
 	for (var i=paletteMeta.length; --i>=0;)  {
 		if (UniDOM.isLast(paletteMeta[i]))  paletteMeta[i].value="";
-		else  this.MetaGenie.deleteField(paletteMeta[i]);}
-	for (i=this.tbodys.length;  --i>0;)  {this.SubPaletteGenie.deleteField(this.tbodys[i]);}
-	for (i=this.trs.length-1;  --i>1;)  {this.ColorGenie.deleteField(this.trs[i]);}
+		else  this.MetaGenie.deleteGroup(paletteMeta[i]);}
+	for (i=this.tbodys.length;  --i>0;)  {this.SubPaletteGenie.deleteGroup(this.tbodys[i]);}
+	for (i=this.trs.length-1;  --i>1;)  {this.ColorGenie.deleteGroup(this.trs[i]);}
 	i=UniDOM.getElementsBy$Name(this.trs[2], /definition|name/ );  i[0].value="";  i[1].value="";  }
 
 MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
@@ -994,7 +996,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 			if (rootName.value.trim()===pName)  {tbody=tbodys[0];  break;}
 		case 'over':  if (mergeMode==='over'  &&  (tbody=get_tBody(pName, [rootName.value.trim()])))  {
 			id=tbody.id;
-			this.SubPaletteGenie.deleteField(tbody);  }
+			this.SubPaletteGenie.deleteGroup(tbody);  }
 		case 'add':
 		default:  tbody=makeNew_tBody(pName, rootName.value.trim(), tbodys[0].id);  if (id)  tbodys.id=id;  }
 
@@ -1033,7 +1035,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 		switch (tbody  &&  mergeMode)  {
 		case 'merge':
 		case 'merge-over': return tbody;
-		case 'over':  thisPalette.SubPaletteGenie.deleteField(tbody);
+		case 'over':  thisPalette.SubPaletteGenie.deleteGroup(tbody);
 		case 'add':
 		case 'replace':
 		default: return makeNew_tBody(sName, chain.pop(), parentId);  }  }
@@ -1055,7 +1057,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 				case 'merge-over':
 				case 'over':  for (var trs=tbody.children, i=1;  i<trs.length;  i++)  {
 					if (trs[i].querySelector("input[name$='[name]']").value.trim()===cName)
-						thisPalette.ColorGenie.deleteField(trs[i]);  }  }
+						thisPalette.ColorGenie.deleteGroup(trs[i]);  }  }
 			thisPalette.addColor(palette[pRef].trim().replace(marks?.open,"").replace(marks?.close,""), cName);  }
 		CGFC.call(thisPalette.ColorGenie, tbody);  }  }
 
@@ -1699,7 +1701,7 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 		CLR.RGB.alpha= alpha= parseFloat(settings.opacity_percent.value)/100;
 	else if (settings.applyOpacity.checked
 			 &&  CLR.model === 'text')  {
-		let m, alphaTxt=Math.roundTo(parseFloat(settings.opacity_percent.value), 1) + '%';
+		let m, alphaTxt=Math.roundTo(1, parseFloat(settings.opacity_percent.value)) + '%';
 		if (((m=CLR.text.match(RegExp.stdWrappedColor))  ||  (m=CLR.text.match(RegExp.stdPrefixedColor)))
 		&&  typeof RGB_Calc.from[m=m[1].toLowerCase()] === 'function')  {
 			CLR.RGB.alpha= alpha= parseFloat(settings.opacity_percent.value)/100;
@@ -1723,13 +1725,13 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 	else  setDefaultAlpha();
 
 	if (space!=='rgb')  {
-		settings.Rgb_byte.value= settings.Rgb_range.value= Math.roundTo(CLR.RGB.red, ColorSpaceLab.rgbPrecision);
-		settings.rGb_byte.value= settings.rGb_range.value= Math.roundTo(CLR.RGB.green, ColorSpaceLab.rgbPrecision);
-		settings.rgB_byte.value= settings.rgB_range.value= Math.roundTo(CLR.RGB.blue, ColorSpaceLab.rgbPrecision);
+		settings.Rgb_byte.value= settings.Rgb_range.value= Math.roundTo(ColorSpaceLab.rgbPrecision, CLR.RGB.red);
+		settings.rGb_byte.value= settings.rGb_range.value= Math.roundTo(ColorSpaceLab.rgbPrecision, CLR.RGB.green);
+		settings.rgB_byte.value= settings.rgB_range.value= Math.roundTo(ColorSpaceLab.rgbPrecision, CLR.RGB.blue);
 
-		settings.Rgb_percent.value=Math.roundTo(CLR.RGB.red/2.55, 5);
-		settings.rGb_percent.value=Math.roundTo(CLR.RGB.green/2.55, 5);
-		settings.rgB_percent.value=Math.roundTo(CLR.RGB.blue/2.55, 5);
+		settings.Rgb_percent.value=Math.roundTo(5, CLR.RGB.red/2.55);
+		settings.rGb_percent.value=Math.roundTo(5, CLR.RGB.green/2.55);
+		settings.rgB_percent.value=Math.roundTo(5, CLR.RGB.blue/2.55);
 		settings.Rgb_hex.value=CLR.RGB.hex.substr(1,2);
 		settings.rGb_hex.value=CLR.RGB.hex.substr(3,2);
 		settings.rgB_hex.value=CLR.RGB.hex.substr(5,2);  }
@@ -1740,42 +1742,42 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 	if (space!=='hsb' && space!=='hsv' && space!=='hsl' && space!=='hcg')  {
 		var hau=ColorSpaceLab.hueAngleUnit
 		settings.Hue_degrees.value=
-//				Math.roundTo(parseFloat(CLR.HSV.hue)*ColorSpaceLab.hueAngleUnitFactor, SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision.deg);
-			Math.roundTo(CLR.HSV.hue*RGB_Calc.hueAngleUnitFactors[hau], SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau]);
+//				Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision.deg, parseFloat(CLR.HSV.hue)*ColorSpaceLab.hueAngleUnitFactor);
+			Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau], CLR.HSV.hue*RGB_Calc.hueAngleUnitFactors[hau]);
 		settings.Hue_range.value=
-			Math.roundTo(CLR.HSV.hue*360, SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['deg']);
+			Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['deg'], CLR.HSV.hue*360);
 
-		settings.Hue_percent.value= Math.roundTo(parseFloat(CLR.HSV.hue)*100, SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['%']);  }
+		settings.Hue_percent.value= Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['%'], parseFloat(CLR.HSV.hue)*100);  }
 
 	if (space!=='hsb' && space!=='hsv')  {
-		settings.hSv_percent.value= settings.hSv_range.value= Math.roundTo(CLR.HSV.saturation*100, 5);
-		settings.hsV_percent.value= settings.hsV_range.value= Math.roundTo(CLR.HSV.value*100, 5);  }
+		settings.hSv_percent.value= settings.hSv_range.value= Math.roundTo(5, CLR.HSV.saturation*100);
+		settings.hsV_percent.value= settings.hsV_range.value= Math.roundTo(5, CLR.HSV.value*100);  }
 
 	if (space!=='hsl')  {
 		if (!CLR.HSL)  CLR.HSL=RGB_Calc.to.hsl(CLR.RGB.rgba);
 		else if (typeof alpha === 'number')  CLR.HSL.alpha=alpha;
-		settings.hSl_percent.value= settings.hSl_range.value= Math.roundTo(CLR.HSL.saturation*100, 5);
-		settings.hsL_percent.value= settings.hsL_range.value= Math.roundTo(CLR.HSL.lightness*100, 5);  }
+		settings.hSl_percent.value= settings.hSl_range.value= Math.roundTo(5, CLR.HSL.saturation*100);
+		settings.hsL_percent.value= settings.hsL_range.value= Math.roundTo(5, CLR.HSL.lightness*100);  }
 
 	if (space!=='hwb')  {
 		if (!CLR.HWB)  CLR.HWB=RGB_Calc.to.hwb(CLR.RGB.rgba);
 		else if (typeof alpha === 'number')  CLR.HWB.alpha=alpha;
-		settings.hWb_percent.value= settings.hWb_range.value= Math.roundTo(CLR.HWB.white*100, 5);
-		settings.hwB_percent.value= settings.hwB_range.value= Math.roundTo(CLR.HWB.black*100, 5);  }
+		settings.hWb_percent.value= settings.hWb_range.value= Math.roundTo(5, CLR.HWB.white*100);
+		settings.hwB_percent.value= settings.hwB_range.value= Math.roundTo(5, CLR.HWB.black*100);  }
 
 	if (space!=='hcg')  {
 		if (!CLR.HCG)  CLR.HCG=RGB_Calc.to.hcg(CLR.RGB.rgba);
 		else if (typeof alpha === 'number')  CLR.HCG.alpha=alpha;
-		settings.hCg_percent.value= settings.hCg_range.value= Math.roundTo(CLR.HCG.chroma*100, 5);
-		settings.hcG_percent.value= settings.hcG_range.value= Math.roundTo(CLR.HCG.gray*100, 5);  }
+		settings.hCg_percent.value= settings.hCg_range.value= Math.roundTo(5, CLR.HCG.chroma*100);
+		settings.hcG_percent.value= settings.hcG_range.value= Math.roundTo(5, CLR.HCG.gray*100);  }
 
 	if (space!=='cmyk')  {
 		if (!CLR.CMYK)  CLR.CMYK=RGB_Calc.to.cmyk(CLR.RGB.rgba);
 		else if (typeof alpha === 'number')  CLR.CMYK.alpha=alpha;
-		settings.Cmyk_percent.value= settings.Cmyk_range.value= Math.roundTo(CLR.CMYK.cyan*100, 5);
-		settings.cMyk_percent.value= settings.cMyk_range.value= Math.roundTo(CLR.CMYK.magenta*100, 5);
-		settings.cmYk_percent.value= settings.cmYk_range.value= Math.roundTo(CLR.CMYK.yellow*100, 5);
-		settings.cmyK_percent.value= settings.cmyK_range.value= Math.roundTo(CLR.CMYK.black*100, 5);  }
+		settings.Cmyk_percent.value= settings.Cmyk_range.value= Math.roundTo(5, CLR.CMYK.cyan*100);
+		settings.cMyk_percent.value= settings.cMyk_range.value= Math.roundTo(5, CLR.CMYK.magenta*100);
+		settings.cmYk_percent.value= settings.cmYk_range.value= Math.roundTo(5, CLR.CMYK.yellow*100);
+		settings.cmyK_percent.value= settings.cmyK_range.value= Math.roundTo(5, CLR.CMYK.black*100);  }
 
 	RGB_Calc.config.cull();
 	ColorSpaceLab.update_Hue_rangeHandle();
@@ -1806,22 +1808,22 @@ ColorSpaceLab.alignColor=function(event)  {
 	case 'rgb':  {  switch (format)  {
 		case 'byte':  {
 			settings[model+'_range'].value=thisValue;
-			settings[model+'_percent'].value=Math.roundTo(thisValue/2.55, 5);
+			settings[model+'_percent'].value=Math.roundTo(5, thisValue/2.55);
 			settings[model+'_hex'].value=Math._2hex(parseInt(thisValue));
 			break setLikeInputs;  }
 		case 'range':  {
 			settings[model+'_byte'].value=thisValue;
-			settings[model+'_percent'].value=Math.roundTo(thisValue/2.55, 5);
+			settings[model+'_percent'].value=Math.roundTo(5, thisValue/2.55);
 			settings[model+'_hex'].value=Math._2hex(parseInt(thisValue));
 			break setLikeInputs;  }
 		case 'percent':  {
 			settings[model+'_range'].value=thisValue*2.55;
-			settings[model+'_byte'].value=Math.roundTo(thisValue*2.55, ColorSpaceLab.rgbPrecision);
+			settings[model+'_byte'].value=Math.roundTo(ColorSpaceLab.rgbPrecision, thisValue*2.55);
 			settings[model+'_hex'].value=Math._2hex(parseFloat(thisValue)*2.55);
 			break setLikeInputs;  }
 		case 'hex':  {
 			settings[model+'_range'].value=parseInt(thisValue, 16);
-			settings[model+'_percent'].value=Math.roundTo(parseInt(thisValue, 16)/2.55, 5);
+			settings[model+'_percent'].value=Math.roundTo(5, parseInt(thisValue, 16)/2.55);
 			settings[model+'_byte'].value=parseInt(thisValue, 16);
 			break setLikeInputs;  }  }  }
 	case 'hue':  {
@@ -1832,22 +1834,22 @@ ColorSpaceLab.alignColor=function(event)  {
 		case 'degrees':  {
 			const hue=parseFloat(thisValue)/hauf;
 			settings.Hue_range.value=Math.deg(hue*360);
-			settings.Hue_percent.value=Math.roundTo(Math.sawtooth(100, hue*100), 5);
+			settings.Hue_percent.value=Math.roundTo(5, Math.sawtooth(100, hue*100));
 			break setLikeInputs;  }
 		case 'range':  {
 			settings.Hue_degrees.value=Math.roundTo(
-				Math.sawtooth(hauf, (thisValue/360)*hauf),
-				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau] );
-			settings.Hue_percent.value=Math.roundTo(Math.sawtooth(100, thisValue/3.60), 5);
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau],
+				Math.sawtooth(hauf, (thisValue/360)*hauf));
+			settings.Hue_percent.value=Math.roundTo(5, Math.sawtooth(100, thisValue/3.60));
 			break setLikeInputs;  }
 		case 'percent':  {
 			settings.Hue_range.value=Math.deg(thisValue*3.60);
 			settings.Hue_degrees.value=Math.roundTo(
-				Math.sawtooth(hauf, (thisValue/100)*hauf),
-				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau] );
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau],
+				Math.sawtooth(hauf, (thisValue/100)*hauf));
 			break setLikeInputs;  }  }  }
 	default:  { switch (format)  {
-			case 'range':   settings[model+'_percent'].value=Math.roundTo(thisValue, 5);  break;
+			case 'range':   settings[model+'_percent'].value=Math.roundTo(5, thisValue);  break;
 			case 'percent':
 				settings[model+'_range'].value=thisValue;
 				}  }  }  }
@@ -1985,6 +1987,8 @@ SoftMoon.WebWare.BeezEye.buildPalette=function()  {
 			palette=BeezEye.getElementsByTagName('canvas')[0],
 			replacement=document.createElement('canvas'),
 			canvas=replacement.getContext('2d'),
+			lineTo=canvas.lineTo.bind(canvas),
+			hexagon=SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon.bind(null, canvas, lineTo, 6),
 			pStylz=getComputedStyle(palette),
 			w=parseInt(pStylz.width),
 			h=parseInt(pStylz.height),
@@ -2027,8 +2031,8 @@ SoftMoon.WebWare.BeezEye.buildPalette=function()  {
 		if (saturation>100)  return;
 		canvas.fillStyle=RGB_Calc.to.hex(natv=SoftMoon.WebWare.BeezEye.nativeToRGB(hue, saturation, color_value));
 		canvas.beginPath();
-		SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon(canvas, x, y, radius, radius, 6, function(x2, y2) {canvas.lineTo(x2, y2);});
-		canvas.closePath();                                                                  // ↑ simply passing  canvas.lineTo  would be nice…
+		hexagon(x, y, radius, radius);
+		canvas.closePath();
 		canvas.fill();  }  }
 
 
@@ -2314,7 +2318,7 @@ RainbowMaestro.buildPalette=function(onlyColorblind)  {
 				cnvs[i].context.beginPath();
 				x=outRad-j*space.x-space.x/2;
 				y=space.y*j/2 - space.y*k;
-				SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon(cnvs[i].context, x, y, h_r, h_r, 6, lineTo, _['90°']);
+				SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon(cnvs[i].context, lineTo, 6, x, y, h_r, h_r, _['90°']);
 				cnvs[i].context.closePath();
 				cnvs[i].context.fill();  }  }
 			cnvs[i].context.restore();  }
@@ -2440,7 +2444,10 @@ SoftMoon.WebWare.RainbowMaestro.handleMouse=function(event)  {
 	if (!settings.lock.checked  &&  !settings.websafe.checked)  {
 		var hueIndicator=document.querySelector('#RainbowMaestro_hueIndicator span.hueIndicator').firstChild;
 		hueIndicator.data=(targetHue===null)  ?  ""
-			:  (Math.roundTo((targetHue/_['π×2'])*RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit], SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit])+RainbowMaestro.hueAngleUnit);
+			:  (Math.roundTo(
+											 SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit],
+											 (targetHue/_['π×2'])*RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])
+					+ RainbowMaestro.hueAngleUnit);
 		UniDOM.useClass(hueIndicator.parentNode, 'active', targetHue!==null);  }
 	const spsw=document.getElementById('RainbowMaestro').getElementsByClassName('subpalette_swatch'),
 				count= settings.colorblind.checked  ?  spsw.length : 1;
@@ -2456,10 +2463,10 @@ SoftMoon.WebWare.RainbowMaestro.handleMouse=function(event)  {
 SoftMoon.WebWare.RainbowMaestro.handleClick=function()  {
 	if (!settings.lock.checked && !settings.websafe.checked  &&  targetHue!==null)  {
 		settings.focalHue.value= Math.roundTo(
+			SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit],
 			(RainbowMaestro.hueAngleUnit==='rad'  ||  RainbowMaestro.hueAngleUnit==='ᴿ')  ?
 					targetHue
-				: (targetHue/_['π×2'])*RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit],
-			SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit] );
+				: (targetHue/_['π×2'])*RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit] );
 		SoftMoon.WebWare.RainbowMaestro.buildPalette();  }  }
 
 SoftMoon.WebWare.RainbowMaestro.showColorblind=function()  {
@@ -2509,8 +2516,8 @@ SoftMoon.WebWare.RainbowMaestro.handle_focalsOnly=function(flag)  {
 SoftMoon.WebWare.RainbowMaestro.setFocalHue=function(hueAngle, radianFlag)  {  hueAngle=parseFloat(hueAngle);
 	if (radianFlag)  settings.focalHue.value=hueAngle;
 	else  settings.focalHue.value=Math.roundTo(
-		(hueAngle/RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])*_['π×2'],
-		SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit]);
+		SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit],
+		(hueAngle/RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])*_['π×2']);
 	if (hueAngle !== focalHue)
 		RainbowMaestro.buildPalette();  }
 
@@ -2530,8 +2537,8 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 			settings.websafe.checked=false;
 			this.value.replace( /[^-0-9.]/ , "");
 			this.value=Math.roundTo(
-				Math.sawtooth(RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit], parseFloat(this.value)) || 0,
-				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit]);
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit],
+				Math.sawtooth(RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit], parseFloat(this.value)) || 0);
 			if ((this.value/RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])*_['π×2'] !== focalHue) //focalHue is a private member
 				RainbowMaestro.buildPalette();  } );
 
@@ -2726,9 +2733,9 @@ SoftMoon.WebWare.SimpleSqColorPicker.getColor.hsL=function(event)  {
 	return getColor('hsl', hue, sat, moLvl);  }
 
 function updateIndicators()  {  //private
-		document.getElementById('Simple²hue').firstChild.data=Math.roundTo(hue*360, 3)+'°';
-		document.getElementById('Simple²saturation').firstChild.data=Math.roundTo(sat*100, 1)+'%';
-		document.getElementById('Simple²lvl').firstChild.data=Math.roundTo(lvl*100, 1)+'%';  }
+		document.getElementById('Simple²hue').firstChild.data=Math.roundTo(3, hue*360)+'°';
+		document.getElementById('Simple²saturation').firstChild.data=Math.roundTo(1, sat*100)+'%';
+		document.getElementById('Simple²lvl').firstChild.data=Math.roundTo(1, lvl*100)+'%';  }
 
 SoftMoon.WebWare.SimpleSqColorPicker.handleClick.hSv=
 SoftMoon.WebWare.SimpleSqColorPicker.handleClick.hSl=function(event)  {
@@ -3323,6 +3330,7 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 							try {$whenDone(allFiles);}
 							catch(e) {console.error(errMsg,e);}  }
 						UniDOM.remove$Class(document.body, 'MCP_init');
+						UniDOM.generateEvent(window, 'mastercolorpicker_palettes_loaded');
 						}  },
 				7);  },
 		100 );
@@ -4381,6 +4389,8 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 	Blender.HTML=document.getElementById('MasterColorPicker_Blender');
 	EyeDropper.playground=EyeDropper.HTML.querySelector('playground');
 	Blender.playground=Blender.HTML.querySelector('playground');
+	Blender.helper=Blender.HTML.querySelector('span.help');
+	Blender.help=Blender.HTML.querySelector('p.help');
 	EyeDropper.screenCtrls=EyeDropper.HTML.querySelectorAll('fieldset > button');
 	EyeDropper.porter=EyeDropper.HTML.querySelector('input[type="file"]');
 	EyeDropper.txtInd=EyeDropper.HTML.querySelector('indicator');
@@ -4521,6 +4531,9 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 	UniDOM.addEventHandler(EyeDropper.zoomSmooth, ['tabin', 'blur'], function(event)  {
 		this.closest('fieldset').classList.toggle('focus-within', event.type==='tabin');  });
 
+	UniDOM.addEventHandler(Blender.helper, ['onMouseOver', 'onMouseOut'], function(event)  {
+		Blender.help.style.display=(event.type==='mouseover' ? 'block' : "");  });
+
 	UniDOM.addEventHandler(swatches, 'focusIn', function(event)  {
 		genie.tabbedOut=false;
 		const textarea=event.target;
@@ -4612,20 +4625,315 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 /*==================================================================*/
 
 
-SoftMoon.WebWare.Gradientor=new Object;
 
-SoftMoon.WebWare.Gradientor.buildPalette=function()  {}
+;(function(){  //open a private namespace for the Gradientor
+
+const
+	Gradientor= SoftMoon.WebWare.Gradientor=new SoftMoon.WebWare.x_ColorPicker('Gradientor'),
+	RGB_calc= new SoftMoon.WebWare.RGB_Calc({
+		RGBAFactory:Array,
+		CMYKAFactory:Array,
+		ColorWheelFactory:Array,
+		useHexSymbol:true}, true);
+
+var
+	steps, triads, colorSpace, width, height;
+
+Gradientor.buildTriadicPalette=function buildGradientorTraidicPalette()  {
+	MasterColorPicker.RGB_calc.config.stack({
+		RGBAFactory:{value:Array},
+		defaultAlpha:{value:1}});
+	try {
+	var
+		c1=MasterColorPicker.RGB_calc(triads[0].value),
+		c2=MasterColorPicker.RGB_calc(triads[1].value),
+		c3=MasterColorPicker.RGB_calc(triads[2].value);
+	} finally {MasterColorPicker.RGB_calc.config.cull();}
+	if (!(c1 && c2 && c3))  return;
+	const
+		cnvs=document.createElement('canvas'),
+		cSpace=colorSpace.value.toLowerCase(),
+		variety=parseInt(steps.value)-1,
+		spaceX=(width/(variety+1))/2,
+		spaceY=spaceX/Math.cos(_['30°']),
+		radius=spaceY+0.5;
+	cnvs.width=width;  cnvs.height=(width/2)/Math.tan(_['30°'])+spaceY/2;
+	const
+		context=cnvs.getContext('2d'),
+		hexagon=SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon.bind(null, context, context.lineTo.bind(context), 6);
+	//first we draw the top point color individually, since we can’t divide by 0 in the loops, so we start the loop below @j=1 : the second row
+	//otherwise we test for j===0 for EVERY color drawn and slow the loop
+	context.fillStyle= RGB_calc.to.hex(c1);
+	context.beginPath();
+	hexagon(width/2, spaceY, radius, radius);
+	context.closePath();
+	context.fill();
+	if (cSpace!=='rgb')  {
+		c1=RGB_calc.to[cSpace](c1);
+		c2=RGB_calc.to[cSpace](c2);
+		c3=RGB_calc.to[cSpace](c3);  }
+	for (let j=1; j<=variety; j++)  { for (let c$, k=0; k<=j; k++)  {
+		context.fillStyle= RGB_calc.to.hex(RGB_calc.from[cSpace](mixTriads(c1,c2,c3,j,k,variety,cSpace)));
+		context.beginPath();
+		hexagon(width/2 - spaceX*j + spaceX*k*2,  spaceY*j*1.5 + spaceY,  radius, radius);
+		context.closePath();
+		context.fill();  }  }
+	Gradientor.HTML.querySelector('canvas').replaceWith(cnvs);  }
+
+Gradientor.mixTriads=mixTriads;
+function mixTriads(c1, c2, c3, j, k, variety, cSpace)  { // j!==0
+	switch (cSpace)  {
+		case 'cmyk':
+		case 'rgb':  return mixColors(c1, mixColors(c2,c3,k/j), j/variety);
+		break;
+		default:  //round color spaces with a polar factor (hue):
+		// if saturation (chroma) === 0, this is a grayscale, no color;
+		// grayscale values use the "red" hue (0° or 360°)
+		// and we don't want to cycle through all the hues between to grade to a grayscale.
+		if (c3[1]===0)  c3[0]= (c2[1]===0) ? c1[0] : c2[0]+(c1[0]-c2[0])*((variety-j)/variety);
+		if (c2[1]===0)  c2[0]= (c3[1]===0) ? c1[0] : c3[0]+(c1[0]-c3[0])*((variety-j)/variety);
+		// take the shortest path around the circle: counterclockwise or clockwise
+		if (c3[0]-c2[0]>0.5)  c2[0]+=1;
+		else
+		if (c2[0]-c3[0]>0.5)  c3[0]+=1;
+		let c$=mixColors(c2, c3, k/j);  c$[0]%=1;
+		if (c1[1]===0)  c1[0]=c$[0];
+		else
+		if (c$[1]===0)  c$[0]=c1[0];
+		if (c1[0]-c$[0]>0.5)  c$[0]+=1;
+		else
+		if (c$[0]-c1[0]>0.5)  c1[0]+=1;
+		c$=mixColors(c1, c$, j/variety);  c$[0]%=1;
+		return c$;  }  }
+
+// we round to get rid of floating-point math errors; this level of accuracy is sufficient for the sRGB gamut (255³)
+const rounder=Math.roundTo.bind(Math, 5);  // ← 5 decimal places
+function mixColors(_1, _2, mix) {return _1.map((c,i)=>rounder(c+(_2[i]-c)*mix));}
+
+Gradientor.mixBiads=mixBiads;
+function mixBiads(c1, c2, mix, cSpace)  {
+	switch (cSpace)  {
+		case 'cmyk':
+		case 'rgb':  return mixColors(c1,c2,mix);
+		default:  //round color spaces with a polar factor (hue):
+		// if saturation (chroma) === 0, this is a grayscale, no color;
+		// grayscale values use the "red" hue (0° or 360°)
+		// and we don't want to cycle through all the hues between to grade to a grayscale.
+		if (c1[1]===0)  c1[0]= c2[0];
+		else
+		if (c2[1]===0)  c2[0]= c1[0];
+		// take the shortest path around the circle: counterclockwise or clockwise
+		if (c2[0]-c1[0]>0.5)  c1[0]+=1;
+		else
+		if (c1[0]-c2[0]>0.5)  c2[0]+=1;
+		let c$=mixColors(c1, c2, mix);  c$[0]%=1;
+		return c$;  }  }
+
+
+const
+	MSG_CANT_ADD='can’t add to non-existant previous position.',
+	MSG_CANT_DIV='can’t divide without totalPixels.',
+	MSG_OUT_OF_RANGE='stop position out of range (0%–100%).',
+	MSG_OUT_OF_ORDER='stop positions out of order.';
+
+
+Gradientor.gatherLinearStops=function gradientor_gatherStops(sets, map) {
+	// we depend on “input type numeric” and it guaranteeing the proper unit (percents or pixels); we do not check syntax within
+	// we return an array of objects; or null if any colors or stop-points are invalid.
+	// The returned pos (position) values are factors from 0-1.
+	const
+		stops=new Array;
+	for (const set of sets)  {
+		const stop=new Object;
+		for (let i=0;  i<map.length;  i++)  {
+			stop[map[i]]=set.elements[i].value?.trim() || "";  }
+		stops.push(stop);  }
+	if (stops[0].pos=="")  stops[0].pos='0%';
+	else if (parseFloat(stops[0].pos)!==0)  stops.unshift({
+			color: stops[0].color,
+			pos: '0%' });
+	var totalPixels, last=stops.length-1;
+	while (last>=0  &&  stops[last].color==""  &&  stops[last].pos=="")  {stops.length--;  last--;}
+	if (stops[last].pos?.endsWith('%'))  {
+		if (parseFloat(stops[last].pos)!==100)  stops.push({
+			color: stops[last].color,
+			pos: '100%' });  }
+	else {
+		if (stops[last].pos!="")  totalPixels=parseFloat(stops[last].pos);
+		stops[last].pos='100%';  }
+	for (let pending=0, pendOff=0, addTo, i=0;  i<stops.length;  i++)  {
+		if (stops[i].pos=="")  {
+			if (stops[i].color=="")  {stops.splice(i,1);  i--}
+			else  {pending++;  pendOff++;}
+			continue;  }
+		if (stops[i].pos.startsWith('+'))  {
+			if (pending)  {
+				if (stops[i].color=="")  {pendOff++;  continue;}  // here we have an additive color-hint in the midst of blank positions, that gets put-off untill the end
+				else  return MSG_CANT_ADD;  }
+			addTo=parseFloat(stops[i-1].pos);  }
+		else addTo=0;
+		if (stops[i].pos.endsWith('%'))  stops[i].pos=parseFloat(stops[i].pos)/100 + addTo;
+		else  {
+			if (totalPixels)  stops[i].pos=parseFloat(stops[i].pos)/totalPixels + addTo;
+			else  return {message:MSG_CANT_DIV+' - A', data:stops};  }
+		if (stops[i].pos<0  ||  stops[i].pos>1)  return {message:MSG_OUT_OF_RANGE, data:stops};
+		if (i>0  &&  stops[i].pos < stops[i-pendOff-1].pos)  return {message:MSG_OUT_OF_ORDER, data:stops};
+		if (pending)  {  // here we fill in the positions that were left blank, skipping any ones in the middle that were additive color-hints
+			const
+				start=i-pendOff-1,
+				base=stops[start].pos,
+				spread=(stops[i].pos - base) / (pending + 1);
+//console.log('pending: ',pending,pendOff,start,i,' base:',base,' spread:',spread);
+			do {if (stops[start+pendOff].pos=="")  stops[start+pendOff].pos= base + spread*(pending--);}
+			while ( --pendOff );  }  }
+	for (let i=0;  i<stops.length;  i++)  {  // here we fill in the remaining mid-point-color-hints that were additive in nature, but were in the midst of blank positions
+		if (typeof stops[i].pos !== 'string')  continue;
+		if (stops[i].pos.endsWith('%'))
+			stops[i].pos= stops[i-1].pos + ( stops[i+1].pos - stops[i-1].pos )*( parseFloat(stops[i].pos)/100 );
+		else  {
+			if (totalPixels)  stops[i].pos= parseFloat(stops[i].pos)/totalPixels + stops[i-1].pos;
+			else  return {message:MSG_CANT_DIV+' - B', data:stops};
+			if (stops[i].pos<0  ||  stops[i].pos>1)  return {message:MSG_OUT_OF_RANGE, data:stops};
+			if (stops[i].pos < stops[i-1].pos  ||  stops[i].pos > stops[i+1].pos)  return {message:MSG_OUT_OF_ORDER, data:stops};  }  }
+	return stops;  }
+
+//Gradientor.doLog=true;
+
+Gradientor.processLinearColorStops=function processGradientorColorStops(cSpace) {
+	const
+		stops=this.gatherLinearStops(  // ←each has 2 inputs: color and stop-point
+			document.querySelectorAll('#MasterColorPicker_Gradientor_linear-colors fieldset'),
+			['color', 'pos'] );  // ←this array maps to the order of inputs found in the HTML
+	if (!(stops instanceof Array))  {
+		if (this.doLog)  console.error('MasterColorPicker Gradientor error: ',stops);
+		return;  }
+	MasterColorPicker.RGB_calc.config.stack({
+		RGBAFactory: {value: Array},
+		ColorWheelFactory: {value: Array},
+		CMYKAFactory: {value: Array},
+		defaultAlpha: {value: 1}
+		});
+	try { for (const stop of stops)  {
+		if (stop.color!="")  {
+			const boogar=stop.color;
+			if (null===(stop.color=MasterColorPicker.RGB_calc.to[cSpace](stop.color)))  {
+				if (this.doLog)  console.error('MasterColorPicker Gradientor error: unknown color: “'+boogar+'”');
+				return;  }  }  }
+	} finally {MasterColorPicker.RGB_calc.config.cull();}
+	for (let i=0; i<stops.length; i++)  {
+		if (stops[i].color=="")  {
+			if (i===0  ||  (stops[i+1]?.color)=="")  {
+				if (this.doLog)  console.error('MasterColorPicker Gradientor error: can’t interpolate colors over more than one stop or at end of spectrum; i=',i,stops);
+				return;  }
+			stops[i].color= mixBiads(stops[i-1].color, stops[i+1].color, 0.5, cSpace);  }  }
+	if (this.doLog)  console.log('MasterColorPicker Gradientor color stops: ',stops);
+	return stops;  }
+
+Gradientor.buildLinearPalette=function buildGradientorLinearPalette() {
+	const
+		cSpace=colorSpace.value.toLowerCase(),
+		stops=this.processLinearColorStops(cSpace);
+	if (!(stops instanceof Array))  return;
+	const
+		cnvs=document.createElement('canvas'),
+		variety=parseInt(steps.value)-1,
+		spaceX=width/(variety+1);
+	cnvs.width=width;  cnvs.height=height;
+	const
+		context=cnvs.getContext('2d');
+	for (let i=0; i<=variety; i++)  {
+		const
+			$=i/variety,
+			color=this.getColorInGradient(stops, $, cSpace);
+		context.fillStyle= RGB_calc.to.hex(RGB_calc.from[cSpace](color));
+		context.fillRect(Math.floor(i*spaceX), 0, Math.ceil(spaceX), height);  }
+	Gradientor.HTML.querySelector('canvas').replaceWith(cnvs);  }
+
+Gradientor.getColorInGradient=function Gradientor_getColorInGradient(stops, $x, cSpace)  {
+	let s=1;
+	while (s<stops.length-1  &&  stops[s].pos<$x)  {s++;}
+	return mixBiads(stops[s-1].color,  stops[s].color,  ($x-stops[s-1].pos) / (stops[s].pos-stops[s-1].pos),  cSpace);  }
+
+Gradientor.getColor=function Gradientor_getColor(event)  {
+	if (event.target.tagName!=='CANVAS'
+	||  event.offsetX<0  ||  event.offsetX>=width)  return null;
+	MasterColorPicker.RGB_calc.config.stack({
+		RGBAFactory:{value:Array},
+		defaultAlpha:{value:1}});
+	try {
+	const
+		cSpace=colorSpace.value.toLowerCase(),
+		variety=parseInt(steps.value)-1;
+	switch (Gradientor.HTML.querySelector('input[name*="format"]:checked').value)  {
+	case 'triadic':
+		const
+			c1=MasterColorPicker.RGB_calc(triads[0].value),
+			c2=MasterColorPicker.RGB_calc(triads[1].value),
+			c3=MasterColorPicker.RGB_calc(triads[2].value);
+		if (!(c1 && c2 && c3))  return;
+		const
+			spaceX=(width/(variety+1))/2,
+			spaceY=spaceX/Math.cos(_['30°']);
+		const j=Math.round((event.offsetY-spaceY)/(spaceY*1.5));
+		if (j<0  ||  j>variety)  return null;
+		const k=Math.round((event.offsetX-width/2+spaceX*j)/(spaceX*2));
+		if (k<0  ||  k>j)  return null;
+		let c=RGB_calc.to[cSpace](c1);
+		if (j!==0)  c=mixTriads(c, RGB_calc.to[cSpace](c2), RGB_calc.to[cSpace](c3), j,k,variety,cSpace);
+		return new GradientorColor(c, cSpace);
+	case 'linear':
+		const
+			stops=Gradientor.processLinearColorStops(cSpace);
+		if (!(stops instanceof Array))  return null;
+		return new GradientorColor(this.getColorInGradient(stops, Math.floor(event.offsetX/(width/(variety+1)))/(variety), cSpace), cSpace);
+	default: return null  }
+	} finally {MasterColorPicker.RGB_calc.config.cull();}  }
+
+SoftMoon.WebWare.Gradientor.GradientorColor=GradientorColor;
+function GradientorColor(c, space)  {
+	if (!new.target)  throw new Error('“GradientorColor” is a constructor, not a function.');
+	space=space.toUpperCase();
+	this.model=space;
+	if (space!=='RGB')  {
+		try {
+		MasterColorPicker.RGB_calc.config.stack({
+			inputAsFactor: {value: true},
+			RGBAFactory: {value: SoftMoon.WebWare.RGBA_Color}  });
+		this.RGB=MasterColorPicker.RGB_calc.from[space.toLowerCase()](c);
+		} finally {MasterColorPicker.RGB_calc.config.cull();}
+		switch (space)  {
+		case 'HSL':  this.HSL=new SoftMoon.WebWare.HSLA_Color(...c);
+		break;
+		case 'HSB':
+		case 'HSV':  this.HSB=new SoftMoon.WebWare.HSBA_Color(...c);
+		break;
+		case 'HCG':  this.HCG=new SoftMoon.WebWare.HCGA_Color(...c);
+		break;
+		case 'CMYK':  this.CMYK=new SoftMoon.WebWare.CMYKA_Color(...c);  }  }
+	else  this.RGB=new SoftMoon.WebWare.RGBA_Color(...c);  }
+
+
 
 UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_onload()  {
+	Gradientor.HTML=document.getElementById('MasterColorPicker_Gradientor');
+	Gradientor.txtInd=Gradientor.HTML.querySelector('indicator');
+	Gradientor.swatch=Gradientor.txtInd.querySelector('swatch');
+	steps=Gradientor.HTML.querySelector('input[name*="steps"]');
+	triads=Gradientor.HTML.querySelectorAll('input[name*="colorT"]');
+	colorSpace=Gradientor.HTML.querySelector('select[name*="colorSpace"]');
+	const cnvs=Gradientor.HTML.querySelector('canvas');
+	width=cnvs.width;  height=cnvs.height;
 	const
 		colorsFS=document.getElementById('MasterColorPicker_Gradientor_linear-colors'),
+		triadsFS=document.getElementById('MasterColorPicker_Gradientor_triadic-colors'),
 		genie=new SoftMoon.WebWare.FormFieldGenie({
 			minGroups: 2,
 			maxGroups: 64,
 			groupTag:'FIELDSET',
+			checkForFilled:'any',
 			doFocus: false,
 			cloneCustomizer: function(fs) {
-				const style=fs.querySelector('span.swatch').style;
+				const style=fs.querySelector('swatch').style;
 				style.border="";  style.color="";  style.backgroundColor="";
 				var inp;
 				for (inp of fs.querySelectorAll('input'))  {inp.value="";  inp.className="";}
@@ -4633,8 +4941,30 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 				SoftMoon.WebWare.register_input_type_numeric(inp);  } });
 	UniDOM.addEventHandler(colorsFS, 'onFocusIn', function(){genie.tabbedOut=false});
 	UniDOM.addEventHandler(colorsFS, 'onKeyDown', genie.catchTab);
-	UniDOM.addEventHandler(colorsFS, 'onFocusOut', function(event){genie.popNewField(event.target.parentNode)});
-	});
+	UniDOM.addEventHandler(colorsFS, 'onFocusOut', function(event)  {
+		genie.popNewField(event.target.parentNode, {doFocus: event.target.name.includes('offset')});  });
+	UniDOM.addEventHandler(Gradientor.HTML, 'onChange', buildGradientorPalette);
+	UniDOM.addEventHandler(Gradientor.HTML.querySelectorAll('span[referto]'), 'onClick', function(event)  {
+		MasterColorPicker.userOptions.showHelp.checked=true;
+		UniDOM.generateEvent(MasterColorPicker.userOptions.showHelp, 'change');
+		MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
+		document.getElementById(event.currentTarget.getAttribute('referto')).scrollIntoView();  });
+	const init=UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', buildGradientorPalette);
+	function buildGradientorPalette()  {
+		if (init.id)  init.remove();
+		const format=Gradientor.HTML.querySelector('input[name*="format"]:checked').value;
+		UniDOM.swapOut$Class(Gradientor.HTML, ["linear", "triadic"], format)
+		colorsFS.disabled= (format!=='linear');
+		triadsFS.disabled= (format!=='triadic');
+		Gradientor.HTML.querySelector('canvas').style.display='none';
+		switch (format)  {
+		case 'triadic': Gradientor.buildTriadicPalette();
+		break;
+		case 'linear':  Gradientor.buildLinearPalette();  }  }
+	UniDOM.addEventHandler(Gradientor.HTML.querySelector('div'), ['mouseOver', 'mouseMove', 'mouseOut', 'click'], Gradientor);
+	});  //close window onload
+
+})();  //close Gradientor private namespace
 
 
 /*==================================================================*/
@@ -4848,8 +5178,8 @@ if (inp=userOptions.hue_angle_unit)  {
 		if (!event.init)  {
 			inp=document.getElementsByName('MasterColorPicker_Hue_degrees')[0];
 			inp.value=Math.roundTo(
-				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.ColorSpaceLab.hueAngleUnit])*hauFactors[hau],
-				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau] );  }
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau],
+				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.ColorSpaceLab.hueAngleUnit])*hauFactors[hau] );  }
 		SoftMoon.WebWare.ColorSpaceLab.hueAngleUnit=hau;
 		switch (this.value) {
 			case 'deg':
@@ -4872,8 +5202,8 @@ if (inp=userOptions.hue_angle_unit)  {
 		if (!event.init)  {
 			inp=document.getElementsByName('RainbowMaestro_focalHue')[0];
 			inp.value=Math.roundTo(
-				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.RainbowMaestro.hueAngleUnit])*hauFactors[this.value],
-				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.value] );  }
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.value],
+				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.RainbowMaestro.hueAngleUnit])*hauFactors[this.value]);  }
 		SoftMoon.WebWare.RainbowMaestro.hueAngleUnit=this.value;  });
 
 	UniDOM.generateEvent(inp, 'onchange', {bubbles: false}, {init:true});

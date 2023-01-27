@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.4.1  Oct 16, 2022  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.4.2  January 27, 2023  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -54,7 +54,7 @@ body.MCP_we-be-a-cuttin {
 #MasterColorPicker input,
 #MasterColorPicker select,
 #MasterColorPicker button {
-	font-family: "consolas", monospace;
+	font-family: monospace;
 	font-size: 13px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
 #MasterColorPicker select,
 #MasterColorPicker select option {
@@ -338,7 +338,8 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help > div.scrollbox * {
 	text-align: left; }
 #MasterColorPicker_Help ul,
-#MasterColorPicker_Help dl {
+#MasterColorPicker_Help dl,
+#MasterColorPicker_Help ol {
 	list-style-type: disc;
 	list-style-position: outside;
 	padding: 0;
@@ -349,6 +350,8 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help ul ul.keybrd {
 	list-style-type: none;
 	margin-left: 0; }
+#MasterColorPicker_Help ol {
+	list-style-type: decimal;  }
 #MasterColorPicker_Help p {
 	margin: 0;
 	padding: 0; }
@@ -370,6 +373,9 @@ span.MCP_fix_Safari {
 	white-space: pre-wrap; }
 #MasterColorPicker_Help filepath {
 	color: CornflowerBlue; }
+#MasterColorPicker_Help topic {
+	font-weight: bold;
+	font-style: oblique; }
 /* the browsers insist on inserting a line break before this <address> element, so I’m not using it; <kbd> instead */
 /* the element-inspector console shows them as inline-static ………? */
 /* note they do not do that for the  #MasterColorPicker_options header address  */
@@ -491,6 +497,11 @@ select#MasterColorPicker_palette_select {
 	display: none; }
 */
 
+#MasterColorPicker_options label {
+	white-space: nowrap; }
+#MasterColorPicker_options div div > fieldset:last-of-type label { /* colorblind filter provider */
+/*	background-color: lightgreen;  /* so you can find it for debugging */
+	white-space: normal; }
 
 
 #MasterColorPicker_options p {
@@ -545,6 +556,7 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_options > div div fieldset:hover {
 	z-index: 3; }
 #MasterColorPicker_options > div div fieldset label {
+/*	background-color: lightSalmon;  /* so you can find it for debugging */
 	display: block;
 	margin: 0; }
 #MasterColorPicker_options .disabled {
@@ -1024,7 +1036,19 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	margin-left: .382em; }
 
 #MasterColorPicker_Blender {
-	position: relative; }
+	position: relative;
+	text-align: center; }
+#MasterColorPicker_Blender span.help {
+	font-size: 120%; }
+#MasterColorPicker_Blender > p {
+	display: none;  /* Javascript controls the display when the help ☺ is hovered over */
+	margin: 0 auto .618em auto;
+	width: 23em;
+	text-align: justify; }
+#MasterColorPicker_Blender > label {
+	display: block;
+	text-align: left;
+}
 #MasterColorPicker_Blender fieldset {
 	z-index: 2;
 	min-height: calc(4em + 4px); }
@@ -1137,16 +1161,6 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	margin: 0;
 	padding: .382em;
 	z-index: 13; }
-#MasterColorPicker_EyeDropper indicator {
-	display: block;
-	margin: 0;
-	padding: .162em 0;
-	min-height: 1.382em; }
-#MasterColorPicker_EyeDropper swatch {
-	float: right;
-	display: inline-block;
-	width: 2.618em;
-	height: 1.382em; }
 #MasterColorPicker_EyeDropper input[type='file'] {
 	display: block;
 	text-align: left; }
@@ -1164,6 +1178,73 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 	color: transparent;
 	background-color: transparent;
 	z-index: 1000; }
+
+#MasterColorPicker indicator {
+	display: block;
+	margin: 0;
+	padding: .162em 0;
+	min-height: 1.382em;
+	text-align: center; }
+#MasterColorPicker swatch {
+	display: inline-block;
+	width: 2.618em;
+	height: 1.382em; }
+#MasterColorPicker indicator swatch {
+	float: right; }
+
+#MasterColorPicker_Gradientor {
+	margin-top: calc(2em + 2px);
+	top: 0;
+	right: 15em;
+	width: auto;
+	min-width: calc(256px + 1.236em); }  /* width-of-canvas + canvas-container-padding */
+#MasterColorPicker_Gradientor h2 span {
+	right: 2em; }
+#MasterColorPicker_Gradientor span[referto] {
+	font-weight: bold;
+	white-space: nowrap;
+	color: var(--fore-text-note-refer);
+	background-color: var(--back-text-note-refer);
+	cursor: pointer; }
+#MasterColorPicker_Gradientor label,
+#MasterColorPicker_Gradientor fieldset {
+	display: block; }
+/*  mix format:  */
+#MasterColorPicker_Gradientor fieldset:first-of-type label:first-of-type {
+	float: left; }
+#MasterColorPicker_Gradientor fieldset:first-of-type label:last-of-type {
+	float: right; }
+#MasterColorPicker_Gradientor.linear #MasterColorPicker_Gradientor_triadic-colors,
+#MasterColorPicker_Gradientor.triadic #MasterColorPicker_Gradientor_linear-colors {
+	display: none; }
+#MasterColorPicker_Gradientor_linear-colors p:first-of-type {
+	width: 20em;
+	margin: 0 auto .382em;
+	padding: 0;
+	white-space: normal;
+	text-align: justify; }
+#MasterColorPicker_Gradientor_linear-colors fieldset {
+	white-space: nowrap;
+	padding: 0 .382em;
+	border: none;
+	border-top: 2px solid; }
+#MasterColorPicker_Gradientor input[name*='color'] {
+	width: 17em; }
+#MasterColorPicker_Gradientor_linear-colors input {
+	display: inline;
+	margin: 0; }
+#MasterColorPicker_Gradientor_linear-colors input:last-child {
+	width: 7em; }
+#MasterColorPicker_Gradientor swatch {
+	vertical-align: middle; }
+#MasterColorPicker_Gradientor div { /* canvas container */
+	text-align: center;
+	padding: .618em;
+	color: var(--fore-palette);
+	background-color: var(--back-palette); }
+#MasterColorPicker_Gradientor canvas {
+	margin: 0 auto;
+	border: 1px solid var(--fore-palette); }
 
 
 
@@ -1319,9 +1400,6 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_Lab tr.black input[type="range"]::-webkit-slider-thumb,
 #MasterColorPicker_Lab tr.black input[type="range"]::-webkit-slider-runnable-track {
 	background-color: black; }
-
-#MasterColorPicker_Lab table + table.primaries th label {
-	text-shadow: -1px -1px 5px gray; }
 #MasterColorPicker_Lab fieldset {
 	display: block;
 	position: relative;
@@ -1437,46 +1515,6 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_Lab button:hover {
 	outline: 4px double;
 	outline-offset: 2px; }
-
-
-#MasterColorPicker_Gradientor {
-	margin-top: calc(2em + 2px);
-	top: 0;
-	right: 15em;
-	width: auto;
-	min-width: calc(256px + 1.236em); }  /* width-of-canvas + canvas-container-padding */
-#MasterColorPicker_Gradientor h2 span {
-	right: 2em; }
-#MasterColorPicker_Gradientor label,
-#MasterColorPicker_Gradientor fieldset {
-	display: block; }
-#MasterColorPicker_Gradientor.linear #MasterColorPicker_Gradientor_triadic-colors,
-#MasterColorPicker_Gradientor.triadic #MasterColorPicker_Gradientor_linear-colors {
-	display: none; }
-#MasterColorPicker_Gradientor_linear-colors p {
-	width: 20em;
-	margin: 0 auto;
-	padding: 0;
-	white-space: normal;
-	text-align: justify; }
-#MasterColorPicker_Gradientor_linear-colors label,
-#MasterColorPicker_Gradientor_linear-colors fieldset {
-	white-space: nowrap;
-	padding: 0 .382em;
-	border: none;
-	border-bottom: 2px solid; }
-#MasterColorPicker_Gradientor_linear-colors fieldset:last-child {
-	border-bottom: none; }
-#MasterColorPicker_Gradientor_linear-colors input {
-	display: inline;
-	margin: 0; }
-#MasterColorPicker_Gradientor_linear-colors input:last-child {
-	width: 7em; }
-#MasterColorPicker_Gradientor span.swatch {
-	vertical-align: middle; }
-#MasterColorPicker_Gradientor div { /* canvas container */
-	padding: .618em; }
-#MasterColorPicker_Gradientor canvas { border: 1px solid black; }
 
 
 #MasterColorPicker p.underConstruction {
@@ -1908,8 +1946,7 @@ table#BeezEye tr:nth-child(2) label input[type="text"] {
 
 table#BeezEye tr:nth-child(3) td {
 	position: relative;
-	vertical-align: bottom;
-	}
+	vertical-align: bottom; }
 table#BeezEye tr:nth-child(3) fieldset {
 	position: static;
 	margin: 0 0 0 0;
@@ -2032,60 +2069,87 @@ span#RainbowMaestro_indicator {
 	white-space: pre-wrap; }
 
 
+
+
 table#Simple² {
-	text-align: center;
-/*	padding-right: 1em;  /* ←↓ band-aid fix for lame layout engines: Opera, Google Chrome, Firefox */
-	overflow: hidden; /*fix MSIE*/ }
-table#Simple² .lft {float: left;}
-table#Simple² .rt {float: right;}
+	text-align: center; }
+table#Simple² .begin {float: left;}
+table#Simple² .end {float: right;}
 table#Simple² td:nth-child(2) td:nth-child(2),
 table#Simple² td:nth-child(2) td:nth-child(3),
-table#Simple² td:nth-child(2) td:nth-child(4) {
+table#Simple² td:nth-child(2) td:nth-child(4) {  /* contains canvases */
 	padding: 0;
 	vertical-align: bottom;
 	line-height: 100%; }
-table#Simple² tr:nth-child(2) td:first-child,
+table#Simple² tr:nth-child(2) td:nth-child(1) {
+	padding: 0 1.382em 0 0.618em; }
 table#Simple² tr:nth-child(2) td:nth-child(5),
 table#Simple² tr:nth-child(2) td:nth-child(6) {
-	padding-left: 2em;
-	position: relative; }
-table#Simple² tr:nth-child(3) td:first-child {
-	padding: 0 0 .618em 0;
-	position: relative; }
+	padding: 0 1.618em 0 0.382em; }
 table#Simple² tr:nth-child(2) td:nth-child(2) canvas,
 table#Simple² tr:nth-child(2) td:nth-child(3) canvas {
 	margin: 0 2px;
 	background-color: var(--back-palette); }
-table#Simple² div,
-table#Simple² label {
-	position: absolute;
-	width: 360px;  /* width/height of the canvas */
-	margin: -.5em -195px;
-	font-weight: bold;
+table#Simple² indicator,  /*for palette properties, not selected color*/
+table#Simple² div,   /*labels for palettes*/
+table#Simple² label  /*for inputs*/
+{
+	margin: 0;
 	padding: 0;
-	transform: rotate(270deg); }
+	font-weight: bold;
+	writing-mode: vertical-rl;
+	transform: rotate(180deg);
+}
+table#Simple² tr:nth-child(2) div,
+table#Simple² tr:nth-child(2) label {
+	height: 360px;  /* width/height of the canvas */
+	position: relative;
+}
 table#Simple² tr:nth-child(2) td:nth-child(5) div {
-	transform: rotate(90deg); }
+	transform: none; }
+
+table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"] { /* this is rendered vertically */
+	transform: rotate(180deg);
+	width: 1em; }
+/*tracks are 12em in length*/
+table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-moz-range-track {
+	width: 5px;
+	height: auto; }
+table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-ms-fill-lower,
+table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-ms-fill-upper {
+	width: 5px;
+  height: auto; }
+table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-webkit-slider-runnable-track {
+	width: 5px;
+  height: auto; }
+
 table#Simple² tr:nth-child(2) td:nth-child(6) input[type="text"] {
 	transform: rotate(-270deg);
 	position: relative;
-	top: -6.18em;  /* since the containing <label> is rotated, this appears to be “left” not “top” */
-	bottom: auto; }
-table#Simple² tr:nth-child(3) td:first-child label {
-	width: auto;
-	margin: -2.618em -1.27em; } /* adjust if content changes */
-table#Simple² tr:nth-child(3) td:nth-child(2) div,
-table#Simple² tr:nth-child(3) td:nth-child(3) div {
-	width: auto;
-	margin: .5em -.382em; } /* adjust if content changes */
-table#Simple² div.indicator {
-	text-align: left;
-	width: 3.2em;
-	margin: -1.3em 0em;
+	top: 0;
+	left: 18.618em;
+	bottom: auto;
+	right: auto; }
+
+table#Simple² tr:nth-child(3) td:first-child {  /*for “lock”*/
+	vertical-align: middle; }
+table#Simple² tr:nth-child(3) td:first-child label {  /*for “lock”*/
+	transform: none; }
+table#Simple² tr:nth-child(1) td:nth-child(1),
+table#Simple² tr:nth-child(1) td:nth-child(3),
+table#Simple² tr:nth-child(5) td:nth-child(1) {  /* for indicators */
+	position: relative; }
+table#Simple² indicator {
+	position: absolute;
+	right: auto;
+	bottom: .618em;
+	top: auto;
+	left: 1em;
 	background-color: var(--back-palette);
-	transform: rotate(290deg); }
-table#Simple² div#Simple²lvl.indicator {
-	margin: -1.7em -.5em;
+	transform: rotate(220deg); }
+table#Simple² indicator#Simple²lvl {
+	bottom: -1em;
+	transform: rotate(290deg);
 	border: 1px dotted; }
 
 table#Simple² tr:nth-child(5) td:nth-child(3),
@@ -2093,9 +2157,11 @@ table#Simple² tr:nth-child(7) td:nth-child(3) {
 	padding: .1em 0 .2em 0; }
 td#Simple²indicator {
 	padding: .2em;
-	font-family: "consolas", monospace;
+	font-family: monospace;
 	font-weight: bold;
 	font-size: 116.18% }
+
+
 
 table#YinYangNíHóng {
 /*	padding-right: 1em;  /* ←↓ band-aid fix for lame layout engines: Opera, Google Chrome, Firefox */
