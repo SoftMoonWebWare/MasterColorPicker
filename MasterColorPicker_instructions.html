@@ -6,6 +6,7 @@
 <meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker'>
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
 <meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare'>
+<meta name='page_last-udate' content='January 22, 2023'>
 <title>MasterColorPicker Instructions from SoftMoon-WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <style type="text/css">
@@ -243,12 +244,12 @@ on this page:
 
 <main id='content'>
 <p>SoftMoon-WebWare’s MasterColorPicker package delivers five JavaScript<mark class='macronym'>™</mark> powered professional quality
-interactive graphical color-pickers, plus a named-color-table based color-picker framework with nine
+interactive graphical color-pickers, an EyeDropper color-picker, plus a named-color-table based color-picker framework with nine
 named-color database files included: <abbr>ANSI</abbr>, Brewer, common, Crayola, <abbr>CSS</abbr>, Material Design, OpenOffice, universal, &amp; X11.&nbsp;
 Your chosen colors can be returned in the most popular color-space models including hexadecimal-<abbr>RGB</abbr>,
 <abbr title='red, green, blue'>RGB</abbr>,
 <abbr title='hue, saturation, lightness'>HSL</abbr>,
-<abbr title='hue, saturation, brightness; also known as HSV: hue, saturation, value'>HSB-HSV</abbr>,
+<abbr title='hue, saturation, brightness; also known as HSV: hue, saturation, value'>HSB/HSV</abbr>,
 <abbr title='hue, chroma, gray'>HCG</abbr>,
 <abbr title='hue, whiteness, blackness'>HWB</abbr>, or
 <abbr title='cyan, magenta, yellow, black;  used when printing with inks'>CMYK</abbr>,
@@ -303,10 +304,11 @@ or you can use it to manually make color-space conversions.</dd>
 “named color” in any one of the named-color-table-palettes that you choose.</dd>
 
 <dt>The Gradientor</dt>
-<dd><span class='construction'>(Under Construction)</span> gives you measured color-stops in a gradient,
+<dd>gives you measured color-stops in a gradient,
 so you can change the opacity at regular intervals when building complex translucent background or fill gradients;
 or to style individual elements (perhaps each element in a list, headlines, whatever)
-for a decorative gradient transitional effect.</dd>
+for a decorative gradient transitional effect.&nbsp;
+Or use it in “high-resolution” for fine-art, or whatever!</dd>
 
 <dt>…</dt>
 <dd>And much more… … …</dd>
@@ -768,17 +770,11 @@ interactive inputs that modify the picker and/or its choices, etc.&nbsp;
 Please carefully read the <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> file and its comments
 about “registering” these interface panels and interface elements.&nbsp;
 Registering them adds the necessary event handlers for them to work correctly with the MasterColorPicker framework.&nbsp;
-All <abbr>HTML</abbr> elements that require keyboard “focus”
+Panels are registered using <code>MasterColorPicker.registerInterfacePanel(<var>……element……</var>)</code>
+&nbsp;All <abbr>HTML</abbr> elements that require keyboard “focus”
 (such as <code>&lt;input type='text|file|number|<var>etc.</var>' /&gt;</code> <code>&lt;select&gt;</code> <code>&lt;textarea&gt;</code>)
-that are part of your picker must be registered
-using <code>MasterColorPicker.registerInterfaceElement(<var>……element……</var>)</code>.&nbsp;
-Note how you can use this feature to replace the <code>&lt;input type='range' /&gt;</code> elements in the supplied files
-with <code>&lt;input type='text' /&gt;</code> elements if you register them.&nbsp;
-This will allow users to enter illegal or overwhelmingly large values, so to get this to work properly,
-you should also add a plethora of JavaScript<mark class='macronym'>™</mark> keyboard filters
-to make sure that, say, the variety value on the RainbowMaestro isn’t set for 10,000 which would lock up the
-display for a few minutes or so (multiply by 5 for <abbr title='Microsoft’s Internet Exploder'>MSIE</abbr>)
-while the millions upon millions of calculations are done.&nbsp;
+that are part of your picker but are <em><strong>not</strong></em> on a registered “interface panel”  must be registered
+using <code>MasterColorPicker.registerInterfaceElement(<var>……element……</var>)</code>
 </p>
 
 <!--  h3 id='about_options'>The “options” panel</h3>
@@ -812,7 +808,7 @@ it’s a simple modification to the <abbr>CSS</abbr> file to achieve the same re
 No personal data is transferred to any other entity
 (except with your intent as previously stated while using “demos”,
 and said data is only transferred to SoftMoon-WebWare.com and is <em>not</em> saved).&nbsp;
-You are not being tracked, quanitified, or mined for data when visiting our sites.&nbsp;
+You are not being tracked, quantified, or mined for data when visiting our sites.&nbsp;
 We hope you enjoy the advertisement-free experience that shuns the growing worldwide corporate-fascism movement.</p>
 <p>All content found on this page &amp; site Copyright © 2010, 2012, 2013, 2014, 2015, 2019, 2020, 2021, 2022  by SoftMoon-WebWare and its owner,
 all rights reserved, unless otherwise specifically noted.&nbsp;
