@@ -1,1 +1,1 @@
-json-encoded palettes go in this folder (for HTTP server-based use  --  not for desktop use)
+json-encoded palettes go in this folder (for HTTP server-based use  --  not for local-filesystem use)
