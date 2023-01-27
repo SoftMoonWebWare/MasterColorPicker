@@ -118,6 +118,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 
 
 <!-------------- cut here to use the MasterColorPicker HTML (below) in your own page ---------------->
+<!-------------- cut here to use the MasterColorPicker HTML (below) in your own page ---------------->
 
 <script>
 window.addEventListener('mastercolorpicker_ready', function()  {
@@ -128,8 +129,8 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <section id='MasterColorPicker' charset='UTF-8'>
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
-<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.4.1  October 16, 2022
+<!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
+      release 2.4.2  January 27, 2023
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -151,7 +152,7 @@ but to retain the settings this file may be included inside an existing web <for
 
 <div><h3>Options▼</h3>
 <div>
-<fieldset id='x_ColorPicker_options' class='pickerOptions'><legend>RainbowMaestro mode:</legend>
+<fieldset disabled lock-disabled-state style='display:none;' id='x_ColorPicker_options' class='pickerOptions'><legend>RainbowMaestro mode:</legend>
 	<p class='underConstruction'><span>Under Construction:</span> no functionality</p>
 	<fieldset id='MasterColorPicker_showLocator'>
 		<label>¿<input type='checkbox' name='MasterColorPicker_showLocator' value='true' checked>show locator?</label>
@@ -182,7 +183,7 @@ but to retain the settings this file may be included inside an existing web <for
 	<option title='Hue, Saturation, Lightness'>HSL</option>
 	<option title='Hue, White, Black'>HWB</option>
 	<option title='Hue, Chroma, Gray'>HCG</option>
-	<option title='Cyam, Magenta, Yellow, Black'>CMYK</option>
+	<option title='Cyan, Magenta, Yellow, Black'>CMYK</option>
 	</select></label>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
 		onchange='MasterColorPicker.keepPrecision=this.checked;'>keep precision?
@@ -486,7 +487,12 @@ or pin it to the window when it is pinned to the page.
 	</table>
 </div><!--  close  MasterColorPicker_Filter  -->
 <div id='MasterColorPicker_Blender'>
-	<h3>Alpha-Blender</h3>
+	<h3>Alpha-Blender <span class='help'>☺</span></h3>
+	<p class='help'>Use this tool to experiment with partially-transparent colors to see how they blend with other colors or over a given image.&nbsp;
+		 Choose swatch colors using any color picker or type directly; double-click a swatch to edit it.&nbsp;
+		 Then drag the swatches into the “playground” area below.&nbsp;
+		 Click on a swatch to bring it to the top of the stack.&nbsp;
+		 You may also drag the swatch off this panel to experiment, where it will remain until you drag it back on.</p>
 	<label>background image:<input type='file' accept='image/*' name='MasterColorPicker_alpha-blender-background'></label>
 	<!-- ¡NO whitespace in the following fieldset! -->
 	<fieldset title='CTRL-click or triple-click to return all swatches here'><textarea title='double-click to edit'
@@ -521,7 +527,7 @@ or pin it to the window when it is pinned to the page.
 </tr>
 </table>
 
-<table><caption><abbr>HSL</abbr> <abbr>HSV</abbr>/<abbr>HSB</abbr> <abbr>HCG</abbr> <abbr>HWB</abbr></caption>
+<table><caption><abbr>HSL</abbr> <abbr>HSB</abbr>/<abbr>HSV</abbr> <abbr>HCG</abbr> <abbr>HWB</abbr></caption>
 <tr><th></th><th id='MasterColorPicker_Lab_hueUnitText'>degrees°</th><th>percent%</th><td></td></tr>
 <tr class='hue'>
 		<th><label for='MasterColorPicker_Hue_degrees'>Hue:</label></th>
@@ -550,7 +556,7 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='range' name='MasterColorPicker_hSv_range' min='0' max='100' value='0' tabindex='-1'></td>
 </tr>
 <tr>
-		<th><label for='MasterColorPicker_hsV_percent' title='a.k.a. Brightness'>Value:</label></th>
+		<th><label for='MasterColorPicker_hsV_percent' title='a.k.a. Value'>Brightness:</label></th>
 		<td></td>
 		<td><input type='numeric' name='MasterColorPicker_hsV_percent' min='0' max='100' step='any' value='0'></td>
 		<td><input type='range' name='MasterColorPicker_hsV_range' min='0' max='100' value='0' tabindex='-1'></td>
@@ -586,22 +592,22 @@ or pin it to the window when it is pinned to the page.
 <table class='primaries'><caption><abbr>CMYK</abbr></caption>
 <tr><th>primary</th><th>percent%</th><td></td></tr>
 <tr class='cyan'>
-		<th><label for='MasterColorPicker_Cmyk_percent' style="color:cyan">Cyan</label></th>
+		<th><label for='MasterColorPicker_Cmyk_percent' style="color:darkCyan">Cyan:</label></th>
 		<td><input type='numeric' name='MasterColorPicker_Cmyk_percent' min='0' max='100' step='any' value='0'></td>
 		<td><input type='range' name='MasterColorPicker_Cmyk_range' min='0' max='100' value='0' style="color:cyan" tabindex='-1'></td>
 </tr>
 <tr class='magenta'>
-		<th><label for='MasterColorPicker_cMyk_percent' style="color:magenta">Magenta</label></th>
+		<th><label for='MasterColorPicker_cMyk_percent' style="color:darkMagenta">Magenta:</label></th>
 		<td><input type='numeric' name='MasterColorPicker_cMyk_percent' min='0' max='100' step='any' value='0'></td>
 		<td><input type='range' name='MasterColorPicker_cMyk_range' min='0' max='100' value='0' style="color:magenta" tabindex='-1'></td>
 </tr>
 <tr class='yellow'>
-		<th><label for='MasterColorPicker_cmYk_percent' style="color:yellow">Yellow</label></th>
+		<th><label for='MasterColorPicker_cmYk_percent' style="color:goldenrod">Yellow:</label></th>
 		<td><input type='numeric' name='MasterColorPicker_cmYk_percent' min='0' max='100' step='any' value='0'></td>
 		<td><input type='range' name='MasterColorPicker_cmYk_range' min='0' max='100' value='0' style="color:yellow" tabindex='-1'></td>
 </tr>
 <tr class='black'>
-		<th><label for='MasterColorPicker_cmyK_percent' style="color:black">Black</label></th>
+		<th><label for='MasterColorPicker_cmyK_percent' style="color:black">Black:</label></th>
 		<td><input type='numeric' name='MasterColorPicker_cmyK_percent' min='0' max='100' step='any' value='100'></td>
 		<td><input type='range' name='MasterColorPicker_cmyK_range' min='0' max='100' value='100' style="color:black" tabindex='-1'></td>
 </tr>
@@ -640,49 +646,50 @@ or pin it to the window when it is pinned to the page.
 
 <div id='MasterColorPicker_Gradientor' class='pickerPanel linear'>
 <h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Gradientor</span></h2>
-<p class='underConstruction'><span>Under Construction:</span> no functionality</p>
-<fieldset onchange='UniDOM.swapOut$Class(this.parentNode, ["linear", "triadic"], event.target.value)'><legend>mix format:</legend>
+<!--  p class='underConstruction'><span>Under Construction:</span> no functionality</p  -->
+<fieldset><legend>mix format:</legend>
 <label><input type='radio' name='MasterColorPicker_Gradientor_format' value='linear' checked backtabToTarget>
 multistop linear</label>
 <label><input type='radio' name='MasterColorPicker_Gradientor_format' value='triadic'>
 triadic</label>
 </fieldset>
-<label>grade through color-space:
- 	<select name='MasterColorPicker_Gradientor_colorSpace'>
-		<option selected>RGB</option>
-		<option>HSL</option>
-		<option>HSB</option>
-		<option>HCG</option>
-		<option>CMYK</option>
- 	</select></label>
-<fieldset id='MasterColorPicker_Gradientor_linear-colors'><legend>(choose colors using any color-picker or type directly)</legend>
+<label>Grade through color-space:<select name='MasterColorPicker_Gradientor_colorSpace'>
+	<option>RGB</option>
+	<option>HSL</option>
+	<option value='hsb'>HSB/HSV</option>
+	<option>HCG</option>
+	<option>CMYK</option>
+</select></label>
+<fieldset id='MasterColorPicker_Gradientor_linear-colors'><legend>Enter gradient <em>colors</em> and <em>offsets</em> below</legend>
  <p>You may use <code>pixels</code> or percents <code>%</code> or a mix as units for the offsets.&nbsp;
-		If you use <code>pixels</code>, you must supply a total gradient width value in pixels.</p>
- <label>Gradient width: <input type='numeric' min='0' name='MasterColorPicker_Gradientor_pixelWidth' value="" placeholder='256'>pixels</label>
- <fieldset><span class='swatch'></span>
+		If you use <code>pixels</code>, your last color’s offset must be in pixels.&nbsp;
+		See <span referto='MasterColorPicker_helpFor_Gradientor'>☺Help☺</span> for more info.</p>
+ <p>(choose colors using any color-picker or type directly)</p>
+ <fieldset><swatch></swatch>
 	<input type='text' name='MasterColorPicker_Gradientor_color[1]' placeholder='color'
 		interfaceTarget='true' swatch='this.previousElementSibling' value="">
-	<input type='numeric' min='0' units='%, pixels, px' name='MasterColorPicker_Gradientor_offset[1]' value="" placeholder='offset'>
+	<input type='numeric' min='0' units='%, pixels, px' allow-plus-sign default-value="" placeholder='offset' name='MasterColorPicker_Gradientor_offset[1]'>
  </fieldset>
- <fieldset><span class='swatch'></span>
+ <fieldset><swatch></swatch>
 	<input type='text' name='MasterColorPicker_Gradientor_color[2]' placeholder='color'
 		interfaceTarget='true' swatch='this.previousElementSibling' value="">
-	<input type='numeric' min='0' units='%, pixels, px' name='MasterColorPicker_Gradientor_offset[2]' value="" placeholder='offset'>
+	<input type='numeric' min='0' units='%, pixels, px' allow-plus-sign default-value="" placeholder='offset' name='MasterColorPicker_Gradientor_offset[2]'>
  </fieldset>
 </fieldset>
 <fieldset id='MasterColorPicker_Gradientor_triadic-colors'><legend>(choose colors using any color-picker or type directly)</legend>
- <label><span class='swatch'></span>
-	<input type='text' name='MasterColorPicker_Gradientor_color1'
+ <label><swatch></swatch>
+	<input type='text' name='MasterColorPicker_Gradientor_colorT1'
 		interfaceTarget='true' swatch='this.previousElementSibling' value=""></label>
- <label><span class='swatch'></span>
-	<input type='text' name='MasterColorPicker_Gradientor_color2'
+ <label><swatch></swatch>
+	<input type='text' name='MasterColorPicker_Gradientor_colorT2'
 		interfaceTarget='true' swatch='this.previousElementSibling' value=""></label>
- <label><span class='swatch'></span>
-	<input type='text' name='MasterColorPicker_Gradientor_color3'
+ <label><swatch></swatch>
+	<input type='text' name='MasterColorPicker_Gradientor_colorT3'
 		interfaceTarget='true' swatch='this.previousElementSibling' value=""></label>
 </fieldset>
-<label title='2 — 256'>steps: <input type='numeric' name='MasterColorPicker_Gradientor_steps' min='2' max='256' step='1' value='16' tabToTarget></label>
-<div><canvas width='256' height='38'></canvas></div>
+<label title='3 — 256'>steps: <input type='numeric-slider' name='MasterColorPicker_Gradientor_steps' min='3' max='256' step='1' value='16' tabToTarget></label>
+<indicator> <swatch></swatch></indicator>
+<div><canvas width='256' height='38'></canvas></div><!-- the width here also factors the height for triadic displays -->
 </div><!--  close  MasterColorPicker_Gradientor  -->
 
 
@@ -724,6 +731,7 @@ triadic</label>
 			<button type='button' section='MyPalette_CSS-files'>exporting to a CSS file</button>
 			</div>
 		<button type='button' section='PltMngr'>using the Palette Manager</button>
+		<button type='button' section='Gradientor'>using the Gradientor</button>
 	</nav>
 	<h4 id='MasterColorPicker_helpFor_defining-colors'>Colors with MasterColorPicker</h4>
 	<p>MasterColorPicker uses a color-specification based loosely on the CSS4 specs.
@@ -792,8 +800,13 @@ triadic</label>
 			Hex-RGB values may have an additional 2 hex digits to specify the alpha;
 			for example <kbd>#ADDCAD80</kbd>
 			Named colors may use the same Alpha specification for color space models described above,
-			but it must end with either a semicolin <kbd>;</kbd> or a space followed by <kbd>opacity;</kbd>&nbsp;
-			For examples:<br> <kbd>DodgerBlue, 78%;</kbd> <br> <kbd>ANSI: 35 / .84 opacity;</kbd></p>
+			but it must end with either a semicolon <kbd>;</kbd> or a space followed by <kbd>opacity;</kbd>&nbsp;
+			For examples:</p>
+			<ul>
+				<li><kbd>Green 30%;</kbd></li>
+				<li><kbd>DodgerBlue, 78%;</kbd></li>
+				<li><kbd>ANSI: 35 / .84 opacity;</kbd></li>
+			</ul>
 	<hr>
 	<h5 id='MasterColorPicker_helpFor_examples'>>Examples:</h5>
 	<ul>
@@ -828,10 +841,87 @@ triadic</label>
 			</ul>
 		</li>
 	</ul>
+
+	<hr>
+	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions, and the <abbr>CMYK<abbr> and <abbr>LCH<abbr> color spaces</h4>
+
+	<p>The <abbr>CMYK<abbr> color space was designed for print-graphics using inks that “mix” on white paper.&nbsp;
+	It is supported herein to help those more familiar with how inks mix in the printing world,
+	although in real-life situations, each printer will have its own “formula” for converting
+	the image on your screen to a mix of inks, and these inks may include more than the simply
+	cyan, magenta, yellow, and black.&nbsp;
+	The other color-spaces supported herein are designed for screen-graphics using pixels of light;
+	each pixel consists of a red, a green, and a blue light, (thus the standard RGB color space)
+	each that illuminate to varying degrees
+	and that “mix” together in our perceptual system to produce the specific color desired.&nbsp;
+	The two processes are very different.&nbsp;
+	Mixing different colored inks together can make a darker color; so can adding black ink.&nbsp;
+	To make screen-graphics darker, there is no "black" colored light; the pixels of light are dimmed.&nbsp;
+	The formulas to convert <abbr>CMYK<abbr> to/from RGB can yield very different results when converting
+	CMYK to RGB and then back to CMYK, when the <abbr>CMYK<abbr> inks would produce a darker visual result.&nbsp;
+	Less “color” and more black will be the resulting <abbr>CMYK<abbr> specification; this is normal.</p>
+
+	<p>The so-called “cylindrical” color-spaces (<abbr>HSL</abbr>, <abbr>HSB</abbr>, <abbr>HCG</abbr>, <abbr>HWB</abbr>)
+	may also yield different results when converting to <abbr>RGB</abbr> and then back.&nbsp;
+	The reason for these differences is based on the geometry of the color-spaces,
+	and how the same actual color is found at multiple “places” in the given space
+	(especially, but not limited to grayscale);
+	whereas the <abbr>RGB</abbr> color-space has a unique color at each “place”.&nbsp;
+	Note these reasons are in addition to “round-off” differences noted in the “Options” panel
+	for the “keep precision” option (hover your mouse over it to read the note).&nbsp;
+	You may notice all these differences (including the note on CMYK above)
+	if you use the Color-Space Lab and type in values manually.&nbsp;
+	You may also notice these differences if you use the
+	<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_Gradientor').scrollIntoView();">Gradientor</a>
+	and choose to grade through one of these color-spaces
+	when the color you choose is specified in the same color space,
+	and the color-picker output is also specified in the same color-space.
+	</p>
+
+	<p>The <abbr>LCH<abbr> color-space is another "real-life" specification that is not directly compatible with
+	current computer monitor screens or the color-spaces used within this software to specify colors.&nbsp;
+	This is because these other color-spaces are <em><strong>relative</strong></em>,
+	whereas the <abbr>LCH<abbr> color-space is <em><strong>absolute</strong></em>.&nbsp;
+	Your monitor is fairly unique.&nbsp;  It has a maximum brightness that is different from other monitor makes/models.&nbsp;
+	Each colored light in the pixels has its own maximum brightness, which changes the overall color-mix.&nbsp;
+	Each monitor has a different “contrast ratio” which defines how dark the "black" is.&nbsp;
+	Compare a typical Apple® monitor to a nice ViewSonic® monitor with 20,000:1 contrast ratio,
+	and the Apple® looks “washed out” in color and a bit “brighter” because the black is not as dark.&nbsp;
+	In addition, the ambient light that the monitor is in can effect the overall perception
+	of the user viewing the screen.&nbsp;
+	Furthermore complicating this matter, the user can typically change the settings of the monitor
+	to adjust the overall brightness, contrast ratio, and sometimes even the color-balance.&nbsp;
+	The color-spaces used to define colors for screen-graphics take these differences into account;
+	They simply say "the brightest red is the brightest that whatever monitor with whatever settings used can make"
+	and so forth for the other colors; the value given is relative to the monitor.&nbsp;
+	Therefore the exact same graphic will look different on different monitors.&nbsp;
+	The <abbr>LCH<abbr> color space says there is no limit to the brightness; it says “I want it exactly <em>this</em> bright”
+	and that should look the same on any monitor.&nbsp;
+	At this time, there is no way for the JavaScript software to “know” the exact current specs of the monitor
+	being used or its current user-adjusted settings (it is hardware dependent, and that spec would need to be “told” to JavaScript by the Operating System),
+	so there is no way to adjust the mathematical formula for converting <abbr>LCH<abbr> to/from RGB to match the monitor.&nbsp;
+	One must also question the logic of allowing software, even at the level of the Operating System,
+	to display an image with “absolutely-defined” brightness levels that are brighter
+	than the user cares to view at the given moment,
+	i.e. the user has the monitor’s brightness at or near minimum,
+	especially if the user is in a dark environment;
+	a photo of the rising sun may temporarily blind the user, like looking directly into a camera's flash-bulb at night.&nbsp;
+	A much smarter solution would be to expand the overall capacity of monitors to allow greater brightness,
+	as well as the capacity of computer memory and graphics chips so that each color-channel
+	has a greater resolution than 8-bits,
+	while adding an additional spec to the “relative” color-spaces used within this software
+	to define whether they describe a “standard” (the current 8-bit) or “expanded” brightness level.&nbsp;
+	The <abbr>LCH<abbr> color space may be good for photography
+	when trying to capture a real-life image with the greatest fidelity;
+	but for graphic &amp; web-page design, where most visual aspects are better rendered <em><strong>relatively</strong></em>,
+	it is a poor choice: the other color-spaces supported within this software are preferred.&nbsp;
+	Therefore the <abbr>LCH<abbr> color space is not supported by MasterColorPicker at this time.
+	</p>
+
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_keyboard'>Keyboard shortcuts:</h4>
 	<p>These are defined for a <abbr>QUERTY</abbr> keyboard; other keyboards may be similar.&nbsp;
-	Hackers can redefine these keys: &nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
+	Hackers of JavaScript™ can redefine these keys: &nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
 	if their keyboard normally generates different characters than <code>&gt;</code> and <code>&lt;</code>
 	when the <kbd><span>CTRL</span></kbd> key is pressed.</p>
 
@@ -865,11 +955,11 @@ triadic</label>
 
 		<dt><kbd><span>F4</span></kbd></dt>
 		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
-		(usually is availavble even if <kbd><span>F7</span></kbd> is not)</dd>
+		(usually is available even if <kbd><span>F7</span></kbd> is not)</dd>
 
 		<dt><kbd><span>F7</span></kbd></dt>
 		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
-		(this is the typical key for a thesaurus in many aplications)</dd>
+		(this is the typical key for a thesaurus in many applications)</dd>
 
 		<dt><kbd><span>CTRL</span>+<span>F7</span></kbd></dt>
 		<dd>If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F7</span></kbd>
@@ -925,10 +1015,10 @@ triadic</label>
 			<li>overwritten by colors later in the palette with the same name;</li>
 			<li>or you will be notified of the conflict.</li></ul>
 	<p>Palette and Sub-palette names may not contain the <kbd>:(</kbd> characters,
-	as these are used to distinguish the palette name from the color/subpalette name in the palette.&nbsp;
+	as these are used to distinguish the palette name from the color/sub-palette name in the palette.&nbsp;
 	Color names may contain any characters, but two “hacks” are possible.
 	First, you could name a color <kbd>foo: bar</kbd>, and if, in the same palette,
-	there is a subpalette named <kbd>foo</kbd> with a color named <kbd>bar</kbd>
+	there is a sub-palette named <kbd>foo</kbd> with a color named <kbd>bar</kbd>
 	it will never be found.&nbsp;
 	Also, because of how MasterColorPicker interprets “add-on”
 	<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_Alpha').scrollIntoView();">Alpha (opacity) values</a>
@@ -964,17 +1054,17 @@ triadic</label>
 	Each browser has a private storage “sandbox” that is unique for each “website”
 	and/or each <abbr>HTML</abbr> page.&nbsp;
 	The JavaScript™ code can not store or access data outside the sandbox,
-	and the data stored is not accessable by any other website,
-	nor, generally speaking, is it readily accessable by the user of the browser
+	and the data stored is not accessible by any other website,
+	nor, generally speaking, is it readily accessible by the user of the browser
 	outside of using the website (it will be on your storage drive somewhere so hacks are possible).&nbsp;
 	MasterColorPicker™ uses the JavaScript™ <code>IndexedDB</code> database interface to store your MyPalette files.&nbsp;
 	The “sandboxed”
 	<a href='https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Browser_storage_limits_and_eviction_criteria' target='Mozilla'>►storage has a limit</a>
 	that should, under most circumstances, handle all of your files.&nbsp;
-	However, you should be aware that the broswer may delete them at any time,
+	However, you should be aware that the browser may delete them at any time,
 	and that <strong>you</strong> may delete them at any time through the browser’s
 	interface as described in the above link.&nbsp;
-	For that reason, you should save your Palette files in another more permenant location for long-term storage.</p>
+	For that reason, you should save your Palette files in another more permanent location for long-term storage.</p>
 	<h7 id='MasterColorPicker_helpFor_MyPalette_serverDB'>Storage in a “localhost” server or a server “in the cloud”</h7>
 	<p>This requires that you (or your friends) have control of the server and
 	requires the included <filepath>color_palettes/index.php</filepath> file
@@ -1008,7 +1098,7 @@ triadic</label>
 	you only need the filename: for example <code>src="<i>your_colors.palette.js</i>"</code>&nbsp;
 	If it is in a sub-folder, only include that subpath and filename: for example
 	<br><code>src="<i>color_palettes/desktop_palettes/your_project/your_colors.palette.js</i>"</code>&nbsp;<br>
-	If you are using a Windows® system, don’t confuse folder seperators!&nbsp;
+	If you are using a Windows® system, don’t confuse folder separators!&nbsp;
 	Browsers like forward-slashes /&nbsp;<br>
 	Then save the <filepath>MasterColorPicker_desktop.html</filepath> file.</p>
 
@@ -1096,8 +1186,113 @@ triadic</label>
 	or •use the “menu” key (looks kinda like this: <kbd><span>≡</span></kbd>) when present.</p>
 
 	<hr>
+	<h4 id='MasterColorPicker_helpFor_Gradientor'>Using the Gradientor</h4>
+	<p>MasterColorPicker’s Gradientor can not only help you simply pick your color-of-choice from a gradient of mixed colors,
+	it can help you break-down a gradient into equally-measured interval “steps”.&nbsp;
+	You can then choose colors from the gradient at these measured intervals with ease,
+	for styling list elements or headlines or whatever, for example, using a small set of interval “steps”.&nbsp;
+	The colors of the gradient between steps are not shown, isolating the specific colors to choose.&nbsp;
+	Or, if you choose a larger number of interval steps, the gradient shown could be used for fine-art development.</p>
+
+	<p>For <topic>triadic gradients</topic>, you can mix three (3) colors together.&nbsp;  Just choose the colors you want.&nbsp;
+	If you choose to mix them in a Hue-based color-space, keep in mind that the Hue-dimension is circular
+	and is mapped on a polar-grid.&nbsp;
+	Progression from one hue to another happens either <em>clockwise</em> or <em>counterclockwise</em>
+	depending on which is the <em>shortest</em> path.&nbsp;
+	Simply put, When the Hue of one of the colors is on the opposite side from the others,
+	it can cause the triadic palette to be “split;” this is normal.</p>
+
+	<p>For <topic>multistop-linear gradients</topic>, you can choose any number of colors.&nbsp;
+	The way these gradients are defined is similar to the way
+	<a href='https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/linear-gradient' target='Mozilla'>►<abbr>CSS</abbr> gradients</a>
+	are defined but with some significant differences (more below);
+	notably, <abbr>CSS</abbr> can only grade through the <abbr>RGB</abbr> color space
+	whereas MasterColorPicker’s Gradientor can grade through several different color-spaces (one at a time),
+	and note that we are only defining the stop-colors and their stop-points.&nbsp;
+	Note colors can be defined any way that MasterColorPicker recognizes (not just the <abbr>CSS</abbr> way),
+	and that stop-points may only be defined in percents <kbd>%</kbd> and <kbd>pixels</kbd>.&nbsp;
+	Also note that <abbr>CSS</abbr> gradients have no “intrinsic” size
+	– their size is derived from the natural size of the object they fill.&nbsp;
+	The Gradientor has no conception of a natural size or even an absolute size, only a relative size.&nbsp;
+	If you use <kbd>pixels</kbd> as a unit (which is an “absolute” unit) to describe any stop-point,
+	the final stop-point must therefore be described in <kbd>pixels</kbd>.&nbsp;
+	The displayed gradient will <em><strong>not</strong></em> be made to fit
+	your (“absolute”) pixel-length, but will remain a fixed-length, and the gradient will be
+	relatively sized (either shrunk or expanded to fit).&nbsp;
+	In this way, you can work with gradients defined almost the way your
+	<abbr>CSS</abbr> code is written, for ease of use.&nbsp;
+	If your <abbr>CSS</abbr> code used another “relatively-sized” unit such as <kbd>em</kbd>s,
+	you can simply change the units to <kbd>pixels</kbd>, but <em>only if you do not mix other units</em>
+	other than with percents <kbd>%</kbd></p>
+
+	<p>When defining stop-points of your linear-gradient, as with a <abbr>CSS</abbr> gradient,
+	you may leave the stop-point “blank”, and it will be automatically positioned half-way
+	between the previous and next points; or if you have more than one undefined stop-point in succession,
+	they will be evenly spaced.&nbsp;
+	If you leave a stop-color blank, (<abbr>CSS</abbr> calls it a <topic>color-hint</topic></em>)
+	it will be figured as the “half-way” color <em>in the chosen color-space</em>
+	between the previous and next colors (more below).&nbsp;
+	Unlike stop-points, you may not leave the first or last stop-color blank,
+	nor may you have more than one blank stop-color in succession.</p>
+
+	<p>A major difference in the way the Gradientor can define gradients compared to how <abbr>CSS</abbr> does,
+	is that the Gradientor can define an offset as relative to the preceding offset as well as from the gradient beginning,
+	whereas the <abbr>CSS</abbr> specifications only allow offsets relative to the gradient beginning.&nbsp;
+	If you precede an offset with the <kbd>+</kbd> character (for example: +38.2%)
+	it will be offset from the previous stop’s offset point 38.2% of the total gradient.&nbsp;
+	The previous stop’s offset must be defined, not blank.&nbsp;
+	(note the exceptions described below for <topic>color-hints</topic></em>)&nbsp;
+	If the previous offset was 20%, that equates to 20% + 38.2% = 58.2%.&nbsp;
+	This works with pixel-offsets as well, or even a mix of percents and pixels.</p>
+
+	<p>Another major difference between the Gradientor and <abbr>CSS</abbr>
+	is the way <topic>color-hints</topic></em> are defined.&nbsp;
+	With <abbr>CSS</abbr> they can only be percents, and they define the point
+	between two adjacent colors; the percent is relative to the first color.&nbsp;
+	With the Gradientor, they may be defined as percents or pixels,
+	and you must precede them with a <kbd>+</kbd> sign if you want the value
+	to be relative to the preceding color, similar to <abbr>CSS</abbr>.&nbsp;
+	<strong>Without the <kbd>+</kbd> sign, the color-hint position is relative to the gradient beginning.</strong>&nbsp;
+	Unlike additive color-stops for defined colors, additive color-stops may be used for color-hints
+	even when they follow a color without a defined color-stop (an auto-positioned one).&nbsp;
+	Note that if you use an “absolute” positional value (without the <kbd>+</kbd> sign),
+	and the color-hint is in the midst of a series of color-stops without positional values (automatically positioned),
+	the color-hint’s stop-point will “anchor” the auto-positioning before and after the color-hint.&nbsp;
+	For example, a gradient defined as: “red, yellow, green, cyan, blue” (with no stop-positions)
+	will put red at 0%, yellow at 25%, green at 50%, cyan at 75%, and blue at 100%.&nbsp;
+	If you add an “anchored” color-hint, that will change things:
+	“red, yellow, green, 45%, cyan, blue” (only the color-hint has a stop-position)
+	will put red at 0%, yellow at 15%, green at 30%, color-hint at 45%, cyan at 72.5%, and blue at 100%.&nbsp;
+	If you use an “additive” color-hint instead, you get the result similar to <abbr>CSS</abbr>:
+	“red, yellow, green, +45%, cyan, blue” (only the color-hint has a stop-position)
+	will put red at 0%, yellow at 25%, green at 50%, color-hint at 61.25%. cyan at 75%, and blue at 100%.</p>
+
+	<p>If you are having problems with getting your gradient specs to work,
+	you can get feedback on the errors (and successes!) found with the following steps:</p>
+	<ol>
+		<li>Open the browser’s console by pressing the <kbd><span>F12</span></kbd> key,
+				or go to the browser’s main-menu and open “developer tools” and choose the console tab.</li>
+		<li>Focus the cursor in the console and type in:
+				<kbd>SoftMoon.WebWare.Gradientor.doLog=true <span>&crarr;Enter</span></kbd></li>
+		<li>Keep the console open, and watch for error messages to appear as you use the Gradientor.&nbsp;
+				Processed gradient data is also presented, with stop-positions all converted to factors from 0–1 (i.e. 0%–100%),
+				and colors presented as Arrays of values in the chosen color-space.&nbsp;
+				(click on the Arrays to expand them and see all the values within)&nbsp;
+				Keep in mind that colors are interpreted and converted to <abbr>RGB</abbr>,
+				then to your chosen color-space; and if you defined a color in the same color-space,
+				the back-and-forth conversion to/from <abbr>RGB</abbr> may seem to alter the values you choose —
+				<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_conversions').scrollIntoView();">this is normal</a>.&nbsp;
+				You may need to dock the console to the bottom of the browser’s window,
+				or better yet, keep it in its own window and move it to another screen (if you have 2).</li>
+		<li>Note that as you hover your mouse over the displayed gradient,
+				the color-stops are interpreted every time you move and this will fill up the console.&nbsp;
+				For the best performance, after you find your errors, type into the console:
+				<kbd>SoftMoon.WebWare.Gradientor.doLog=false <span>&crarr;Enter</span></kbd></li>
+	</ol>
+
+	<hr>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
-	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022 by Joe Golembieski, SoftMoon-WebWare
+	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 by Joe Golembieski, SoftMoon-WebWare
 		 ( <kbd>http://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
 	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
 		 ( <kbd>http://safecolours.rigdenage.com/</kbd> ).&nbsp;
@@ -1174,7 +1369,7 @@ triadic</label>
 <table class='picker palette' id='BeezEye'>
 <caption><h6>BeezEye Color Picker™</h6>click to choose</caption>
 <tbody>
-<tr>
+<tr><!-- ROW 1 -->
 	<td><label>Twist<input type='range' name='BeezEye_twist_value'
 		value='50' min='0' max='100' backtabTo='MasterColorPicker_palette_select'></label></td>
 	<td><fieldset><legend>color space</legend>
@@ -1202,18 +1397,18 @@ triadic</label>
 		</fieldset>
 	</td>
 </tr>
-<tr>
+<tr><!-- ROW 2 -->
 	<td rowspan='2'><canvas width='360' height='360'></canvas></td>
 	<td><label>Brightness <span>Value</span><input type='numeric-slider' name='BeezEye_value' value='50' min='0' max='100'></label></td>
 </tr>
-<tr>
-	<td valign='bottom'><fieldset>
+<tr><!-- ROW 3 -->
+	<td><fieldset>
 		<label>Curve<input type='range' name='BeezEye_curve_value' value='50' min='1' max='100'></label>
 		<label><input type='checkbox' name='BeezEye_curve_midring' value='midring'> Mid–Ring</label>
 		</fieldset>
 	</td>
 </tr>
-<tr>
+<tr><!-- ROW 4 -->
 	<td><label>Hue Variety<input type='numeric-slider' name='BeezEye_variety' value='15' min='5' max='89' step='2' tabToTarget='true'></label></td>
 	<td rowspan='2' id='BeezEye_swatch'></td>
 </tr>
@@ -1260,54 +1455,54 @@ triadic</label>
 
 <table class='picker palette' id='Simple²'><caption><h6>Simple² Color Picker™</h6>click to choose</caption>
 <tbody>
-<tr>
-<td colspan='3'><div class='indicator' id='Simple²saturation'>99.99%</div></td>
+<tr><!--  ROW 1  -->
+<td colspan='3'><indicator id='Simple²saturation'>99.99%</indicator></td>
 <td colspan='2'   style='border: 1px solid; border-bottom: none'
-		>Chroma<br><span class='lft'>«0→</span>←‖1‖→<span class='rt'>←0»</span></td>
-<td colspan='2'><div class='indicator' id='Simple²hue'>359.999°</div></td>
+		>Chroma<br><span class='begin'>«0→</span>←‖1‖→<span class='end'>←0»</span></td>
+<td colspan='2'><indicator id='Simple²hue'>359.999°</indicator></td>
 </tr>
-<tr>
+<tr><!--  ROW 2  -->
 <td style='border-top: 1px solid; border-bottom: 1px solid;'
-		><div><span class='lft'>0→</span>←←Saturation→→<span class='rt'>←1</span></div></td>
+		><div><span class='begin'>0→</span>←←Saturation→→<span class='end'>←1</span></div></td>
 <td id="Simple²hSl"><canvas width='18' height='360'></canvas></td>
 <td id="Simple²hSv" style='border-left: 1px solid;'
 		><canvas width='18' height='360'></canvas></td>
 <td id="Simple²wrapper" colspan='2'   style='border-left: 1px solid'
 		><canvas width='360' height='360'></canvas></td>
-<td   style='border: 1px solid; border-left: none'
-		><div><span class='lft'>0°→→</span>←←Hue→→<span class='rt'>←←360°»</span></div></td>
-<td id="Simple²interface"><label>variety<input
+<td style='border: 1px solid; border-left: none'
+		><div><span class='begin'>0°→→</span>←←Hue→→<span class='end'>←←360°»</span></div></td>
+<td id="Simple²interface"><label>variety: <input
 	type='numeric-slider' name='Simple²_variety' value='12' min='12' max='360' step='2' backtabTo='MasterColorPicker_palette_select'></label></td>
 </tr>
-<tr>
-<td rowspan='5'  style='border-bottom: 1px solid' valign='bottom'
+<tr><!--  ROW 3  -->
+<td rowspan='5'  style='border-bottom: 1px solid'
 		><label for='Simple²_lock'>← lock ↑</label><input type='checkbox' name='Simple²_lock' value='locked' tabToTarget='true'></td>
 <td style='border-left: 1px solid'><div>HSL</div></td>
 <td style='border-left: 1px solid'><div>HSV</div></td>
 <td style='border: 1px solid; border-top: none'>Gray=0</td><td   style='border: 1px solid; border-top: none'>Gray=1</td>
 <td id="Simple²swatch" colspan='2' rowspan='6' style='border: 1px solid white'></td>
 </tr>
-<tr>
+<tr><!--  ROW 4  -->
 <td style='border-left: 1px solid'></td>
 <td style='border-left: 1px solid'></td>
 <td id="Simple²hsV" colspan='2'><canvas width='360' height='18'></canvas></td>
 </tr>
-<tr>
-<td style='border-left: 1px solid'></td>
+<tr><!--  ROW 5  -->
+<td style='border-left: 1px solid'><indicator id='Simple²lvl'>99.99%</indicator></td>
 <td style='border-left: 1px solid; border-bottom: 1px solid'></td>
 <td colspan='2'   style='border-bottom: 1px solid'
-		><span class='lft'>0→</span>←←Brightness / Value→→<span class='rt'>←1</span></td>
+		><span class='begin'>0→</span>←←Brightness / Value→→<span class='end'>←1</span></td>
 </tr>
-<tr>
+<tr><!--  ROW 6  -->
 <td style='border-left: 1px solid'></td>
 <td></td>
 <td id="Simple²hsL" colspan='2'><canvas width='360' height='18'></canvas></td>
 </tr>
-<tr>
-<td style='border-left: 1px solid; border-bottom: 1px solid'><div class='indicator' id='Simple²lvl'>99.99%</div></td>
+<tr><!--  ROW 7  -->
+<td style='border-left: 1px solid; border-bottom: 1px solid'></td>
 <td style='border-bottom: 1px solid'></td>
-<td colspan='2'   style='border-bottom: 1px solid'
-		><span class='lft'>0→</span>←←Lightness→→<span class='rt'>←1</span></td>
+<td colspan='2' style='border-bottom: 1px solid'
+		><span class='begin'>0→</span>←←Lightness→→<span class='end'>←1</span></td>
 </tr>
 <tr>
 <td id="Simple²indicator" colspan='5'>&nbsp;</td>
