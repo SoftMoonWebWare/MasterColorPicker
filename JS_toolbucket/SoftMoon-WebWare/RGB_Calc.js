@@ -1,8 +1,8 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.5  September 4, 2022  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.5.2  January 26, 2023  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022 Joe Golembieski, SoftMoon WebWare
+/*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
 		it under the terms of the GNU General Public License as published by
@@ -407,24 +407,24 @@ RGBA_Color.prototype.toString=function(format) {
 	if (outAs) outAs=outAs[0].toLowerCase();
 	if (outAs!=='hex')  {
 		if (( /percent/i ).test(format)  &&  !( /byte.*percent/i ).test(format))
-			s=Math.roundTo(this.r/2.55, 1)+'%, '+
-				Math.roundTo(this.g/2.55, 1)+'%, '+
-				Math.roundTo(this.b/2.55, 1)+'%'+
-				(alpha ? (', '+Math.roundTo(this.a*100, 3)+'%') : "");
+			s=Math.roundTo(1, this.r/2.55)+'%, '+
+				Math.roundTo(1, this.g/2.55)+'%, '+
+				Math.roundTo(1, this.b/2.55)+'%'+
+				(alpha ? (', '+Math.roundTo(3, this.a*100)+'%') : "");
 		else
 		if (( /factor/i ).test(format)  &&  !( /byte.*factor/i ).test(format))
-			s=Math.roundTo(this.r/255, 3)+', '+
-				Math.roundTo(this.g/255, 3)+', '+
-				Math.roundTo(this.b/255, 3)+
-				(alpha ? (', '+Math.roundTo(this.a, 3)) : "");
+			s=Math.roundTo(3, this.r/255)+', '+
+				Math.roundTo(3, this.g/255)+', '+
+				Math.roundTo(3, this.b/255)+
+				(alpha ? (', '+Math.roundTo(3, this.a)) : "");
 		else
 			s=Math.round(this.r)+', '+
 				Math.round(this.g)+', '+
 				Math.round(this.b)+
 				(alpha ? (', '+
 							(( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) ?
-									Math.roundTo(this.a, 3)
-								: Math.roundTo(this.a*100, 1)+'%'))
+									Math.roundTo(3, this.a)
+								: Math.roundTo(1, this.a*100)+'%'))
 						: "");  }
 	switch (outAs)  {
 	case 'hex':  return (format.indexOf('#')>=0 && !this.config.useHexSymbol ? "#" : "") + this.hex;;
@@ -484,11 +484,11 @@ ColorWheel_Color.prototype.toString=function(format)  {
 		break;
 		case 'turn':
 		case "●":  hueAngleUnit= this.config.useAngleUnitSymbol ? "●" : 'turn';  }
-	s=Math.roundTo(this.hue*hueAngleUnitFactors[hueAngleUnit], hueUnitPrecision[hueAngleUnit]) + hueAngleUnit + sep;
+	s=Math.roundTo(hueUnitPrecision[hueAngleUnit], this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + sep;
 	if (( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) )
-		s+=Math.roundTo(arr[1], 3) + sep + Math.roundTo(arr[2], 3) + (alpha && aSep+Math.roundTo(this.alpha, 3));
+		s+=Math.roundTo(3, arr[1]) + sep + Math.roundTo(3, arr[2]) + (alpha && aSep+Math.roundTo(3, this.alpha));
 	else
-		s+=Math.roundTo(arr[1]*100, 1) + '%' + sep + Math.roundTo(arr[2]*100, 1) + '%' + (alpha && aSep+Math.roundTo(this.alpha*100, 1)+'%');
+		s+=Math.roundTo(1, arr[1]*100) + '%' + sep + Math.roundTo(1, arr[2]*100) + '%' + (alpha && aSep+Math.roundTo(1, this.alpha*100)+'%');
 	if (this.model.toLowerCase()==='hwb')  alpha="";  // ¡curses to the folks who de-standardized this specification!
 	switch ((format=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i ))  &&  format[0].toLowerCase())  {
 	case 'css':
@@ -536,10 +536,11 @@ minsAngle° = 90 - mins*(360/60)
 
 
 
+SoftMoon.WebWare.HSBA_Color=
 SoftMoon.WebWare.HSVA_Color=HSVA_Color;
 function HSVA_Color($H,$S,$V,$A, $config, $model)  {
 	if (!new.target  &&  !(this instanceof ColorWheel_Color))  throw new Error('SoftMoon.WebWare.HSVA_Color is a constructor, not a function.');
-	$model= ((typeof $model === 'string') && ($model=$model.match( /HSV|HSB/i )) && $model[0].toUpperCase())  ||  'HSV';
+	$model= ((typeof $model === 'string') && ($model=$model.match( /HSV|HSB/i )) && $model[0].toUpperCase())  ||  'HSB';
 	//$model= $model || "HSV";
 	const proto= this.config ? this : new ColorWheel_Color($config),
 				thisClr=Object.create(proto),
@@ -745,10 +746,10 @@ CMYKA_Color.prototype.toString=function(format) {
 	format+= " "+this.config.stringFormat;
 	const alpha= (typeof this.alpha === 'number'  ||  (( /alpha/i ).test(format)  &&  (this.alpha=this.config.defaultAlpha||1)))  ?  'A' : "",
 				s= ( ( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) ) ?
-			(Math.roundTo(this.c, 3)+', '+Math.roundTo(this.m, 3)+', '+Math.roundTo(this.y, 3)+', '+Math.roundTo(this.k, 3) +
-				(alpha && ', '+Math.roundTo(this.a, 3)))
-		: (Math.roundTo(this.c*100, 1)+'%, '+Math.roundTo(this.m*100, 1)+'%, '+Math.roundTo(this.y*100, 1)+'%, '+Math.roundTo(this.k*100, 1)+'%' +
-				(alpha && ', '+Math.roundTo(this.a*100, 1)+'%'));
+			(Math.roundTo(3, this.c)+', '+Math.roundTo(3, this.m)+', '+Math.roundTo(3, this.y)+', '+Math.roundTo(3, this.k) +
+				(alpha && ', '+Math.roundTo(3, this.a)))
+		: (Math.roundTo(1, this.c*100)+'%, '+Math.roundTo(1, this.m*100)+'%, '+Math.roundTo(1, this.y*100)+'%, '+Math.roundTo(1, this.k*100)+'%' +
+				(alpha && ', '+Math.roundTo(1, this.a*100)+'%'));
 	switch ((format=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i ))  &&  format[0].toLowerCase())  {
 	case 'css':
 	case 'html':
@@ -843,12 +844,14 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 				if (typeof $string === 'string')  {
 					if (RegExp.isHex.test($string))
 						return calc.from.hex($string);
-					if ((typeof SoftMoon.palettes[SoftMoon.defaultPalette] === 'object')
-					&&  (SoftMoon.palettes[SoftMoon.defaultPalette] instanceof SoftMoon.WebWare.Palette)
+					//if ((typeof SoftMoon.palettes[SoftMoon.defaultPalette] === 'object')
+					if ((SoftMoon.palettes[SoftMoon.defaultPalette] instanceof SoftMoon.WebWare.Palette)
 					&&  (pClr=$string.match(RegExp.addOnAlpha))
 					&&  (matches=SoftMoon.palettes[SoftMoon.defaultPalette].getColor(pClr[1])) )  {
+						calc.config.stack({defaultAlpha:{value:null}});
 						calc.config.stack(SoftMoon.palettes[SoftMoon.defaultPalette].config);
 						matches=calc(matches);
+						calc.config.cull();
 						calc.config.cull();
 						if (matches  &&  pClr[2])  matches=calc.config.applyAlpha(matches, calc.getAlpha(pClr[2]), 'Palette color');
 						return matches;  }
@@ -860,14 +863,15 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 							if (p.toLowerCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
 								matches=matches[2].match(RegExp.addOnAlpha);
 								let a=matches[2];
+								calc.config.stack({defaultAlpha:{value:null}});
 								calc.config.stack(SoftMoon.palettes[p].config);
 								matches=calc(SoftMoon.palettes[p].getColor(matches[1]));
+								calc.config.cull();
 								calc.config.cull();
 								if (matches  &&  a)  matches=calc.config.applyAlpha(matches, calc.getAlpha(a), 'Palette color');
 								return matches;  }  }  }  }  }
 			//return calc.from.rgba.apply(calc.from, arguments);  };
 			return calc.from.rgba(...arguments);  };
-
 	if (!$quickCalc)  {
 		const props=Object.getOwnPropertyNames(RGB_Calc.prototype);
 		for (const p of props)  {Object.defineProperty(calc, p, Object.getOwnPropertyDescriptor(RGB_Calc.prototype, p));}
@@ -1091,7 +1095,49 @@ RGB_Calc.prototype.install= function(cSpace, provider)  {
 			this.from[cSpace]= this.$ ? meta.from.audit : meta.from.quick;  }  }
 
 
-
+//===============================================================
+//  c1 and c2 are arrays of RGBA values (you must supply the alpha!)
+//  returns an array of RGBA values for the color created by mixing c1 & c2 at the mix-rate in the given color-space
+/* prototype code: may have bugs
+RGB_Calc.mixColors=
+RGB_Calc.prototype.mixColors= function(c1,c2,mix,cSpace)  {
+	switch (cSpace)  {
+	case 'rgb':
+		return new this.config.RGBAFactory(c1[0]+(c2[0]-c1[0])*mix, c1[1]+(c2[1]-c1[1])*mix, c1[2]+(c2[2]-c1[2])*mix, c1[3]+(c2[3]-c1[3])*mix);
+	case 'cmyk':
+		this.config.stack({CMYKAFactory:{value:Array}});
+		try {c1=this.to.cmyk(c1);  c2=this.to.cmyk(c2);}
+		finally {this.config.cull();}
+		return fromCMYK.call(this, [c1[0]+(c2[0]-c1[0])*mix, c1[1]+(c2[1]-c1[1])*mix, c1[2]+(c2[2]-c1[2])*mix, c1[3]+(c2[3]-c1[3])*mix, c1[4]+(c2[4]-c1[4])*mix]);
+	case 'hsl':
+	case 'hsv':
+	case 'hsb':
+	case 'hcg':
+		var c_2;
+		this.config.stack({ColorWheelFactory:{value:Array}, logErrors:{value:true}});
+		try {
+		const rounder=Math.roundTo.bind(Math, 5);  //the teeny-tiny floating-point errors can cause problems
+		c_2=c2;
+		c1=this.to[cSpace](c1).map(rounder);  c2=this.to[cSpace](c2).map(rounder);
+		// if saturation/chroma === 0, this is a grayscale, no color;
+		// grayscale values use the "red" hue (0°)
+		// and we don't want to cycle through all the hues between to grade to a grayscale.
+		if (c1[1]===0)  c1[0]=c2[0];
+		else
+		if (c2[1]===0)  c2[0]=c1[0];
+		else
+		if (c1[0]-c2[0]>0.5)  c2[0]+=1;
+		else
+		if (c2[0]-c1[0]>0.5)  c1[0]+=1;
+		this.config.inputAsFactor=true;
+		const c=this.from[cSpace]([  (c1[0]+(c2[0]-c1[0])*mix)%1  , c1[1]+(c2[1]-c1[1])*mix, c1[2]+(c2[2]-c1[2])*mix, c1[3]+(c2[3]-c1[3])*mix].map(rounder));
+		return c;
+		} catch (e) {console.error(c1, c_2, c2, mix, e); return [0,0,0,0];}  finally {this.config.cull();}
+	default:
+		const msg='unknown ColorSpace in RGB_Calc mixColors()';
+		if (this.config.logErrors)  console.error(msg);
+		if (this.config.throwErrors)  throw new Error(msg);  }  }
+*/
 
 
 //===============================================================
@@ -1233,7 +1279,8 @@ function toHCG(rgb)  {  //RGB from 0 to 255   Hue, Chroma, Gray (HCG) results fr
 	low  = Math.min( r, g, b );
 
 	if ( high === low )  {  //This is a gray, no chroma...
-		H = 0;  C = 0;  G = high;  }
+//		H = 0;  C = 0;  G = high;  }
+		H = 1;  C = 0;  G = high;  }
 	else  {                  //Chromatic data...
 /* hcg::
 						high=1+(G-1)*(1-C)
@@ -1429,31 +1476,6 @@ function parseColorWheelColor($cwc, model)  {
 		else  return this.config.onError($cwc, model);
 	return  this.factorize($cwc,3,1)  ||  this.config.onError($cwc, model);  }
 
-/*   HCG & HCGC  →  Hue, Chroma, Gray, Curve
- *   HCG is similar to HSL & HSV, based on a 3D cylindrical RGB system with Hue calculated the same way,
- *  & Chroma calculated in the same fashion as Saturation,
- *  with Hue as the angle around the cylinder (red at 0°, green at 120°, blue at 240°),
- *  and Chroma/Saturation the linear (radial) distance from the central axis.
- *   HCGC is a 4D cylindrical RGB system which “curves” the Chroma rate toward or away from the central axis.
- *   If you were to run the HCG, HSL, or HSV cylinders through a meat-slicer, you would get roughly 2D circles,
- *  whereas if you could “slice” an HCGC 4D-cylinder, you would get ½ the surface of a 3D “spherical” object.
- *  With Curve = 1, the surface is of a true sphere.  The “view” of this slice is as from above, similar to a 2D slice.
- *   As viewed, you can not tell the “height” dimension of the slice, so the progression of Chroma appearance
- *  occurs exponentially in tangent with the sine-function.
- *   With Curve < 1, the surface “caves in”, but leaving the center height the same, “sharpening” this center point,
- *  to a long sharp-pointed “spear” quickly curving to a disk at the other end end when Curve becomes very small (¡always! > 0).
- *   With Curve > 1, the surface “bulges out”, again leaving the center height the same, “blunting” this center point.
- *  As viewed from the top, this changes the appearance of the progression of the Chroma rate.
- *   As opposed to HSV & HSL, in HCG & HCGC the Chroma is the linear progression of the RGB values
- *  from the pure Hue to the Gray shade (only in HCGC the Chroma line is laid over the curved surface).
- *  At the center of these cylinders, Gray is always a black-grayscale-white (R=G=B).
- *  However with HCG & HCGC, Gray is a function of Chroma (think Saturation),
- *  whereas with HSV & HSL, Saturation is a function of Value (Brightness) or Lightness.
- *  This means that the edges of an HCG or HCGC cylinder remain consistent throughout the height of the cylinder,
- *  as opposed to the HSV & HSL cylinders in which the “shade” or “tint” of the Hue varies with the height.
- *  The center of the cylinders progresses from black at the bottom thought grayscale to white at the top in
- *  in all four color-space models (HSV, HSL, HCG, HCGC), and therefore the center of each is the “Gray-shade” value.
- */
 RGB_Calc.from.definer.quick.hcg=
 RGB_Calc.from.definer.quick.hcga={enumerable:true, value:fromHCG};
 RGB_Calc.from.definer.audit.hcg=
