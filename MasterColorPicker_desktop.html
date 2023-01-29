@@ -118,7 +118,6 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 
 
 <!-------------- cut here to use the MasterColorPicker HTML (below) in your own page ---------------->
-<!-------------- cut here to use the MasterColorPicker HTML (below) in your own page ---------------->
 
 <script>
 window.addEventListener('mastercolorpicker_ready', function()  {
@@ -209,7 +208,7 @@ but to retain the settings this file may be included inside an existing web <for
 		checked>show/use MyPalette? <kbd><span>F2</span></kbd></label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showLab' id='MasterColorPicker_showLab' value='true'
 		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Lab"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
-		checked>show Color-Space Lab? <kbd><span>F3</span></kbd></label>
+		checked>show/use Color-Space Lab? <kbd><span>F3</span></kbd></label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showMixer' id='MasterColorPicker_showMixer' value='true'
 		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Mixer"), !this.checked); /*  if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
 		checked>show/use Color-Mixer?</label>
@@ -584,7 +583,7 @@ or pin it to the window when it is pinned to the page.
 <tr>
 		<th><label for='MasterColorPicker_hwB_percent'>Blackness:</label></th>
 		<td></td>
-		<td><input type='numeric' name='MasterColorPicker_hwB_percent' min='0' max='100' step='any' value='0'></td>
+		<td><input type='numeric' name='MasterColorPicker_hwB_percent' min='0' max='100' step='any' value='100'></td>
 		<td><input type='range' name='MasterColorPicker_hwB_range' min='0' max='100' value='100' tabindex='-1'></td>
 </tr>
 </table>
@@ -848,7 +847,7 @@ triadic</label>
 	<p>The <abbr>CMYK<abbr> color space was designed for print-graphics using inks that “mix” on white paper.&nbsp;
 	It is supported herein to help those more familiar with how inks mix in the printing world,
 	although in real-life situations, each printer will have its own “formula” for converting
-	the image on your screen to a mix of inks, and these inks may include more than the simply
+	the image on your screen to a mix of inks, and these inks may include more than simply
 	cyan, magenta, yellow, and black.&nbsp;
 	The other color-spaces supported herein are designed for screen-graphics using pixels of light;
 	each pixel consists of a red, a green, and a blue light, (thus the standard RGB color space)
@@ -1229,7 +1228,7 @@ triadic</label>
 	you may leave the stop-point “blank”, and it will be automatically positioned half-way
 	between the previous and next points; or if you have more than one undefined stop-point in succession,
 	they will be evenly spaced.&nbsp;
-	If you leave a stop-color blank, (<abbr>CSS</abbr> calls it a <topic>color-hint</topic></em>)
+	If you leave a stop-color blank, (<abbr>CSS</abbr> calls it a <topic>color-hint</topic>)
 	it will be figured as the “half-way” color <em>in the chosen color-space</em>
 	between the previous and next colors (more below).&nbsp;
 	Unlike stop-points, you may not leave the first or last stop-color blank,
@@ -1239,14 +1238,14 @@ triadic</label>
 	is that the Gradientor can define an offset as relative to the preceding offset as well as from the gradient beginning,
 	whereas the <abbr>CSS</abbr> specifications only allow offsets relative to the gradient beginning.&nbsp;
 	If you precede an offset with the <kbd>+</kbd> character (for example: +38.2%)
-	it will be offset from the previous stop’s offset point 38.2% of the total gradient.&nbsp;
+	it will be offset from the previous stop’s offset point (38.2% of the total gradient in the example).&nbsp;
 	The previous stop’s offset must be defined, not blank.&nbsp;
-	(note the exceptions described below for <topic>color-hints</topic></em>)&nbsp;
-	If the previous offset was 20%, that equates to 20% + 38.2% = 58.2%.&nbsp;
+	(note the exceptions described below for <topic>color-hints</topic>)&nbsp;
+	If the previous offset was 20%, the example equates to 20% + 38.2% = 58.2%.&nbsp;
 	This works with pixel-offsets as well, or even a mix of percents and pixels.</p>
 
 	<p>Another major difference between the Gradientor and <abbr>CSS</abbr>
-	is the way <topic>color-hints</topic></em> are defined.&nbsp;
+	is the way <topic>color-hints</topic> are defined.&nbsp;
 	With <abbr>CSS</abbr> they can only be percents, and they define the point
 	between two adjacent colors; the percent is relative to the first color.&nbsp;
 	With the Gradientor, they may be defined as percents or pixels,
