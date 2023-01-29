@@ -848,11 +848,11 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 					if ((SoftMoon.palettes[SoftMoon.defaultPalette] instanceof SoftMoon.WebWare.Palette)
 					&&  (pClr=$string.match(RegExp.addOnAlpha))
 					&&  (matches=SoftMoon.palettes[SoftMoon.defaultPalette].getColor(pClr[1])) )  {
-						calc.config.stack({defaultAlpha:{value:null}});
+						if (pClr[2])  calc.config.stack({defaultAlpha:{value:null}});
 						calc.config.stack(SoftMoon.palettes[SoftMoon.defaultPalette].config);
 						matches=calc(matches);
 						calc.config.cull();
-						calc.config.cull();
+						if (pClr[2])  calc.config.cull();
 						if (matches  &&  pClr[2])  matches=calc.config.applyAlpha(matches, calc.getAlpha(pClr[2]), 'Palette color');
 						return matches;  }
 					if (matches=($string.match(RegExp.stdWrappedColor)  ||  $string.match(RegExp.stdPrefixedColor)))  {
