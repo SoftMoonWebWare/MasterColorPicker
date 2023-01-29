@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.5.2  January 26, 2023  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.5.2  January 29, 2023  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
@@ -863,11 +863,11 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 							if (p.toLowerCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
 								matches=matches[2].match(RegExp.addOnAlpha);
 								let a=matches[2];
-								calc.config.stack({defaultAlpha:{value:null}});
+								if (a) calc.config.stack({defaultAlpha:{value:null}});
 								calc.config.stack(SoftMoon.palettes[p].config);
 								matches=calc(SoftMoon.palettes[p].getColor(matches[1]));
 								calc.config.cull();
-								calc.config.cull();
+								if (a) calc.config.cull();
 								if (matches  &&  a)  matches=calc.config.applyAlpha(matches, calc.getAlpha(a), 'Palette color');
 								return matches;  }  }  }  }  }
 			//return calc.from.rgba.apply(calc.from, arguments);  };
