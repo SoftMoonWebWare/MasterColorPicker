@@ -3,6 +3,7 @@
 /*	websafe table interpolator function version 1.1  Feb 2, 2019; Feb 15, 2022  by SoftMoon WebWare.
  *   written by and Copyright © 2019,2022 Joe Golembieski, SoftMoon WebWare
  *  Websafe table colorblind data courtesy of Christine Rigden →
+			https://www.rigdenage.co.uk/design-for-colour-blind/
 			http://www.rigdenage.co.uk/safecolours/
 			http://safecolours.rigdenage.com/
 
@@ -36,7 +37,7 @@
 //
 // • returns an array of arrays of colorblind RGB values →  [[r,g,b], [r,g,b], [r,g,b]]  if “rgb” is a WebSafe Color and no “type” is passed in
 //                                                           ↑protan  ↑deutan  ↑tritan
-//    No alpha value(s) will be passed back if no “type” is passed in.
+//    No alpha value will be passed back if no “type” is passed in.
 // or
 // • returns RGB byte values through the RGB_Calc standard output if “type” is passed in →  protan ‖ deutan ‖ tritan
 //     Any optional Alpha value that was padded in is passed along out.
@@ -49,13 +50,13 @@
 
 if (!SoftMoon.WebWare.RGB_Calc.colorblindProviders)  SoftMoon.WebWare.RGB_Calc.colorblindProviders= new Object;
 SoftMoon.WebWare.RGB_Calc.colorblindProviders.Rigden={
-	title: "Rigden WebSafe interpolated",
-	thanks: "special thanks to: Christine Rigden → http://www.rigdenage.co.uk/safecolours/",
+	title: "Rigden web-safe interpolated",
+	thanks: "special thanks to: Christine Rigden → https://www.rigdenage.co.uk/design-for-colour-blind/",
 	to: {
 		quick: toColorBlind,
 		audit: auditToColorBlind  } };
 
-// this is the calculator we use internally to convert RGB values to HCG
+// this is the “quick mini” calculator we use internally to convert RGB values to HCG
 const rgb_calc=new SoftMoon.WebWare.RGB_Calc({ColorWheelFactory: Array}, true, {'to':['hcg']});
 
 SoftMoon.WebWare.RGB_Calc.to.colorblind= toColorBlind;
@@ -131,6 +132,7 @@ function toColorBlind(rgb, type)  {
 toColorBlind.types=['protan', 'deutan', 'tritan'];  //the order of this array needs to match the order of colorblind data in the table
 toColorBlind.websafe_table={
 /* Original data compiled by Christine Rigden →
+			https://www.rigdenage.co.uk/design-for-colour-blind/
 			http://www.rigdenage.co.uk/safecolours/
 			http://safecolours.rigdenage.com/
  */
