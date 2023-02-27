@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.5.2  January 29, 2023  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.6  February 27, 2023  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
@@ -58,9 +58,10 @@ SoftMoon.WebWare.Palette=function Palette($meta)  {
 	if ('requireSubindex' in $meta)
 		Object.defineProperty(this, "requireSubindex",  {value: Boolean.eval($meta.requireSubindex, true),  enumerable: true});
 	for (const prop of Palette.properties)  {
-		if ($meta[prop])  Object.defineProperty(this, prop, {value: $meta[prop], enumerable: true});  }
-	var config=Object.create(Palette.defaultConfig);
-	if ($meta.config)  for (c in $meta.config)  {config[c] = Object.getOwnPropertyDescriptor($meta.config, c);}
+		if (prop in $meta)  Object.defineProperty(this, prop, {value: $meta[prop], enumerable: true});  }
+	const config=Object.create(Palette.defaultConfig);
+	if ($meta.config)  for (const prop of Palette.configProps)  {
+		if (prop in $meta.config)  config[prop] = Object.getOwnPropertyDescriptor($meta.config, prop);  }
 	Object.defineProperty(this, "config",  {value: config,  enumerable: true});
 	if (typeof $meta.getColor === 'function')
 		Object.defineProperty(this, "getColor", {value: $meta.getColor,  enumerable: true});  }
@@ -96,8 +97,11 @@ SoftMoon.WebWare.Palette.defaultConfig={   // see  RGB_Calc.ConfigStack.prototyp
 	inputAsFactor: {value: false,  enumerable:true, writable:true, configurable:true},
 	hueAngleUnit:  {value: 'deg',  enumerable:true, writable:true, configurable:true}  }
 
-// this can be filled with property names for configuration values of a palette that the implementation requires.
+// this can be filled with property names for meta-data values of a palette that the implementation requires.
+// you should NOT allow "config" meta-properties in this Array, or an Error will occur. Use configProps below.
 SoftMoon.WebWare.Palette.properties=[];
+// you can add/remove property names for calculator-configuration values of a palette that the implementation requires.
+SoftMoon.WebWare.Palette.configProps=['inputAsFactor', 'hueAngleUnit', 'inutShortHex', 'defaultAlpha', 'forbidAddOnAlpha'];
 
 // This function will return an initially empty array, with two added properties:  connector,  paletteIndexConnection.
 // Once the index is asynchronously loaded via HTTP, the array will fill with HTTP-connect objects, one for each palette being loaded.
@@ -190,8 +194,7 @@ SoftMoon.WebWare.addPalette=function($json_palette)  {
 //=================================================================================================\\
 
 
-;(function()  { //open a private namespace
-
+{  //open a private namespace until the END-OF-FILE
 
 const RegExp = SoftMoon.RegExp || window.RegExp;
 
@@ -340,442 +343,19 @@ RegExp.angle= new window.RegExp( '^' +h_+ '$' );
 
 
 
-/*
-	This is meant to be a universal object that can be
-	 compatibly passed through different libraries without hassle………♪♫ hopefully ♫♪ ☻☺☻☺ ♦♥♣♠♂♀ ☺☻☺☻
-*/
-SoftMoon.WebWare.RGBA_Color=RGBA_Color;
-function RGBA_Color($r, $g, $b, $a, $config)  {
-	if (!new.target)  throw new Error('SoftMoon.WebWare.RGBA_Color is a constructor, not a function.');
-	this.config= new RGB_Calc.ConfigStack(this, $config);
-	this.config.stringFormat=SoftMoon.WebWare.RGBA_Color.prototype.toString.defaultFormat;
-	const ThisColorObject=this,
-			rgb=new Array,
-			rgba=new Array;
-	if (typeof $a !== 'number')  $a=this.config.defaultAlpha;
-	Object.defineProperties(rgb, {
-		0: {get: function() {return $r;},  set: function($red) {$r=ThisColorObject.getByte($red);},  enumerable: true},
-		1: {get: function() {return $g;},  set: function($grn) {$g=ThisColorObject.getByte($grn);},  enumerable: true},
-		2: {get: function() {return $b;},  set: function($blu) {$b=ThisColorObject.getByte($blu);},  enumerable: true}  });
-	Object.defineProperties(rgba, {
-		0: {get: function() {return $r;},  set: function($red) {$r=ThisColorObject.getByte($red);},  enumerable: true},
-		1: {get: function() {return $g;},  set: function($grn) {$g=ThisColorObject.getByte($grn);},  enumerable: true},
-		2: {get: function() {return $b;},  set: function($blu) {$b=ThisColorObject.getByte($blu);},  enumerable: true},
-		3: {get: function() {return $a;},  set: function($alf) {$a=ThisColorObject.getAlpha($alf);},  enumerable: true}  });
-	function readArr($arr)  { $r=this.getByte($arr[0]);  $g=this.getByte($arr[1]);  $b=this.getByte($arr[2]);
-		if (typeof $arr[3] === 'number')  $a=this.getByte($arr[3]);  }
-	Object.defineProperties(this, {
-		rgb:  {get: function() {return rgb;},  set: readArr,  enumerable: true},
-		rgba: {get: function() {return rgba;}, set: readArr,  enumerable: true},
-		r:     {get: function() {return $r;},  set: function($red) {$r=this.getByte($red);},  enumerable: true},
-		g:     {get: function() {return $g;},  set: function($grn) {$g=this.getByte($grn);},  enumerable: true},
-		b:     {get: function() {return $b;},  set: function($blu) {$b=this.getByte($blu);},  enumerable: true},
-		a:     {get: function() {return $a;},  set: function($alf) {$a=this.getAlpha($alf);},  enumerable: true},
-		red:   {get: function() {return $r;},  set: function($red) {$r=this.getByte($red);},  enumerable: true},
-		grn:   {get: function() {return $g;},  set: function($grn) {$g=this.getByte($grn);},  enumerable: true},
-		blu:   {get: function() {return $b;},  set: function($blu) {$b=this.getByte($blu);},  enumerable: true},
-		green: {get: function() {return $g;},  set: function($grn) {$g=this.getByte($grn);},  enumerable: true},
-		blue:  {get: function() {return $b;},  set: function($blu) {$b=this.getByte($blu);},  enumerable: true},
-		alpha: {get: function() {return $a;},  set: function($alf) {$a=this.getAlpha($alf);},  enumerable: true},
-		hex: {get: function() { return (this.config.useHexSymbol ? '#':"") + Math._2hex($r)+Math._2hex($g)+Math._2hex($b) +
-							((typeof $a === 'number')  ?  Math._2hex($a*255) : "");  },
-					set: function($h) { if ($h=$h.match(RegExp.hex_a))  {
-							$r=parseInt($h[3], 16);  $g=parseInt($h[4], 16);  $b=parseInt($h[5], 16);
-							if ($h[6])  $a=parseInt($h[6], 16)/255;  }  },
-					enumerable: true},
-		contrast: {get: contrastRGB.bind(ThisColorObject, rgba),  enumerable: true},
-		shade: {get: shadeRGB.bind(ThisColorObject, rgba),  enumerable: true},
-		to: {enumerable: true,  value: Object.defineProperties(new Object, {
-			hsv:  {get:  toHSV.bind(ThisColorObject, rgba),  enumerable: true},
-			hsb:  {get:  toHSB.bind(ThisColorObject, rgba),  enumerable: true},
-			hsl:  {get:  toHSL.bind(ThisColorObject, rgba),  enumerable: true},
-			hcg:  {get:  toHCG.bind(ThisColorObject, rgba),  enumerable: true},
-			cmyk: {get: toCMYK.bind(ThisColorObject, rgba),  enumerable: true}  })}  });
-	};
-
-Object.defineProperties(RGBA_Color.prototype, {
-		getByte: {value: getByteValue},
-		getAlpha: {value: getAlphaFactor}  });
-
-RGBA_Color.prototype.useHexSymbol=function(flag)  {this.config.useHexSymbol=Boolean.eval(flag, true);  return this;}
-
-RGBA_Color.prototype.toString=function(format) {
-	if (typeof format !== 'string')  format="";
-	format+= " "+this.config.stringFormat;
-	const alpha= (typeof this.a === 'number'  ||  (( /alpha/i ).test(format)  &&  (this.a=this.config.defaultAlpha||1)))  ?  'A' : "";
-	var s, outAs=format.match( /hex|css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i );
-	if (outAs) outAs=outAs[0].toLowerCase();
-	if (outAs!=='hex')  {
-		if (( /percent/i ).test(format)  &&  !( /byte.*percent/i ).test(format))
-			s=Math.roundTo(1, this.r/2.55)+'%, '+
-				Math.roundTo(1, this.g/2.55)+'%, '+
-				Math.roundTo(1, this.b/2.55)+'%'+
-				(alpha ? (', '+Math.roundTo(3, this.a*100)+'%') : "");
-		else
-		if (( /factor/i ).test(format)  &&  !( /byte.*factor/i ).test(format))
-			s=Math.roundTo(3, this.r/255)+', '+
-				Math.roundTo(3, this.g/255)+', '+
-				Math.roundTo(3, this.b/255)+
-				(alpha ? (', '+Math.roundTo(3, this.a)) : "");
-		else
-			s=Math.round(this.r)+', '+
-				Math.round(this.g)+', '+
-				Math.round(this.b)+
-				(alpha ? (', '+
-							(( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) ?
-									Math.roundTo(3, this.a)
-								: Math.roundTo(1, this.a*100)+'%'))
-						: "");  }
-	switch (outAs)  {
-	case 'hex':  return (format.indexOf('#')>=0 && !this.config.useHexSymbol ? "#" : "") + this.hex;;
-	case 'css':
-	case 'html':
-	case 'wrap':
-	case 'function':  return 'RGB'+alpha+'('+s+')';
-	case 'prefix':    return 'RGB'+alpha+': '+s;
-	case 'csv':
-	case 'commas':  return s;
-	case 'plain':  return s.replace( /,/g , "");
-	case 'tabbed':  return s.replace( /, /g , "\t");
-	case 'self':
-	default:  return 'RGBA_Color: ('+s+')';  }  }
-RGBA_Color.prototype.toString.defaultFormat='self';
-
-
-
-SoftMoon.WebWare.ColorWheel_Color=ColorWheel_Color;
-function ColorWheel_Color($H, $1, $2, $A, $model, $config)  {
-	if (!new.target)  throw new Error('ColorWheel_Color is a constructor, not a function.');
-	if (arguments.length===1)  $config=arguments[0];
-	this.config= new RGB_Calc.ConfigStack(this, $config);
-	switch ($model)  {
-		case 'HSV':
-		case 'HSB':  	return HSVA_Color.call(this, $H, $1, $2, $A, undefined, $model);
-		case 'HSL':  	return HSLA_Color.call(this, $H, $1, $2, $A);
-		case 'HWB':  	return HWBA_Color.call(this, $H, $1, $2, $A);
-		case 'HCG':  	return HCGA_Color.call(this, $H, $1, $2, $A);  }  }
-
-Object.defineProperties(ColorWheel_Color.prototype, {
-		getHue: {value: getHueFactor},
-		getFactor: {value: getFactorValue},
-		getAlpha: {value: getAlphaFactor}  });
-
-ColorWheel_Color.prototype.toString=function(format)  {
-	if (typeof format !== 'string')  format="";
-	format+= " "+this.config.stringFormat;
-	const arr=this[this.model.toLowerCase()],
-				sep= this.model.toLowerCase()==='hwb' ? ' ' : ', ',
-				aSep= this.model.toLowerCase()==='hwb' ? ' / ' : ', ';
-	var alpha= (typeof this.a === 'number'  ||  (( /alpha/i ).test(format)  &&  (this.alpha=this.config.defaultAlpha||1)))  ?  'A' : "",
-			s, hueAngleUnit=this.config.hueAngleUnit;
-	if (s=format.match( /deg|°|g?rad|ᴿ|ᶜ|ᵍ|%|turn|●|factor/ ))  hueAngleUnit=s[0];
-	if (hueAngleUnit==='factor')  hueAngleUnit='turn';
-	if (typeof this.config.useAngleUnitSymbol === 'boolean')
-		switch (hueAngleUnit)  {
-		case 'deg':
-		case "°":  hueAngleUnit= this.config.useAngleUnitSymbol ? "°" : 'deg';
-		break;
-		case 'rad':
-		case "ᶜ":
-		case "ᴿ":  hueAngleUnit= this.config.useAngleUnitSymbol ? "ᴿ" : 'rad';
-		break;
-		case 'grad':
-		case "ᵍ":   hueAngleUnit= this.config.useAngleUnitSymbol ? "ᵍ" : 'rad';
-		break;
-		case 'turn':
-		case "●":  hueAngleUnit= this.config.useAngleUnitSymbol ? "●" : 'turn';  }
-	s=Math.roundTo(hueUnitPrecision[hueAngleUnit], this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + sep;
-	if (( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) )
-		s+=Math.roundTo(3, arr[1]) + sep + Math.roundTo(3, arr[2]) + (alpha && aSep+Math.roundTo(3, this.alpha));
-	else
-		s+=Math.roundTo(1, arr[1]*100) + '%' + sep + Math.roundTo(1, arr[2]*100) + '%' + (alpha && aSep+Math.roundTo(1, this.alpha*100)+'%');
-	if (this.model.toLowerCase()==='hwb')  alpha="";  // ¡curses to the folks who de-standardized this specification!
-	switch ((format=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i ))  &&  format[0].toLowerCase())  {
-	case 'css':
-	case 'html':
-	case 'wrap':
-	case 'function':  return this.model.toUpperCase()+alpha+'('+s+')';;
-	case 'prefix':    return this.model.toUpperCase()+alpha+': '+s
-	case 'csv':
-	case 'commas':  return s;
-	case 'plain':  return s.replace( /,/g , "");
-	case 'tabbed':  return s.replace( /, /g , "\t");
-	case 'self':
-	default:  return this.model.toUpperCase()+'_Color: ('+s+')';  }  }
-
-var hueUnitPrecision=
-ColorWheel_Color.hueUnitPrecision=
-	Object.defineProperties(new Object, {
-		'deg':  {value: 2, enumerable: true},
-		"°":    {value: 2, enumerable: true},
-		'grad': {value: 2, enumerable: true},
-		'ᵍ':    {value: 2, enumerable: true},
-		'rad':  {value: 5, enumerable: true},
-		"ᶜ":    {value: 5, enumerable: true},
-		"ᴿ":    {value: 5, enumerable: true},
-		"%":    {value: 4, enumerable: true},
-		'turn': {value: 6, enumerable: true},
-		"●":    {value: 6, enumerable: true}  });
-//There are 255*6 = 1530 fully-chromatic hues (r,g,b → where any one is #00, another one is #FF, and the third varies).
-// Divide 1530 by the number of hue-units-per-turn to yield the precision depth needed.
-//  example:  1530/360 = 4.25
-// Therefore each degree needs to cover just over 4 hues.
-// 1/10th (0.1) of a degree would cover 10 hues per degree, so 1 decimal place is enough.
-// We increase the precision by a factor of 10 (another decimal place) to keep mathematical calculations jolly.
-/****** ¿ FUTURE ? *******
-Example: Convert decimal degrees 156.742 to degrees minutes seconds
-    The whole number is degrees. ...
-    Multiply the remaining decimal by 60. ...
-    Multiply the remaining decimal by 60. ...
-    Decimal degrees 156.742 converts to 156 degrees, 44 minutes and 31 seconds, or 156° 44' 31".
-
-define hue-angle as more familiar clock-time-angles ¿(00:00 - 11:59)? ¿(00:00 - 59:59)? for the mathematically uninclined
-hourAngle° = 90 - hours*(360/12)
-minsAngle° = 90 - mins*(360/60)
-********************************/
-
-
-
-SoftMoon.WebWare.HSBA_Color=
-SoftMoon.WebWare.HSVA_Color=HSVA_Color;
-function HSVA_Color($H,$S,$V,$A, $config, $model)  {
-	if (!new.target  &&  !(this instanceof ColorWheel_Color))  throw new Error('SoftMoon.WebWare.HSVA_Color is a constructor, not a function.');
-	$model= ((typeof $model === 'string') && ($model=$model.match( /HSV|HSB/i )) && $model[0].toUpperCase())  ||  'HSB';
-	//$model= $model || "HSV";
-	const proto= this.config ? this : new ColorWheel_Color($config),
-				thisClr=Object.create(proto),
-				hsv=new Array,  hsva=new Array;
-	Object.defineProperty(proto, "constructor", {value: HSVA_Color});
-	Object.defineProperties(hsv, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		2: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true}  });
-	Object.defineProperties(hsva, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		2: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
-		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $S=thisClr.getFactor($arr[1]);  $V=thisClr.getFactor($arr[2]);
-		if ($arr[3] !== undefined)  $A=getAlpha($arr[3]);  }
-	Object.defineProperties(thisClr, {
-		model: {value: $model,  enumerable: true},
-		hsv: {get: function() {return hsv;},  set: readArr,  enumerable: true},
-		hsb: {get: function() {return hsv;},  set: readArr,  enumerable: true},
-		hsva: {get: function() {return hsva;},  set: readArr,  enumerable: true},
-		hsba: {get: function() {return hsva;},  set: readArr,  enumerable: true},
-		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		s: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		v: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
-		b: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
-		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
-		hue:        {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		saturation: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		value:      {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
-		brightness: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
-		alpha:      {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
-		to: {enumerable: true,  value: Object.defineProperty(new Object,
-			'cmyk', {get: HSV_to_CMYK.bind(thisClr, hsv),  enumerable: true}  )}  });
-	return thisClr;  };
-
-
-Object.defineProperties(HSVA_Color, {  //this provides a static globally accessible function unrelated to the HSVA_Color class
-	to_CMYK: {value: HSV_to_CMYK,  enumerable: true},
-	config: {value: {CMYKAFactory: CMYKA_Color}}  });
-
-function HSV_to_CMYK(hsv)  {
-	//HSV values from 0 to 1
-	//CMYK results from 0 to 1
-	var x,h,c,m,y, k=1-hsv[2];
-	if ( hsv[1] == 0 )  return new this.config.CMYKAFactory(0,0,0,k);
-	h=hsv[0]-.5;  if (h<0)  h+=1;
-	h = h%1 * 6;
-	x = h-Math.floor(h);
-	if (h<1)  {c=hsv[1]; m=x*hsv[1]; y=0;}
-	else
-	if (h<2)  {c=(1-x)*hsv[1]; m=hsv[1]; y=0;}
-	else
-	if (h<3)  {c=0; m=hsv[1]; y=x*hsv[1];}
-	else
-	if (h<4)  {c=0; m=(1-x)*hsv[1]; y=hsv[1];}
-	else
-	if (h<5)  {c=x*hsv[1]; m=0; y=hsv[1];}
-	else
-	if (h<6)  {c=hsv[1]; m=0; y=(1-x)*hsv[1];}
-	return new this.config.CMYKAFactory(c,m,y,k, hsv[3]);  }
-
-
-
-SoftMoon.WebWare.HSLA_Color=HSLA_Color;
-function HSLA_Color($H,$S,$L,$A, $config)  {
-	if (!new.target  &&  !(this instanceof ColorWheel_Color))  throw new Error('SoftMoon.WebWare.HSLA_Color is a constructor, not a function.');
-	const proto= this.config ? this : new ColorWheel_Color($config),
-				thisClr=Object.create(proto),
-				hsl=new Array,  hsla=new Array;
-	Object.defineProperty(proto, "constructor", {value: HSLA_Color});
-	Object.defineProperties(hsl, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		2: {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true}  });
-	Object.defineProperties(hsla, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		2: {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true},
-		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $S=thisClr.getFactor($arr[1]);  $L=thisClr.getFactor($arr[2]);
-		if ($arr[3] !== undefined)  $A=thisClr.getAlpha($arr[3]);  }
-	Object.defineProperties(thisClr, {
-		model: {value: "HSL",  enumerable: true},
-		hsl: {get: function() {return hsl;},  set: readArr,  enumerable: true},
-		hsla: {get: function() {return hsla;},  set: readArr,  enumerable: true},
-		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		s: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		l: {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true},
-		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
-		hue:        {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		saturation: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
-		lightness:  {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true},
-		alpha:      {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	return thisClr;  };
-
-
-SoftMoon.WebWare.HCGA_Color=HCGA_Color;
-function HCGA_Color($H,$C,$G,$A, $config)  {
-	if (!new.target  &&  !(this instanceof ColorWheel_Color))  throw new Error('SoftMoon.WebWare.HCGA_Color is a constructor, not a function.');
-	const proto= this.config ? this : new ColorWheel_Color($config),
-				thisClr=Object.create(proto),
-				hcg=new Array,  hcga=new Array;
-	Object.defineProperty(proto, "constructor", {value: HCGA_Color});
-	Object.defineProperties(hcg, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		2: {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true}  });
-	Object.defineProperties(hcga, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		2: {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true},
-		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $C=thisClr.getFactor($arr[1]);  $G=thisClr.getFactor($arr[2]);
-		if ($arr[3] !== undefined)  $A=thisClr.getAlpha($arr[3]);  }
-	Object.defineProperties(thisClr, {
-		model: {value: "HCG",  enumerable: true},
-		hcg: {get: function() {return hcg;},  set: readArr,  enumerable: true},
-		hcga: {get: function() {return hcga;},  set: readArr,  enumerable: true},
-		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		c: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		g: {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true},
-		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
-		hue:    {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		chroma: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		gray:   {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true},
-		alpha:  {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	return thisClr;  };
-
-
-SoftMoon.WebWare.HWBA_Color=HWBA_Color;
-function HWBA_Color($H,$W,$B,$A, $config)  {
-	if (!new.target  &&  !(this instanceof ColorWheel_Color))  throw new Error('SoftMoon.WebWare.HWBA_Color is a constructor, not a function.');
-	const proto= this.config ? this : new ColorWheel_Color($config),
-				thisClr=Object.create(proto),
-				hcg=new Array,  hcga=new Array;
-	Object.defineProperty(proto, "constructor", {value: HWBA_Color});
-	Object.defineProperties(hcg, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
-		2: {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true}  });
-	Object.defineProperties(hcga, {
-		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		1: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
-		2: {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true},
-		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $W=thisClr.getFactor($arr[1]);  $B=thisClr.getFactor($arr[2]);
-		if ($arr[3] !== undefined)  $A=thisClr.getAlpha($arr[3]);  }
-	Object.defineProperties(thisClr, {
-		model: {value: "HWB",  enumerable: true},
-		hwb: {get: function() {return hcg;},  set: readArr,  enumerable: true},
-		hwba: {get: function() {return hcga;},  set: readArr,  enumerable: true},
-		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		w: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
-		b: {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true},
-		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
-		hue:    {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
-		white: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
-		black:  {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true},
-		alpha:  {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	return thisClr;  };
-
-
-SoftMoon.WebWare.CMYKA_Color=CMYKA_Color;
-function CMYKA_Color($C, $M, $Y, $K, $A, $config) {
-	if (!new.target)  throw new Error('SoftMoon.WebWare.CMYKA_Color is a constructor, not a function.');
-	this.config= new RGB_Calc.ConfigStack(this, $config);
-	const thisClr=this,
-				cmyk=new Array,  cmyka=new Array;
-	Object.defineProperties(cmyk, {
-		0: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		1: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
-		2: {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
-		3: {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true}  });
-	Object.defineProperties(cmyka, {
-		0: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		1: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
-		2: {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
-		3: {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true},
-		4: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
-	function readArr($arr)  { $C=thisClr.getFactor($arr[0]);  $M=thisClr.getFactor($arr[1]);  $Y=thisClr.getFactor($arr[2]);  $K=thisClr.getFactor($arr[3]);
-		if ($arr[4] !== undefined)  $A=thisClr.getAlpha($arr[4]);  }
-	Object.defineProperties(this, {
-		cmyk: {get: function() {return cmyk;},  set: readArr,  enumerable: true},
-		cmyka: {get: function() {return cmyka;},  set: readArr,  enumerable: true},
-		c: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		m: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
-		y: {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
-		k: {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true},
-		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
-		cyan:    {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
-		magenta: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
-		yellow:  {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
-		black:   {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true},
-		alpha:   {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });  };
-
-Object.defineProperties(CMYKA_Color.prototype, {
-		getFactor: {value: getFactorValue},
-		getAlpha: {value: getAlphaFactor}  });
-
-CMYKA_Color.prototype.toString=function(format) {
-	if (typeof format != 'string')  format="";
-	format+= " "+this.config.stringFormat;
-	const alpha= (typeof this.alpha === 'number'  ||  (( /alpha/i ).test(format)  &&  (this.alpha=this.config.defaultAlpha||1)))  ?  'A' : "",
-				s= ( ( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) ) ?
-			(Math.roundTo(3, this.c)+', '+Math.roundTo(3, this.m)+', '+Math.roundTo(3, this.y)+', '+Math.roundTo(3, this.k) +
-				(alpha && ', '+Math.roundTo(3, this.a)))
-		: (Math.roundTo(1, this.c*100)+'%, '+Math.roundTo(1, this.m*100)+'%, '+Math.roundTo(1, this.y*100)+'%, '+Math.roundTo(1, this.k*100)+'%' +
-				(alpha && ', '+Math.roundTo(1, this.a*100)+'%'));
-	switch ((format=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i ))  &&  format[0].toLowerCase())  {
-	case 'css':
-	case 'html':
-	case 'wrap':
-	case 'function':  return 'CMYK'+alpha+'('+s+')';
-	case 'prefix':    return 'CMYK'+alpha+': '+s;
-	case 'csv':
-	case 'commas':  return s;
-	case 'plain':  return s.replace( /,/g , "");
-	case 'tabbed':  return s.replace( /, /g , "\t");
-	case 'self':
-	default:  return 'CMYKA_Color: ('+s+')';  }  }
-
-
-
-
 //===============================================================
 //  These functions are shared by the Color objects and RGB_Calc
 
 
 	// make sure the color’s value is an integer; and in the boundaries of 0-255; if not, “reflect” it back or “truncate”.
 function getByteValue(v)  {
-	var isNotPercent=true;
+	var isNotPercent=true;  // or a factor…
 	if (typeof v === 'string')  {
 		if (v.substr(-1)==='%')  {v=parseFloat(v)*2.55;  isNotPercent=false;}
 		else  v=parseFloat(v);  }
+	else if (v instanceof Number)  switch (v.unit)  {// this experimental property name is subject to change
+		case "%": v=v*2.55;  isNotPercent=false;  break;
+		case "factor": v=v*255;  isNotPercent=false;  break;  }
 	if (this.config.inputAsFactor  &&  isNotPercent  /* &&  v<=1  &&  v>=0 */)  v=v*255;
 	if (this.config.reflect)  {v=Math.abs(v);  while (v>255)  {v=Math.abs(255-(v-255));}}
 	else {
@@ -783,42 +363,80 @@ function getByteValue(v)  {
 		else if (v<0)  v=0;  }
 	return  this.config.roundRGB ? Math.round(v) : v;  }
 
-function getFactorValue(v)  {
-	v= (this.config.inputAsFactor  &&  (typeof v !== 'string'  ||  v.substr(-1)!=="%"))  ?
-		parseFloat(v)  :  (parseFloat(v)/100);
-	return (v<0 || v>1) ? false : v;  }
-
-function getAlphaFactor(v)  {
-	v= (typeof v !== 'string'  ||  v.substr(-1)!=="%")  ?
-		parseFloat(v)  :  (parseFloat(v)/100);
-	return v<0 ? 0 : (v>1 ? 1 : v);  }
-
-function factorize(a, stop, start)  {
-	if (start  &&  (a[0]=this.getHueFactor(a[0])) === false)  return false;
-	for (var tmp, i=start||0; i<stop; i++)  {if ( (tmp=getFactorValue.call(this, a[i])) === false )  return false;  else  a[i]=tmp;}
-	if (a[stop] !== undefined)  a[stop]=getAlphaFactor(a[stop]);
-	return a;  }
-
 function getHueFactor(h)  {
 	var m, unit=this.config.hueAngleUnit;
 	if (typeof h === 'string')  {
 		if (m=h.match( RegExp.Hue ))  {h=parseFloat(m[1]);  unit= (m=m[2]) || unit;}
 		else {console.error('bad hue:'+h+'  unit: '+unit);  return false;  }  }
+	else if (h instanceof Number  &&  (h.unit in hueAngleUnitFactors))
+		unit=h.unit;  // this experimental property name is subject to change
 	if ( (this.config.inputAsFactor  &&  !m)
 	||  unit==='turn'  ||  unit==="●" )
+	// in the future, all grayscale may be hue=1 instead of hue=0
+	//     (v<0 || v>=1)
 		return Math.sawtooth(1,h);
 	return  hueAngleUnitFactors[unit] ?  Math.sawtooth(hueAngleUnitFactors[unit], h)/hueAngleUnitFactors[unit] : false;  }
 
+function getFactorValue(v)  {
+	v= (this.config.inputAsFactor
+		&&  (typeof v !== 'string'  ||  !v.endsWith("%"))
+		&&  (!(v instanceof Number)  ||  v.unit!=='%'))  ?  // this experimental property name is subject to change
+		parseFloat(v)  :  (parseFloat(v)/100);
+	return (v<0 || v>1) ? false : v;  }
+
+function getAlphaFactor(v)  {
+	v= ((typeof v !== 'string'  ||  !v.endsWith("%"))
+		&&  (!(v instanceof Number)  ||  v.unit!=='%'))  ?  // this experimental property name is subject to change
+		parseFloat(v)  :  (parseFloat(v)/100);
+	return (v<0 || v>1) ? false : v;  }
+
+function factorize(a, stop, start)  {
+	if (this.config.preserveInputArrays)	a=Array.from(a);
+	if (start  &&  (a[0]=this.getHueFactor(a[0])) === false)  return false;
+	for (var tmp, i=start||0; i<stop; i++)  {
+		if ( (tmp=this.getFactor(a[i])) === false )  return false;
+		else  a[i]=tmp;  }
+	if (a[stop] !== undefined)  {
+		if ((tmp=getAlphaFactor(a[stop]))===false)  return false
+		else a[stop]=tmp;  }
+	return a;  }
+
+// Add-on Alpha values are non-standard and defined on Palette color names:  blue, 75%;
+// If the RGB-color that the the color-name defines already has an alpha value defined,
+// we can multiply-in the add-on alpha in any customized way.
+//function multiplyAddOnAlpha(a1, a2) {return a1-a2*(1-a1);},
+function multiplyAddOnAlpha(a1, a2) {return a1*a2;}
+
+// If you create your own Color object class (see the .config _Factory pointers),
+// you may need to also update/replace this function to work with them.
+function applyAlpha(c_o, a, source)  {
+	// Our color object will define an RGB value
+	if (c_o instanceof Array)  {
+		if (typeof c_o[3] === 'number'  ||  c_o[3] instanceof Number)
+			c_o[3]=this.multiplyAddOnAlpha(c_o[3], a);
+		else  c_o[3]=a;
+		return c_o;  }
+	if ('alpha' in c_o)  {
+		if (typeof c_o.alpha === 'number'  ||  c_o.alpha instanceof Number)
+			c_o.alpha=this.multiplyAddOnAlpha(c_o.alpha, a);
+		else  c_o.alpha=a;
+		return c_o;  }
+	return this.config.onError('Can not apply add-on alpha to unknown Color object. ', source);  }
+
+
 //===============================================================
+
+
+const MSG_noAddOnAlpha='Can not add on alpha values to named colors.';
 
 
 SoftMoon.WebWare.RGB_Calc=RGB_Calc;
 function RGB_Calc($config, $quickCalc, $mini)  {
 	if (!new.target)  throw new Error('RGB_Calc is a constructor, not a function.');
-//     The calc function (below) returns an RGBA_Color object (see above)
+//     The calc function (below) returns a color-object of your choice according to calc.config.RGBA_Factory
 //
 //     The calc function input can accept color definitions in many ways:
-// • as three distinct RGB values (pass in three distinct arguments)
+// • as three distinct RGB values (pass in three distinct arguments) (a forth alpha value is optional)
 //    These RGB values may be byte values (0-255), percent values with % sign (0%-100%), or factor values (0-0.999………).
 //  === options below require passing in ¡only! one argument ===
 // • as three distinct RGB values passed in as an array indexed 0,1,2 (see note above)
@@ -831,6 +449,8 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 // NOTE: that while byte values passed in should technically be (int) in the range of 0-255,
 //  when passed in as 3 individual values or as an array of 3 values, values outside this range
 //  are allowed, but are “truncated” or “reflected” back into the legal range.  (float)s are rounded to (int)s.
+// You can also pass in a simple Array of values for another color-space besides RGB
+//  by passing the Array with a .colorSpace property with a string specifying the specific space.
 //
 	const calc= ($quickCalc) ? this : function ($string)  {  // ← defining a color in multiple color-space formats
 //                                // alternate arguments format shown below
@@ -838,40 +458,49 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 //                  ([r,g,b,a])
 //                  (r, g, b)
 //                  ([r,g,b])
-			var matches, p, pClr;
+			var matches, pClr;
 			if (arguments.length===1)  {
 				if ($string == null)  return null;
 				if (typeof $string === 'string')  {
 					if (RegExp.isHex.test($string))
-						return calc.from.hex($string);
-					//if ((typeof SoftMoon.palettes[SoftMoon.defaultPalette] === 'object')
+							return calc.from.hex($string);
 					if ((SoftMoon.palettes[SoftMoon.defaultPalette] instanceof SoftMoon.WebWare.Palette)
 					&&  (pClr=$string.match(RegExp.addOnAlpha))
 					&&  (matches=SoftMoon.palettes[SoftMoon.defaultPalette].getColor(pClr[1])) )  {
-						if (pClr[2])  calc.config.stack({defaultAlpha:{value:null}});
 						calc.config.stack(SoftMoon.palettes[SoftMoon.defaultPalette].config);
-						matches=calc(matches);
-						calc.config.cull();
-						if (pClr[2])  calc.config.cull();
-						if (matches  &&  pClr[2])  matches=calc.config.applyAlpha(matches, calc.getAlpha(pClr[2]), 'Palette color');
+						try {
+							if (pClr[2]  &&  calc.config.forbidAddOnAlpha)
+								return calc.config.onError($string, undefined, MSG_noAddOnAlpha)
+							matches=calc(matches);  }
+						finally {calc.config.cull();}
+						if (matches)  {
+							matches.palette=SoftMoon.defaultPalette;
+							matches.colorName=pClr;
+							if (pClr[2])  matches=calc.applyAlpha(matches, calc.getAlpha(pClr[2]), 'Palette color');  }
 						return matches;  }
 					if (matches=($string.match(RegExp.stdWrappedColor)  ||  $string.match(RegExp.stdPrefixedColor)))  {
 						matches[1]=matches[1].trim().toLowerCase();
 						if (typeof calc.from[matches[1]] === 'function')  {
 							return calc.from[matches[1]](matches[2]);       }
-						for (p in SoftMoon.palettes)  {
+						for (const p in SoftMoon.palettes)  {
 							if (p.toLowerCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
 								matches=matches[2].match(RegExp.addOnAlpha);
-								let a=matches[2];
-								if (a) calc.config.stack({defaultAlpha:{value:null}});
+								const name=matches[1], a=matches[2];
 								calc.config.stack(SoftMoon.palettes[p].config);
-								matches=calc(SoftMoon.palettes[p].getColor(matches[1]));
-								calc.config.cull();
-								if (a) calc.config.cull();
-								if (matches  &&  a)  matches=calc.config.applyAlpha(matches, calc.getAlpha(a), 'Palette color');
-								return matches;  }  }  }  }  }
-			//return calc.from.rgba.apply(calc.from, arguments);  };
+								try {
+									if (a  &&  calc.config.forbidAddOnAlpha)
+										return calc.config.onError($string, undefined, MSG_noAddOnAlpha)
+									matches=calc(SoftMoon.palettes[p].getColor(name));  }
+								finally {calc.config.cull();}
+								if (matches)  {
+									matches.palette=p;
+									matches.colorName=name;
+									if (a)  matches=calc.applyAlpha(matches, calc.getAlpha(a), 'Palette color');  }
+								return matches;  }  }  }  }
+				if (arguments[0] instanceof Array  &&  typeof calc.from[arguments[0].colorSpace] === 'function')
+					return calc.from[arguments[0].colorSpace](arguments[0]);  }
 			return calc.from.rgba(...arguments);  };
+
 	if (!$quickCalc)  {
 		const props=Object.getOwnPropertyNames(RGB_Calc.prototype);
 		for (const p of props)  {Object.defineProperty(calc, p, Object.getOwnPropertyDescriptor(RGB_Calc.prototype, p));}
@@ -894,8 +523,6 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 
 
 
-
-
 //===============================================================
 
 
@@ -906,6 +533,7 @@ RGB_Calc.ConfigStack=function($owner, $config)  {
 
 
 RGB_Calc.ConfigStack.prototype={
+	name: 'RGB_Calc.ConfigStack',
 
 //  for the RGB color model,
 //  depending on the flag below,
@@ -917,11 +545,13 @@ RGB_Calc.ConfigStack.prototype={
 //  values may be rounded to integers or left as floating-point values.
 	roundRGB: false,
 
-/* This controls how RGB_Calc interprets == string == values,
+	inputShortHex: false,
+
+/* This controls how RGB_Calc interprets == “audit” == values,
  * which are by definition here from an “outside” source (user input, palette files, etc.).
- * RGB_Calc always interprets == numerical == values as bytes or factors, depending on the color-space;
+ * RGB_Calc always interprets == “quick” == values as bytes or factors, depending on the color-space;
  * they are by definition from the “local” program, and it can convert them before hand as needed.
- * By default (inputAsFactor=false) RGB_Calc interprets == strings == as a “loose” CSS string.
+ * By default (inputAsFactor=false) an “audit” RGB_Calc interprets == strings == as a “loose” CSS string.
  * It will allow mixing bytes and percents (with a percent % sign) in an rgb color-space.
  * It will interpret other color-space values (the “s” & “l” in hsl for example)
  * as percent values when they do not have a percent % sign.
@@ -933,68 +563,70 @@ RGB_Calc.ConfigStack.prototype={
  */
 	inputAsFactor: false,
 
-	inputShortHex: false,
+/* When you pass an Array into an “audit” calculator,
+ * it will interpret the values and may convert them into factors from 0–1
+ * You may want to have access to those converted values,
+ * or you may want to preserve the original values: your choice.
+ * RGB Arrays are always preserved.
+ */
+	preserveInputArrays: true,
+
 /*
  * the  hueAngleUnit  default is overridden by  inputAsfactor  when input values have undeclared units
+ *
+ * default input unit for calculators.  default output unit for ColorWheel_Color objects.
+ * Valid units are listed (below) as property keys of  SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors
  */
-//  default input unit.  Valid units are listed (below) as property keys of  SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors
 	hueAngleUnit: 'deg',
-
-//  for (HSL, HSV and HCG) ColorWheel_Color Objects,
-//  depending on the Boolean status of the flag below,
-//  you may output hues (via the toString() method) with a:
-//   • symbol: (0° - 359.999…°)  ← when applicable for the hue-angle-unit
-//   • textual suffix: (0deg - 359.999deg)
-//  by default (null) the hue-angle-unit is not altered.
-	useAngleUnitSymbol: null,
 
 //  when outputting RGB Hex values, this flag determines the format:  A1B2C3  or  #A1B2C3
 	useHexSymbol: true,
 
-//  If no alpha is defined when doing a conversion, the defaultAlpha
+//  If no alpha is defined (===undefined) when doing a conversion, the defaultAlpha
 //  will be defined by RGB_Calc in the output object instance (i.e. the Array, RGBA_Color, ColorWheel_Color, or CMYKA_Color)
-//  Also, instances of RGBA_Color, ColorWheel_Color, and CMYKA_Color, use this in a similar way.
-//  Note a defaultAlpha value of 0 will never be applied.
+//  If no alpha is defined (===undefined) when doing a conversion AND the defaultAlpha===undefined,
+//  no alpha value at all will be passed to the output object instance;
+//  this will affect the  .length  properties of Arrays.
+//  Alpha values may be just about anything, including null, as used internally.
+//  Also, RGBA_Color, ColorWheel_Color, and CMYKA_Color  constructors   use this in a similar way.
+//  With those color objects, the defaultAlpha is used for the internal alpha value.
+//  However note, when those objects output a string, and string format requires an alpha value
+//  and none is found to be  numeric  a default value of 100% is used.
 	defaultAlpha: undefined,
 
-// Add-on Alpha values are non-standard and defined on Palette color names:  blue, 75%;
-// If the RGB-color that the the color-name defines already has an alpha value defined,
-// we can multiply-in the add-on alpha in any customized way,
-// or make it an error (undefined color) by setting this value to false.
-	multiplyAddOnAlpha: function (a1, a2) {return a1-a2*(1-a1);},
-
-// If you create your own Color object class (see the Factory pointers below),
-// you may need to also update/replace this function to work with them.
-	applyAlpha: function applyAlpha(c_o, a, source)  {
-		// Our color object will define an RGB value
-		if (c_o instanceof Array)  {
-			if (c_o[3] === undefined)  {c_o[3]=a;  return c_o;}
-			else if (this.multiplyAddOnAlpha)  {c_o[3]=this.multiplyAddOnAlpha(c_o[3], a);  return c_o;}
-			else return this.onError('Can not apply add-on alpha; it is already set', source);  }
-		if ('alpha' in c_o)  {
-			if (c_o.alpha === undefined)  {c_o.alpha=a;  return c_o;}
-			else if (this.multiplyAddOnAlpha)  {c_o.alpha=this.multiplyAddOnAlpha(c_o.alpha, a);  return c_o;}
-			else return this.onError('Can not apply add-on alpha; it is already set', source);  }
-		return this.onError('Can not apply add-on alpha to unknown Color object', source);  },
+/*For named (palette) colors
+ *we can allow an add-on alpha or not.
+ *If a named color’s value is RGBA(50%, 55%, 70%, 80%)
+ *and it is in the “Sky” palette and its name is “clouds”
+ *auditing calculators can use the following spec:
+ *Sky: clouds / 84% opacity;
+ */
+	forbidAddOnAlpha: false,
 
 //  You may want to use  Array  or create your own Class constructor for any of these Factories
-	RGBAFactory: SoftMoon.WebWare.RGBA_Color,
-	CMYKAFactory: SoftMoon.WebWare.CMYKA_Color,
-	ColorWheelFactory: SoftMoon.WebWare.ColorWheel_Color,
+	RGBA_Factory: RGBA_Color,
+	HSLA_Factory: HSLA_Color,
+	HSBA_Factory: HSBA_Color,
+	HSVA_Factory: HSVA_Color,
+	HWBA_Factory: HWBA_Color,
+	HCGA_Factory: HCGA_Color,
+	CMYKA_Factory: CMYKA_Color,
 /*
- *The 3 factory pointers (above) control the output of the RGB_Calc–functions and its instances.
+ *The 7 factory pointers (above) control the output of the RGB_Calc–functions and its instances.
  *
  * //this example provides a calculator that returns RGB output as a simple array of values, instead of the default RGBA_Color object instance:
- * myCalc=new SoftMoon.WebWare.RGB_Calc({RGBAFactory:Array});
+ * myCalc=new SoftMoon.WebWare.RGB_Calc({RGBA_Factory:Array});
  *
  * //this example provides a calculator that returns an RGBA_Color object instance that outputs hex using the # symbol, regardless of the universal default:
  * myCalc=new SoftMoon.WebWare.RGB_Calc;
- * myCalc.config.RGBAFactory=function(r,g,b,a)  {return new SoftMoon.WebWare.RGBA_Color(r,g,b,a,{useHexSymbol:true})};
+ * myCalc.config.RGBA_Factory=function(r,g,b,a)  {return new SoftMoon.WebWare.RGBA_Color(r,g,b,a,{useHexSymbol:true})};
  */
 
-	onError: function(clr, ct)  {
+	onError: function(clr, ct, msg)  {
+		var message;
 		if (this.throwErrors  ||  this.logErrors)  {
-			var message= ct ?  ('Bad values for '+ct+' conversion: “'+clr+'”.')
+			if (msg)  message=msg+' Color: '+clr;
+			else  message= ct ?  ('Bad values for '+ct+' conversion: “'+clr+'”.')
 												:  ('The color “'+clr+'” is undefined.');  }
 		if (this.logErrors)
 			console.error(message);
@@ -1010,6 +642,8 @@ RGB_Calc.ConfigStack.prototype={
 };
 
 Object.defineProperties( RGB_Calc.ConfigStack.prototype, {
+	name: {value:"RGB_Calc.ConfigStack"},
+	constructor: {value:RGB_Calc.ConfigStack},
 	stack: { value: function($newConfig) {
 			return this.owner.config=Object.create(this, $newConfig);  }  },
 	cull: { value: function() {
@@ -1027,19 +661,22 @@ RGB_Calc.config=new RGB_Calc.ConfigStack(RGB_Calc);
 
 
 //===============================================================
-var defem={
+// these are worker methods of a calculator
+const defem={
 	getByte:     {value: getByteValue},
 	getFactor:   {value: getFactorValue},
+	getHueFactor:{value: getHueFactor},
 	getAlpha:    {value: getAlphaFactor},
 	factorize:   {value: factorize},
-	getHueFactor:{value: getHueFactor},
+	applyAlpha:  {value: applyAlpha},
+	multiplyAddOnAlpha: {value: multiplyAddOnAlpha},
 	convertColor:{value: convertColor}  /*for plug-ins*/
 	};
 Object.defineProperties(RGB_Calc, defem);
 Object.defineProperties(RGB_Calc.prototype, defem);
 
 
-var hueAngleUnitFactors=
+const hueAngleUnitFactors=
 RGB_Calc.hueAngleUnitFactors=  //you may add to these …but replacing them altogether does nothing…
 	Object.defineProperties(new Object, {
 		'deg':  {value: 360,       enumerable: true},
@@ -1062,12 +699,11 @@ const round=Math.round;
 function outputRGB(r,g,b,a)  {
 	if (this.config.roundRGB)  {
 			r=round(r); g=round(g); b=round(b);  }
-	//When RGBAFactory=Array we don’t want the length property to be ===4 with an undefined alpha.
-	//Other colors’ Factories don’t get that consideration.
-	if (typeof a === 'number'  ||  (a=this.config.defaultAlpha))
-		return new this.config.RGBAFactory(r,g,b,a);
+	//When RGBA_Factory=Array we don’t want the length property to be ===4 with an undefined alpha.
+	if (a===undefined  &&  (a=this.config.defaultAlpha)===undefined)
+		return new this.config.RGBA_Factory(r,g,b);
 	else
-		return new this.config.RGBAFactory(r,g,b);  }
+		return new this.config.RGBA_Factory(r,g,b,a);  }
 
 
 //===============================================================
@@ -1095,52 +731,6 @@ RGB_Calc.prototype.install= function(cSpace, provider)  {
 			this.from[cSpace]= this.$ ? meta.from.audit : meta.from.quick;  }  }
 
 
-//===============================================================
-//  c1 and c2 are arrays of RGBA values (you must supply the alpha!)
-//  returns an array of RGBA values for the color created by mixing c1 & c2 at the mix-rate in the given color-space
-/* prototype code: may have bugs
-RGB_Calc.mixColors=
-RGB_Calc.prototype.mixColors= function(c1,c2,mix,cSpace)  {
-	switch (cSpace)  {
-	case 'rgb':
-		return new this.config.RGBAFactory(c1[0]+(c2[0]-c1[0])*mix, c1[1]+(c2[1]-c1[1])*mix, c1[2]+(c2[2]-c1[2])*mix, c1[3]+(c2[3]-c1[3])*mix);
-	case 'cmyk':
-		this.config.stack({CMYKAFactory:{value:Array}});
-		try {c1=this.to.cmyk(c1);  c2=this.to.cmyk(c2);}
-		finally {this.config.cull();}
-		return fromCMYK.call(this, [c1[0]+(c2[0]-c1[0])*mix, c1[1]+(c2[1]-c1[1])*mix, c1[2]+(c2[2]-c1[2])*mix, c1[3]+(c2[3]-c1[3])*mix, c1[4]+(c2[4]-c1[4])*mix]);
-	case 'hsl':
-	case 'hsv':
-	case 'hsb':
-	case 'hcg':
-		var c_2;
-		this.config.stack({ColorWheelFactory:{value:Array}, logErrors:{value:true}});
-		try {
-		const rounder=Math.roundTo.bind(Math, 5);  //the teeny-tiny floating-point errors can cause problems
-		c_2=c2;
-		c1=this.to[cSpace](c1).map(rounder);  c2=this.to[cSpace](c2).map(rounder);
-		// if saturation/chroma === 0, this is a grayscale, no color;
-		// grayscale values use the "red" hue (0°)
-		// and we don't want to cycle through all the hues between to grade to a grayscale.
-		if (c1[1]===0)  c1[0]=c2[0];
-		else
-		if (c2[1]===0)  c2[0]=c1[0];
-		else
-		if (c1[0]-c2[0]>0.5)  c2[0]+=1;
-		else
-		if (c2[0]-c1[0]>0.5)  c1[0]+=1;
-		this.config.inputAsFactor=true;
-		const c=this.from[cSpace]([  (c1[0]+(c2[0]-c1[0])*mix)%1  , c1[1]+(c2[1]-c1[1])*mix, c1[2]+(c2[2]-c1[2])*mix, c1[3]+(c2[3]-c1[3])*mix].map(rounder));
-		return c;
-		} catch (e) {console.error(c1, c_2, c2, mix, e); return [0,0,0,0];}  finally {this.config.cull();}
-	default:
-		const msg='unknown ColorSpace in RGB_Calc mixColors()';
-		if (this.config.logErrors)  console.error(msg);
-		if (this.config.throwErrors)  throw new Error(msg);  }  }
-*/
-
-
-//===============================================================
 
 
 // This object’s properties are conversion functions.
@@ -1150,9 +740,10 @@ Object.defineProperty(RGB_Calc, 'to', {
 	value: Object.create(RGB_Calc, {definer: {value: { quick: {}, audit: {} }}})  });
 
 function convertColor(args, converter, model) {
-	this.config.stack({RGBAFactory: {value:Array}});
-	const _color=this.$(args[0]);
-	this.config.cull();
+	var _color;
+	this.config.stack({RGBA_Factory: {value:Array}});
+	try {_color=this.$(args[0]);}
+	finally {this.config.cull();}
 	return (args[0]=_color) ?  converter.apply(this, args)  :  this.config.onError(args, 'RGB_Calc.to.'+model);  };
 
 
@@ -1190,10 +781,11 @@ function toRGBA(rgba)  {return this.outputRGB(rgba[0], rgba[1], rgba[2], rgba[3]
 RGB_Calc.to.hsv=toHSV;
 RGB_Calc.to.definer.quick.hsv={value:toHSV};
 RGB_Calc.to.definer.audit.hsv={value: function() {return convertColor.call(this, arguments, toHSV, 'hsv');}};
-function toHSV(rgb, model)  {  //RGB from 0 to 255   HSV results from 0 to 1   alpha should be 0 <= a <= 1
+function toHSV(rgb, model='HSV')  {  //RGB from 0 to 255   HSV results from 0 to 1   alpha should be 0 <= a <= 1
+	//note  model  is used here internally, and is not meant to be a passed parameter, unless it is "HSB"
 	var H, S;
 	const
-	A= (typeof rgb[3] === 'number') ? rgb[3] : this.config.defaultAlpha,
+	A= (typeof rgb[3] === undefined) ? this.config.defaultAlpha : rgb[3],
 	R = ( rgb[0] / 255 ),
 	G = ( rgb[1] / 255 ),
 	B = ( rgb[2] / 255 ),
@@ -1217,7 +809,8 @@ function toHSV(rgb, model)  {  //RGB from 0 to 255   HSV results from 0 to 1   a
 		if ( H < 0 ) H += 1;
 		if ( H > 1 ) H -= 1;  }
 
-	return new this.config.ColorWheelFactory(H,S,V,A, model || 'HSV');  }
+	if (A===undefined)  return new this.config[model+"A_Factory"](H,S,V);
+	else  return new this.config[model+"A_Factory"](H,S,V,A);  }
 
 
 RGB_Calc.to.hsb=toHSB;
@@ -1232,7 +825,7 @@ RGB_Calc.to.definer.audit.hsl={value: function() {return convertColor.call(this,
 function toHSL(rgb)  {  //RGB from 0 to 255   HSV results from 0 to 1   alpha should be 0 <= a <= 1
 	var H, S;
 	const
-	A= (typeof rgb[3] === 'number') ? rgb[3] : this.config.defaultAlpha,
+	A= (typeof rgb[3] === undefined) ? this.config.defaultAlpha : rgb[3],
 	R = ( rgb[0] / 255 ),
 	G = ( rgb[1] / 255 ),
 	B = ( rgb[2] / 255 ),
@@ -1262,7 +855,8 @@ function toHSL(rgb)  {  //RGB from 0 to 255   HSV results from 0 to 1   alpha sh
 		if ( H < 0 ) H += 1;
 		if ( H > 1 ) H -= 1;  }
 
-	return new this.config.ColorWheelFactory(H,S,L,A, 'HSL');  }
+	if (A===undefined)  return new this.config.HSLA_Factory(H,S,L);
+	else  return new this.config.HSLA_Factory(H,S,L,A);  }
 
 
 RGB_Calc.to.hcg=toHCG;
@@ -1271,7 +865,7 @@ RGB_Calc.to.definer.audit.hcg={value: function() {return convertColor.call(this,
 function toHCG(rgb)  {  //RGB from 0 to 255   Hue, Chroma, Gray (HCG) results from 0 to 1   alpha should be 0 <= a <= 1
 	var H, C, G;
 	const
-	A= (typeof rgb[3] === 'number') ? rgb[3] : this.config.defaultAlpha,
+	A= (typeof rgb[3] === undefined) ? this.config.defaultAlpha : rgb[3],
 	r = ( rgb[0] / 255 ),
 	g = ( rgb[1] / 255 ),
 	b = ( rgb[2] / 255 ),
@@ -1314,7 +908,8 @@ function toHCG(rgb)  {  //RGB from 0 to 255   Hue, Chroma, Gray (HCG) results fr
 		if ( H < 0 ) H += 1;
 		if ( H > 1 ) H -= 1;  }
 
-	return new this.config.ColorWheelFactory(H,C,G,A, 'HCG');  }
+	if (A===undefined)  return new this.config.HCGA_Factory(H,C,G);
+	else  return new this.config.HCGA_Factory(H,C,G,A);  }
 
 
 RGB_Calc.to.hwb=toHWB;
@@ -1323,7 +918,7 @@ RGB_Calc.to.definer.audit.hwb={value: function() {return convertColor.call(this,
 function toHWB(rgb)  {  //RGB from 0 to 255   Hue, White, Black (HWB) results from 0 to 1   alpha should be 0 <= a <= 1
 	var H, C, G;
 	const
-	A= (typeof rgb[3] === 'number') ? rgb[3] : this.config.defaultAlpha,
+	A= (typeof rgb[3] === undefined) ? this.config.defaultAlpha : rgb[3],
 	r = ( rgb[0] / 255 ),
 	g = ( rgb[1] / 255 ),
 	b = ( rgb[2] / 255 ),
@@ -1347,15 +942,15 @@ function toHWB(rgb)  {  //RGB from 0 to 255   Hue, White, Black (HWB) results fr
 		if ( H > 1 ) H -= 1;  }
 	else H=0;
 
-  return new this.config.ColorWheelFactory(H, low, 1-high, A, 'HWB');  }
+  if (A===undefined)  return new this.config.HWBA_Factory(H, low, 1-high);
+	else  return new this.config.HWBA_Factory(H, low, 1-high, A);  }
 
 
 RGB_Calc.to.cmyk=toCMYK;
 RGB_Calc.to.definer.quick.cmyk={value:toCMYK};
 RGB_Calc.to.definer.audit.cmyk={value: function() {return convertColor.call(this, arguments, toCMYK, 'cmyk');}};
 function toCMYK(rgb)  {  //RGB from 0 to 255    CMYK results from 0 to 1   alpha should be 0 <= a <= 1
-	const A= (typeof rgb[3] === 'number') ? rgb[3] : this.config.defaultAlpha;
-	var C, M, Y, K;
+	var C, M, Y, K, A= (typeof rgb[3] === undefined) ? this.config.defaultAlpha : rgb[3];
 	C = 1 - ( rgb[0] / 255 );
 	M = 1 - ( rgb[1] / 255 );
 	Y = 1 - ( rgb[2] / 255 );
@@ -1373,7 +968,8 @@ function toCMYK(rgb)  {  //RGB from 0 to 255    CMYK results from 0 to 1   alpha
 		C = ( C - K ) / ( 1 - K );
 		M = ( M - K ) / ( 1 - K );
 		Y = ( Y - K ) / ( 1 - K );  }
-	return new this.config.CMYKAFactory(C,M,Y,K,A);  }
+	if (A===undefined)  return new this.config.CMYKA_Factory(C,M,Y,K);
+	else  return new this.config.CMYKA_Factory(C,M,Y,K,A);  }
 
 
 
@@ -1415,10 +1011,10 @@ function fromRGBA(r, g, b, a)  {  // alternate arguments format shown below
 			a=arguments[0][3];  b=arguments[0][2];  g=arguments[0][1];  r=arguments[0][0];  }
 		else
 		return this.config.onError(arguments[0], "RGBA");  }
-	if (a !== undefined  ||  (a=this.config.defaultAlpha)!== undefined)
-		return new this.config.RGBAFactory(this.getByte(r), this.getByte(g), this.getByte(b), this.getAlpha(a));
+	if (a === undefined  &&  (a=this.config.defaultAlpha) === undefined)
+		return new this.config.RGBA_Factory(this.getByte(r), this.getByte(g), this.getByte(b));
 	else
-		return new this.config.RGBAFactory(this.getByte(r), this.getByte(g), this.getByte(b));  }
+		return new this.config.RGBA_Factory(this.getByte(r), this.getByte(g), this.getByte(b), this.getAlpha(a));  }
 
 
 RGB_Calc.from.definer.quick.hex={enumerable:true, value:fromHex};
@@ -1441,7 +1037,7 @@ function fromHex(h)  {
 	return this.config.onError(h, 'Hex');  }
 
 
-var r, g, b;
+let r, g, b;
 function rgb_from_hue(hFactor)  { //  0 <= hFactor < 1   ¡¡¡  ≠1  !!!
 	const h = hFactor * 6,
 				x = h%1;
@@ -1470,7 +1066,7 @@ function RGB_Calc_from_hue(h)  { rgb_from_hue(h);
 
 function parseColorWheelColor($cwc, model)  {
 	var matches;
-	if (typeof $cwc == 'string')
+	if (typeof $cwc === 'string')
 		if (matches=($cwc.match(this.config.inputAsFactor ? RegExp.threeFactors_A : RegExp.ColorWheelColor_A)))
 			$cwc=matches.slice(1);
 		else  return this.config.onError($cwc, model);
@@ -1583,7 +1179,8 @@ RGB_Calc.from.definer.audit.cmya={enumerable:true, value:function($cmy) {
 		if (matches=$cmy.match(this.config.inputAsFactor ? RegExp.threeFactors_A : RegExp.cmy_a))
 			$cmy=matches.slice(1);
 		else  return this.config.onError($cmy, 'CMY');
-	return  (this.factorize($cmy,3)  &&  fromCMY.call(this, $cmy))  ||  this.config.onError($cmy, 'CMY');  }  };
+	//return  (this.factorize($cmy,3)  &&  fromCMY.call(this, $cmy))  ||  this.config.onError($cmy, 'CMY');  }  };
+	return  (($cmy=this.factorize($cmy,3))  &&  fromCMY.call(this, $cmy))  ||  this.config.onError($cmy, 'CMY');  }  };
 RGB_Calc.from.cmy=
 RGB_Calc.from.cmya=fromCMY;
 function fromCMY(cmy)  {
@@ -1605,7 +1202,8 @@ RGB_Calc.from.definer.audit.cmyka={enumerable:true, value:function($cmyk) {
 		if (matches=$cmyk.match(this.config.inputAsFactor ? RegExp.fourFactors_A : RegExp.cmyk_a))
 			$cmyk=matches.slice(1);
 		else  return this.config.onError($cmyk, 'CMYK');
-	return  (this.factorize($cmyk,4)  &&  fromCMYK.call(this, $cmyk))  ||  this.config.onError($cmyk, 'CMYK');  }  };
+	//return  (this.factorize($cmyk,4)  &&  fromCMYK.call(this, $cmyk))  ||  this.config.onError($cmyk, 'CMYK');  }  };
+	return  (($cmyk=this.factorize($cmyk,4))  &&  fromCMYK.call(this, $cmyk))  ||  this.config.onError($cmyk, 'CMYK');  }  };
 RGB_Calc.from.cmyk=
 RGB_Calc.from.cmyka=fromCMYK;
 function fromCMYK(cmyk)  {
@@ -1653,9 +1251,502 @@ fromXYZ.inputRanges.illuminant='D65';
 fromXYZ.inputRanges.observer='2°';
 Object.seal(fromXYZ.inputRanges);
 
+/*********************************************************************************/
+/*********************************************************************************/
+/*********************************************************************************/
 
 
-})();  // close the private namespace
+
+/*
+	This is meant to be a universal object that can be
+	 compatibly passed through different libraries without hassle………♪♫ hopefully ♫♪ ☻☺☻☺ ♦♥♣♠♂♀ ☺☻☺☻
+*/
+SoftMoon.WebWare.RGBA_Color=RGBA_Color;
+function RGBA_Color($r, $g, $b, $a, $config)  {
+	if (!new.target)  throw new Error('SoftMoon.WebWare.RGBA_Color is a constructor, not a function.');
+	this.config= new RGBA_Color.ConfigStack(this, $config);
+	const ThisColorObject=this,
+			rgb=new Array,
+			rgba=new Array;
+	if (typeof $a === undefined)  $a=this.config.defaultAlpha;
+	Object.defineProperties(rgb, {
+		0: {get: function() {return $r;},  set: function($red) {$r=ThisColorObject.getByte($red);},  enumerable: true},
+		1: {get: function() {return $g;},  set: function($grn) {$g=ThisColorObject.getByte($grn);},  enumerable: true},
+		2: {get: function() {return $b;},  set: function($blu) {$b=ThisColorObject.getByte($blu);},  enumerable: true}  });
+	Object.defineProperties(rgba, {
+		0: {get: function() {return $r;},  set: function($red) {$r=ThisColorObject.getByte($red);},  enumerable: true},
+		1: {get: function() {return $g;},  set: function($grn) {$g=ThisColorObject.getByte($grn);},  enumerable: true},
+		2: {get: function() {return $b;},  set: function($blu) {$b=ThisColorObject.getByte($blu);},  enumerable: true},
+		3: {get: function() {return $a;},  set: function($alf) {$a=ThisColorObject.getAlpha($alf);},  enumerable: true}  });
+	function readArr($arr)  { $r=this.getByte($arr[0]);  $g=this.getByte($arr[1]);  $b=this.getByte($arr[2]);
+		if (typeof $arr[3] === 'number')  $a=this.getByte($arr[3]);  }
+	Object.defineProperties(this, {
+		rgb:  {get: function() {return rgb;},  set: readArr,  enumerable: true},
+		rgba: {get: function() {return rgba;}, set: readArr,  enumerable: true},
+		r:     {get: function() {return $r;},  set: function($red) {$r=this.getByte($red);},  enumerable: true},
+		g:     {get: function() {return $g;},  set: function($grn) {$g=this.getByte($grn);},  enumerable: true},
+		b:     {get: function() {return $b;},  set: function($blu) {$b=this.getByte($blu);},  enumerable: true},
+		a:     {get: function() {return $a;},  set: function($alf) {$a=this.getAlpha($alf);},  enumerable: true},
+		red:   {get: function() {return $r;},  set: function($red) {$r=this.getByte($red);},  enumerable: true},
+		grn:   {get: function() {return $g;},  set: function($grn) {$g=this.getByte($grn);},  enumerable: true},
+		blu:   {get: function() {return $b;},  set: function($blu) {$b=this.getByte($blu);},  enumerable: true},
+		green: {get: function() {return $g;},  set: function($grn) {$g=this.getByte($grn);},  enumerable: true},
+		blue:  {get: function() {return $b;},  set: function($blu) {$b=this.getByte($blu);},  enumerable: true},
+		alpha: {get: function() {return $a;},  set: function($alf) {$a=this.getAlpha($alf);},  enumerable: true},
+		hex: {get: function() { return (this.config.useHexSymbol ? '#':"") + Math._2hex($r)+Math._2hex($g)+Math._2hex($b) +
+							((typeof $a === 'number')  ?  Math._2hex($a*255) : "");  },
+					set: function($h) { if ($h=$h.match(RegExp.hex_a))  {
+							$r=parseInt($h[3], 16);  $g=parseInt($h[4], 16);  $b=parseInt($h[5], 16);
+							if ($h[6])  $a=parseInt($h[6], 16)/255;  }  },
+					enumerable: true},
+		contrast: {get: contrastRGB.bind(ThisColorObject, rgba),  enumerable: true},
+		shade: {get: shadeRGB.bind(ThisColorObject, rgba),  enumerable: true},
+		to: {enumerable: true,  value: Object.defineProperties(new Object, {
+			hsv:  {get:  toHSV.bind(ThisColorObject, rgba),  enumerable: true},
+			hsb:  {get:  toHSB.bind(ThisColorObject, rgba),  enumerable: true},
+			hsl:  {get:  toHSL.bind(ThisColorObject, rgba),  enumerable: true},
+			hcg:  {get:  toHCG.bind(ThisColorObject, rgba),  enumerable: true},
+			cmyk: {get: toCMYK.bind(ThisColorObject, rgba),  enumerable: true}  })}  });
+	};
+
+Object.defineProperties(RGBA_Color.prototype, {
+		getByte: {value: getByteValue},
+		getAlpha: {value: getAlphaFactor}  });
+
+RGBA_Color.prototype.useHexSymbol=function(flag)  {this.config.useHexSymbol=Boolean.eval(flag, true);  return this;}
+
+RGBA_Color.prototype.toString=function(format) {
+	if (typeof format !== 'string')  format="";
+	format+= " "+this.config.stringFormat;
+	const
+		alpha= (typeof this.a === 'number'
+						||  ( ( /alpha/i ).test(format)
+								 &&  (this.a= (typeof this.config.defaultAlpha === 'number') ? this.config.defaultAlpha : 1) ))  ?  'A' : "";
+	var s, outAs=format.match( /hex|#|css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i );
+	if (outAs) outAs=outAs[0].toLowerCase();
+	if (outAs!=='hex'  &&  outAs!=='#')  {
+		if (( /percent/i ).test(format)  &&  !( /byte.*percent/i ).test(format))
+			s=Math.roundTo(1, this.r/2.55)+'%, '+
+				Math.roundTo(1, this.g/2.55)+'%, '+
+				Math.roundTo(1, this.b/2.55)+'%'+
+				(alpha ? (', '+Math.roundTo(3, this.a*100)+'%') : "");
+		else
+		if (outAs!=='css'  &&  outAs!=='html'
+		&&  ( /factor/i ).test(format)  &&  !( /byte.*factor/i ).test(format))
+			s=Math.roundTo(3, this.r/255)+', '+
+				Math.roundTo(3, this.g/255)+', '+
+				Math.roundTo(3, this.b/255)+
+				(alpha ? (', '+Math.roundTo(3, this.a)) : "");
+		else
+			s=Math.round(this.r)+', '+
+				Math.round(this.g)+', '+
+				Math.round(this.b)+
+				(alpha ? (', '+
+							(( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) ?
+									Math.roundTo(3, this.a)
+								: Math.roundTo(1, this.a*100)+'%'))
+						: "");  }
+	switch (outAs)  {
+	case '#':
+	case 'hex':  return (format.includes('#')  ||  this.config.useHexSymbol ? "#" : "") + this.hex;;
+	case 'css':
+	case 'html':
+	case 'wrap':
+	case 'function':  return 'RGB'+alpha+'('+s+')';
+	case 'prefix':    return 'RGB'+alpha+': '+s;
+	case 'csv':
+	case 'commas':  return s;
+	case 'plain':  return s.replace( /,/g , "");
+	case 'tabbed':  return s.replace( /, /g , "\t");
+	case 'self':
+	default:  return 'RGBA_Color: ('+s+')';  }  }
+
+RGBA_Color.ConfigStack=class extends RGB_Calc.ConfigStack {
+	constructor($owner, $config) {super($owner, $config);}  }
+RGBA_Color.ConfigStack.prototype.name='RGBA_Color.ConfigStack';
+RGBA_Color.ConfigStack.prototype.stringFormat='self';
+
+
+let lockCWCs=true;  //this is used by ColorWheel_Colors to prevent improper usage.
+
+SoftMoon.WebWare.ColorWheel_Color=ColorWheel_Color;
+function ColorWheel_Color($config)  {  //this way is called by the child-Classes when lockCWCs=false
+//                       ($H, $_1, $_2, $A, $config, $model)  {  //this way is called by external code; it releases the names of the individual _Color objects
+	if (new.target===ColorWheel_Color)  switch (arguments[5])  {
+		case 'HSL': return new HSLA_Color(...arguments);
+		case 'HSB': return new HSBA_Color(...arguments);
+		case 'HSV': return new HSVA_Color(...arguments);
+		case 'HCG': return new HCGA_Color(...arguments);
+		case 'HWB': return new HWBA_Color(...arguments);
+		default: throw new Error('Unknown ColorWheel_Color model:',arguments[5]);  }
+	if (lockCWCs  &&  !new.target)  throw new Error('ColorWheel_Color is a Class constructor, not a function.');
+	lockCWCs=true;
+	this.config= new ColorWheel_Color.ConfigStack(this, $config);  }
+
+Object.defineProperties(ColorWheel_Color.prototype, {
+		getHue: {value: getHueFactor},
+		getFactor: {value: getFactorValue},
+		getAlpha: {value: getAlphaFactor}  });
+
+ColorWheel_Color.prototype.toString=function(format)  {
+	if (typeof format !== 'string')  format="";
+	format+= " "+this.config.stringFormat;
+	var
+		outAs=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i ),
+		u=format.match( /deg|°|g?rad|ᴿ|ᶜ|ᵍ|%|turn|●|factor/ ),
+		hueAngleUnit= u ? u[0] : this.config.hueAngleUnit,
+		useSym=this.config.useAngleUnitSymbol,
+		alpha= (typeof this.a === 'number'
+						||  ( ( /alpha/i ).test(format)
+								 &&  (this.a= (typeof this.config.defaultAlpha === 'number') ? this.config.defaultAlpha : 1) ))  ?  'A' : "";
+	if (outAs)  outAs=outAs[0].toLowerCase();
+	if (outAs==='html')  outAs='css';
+	const
+		arr=this[this.model.toLowerCase()],
+		sep= (this.model.toLowerCase()==='hwb' &&  outAs==='css') ? ' ' : ', ',     // ¡curses to the folks who de-standardized this specification!
+		aSep= (this.model.toLowerCase()==='hwb' &&  outAs==='css') ? ' / ' : ', ';  // ¡curses to the folks who de-standardized this specification!
+	if (hueAngleUnit==='factor')  hueAngleUnit='turn';
+	if (outAs==='css')  useSym=false;
+	if (typeof useSym  === 'boolean')
+		switch (hueAngleUnit)  {
+		case 'deg':
+		case "°":  hueAngleUnit= useSym ? "°" : 'deg';
+		break;
+		case 'rad':
+		case "ᶜ":
+		case "ᴿ":  hueAngleUnit= useSym ? "ᴿ" : 'rad';
+		break;
+		case 'grad':
+		case "ᵍ":   hueAngleUnit= useSym ? "ᵍ" : 'rad';
+		break;
+		case 'turn':
+		case "●":  hueAngleUnit= useSym ? "●" : 'turn';  }
+	var s=Math.roundTo(hueUnitPrecision[hueAngleUnit], this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + sep;
+	if (outAs!=='css'  &&  ( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) )
+		s+=Math.roundTo(3, arr[1]) + sep + Math.roundTo(3, arr[2]) + (alpha && aSep+Math.roundTo(3, this.alpha));
+	else
+		s+=Math.roundTo(1, arr[1]*100) + '%' + sep + Math.roundTo(1, arr[2]*100) + '%' + (alpha && aSep+Math.roundTo(1, this.alpha*100)+'%');
+	if (outAs==='css'  &&  this.model.toLowerCase()==='hwb')  alpha="";  // ¡curses to the folks who de-standardized this specification!
+	switch (outAs)  {
+	case 'css':
+	case 'wrap':
+	case 'function':  return this.model.toUpperCase()+alpha+'('+s+')';;
+	case 'prefix':    return this.model.toUpperCase()+alpha+': '+s
+	case 'csv':
+	case 'commas':  return s;
+	case 'plain':  return s.replace( /,/g , "");
+	case 'tabbed':  return s.replace( /, /g , "\t");
+	case 'self':
+	default:  return this.model.toUpperCase()+'_Color: ('+s+')';  }  }
+
+const hueUnitPrecision=
+ColorWheel_Color.hueUnitPrecision=
+	Object.defineProperties(new Object, {
+		'deg':  {value: 2, enumerable: true},
+		"°":    {value: 2, enumerable: true},
+		'grad': {value: 2, enumerable: true},
+		'ᵍ':    {value: 2, enumerable: true},
+		'rad':  {value: 5, enumerable: true},
+		"ᶜ":    {value: 5, enumerable: true},
+		"ᴿ":    {value: 5, enumerable: true},
+		"%":    {value: 4, enumerable: true},
+		'turn': {value: 6, enumerable: true},
+		"●":    {value: 6, enumerable: true}  });
+//There are 255*6 = 1530 fully-chromatic hues (r,g,b → where any one is #00, another one is #FF, and the third varies).
+// Divide 1530 by the number of hue-units-per-turn to yield the precision depth needed.
+//  example:  1530/360 = 4.25
+// Therefore each degree needs to cover just over 4 hues.
+// 1/10th (0.1) of a degree would cover 10 hues per degree, so 1 decimal place is enough.
+// We increase the precision by a factor of 10 (another decimal place) to keep mathematical calculations jolly.
+/****** ¿ FUTURE ? *******
+Example: Convert decimal degrees 156.742 to degrees minutes seconds
+    The whole number is degrees. ...
+    Multiply the remaining decimal by 60. ...
+    Multiply the remaining decimal by 60. ...
+    Decimal degrees 156.742 converts to 156 degrees, 44 minutes and 31 seconds, or 156° 44' 31".
+
+define hue-angle as more familiar clock-time-angles ¿(00:00 - 11:59)? ¿(00:00 - 59:59)? for the mathematically uninclined
+hourAngle° = 90 - hours*(360/12)
+minsAngle° = 90 - mins*(360/60)
+********************************/
+
+ColorWheel_Color.ConfigStack=class extends RGB_Calc.ConfigStack {
+	constructor($owner, $config) {super($owner, $config);}  }
+ColorWheel_Color.ConfigStack.prototype.name='ColorWheel_Color.ConfigStack';
+//  for (HSL, HSB, HSV, HCG, and HWB) ColorWheel_Color Objects,
+//  depending on the Boolean status of the flag below,
+//  you may output hues (via the toString() method) with a:
+//   • symbol: (0° - 359.999…°)
+//   • textual suffix: (0deg - 359.999deg)  ← when applicable for the hue-angle-unit
+//  by default (null) the hue-angle-unit is not altered.
+ColorWheel_Color.ConfigStack.prototype.useAngleUnitSymbol=null;
+ColorWheel_Color.ConfigStack.prototype.stringFormat="self";
+ColorWheel_Color.ConfigStack.prototype.inputAsFactor=true;  //values are stored internally and returned as factors; we want to match that.
+
+
+SoftMoon.WebWare.HSBA_Color=HSBA_Color;
+function HSBA_Color($H,$S,$B,$A, $config)  {lockCWCs=false;  return HSVA_Color.call(this, $H,$S,$B,$A, $config, "HSB");}
+HSBA_Color.prototype=Object.create(ColorWheel_Color.prototype, {
+	name: {value:"HSBA_Color"},
+	constructor: {value:HSBA_Color}  });
+
+SoftMoon.WebWare.HSVA_Color=HSVA_Color;
+function HSVA_Color($H,$S,$V,$A, $config, $model="HSV")  {
+	$model= ((typeof $model === 'string') && ($model=$model.match( /HSV|HSB/i )) && $model[0].toUpperCase())  ||  'HSV';
+	if (lockCWCs  &&  !new.target)  throw new Error('SoftMoon.WebWare.'+$model+'A_Color is a constructor, not a function.');
+	lockCWCs=false;
+	ColorWheel_Color.call(this, $config);
+	const thisClr=this,
+				hsv=new Array,  hsva=new Array;
+	Object.defineProperties(hsv, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		2: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true}  });
+	Object.defineProperties(hsva, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		2: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
+		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
+	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $S=thisClr.getFactor($arr[1]);  $V=thisClr.getFactor($arr[2]);
+		if ($arr[3] !== undefined)  $A=getAlpha($arr[3]);  }
+	Object.defineProperties(thisClr, {
+		model: {value: $model,  enumerable: true},
+		hsv: {get: function() {return hsv;},  set: readArr,  enumerable: true},
+		hsb: {get: function() {return hsv;},  set: readArr,  enumerable: true},
+		hsva: {get: function() {return hsva;},  set: readArr,  enumerable: true},
+		hsba: {get: function() {return hsva;},  set: readArr,  enumerable: true},
+		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		s: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		v: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
+		b: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
+		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		hue:        {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		saturation: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		value:      {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
+		brightness: {get: function() {return $V;},  set: function($v) {$V=thisClr.getFactor($v);},  enumerable: true},
+		alpha:      {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		to: {enumerable: true,  value: Object.defineProperties(new Object,  {
+			rgb:  {get:  fromHSV.bind(thisClr, hsva),  enumerable: true},
+			cmyk: {get: HSV_to_CMYK.bind(thisClr, hsv),  enumerable: true}  }  )}  });  }
+HSVA_Color.prototype=Object.create(ColorWheel_Color.prototype, {
+	name: {value:"HSVA_Color"},
+	constructor: {value:HSVA_Color}  });
+
+
+Object.defineProperties(HSVA_Color, {  //this provides a static globally accessible function unrelated to the HSVA_Color class
+	to_CMYK: {value: HSV_to_CMYK,  enumerable: true},
+	config: {value: {CMYKA_Factory: CMYKA_Color}}  });
+
+function HSV_to_CMYK(hsv)  {
+	//HSV values from 0 to 1
+	//CMYK results from 0 to 1
+	var x,h,c,m,y, k=1-hsv[2];
+	if ( hsv[1] == 0 )  return new this.config.CMYKA_Factory(0,0,0,k);
+	h=hsv[0]-.5;  if (h<0)  h+=1;
+	h = h%1 * 6;
+	x = h-Math.floor(h);
+	if (h<1)  {c=hsv[1]; m=x*hsv[1]; y=0;}
+	else
+	if (h<2)  {c=(1-x)*hsv[1]; m=hsv[1]; y=0;}
+	else
+	if (h<3)  {c=0; m=hsv[1]; y=x*hsv[1];}
+	else
+	if (h<4)  {c=0; m=(1-x)*hsv[1]; y=hsv[1];}
+	else
+	if (h<5)  {c=x*hsv[1]; m=0; y=hsv[1];}
+	else
+	if (h<6)  {c=hsv[1]; m=0; y=(1-x)*hsv[1];}
+	return new this.config.CMYKA_Factory(c,m,y,k, hsv[3]);  }
+
+
+SoftMoon.WebWare.HSLA_Color=HSLA_Color;
+function HSLA_Color($H,$S,$L,$A, $config)  {
+	if (!new.target)  throw new Error('SoftMoon.WebWare.HSLA_Color is a constructor, not a function.');
+	lockCWCs=false;
+	ColorWheel_Color.call(this, $config);
+	const thisClr=this,
+				hsl=new Array,  hsla=new Array;
+	Object.defineProperties(hsl, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		2: {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true}  });
+	Object.defineProperties(hsla, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		2: {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true},
+		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
+	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $S=thisClr.getFactor($arr[1]);  $L=thisClr.getFactor($arr[2]);
+		if ($arr[3] !== undefined)  $A=thisClr.getAlpha($arr[3]);  }
+	Object.defineProperties(thisClr, {
+		model: {value: "HSL",  enumerable: true},
+		hsl: {get: function() {return hsl;},  set: readArr,  enumerable: true},
+		hsla: {get: function() {return hsla;},  set: readArr,  enumerable: true},
+		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		s: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		l: {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true},
+		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		hue:        {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		saturation: {get: function() {return $S;},  set: function($s) {$S=thisClr.getFactor($s);},  enumerable: true},
+		lightness:  {get: function() {return $L;},  set: function($l) {$L=thisClr.getFactor($l);},  enumerable: true},
+		alpha:      {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		to: {enumerable: true,  value: Object.defineProperty(new Object,
+			'rgb',  {get:  fromHSL.bind(thisClr, hsla),  enumerable: true})}  });  };
+HSLA_Color.prototype=Object.create(ColorWheel_Color.prototype, {
+	name: {value:"HSLA_Color"},
+	constructor: {value:HSLA_Color}  });
+
+
+SoftMoon.WebWare.HCGA_Color=HCGA_Color;
+function HCGA_Color($H,$C,$G,$A, $config)  {
+	if (!new.target)  throw new Error('SoftMoon.WebWare.HCGA_Color is a constructor, not a function.');
+	lockCWCs=false;
+	ColorWheel_Color.call(this, $config);
+	const thisClr=this,
+				hcg=new Array,  hcga=new Array;
+	Object.defineProperties(hcg, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		2: {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true}  });
+	Object.defineProperties(hcga, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		2: {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true},
+		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
+	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $C=thisClr.getFactor($arr[1]);  $G=thisClr.getFactor($arr[2]);
+		if ($arr[3] !== undefined)  $A=thisClr.getAlpha($arr[3]);  }
+	Object.defineProperties(thisClr, {
+		model: {value: "HCG",  enumerable: true},
+		hcg: {get: function() {return hcg;},  set: readArr,  enumerable: true},
+		hcga: {get: function() {return hcga;},  set: readArr,  enumerable: true},
+		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		c: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		g: {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true},
+		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		hue:    {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		chroma: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		gray:   {get: function() {return $G;},  set: function($g) {$G=thisClr.getFactor($g);},  enumerable: true},
+		alpha:  {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		to: {enumerable: true,  value: Object.defineProperty(new Object,
+			'rgb',  {get:  fromHCG.bind(thisClr, hcga),  enumerable: true})}  });  };
+HCGA_Color.prototype=Object.create(ColorWheel_Color.prototype, {
+	name: {value:"HCGA_Color"},
+	constructor: {value:HCGA_Color}  });
+
+
+SoftMoon.WebWare.HWBA_Color=HWBA_Color;
+function HWBA_Color($H,$W,$B,$A, $config)  {
+	if (!new.target)  throw new Error('SoftMoon.WebWare.HWBA_Color is a constructor, not a function.');
+	lockCWCs=false;
+	ColorWheel_Color.call(this, $config);
+	const thisClr=this,
+				hwb=new Array,  hwba=new Array;
+	Object.defineProperties(hwb, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
+		2: {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true}  });
+	Object.defineProperties(hwba, {
+		0: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		1: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
+		2: {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true},
+		3: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
+	function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $W=thisClr.getFactor($arr[1]);  $B=thisClr.getFactor($arr[2]);
+		if ($arr[3] !== undefined)  $A=thisClr.getAlpha($arr[3]);  }
+	Object.defineProperties(thisClr, {
+		model: {value: "HWB",  enumerable: true},
+		hwb: {get: function() {return hwb;},  set: readArr,  enumerable: true},
+		hwba: {get: function() {return hwba;},  set: readArr,  enumerable: true},
+		h: {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		w: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
+		b: {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true},
+		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		hue:    {get: function() {return $H;},  set: function($h) {$H=thisClr.getHue($h);},  enumerable: true},
+		white: {get: function() {return $W;},  set: function($w) {$W=thisClr.getFactor($w);},  enumerable: true},
+		black:  {get: function() {return $B;},  set: function($b) {$B=thisClr.getFactor($b);},  enumerable: true},
+		alpha:  {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		to: {enumerable: true,  value: Object.defineProperty(new Object,
+			'rgb',  {get:  fromHWB.bind(thisClr, hwba),  enumerable: true})}  });  };
+HWBA_Color.prototype=Object.create(ColorWheel_Color.prototype, {
+	name: {value:"HWBA_Color"},
+	constructor: {value:HWBA_Color}  });
+
+
+
+SoftMoon.WebWare.CMYKA_Color=CMYKA_Color;
+function CMYKA_Color($C, $M, $Y, $K, $A, $config) {
+if (SoftMoon.doLogBug1) console.log('CMYK_Color=',$C,$M,$Y,$K)
+	if (!new.target)  throw new Error('SoftMoon.WebWare.CMYKA_Color is a constructor, not a function.');
+	this.config= new CMYKA_Color.ConfigStack(this, $config);
+	const thisClr=this,
+				cmyk=new Array,  cmyka=new Array;
+	Object.defineProperties(cmyk, {
+		0: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		1: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
+		2: {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
+		3: {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true}  });
+	Object.defineProperties(cmyka, {
+		0: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		1: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
+		2: {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
+		3: {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true},
+		4: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true}  });
+	function readArr($arr)  { $C=thisClr.getFactor($arr[0]);  $M=thisClr.getFactor($arr[1]);  $Y=thisClr.getFactor($arr[2]);  $K=thisClr.getFactor($arr[3]);
+		if ($arr[4] !== undefined)  $A=thisClr.getAlpha($arr[4]);  }
+	Object.defineProperties(this, {
+		cmyk: {get: function() {return cmyk;},  set: readArr,  enumerable: true},
+		cmyka: {get: function() {return cmyka;},  set: readArr,  enumerable: true},
+		c: {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		m: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
+		y: {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
+		k: {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true},
+		a: {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		cyan:    {get: function() {return $C;},  set: function($c) {$C=thisClr.getFactor($c);},  enumerable: true},
+		magenta: {get: function() {return $M;},  set: function($m) {$M=thisClr.getFactor($m);},  enumerable: true},
+		yellow:  {get: function() {return $Y;},  set: function($y) {$Y=thisClr.getFactor($y);},  enumerable: true},
+		black:   {get: function() {return $K;},  set: function($k) {$K=thisClr.getFactor($k);},  enumerable: true},
+		alpha:   {get: function() {return $A;},  set: function($a) {$A=thisClr.getAlpha($a);},  enumerable: true},
+		to: {enumerable: true,  value: Object.defineProperty(new Object,
+			'rgb',  {get:  fromCMYK.bind(thisClr, cmyka),  enumerable: true})}  });  };
+
+Object.defineProperties(CMYKA_Color.prototype, {
+		getFactor: {value: getFactorValue},
+		getAlpha: {value: getAlphaFactor}  });
+
+CMYKA_Color.prototype.toString=function(format) {
+	if (typeof format != 'string')  format="";
+	format+= " "+this.config.stringFormat;
+	var outAs=format.match( /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i );
+	if (outAs)  outAs=outAs[0].toLowerCase();
+	const
+		alpha= (typeof this.a === 'number'
+						||  ( ( /alpha/i ).test(format)
+								 &&  (this.a= (typeof this.config.defaultAlpha === 'number') ? this.config.defaultAlpha : 1) ))  ?  'A' : "",
+		s= (outAs!=='css'  &&  outAs!=='html'  &&  ( /factor/i ).test(format)  &&  !( /percent.*factor/i ).test(format) ) ?
+			(Math.roundTo(3, this.c)+', '+Math.roundTo(3, this.m)+', '+Math.roundTo(3, this.y)+', '+Math.roundTo(3, this.k) +
+				(alpha && ', '+Math.roundTo(3, this.a)))
+		: (Math.roundTo(1, this.c*100)+'%, '+Math.roundTo(1, this.m*100)+'%, '+Math.roundTo(1, this.y*100)+'%, '+Math.roundTo(1, this.k*100)+'%' +
+				(alpha && ', '+Math.roundTo(1, this.a*100)+'%'));
+	switch (outAs)  {
+	case 'css':
+	case 'html':
+	case 'wrap':
+	case 'function':  return 'CMYK'+alpha+'('+s+')';
+	case 'prefix':    return 'CMYK'+alpha+': '+s;
+	case 'csv':
+	case 'commas':  return s;
+	case 'plain':  return s.replace( /,/g , "");
+	case 'tabbed':  return s.replace( /, /g , "\t");
+	case 'self':
+	default:  return 'CMYKA_Color: ('+s+')';  }  }
+
+CMYKA_Color.ConfigStack=class extends RGB_Calc.ConfigStack {
+	constructor($owner, $config) {super($owner, $config);}  }
+CMYKA_Color.ConfigStack.prototype.name='CMYKA_Color.ConfigStack';
+CMYKA_Color.ConfigStack.prototype.stringFormat="self";
+CMYKA_Color.ConfigStack.prototype.inputAsFactor=true;  //values are stored internally and returned as factors; we want to match that.
+
+
+
+}  //close the private namespace
 
 
 //  most (except hcg) thanks to, and see for more formulas:  http://www.easyrgb.com/index.php?X=MATH
