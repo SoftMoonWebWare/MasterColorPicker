@@ -784,6 +784,12 @@ triadic</label>
 			</ul></li>
 		<li>Any of the available “named-colors” found in the color-table-palettes.&nbsp;
 				Colors should be prefixed: or wrapped() with the appropriate color-table-palette name.&nbsp;
+				“Named color” palettes may have sub-palettes; you may or may not need to include the sub-palette name
+				in your color-spec, depending on the palette.&nbsp;
+				Generally, if all the colors in the parent palette and its sub-palettes have different names,
+				no sub-palette is required in the spec.&nbsp;
+				<code class='block'>ANSI: 35
+ANSI: 8-bit: shades and tones: 35</code>
 				<abbr>CSS</abbr> is the “default” palette and its colors do not need to be prefixed or wrapped.&nbsp;
 				Hackers can change the default palette thought the value at: <code>SoftMoon.defaultPalette</code></li>
 	</ul>
@@ -797,7 +803,7 @@ triadic</label>
 			for example <kbd>RGBA(0, 153, 255 / 62%)</kbd>&nbsp;
 			Note the “loose” interpretation of CSS specs allows commas with the <kbd>/</kbd> alpha separator.
 			Hex-RGB values may have an additional 2 hex digits to specify the alpha;
-			for example <kbd>#ADDCAD80</kbd>
+			for example <kbd>#ADDCAD80</kbd>&nbsp;
 			Named colors may use the same Alpha specification for color space models described above,
 			but it must end with either a semicolon <kbd>;</kbd> or a space followed by <kbd>opacity;</kbd>&nbsp;
 			For examples:</p>
@@ -1191,14 +1197,17 @@ triadic</label>
 	You can then choose colors from the gradient at these measured intervals with ease,
 	for styling list elements or headlines or whatever, for example, using a small set of interval “steps”.&nbsp;
 	The colors of the gradient between steps are not shown, isolating the specific colors to choose.&nbsp;
-	Or, if you choose a larger number of interval steps, the gradient shown could be used for fine-art development.</p>
+	Or, if you choose a larger number of interval steps, the gradient shown could be used for fine-art development.&nbsp;
+	A good old friend of mine, an old-school digital-graphics designer from the 1990s,
+	and a fine-art oil-paint master who’s favorite style is pointalism,
+	saw this and was quite intrigued about the <em>lower</em> number of interval steps…</p>
 
 	<p>For <topic>triadic gradients</topic>, you can mix three (3) colors together.&nbsp;  Just choose the colors you want.&nbsp;
 	If you choose to mix them in a Hue-based color-space, keep in mind that the Hue-dimension is circular
 	and is mapped on a polar-grid.&nbsp;
 	Progression from one hue to another happens either <em>clockwise</em> or <em>counterclockwise</em>
 	depending on which is the <em>shortest</em> path.&nbsp;
-	Simply put, When the Hue of one of the colors is on the opposite side from the others,
+	Simply put, when the Hue of one of the colors is on the opposite side from the others,
 	it can cause the triadic palette to be “split;” this is normal.</p>
 
 	<p>For <topic>multistop-linear gradients</topic>, you can choose any number of colors.&nbsp;
@@ -1272,7 +1281,7 @@ triadic</label>
 		<li>Open the browser’s console by pressing the <kbd><span>F12</span></kbd> key,
 				or go to the browser’s main-menu and open “developer tools” and choose the console tab.</li>
 		<li>Focus the cursor in the console and type in:
-				<kbd>SoftMoon.WebWare.Gradientor.doLog=true <span>&crarr;Enter</span></kbd></li>
+				<kbd>SoftMoon.WebWare.Gradientor.doLog=true<span>&crarr;Enter</span></kbd></li>
 		<li>Keep the console open, and watch for error messages to appear as you use the Gradientor.&nbsp;
 				Processed gradient data is also presented, with stop-positions all converted to factors from 0–1 (i.e. 0%–100%),
 				and colors presented as Arrays of values in the chosen color-space.&nbsp;
@@ -1286,15 +1295,15 @@ triadic</label>
 		<li>Note that as you hover your mouse over the displayed gradient,
 				the color-stops are interpreted every time you move and this will fill up the console.&nbsp;
 				For the best performance, after you find your errors, type into the console:
-				<kbd>SoftMoon.WebWare.Gradientor.doLog=false <span>&crarr;Enter</span></kbd></li>
+				<kbd>SoftMoon.WebWare.Gradientor.doLog=false<span>&crarr;Enter</span></kbd></li>
 	</ol>
 
 	<hr>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
 	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 by Joe Golembieski, SoftMoon-WebWare
-		 ( <kbd>http://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
+		 ( <kbd>https://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
 	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
-		 ( <kbd>http://safecolours.rigdenage.com/</kbd> ).&nbsp;
+		 ( <kbd>https://www.rigdenage.co.uk/design-for-colour-blind/</kbd> ).&nbsp;
 		 The Websafe-Color Interpolator color-blind filter function
 		 Copyright © 2019 by Joe Golembieski, SoftMoon-WebWare.</p>
 	<p>The Wickline Color Blindness Simulation algorithmic filter function is
@@ -1302,7 +1311,7 @@ triadic</label>
      Human-Computer Interaction Resource Network.&nbsp;
      It is used with the permission of Matthew Wickline and <abbr>HCIRN</abbr>,
      and is freely available for non-commercial use.&nbsp; For commercial use, please
-     contact the Human-Computer Interaction Resource Network ( <kbd>http://hcirn.com/</kbd> ).</p>
+     contact the Human-Computer Interaction Resource Network ( <kbd>https://hcirn.com/</kbd> ).</p>
  </div>
 </div><!--  close  help  -->
 
