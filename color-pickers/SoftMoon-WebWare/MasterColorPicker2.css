@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.4.2  January 27, 2023  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.4.3  February 27, 2023  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -136,6 +136,24 @@ span.MCP_fix_Safari {
 	border-radius: .618em / 1em;
 	font-size: 15px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
 
+#MasterColorPicker kbd {
+	display: inline-block;  }
+#MasterColorPicker kbd span {
+	display: inline-block;
+	position: relative;
+	border: 1px solid var(--border-kbd);
+	border-bottom: 2px solid var(--border-kbd-shaddow);
+	border-right: 2px solid var(--border-kbd-shaddow);
+	border-radius: 1.618em / 2em;
+	color: var(--fore-text-kbd);
+	background-color: var(--back-text-kbd);
+	text-align: center;
+	margin: 0 .382em;
+	padding: 0 .618em;
+	font-size: 85.4%;
+	line-height: .854em;
+	vertical-align: middle; }
+
 #MasterColorPicker mark {
 	background-color: inherit; }
 #MasterColorPicker .macronym {
@@ -258,23 +276,6 @@ span.MCP_fix_Safari {
 	border-color: var(--border-hot); }
 
 
-#MasterColorPicker kbd {
-	display: inline-block;  }
-#MasterColorPicker kbd span {
-	display: inline-block;
-	position: relative;
-	border: 1px solid var(--border-kbd);
-	border-bottom: 2px solid var(--border-kbd-shaddow);
-	border-right: 2px solid var(--border-kbd-shaddow);
-	border-radius: 1.618em / 2em;
-	color: var(--fore-text-kbd);
-	background-color: var(--back-text-kbd);
-	text-align: center;
-	margin: 0 .382em;
-	padding: 0 .618em;
-	font-size: 85.4%;
-	line-height: .854em;
-	vertical-align: middle; }
 
 #MasterColorPicker_Help {
 	margin-top: 2em;
@@ -535,10 +536,12 @@ select#MasterColorPicker_palette_select {
 /* flaoting panels notice popup */
 	top: -0.162em;
 	left: auto;
+	left: -17.618em;
 	right: 100%;
-	bottom: auto;
 	bottom: -0.162em;
+	bottom: auto;
 	width: 17.618em;
+	width: auto;
 	padding-top: .162em;
 	padding-bottom: .162em;
 	line-height: 1.162em;
@@ -1553,6 +1556,9 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 	max-height: 17em;
 	overflow-y: auto; }
 #MasterColorPicker_Thesaurus ol {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
 	max-height: 7em;
 	overflow-y: auto; }
 #MasterColorPicker_Thesaurus .disparity {
