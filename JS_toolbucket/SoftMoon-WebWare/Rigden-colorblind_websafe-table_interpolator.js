@@ -1,7 +1,7 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 120
 
-/*	websafe table interpolator function version 1.1  Feb 2, 2019; Feb 15, 2022  by SoftMoon WebWare.
- *   written by and Copyright © 2019,2022 Joe Golembieski, SoftMoon WebWare
+/*	websafe table interpolator function version 1.1.2  Feb 2, 2019; Feb 27, 2023  by SoftMoon WebWare.
+ *   written by and Copyright © 2019,2022,2023 Joe Golembieski, SoftMoon WebWare
  *  Websafe table colorblind data courtesy of Christine Rigden →
 			https://www.rigdenage.co.uk/design-for-colour-blind/
 			http://www.rigdenage.co.uk/safecolours/
@@ -40,13 +40,13 @@
 //    No alpha value will be passed back if no “type” is passed in.
 // or
 // • returns RGB byte values through the RGB_Calc standard output if “type” is passed in →  protan ‖ deutan ‖ tritan
-//     Any optional Alpha value that was padded in is passed along out.
+//     Any optional Alpha value that was passed in is passed along out.
 // The returned array ☆simulates☆ colorblind vision for people with “full color” vision.
 // Accuracy of results varies by individual and the computer monitor used.
 
-;(function() {  // open a private namespace
-
 'use strict';
+
+{  // open a private namespace
 
 if (!SoftMoon.WebWare.RGB_Calc.colorblindProviders)  SoftMoon.WebWare.RGB_Calc.colorblindProviders= new Object;
 SoftMoon.WebWare.RGB_Calc.colorblindProviders.Rigden={
@@ -57,7 +57,7 @@ SoftMoon.WebWare.RGB_Calc.colorblindProviders.Rigden={
 		audit: auditToColorBlind  } };
 
 // this is the “quick mini” calculator we use internally to convert RGB values to HCG
-const rgb_calc=new SoftMoon.WebWare.RGB_Calc({ColorWheelFactory: Array}, true, {'to':['hcg']});
+const rgb_calc=new SoftMoon.WebWare.RGB_Calc({HCGA_Factory: Array, defaultAlpha: undefined}, true, {to:['hcg']});
 
 SoftMoon.WebWare.RGB_Calc.to.colorblind= toColorBlind;
 SoftMoon.WebWare.RGB_Calc.to.definer.quick.colorblind= {value: toColorBlind, writable: true};
@@ -125,7 +125,6 @@ function toColorBlind(rgb, type)  {
 			(H===Hlow) ? interp_G_() : interp_C_()
 		),
 		(C-_C_+2)/2 )), hcga[3]);  }
-
 
 
 //these are the valid values to pass in for “type”
@@ -1523,5 +1522,4 @@ toColorBlind.websafe_table={
 	}
 };
 
-
-})();  //close private namespace
+}  //close the private namespace
