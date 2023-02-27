@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.4.2-alpha   January 27, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.4.3-alpha   February 27, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -74,7 +74,7 @@ SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon=function(context, atVerte
 
 
 /* this state is expected upon entry for use with undefined colorFilter:
-		RGB_Calc.config.RGBAFactory === Array
+		RGB_Calc.config.RGBA_Factory === Array
 		RGB_Calc.config.useHexSymbol === true
  */
 SoftMoon.WebWare.canvas_graphics.rainbowRing=function(canvas, centerX, centerY, outRad, inRad, colorFilter)  {
@@ -348,9 +348,14 @@ SoftMoon.WebWare.x_ColorPicker.prototype.onclick=function(event)  {
 // =================================================================================================== \\
 
 const RGB_calc=new SoftMoon.WebWare.RGB_Calc({
-				RGBAFactory: SoftMoon.WebWare.RGBA_Color,
-				CMYKAFactory: SoftMoon.WebWare.CMYKA_Color,
-				ColorWheelFactory: SoftMoon.WebWare.ColorWheel_Color}, true);
+	defaultAlpha: undefined,
+	RGBA_Factory: SoftMoon.WebWare.RGBA_Color,
+	HSLA_Factory: SoftMoon.WebWare.HSLA_Color,
+	HSBA_Factory: SoftMoon.WebWare.HSBA_Color,
+	HSVA_Factory: SoftMoon.WebWare.HSVA_Color,
+	HCGA_Factory: SoftMoon.WebWare.HCGA_Color,
+	HWBA_Factory: SoftMoon.WebWare.HWBA_Color,
+	CMYKA_Factory: SoftMoon.WebWare.CMYKA_Color}, true);
 
 SoftMoon.WebWare.x_ColorPicker.pickFilter=function(x_Colors)  {
 	if (this.colorSwatch)  //we must wait until after the input.value is set  ← input.value = thisInstance.interfaceTarget || thisInstance.dataTarget
@@ -431,7 +436,7 @@ function ColorFilter(x_Colors)  {
 		colors=UniDOM.getElementsBy$Name(HTML, /color/ ),
 		factors=UniDOM.getElementsBy$Name(HTML, /factor/ );
 
-	rgb_calc.config.stack({RGBAFactory: {value:Array}});
+	rgb_calc.config.stack({RGBA_Factory: {value:Array}});
 	try {
 		if (filterOptions.average.value==='average')  {
 			var count=0, fs=0;
@@ -1377,7 +1382,7 @@ MyPalette.prototype.toFileText=function toFileText(JSON_Palette, $filetype, $fil
 		if (JSON_Palette[pName].header  &&  JSON_Palette[pName].header.length)  addCSSHeadFoot('', JSON_Palette[pName].header);
 		if (JSON_Palette[pName].alternatives)  paletteText+= "\n/* Alternative color names: " + JSON_Palette[pName].alternatives + " */";
 		paletteText+= "\n";
-		MasterColorPicker.RGB_calc.config.stack({RGBAFactory: {value: SoftMoon.WebWare.RGBA_Color}});
+		MasterColorPicker.RGB_calc.config.stack({RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color}});
 		try {toCSS(JSON_Palette[pName].palette, pName);}
 		finally {MasterColorPicker.RGB_calc.config.cull();}
 		if (JSON_Palette[pName].footer  &&  JSON_Palette[pName].footer.length)  addCSSHeadFoot('', JSON_Palette[pName].footer);
@@ -1432,7 +1437,7 @@ MyPalette.prototype.toFileText=function toFileText(JSON_Palette, $filetype, $fil
 		if (JSON_Palette[pName].header  &&  JSON_Palette[pName].header.length)  addGPLHeadFoot('Header: ', JSON_Palette[pName].header);
 		if (JSON_Palette[pName].alternatives)  paletteText+= "\n# Alternative color names: " + JSON_Palette[pName].alternatives;
 		paletteText+= "\n#";
-		MasterColorPicker.RGB_calc.config.stack({RGBAFactory: {value: SoftMoon.WebWare.RGBA_Color}});
+		MasterColorPicker.RGB_calc.config.stack({RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color}});
 		try {toGPL(JSON_Palette[pName].palette);}
 		finally {MasterColorPicker.RGB_calc.config.cull();}
 		if (JSON_Palette[pName].footer  &&  JSON_Palette[pName].footer.length)  addGPLHeadFoot('Footer: ', JSON_Palette[pName].footer);
@@ -1641,10 +1646,15 @@ ColorSpaceLab=new Object,
 RGB_Calc=SoftMoon.WebWare.RGB_Calc,
 CSL_calc=new RGB_Calc({
 	inputAsFactor: false,
+	defaultAlpha: undefined,
 	hueAngleUnit: 'deg',
-	RGBAFactory: SoftMoon.WebWare.RGBA_Color,
-	CMYKAFactory: SoftMoon.WebWare.CMYKA_Color,
-	ColorWheelFactory: SoftMoon.WebWare.ColorWheel_Color  });
+	RGBA_Factory: SoftMoon.WebWare.RGBA_Color,
+	HSLA_Factory: SoftMoon.WebWare.HSLA_Color,
+	HSBA_Factory: SoftMoon.WebWare.HSBA_Color,
+	HSVA_Factory: SoftMoon.WebWare.HSVA_Color,
+	HCGA_Factory: SoftMoon.WebWare.HCGA_Color,
+	HWBA_Factory: SoftMoon.WebWare.HWBA_Color,
+	CMYKA_Factory: SoftMoon.WebWare.CMYKA_Color  });
 
 SoftMoon.WebWare.ColorSpaceLab=ColorSpaceLab;
 
@@ -1670,7 +1680,14 @@ function SpaceLab_Colors(withAlpha)  {
 	this.CMYK= new SoftMoon.WebWare.CMYKA_Color(parseFloat(settings.Cmyk_percent.value)/100, parseFloat(settings.cMyk_percent.value)/100, parseFloat(settings.cmYk_percent.value)/100, parseFloat(settings.cmyK_percent.value)/100, alpha);
 	}
 
-
+const stackSpecs={
+		RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color},
+		HSLA_Factory: {value: SoftMoon.WebWare.HSLA_Color},
+		HSBA_Factory: {value: SoftMoon.WebWare.HSBA_Color},
+		HSVA_Factory: {value: SoftMoon.WebWare.HSVA_Color},
+		HCGA_Factory: {value: SoftMoon.WebWare.HCGA_Color},
+		HWBA_Factory: {value: SoftMoon.WebWare.HWBA_Color},
+		CMYKA_Factory: {value: SoftMoon.WebWare.CMYKA_Color}  };
 
 ColorSpaceLab.setColor=function(CLR, space)  {
 	if ( (CLR instanceof SpaceLab_Colors)
@@ -1678,11 +1695,10 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 	||  (arguments[1] instanceof Event  &&  ( /mouse/ ).test(arguments[1].type)  &&  !settings.updateLabOnMouseMove.checked) )
 		return CLR;
 
-	RGB_Calc.config.stack({
-		RGBAFactory:       {value: SoftMoon.WebWare.RGBA_Color},
-		CMYKAFactory:      {value: SoftMoon.WebWare.CMYKA_Color},
-		ColorWheelFactory: {value: SoftMoon.WebWare.ColorWheel_Color}  });
+	RGB_Calc.config.stack(stackSpecs);
 
+	try
+	{
 	const RegExp= SoftMoon.RegExp || window.RegExp;
 	var alpha;
 	function setDefaultAlpha() {
@@ -1778,8 +1794,8 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 		settings.cMyk_percent.value= settings.cMyk_range.value= Math.roundTo(5, CLR.CMYK.magenta*100);
 		settings.cmYk_percent.value= settings.cmYk_range.value= Math.roundTo(5, CLR.CMYK.yellow*100);
 		settings.cmyK_percent.value= settings.cmyK_range.value= Math.roundTo(5, CLR.CMYK.black*100);  }
-
-	RGB_Calc.config.cull();
+	}
+	finally {RGB_Calc.config.cull();}
 	ColorSpaceLab.update_Hue_rangeHandle();
 
 	ColorSpaceLab.swatch.color(CLR);
@@ -1926,9 +1942,10 @@ UniDOM.addEventHandler(window, 'onload', function() {
 		const tds=this.closest('button').getElementsByTagName('td');
 		this.style.backgroundColor=CLR.RGB.hex;
 		this.style.color=CLR.RGB.contrast;
-		RGB_Calc.config.stack({RGBAFactory: {value: SoftMoon.WebWare.RGBA_Color}, ColorWheelFactory: {value: Array}});
+		RGB_Calc.config.stack({RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color}, HCGA_Factory: {value: Array}});
+		try  {
 		CLR.RGB.rgba.hcga= CLR.HCG?.hcga || RGB_Calc.to.hcg(CLR.RGB.rgba);
-		try  { for (const td of tds)  {
+		for (const td of tds)  {
 			const cbc=RGB_Calc.to.colorblind(CLR.RGB.rgba, td.getAttribute('title'));
 			td.style.backgroundColor=cbc.hex;
 			td.style.color=cbc.contrast;  }  }
@@ -1977,14 +1994,15 @@ UniDOM.addEventHandler(window, 'onload', function() {
 
 
 
-;(function BeezEye_NS()  { //  private namespace wrapper for BeezEye Color Picker
-	var hue, saturation, color_value, settings, RGB_Calc=SoftMoon.WebWare.RGB_Calc;
+{ //  open a private namespace wrapper for BeezEye Color Picker
+	let hue, saturation, color_value, settings;
+	const RGB_Calc=SoftMoon.WebWare.RGB_Calc;
 
 SoftMoon.WebWare.BeezEye=new SoftMoon.WebWare.x_ColorPicker('BeezEye');
 
 SoftMoon.WebWare.BeezEye.buildPalette=function()  {
-	var BeezEye=document.getElementById('BeezEye'),
-			palette=BeezEye.getElementsByTagName('canvas')[0],
+	const
+			palette=document.querySelector("#MasterColorPicker #BeezEye canvas"),
 			replacement=document.createElement('canvas'),
 			canvas=replacement.getContext('2d'),
 			lineTo=canvas.lineTo.bind(canvas),
@@ -1997,9 +2015,9 @@ SoftMoon.WebWare.BeezEye.buildPalette=function()  {
 			center={x: Math.round(w/2), y: Math.round(h/2)},     //  w  h  ↔  size
 			space={x: w/variety};     //  w ↔ size
 			space.y=Math.sin(_['60°'])*space.x;
-	var radius=space.y/1.5+.5,
-			maxSatPoint=w/2-space.x/2,    //  w ↔ size
-			model, row, cells, x, y, flag=false;
+	const
+			radius=space.y/1.5+.5,
+			maxSatPoint=w/2-space.x/2;    //  w ↔ size
 
 	replacement.width=w;    //  w ↔ size
 	replacement.height=h;   //  h ↔ size
@@ -2010,28 +2028,25 @@ SoftMoon.WebWare.BeezEye.buildPalette=function()  {
 	replacement.style.height=h+'px';   //  h ↔ size    \ take effect (at least not within a fixed-position table…)
 
 	color_value=settings.value.value;
-	for (let i=0; i<settings.model.length; i++)  {
-		if (settings.model[i].checked)  {model=settings.model[i].value;  break;}  }
 
 	RGB_Calc.config.stack({
-		RGBAFactory: {value: Array},
+		RGBA_Factory: {value: Array},
 		useHexSymbol: {value: true}  });
 
-	SoftMoon.WebWare.HSVA_Color.config.CMYKAFactory=Array;
+	SoftMoon.WebWare.HSVA_Color.config.CMYKA_Factory=Array;
 
-	for (let rows=0;  rows<h/2;  rows+=space.y, flag=!flag)  {  // h ↔ size
+	for (let rows=0, flag=false;  rows<h/2;  rows+=space.y, flag=!flag)  {  // h ↔ size
 		for (let cells= flag ? (space.x/2) : 0;  cells<w/2;  cells+=space.x)  {   // w ↔ size
 			drawHex(cells, rows);  drawHex(-cells, -rows);  drawHex(cells, -rows);  drawHex(-cells, rows);  }  }
 
 	RGB_Calc.config.cull();
 
-	function drawHex(cell, row)  { var natv;
-		x=center.x+cell;  y=center.y-row;
+	function drawHex(cell, row)  {
 		SoftMoon.WebWare.BeezEye.calcNativeHSV(cell, row, maxSatPoint);  //→↓ globals ↓
 		if (saturation>100)  return;
-		canvas.fillStyle=RGB_Calc.to.hex(natv=SoftMoon.WebWare.BeezEye.nativeToRGB(hue, saturation, color_value));
+		canvas.fillStyle=RGB_Calc.to.hex(SoftMoon.WebWare.BeezEye.nativeToRGB(hue, saturation, color_value));
 		canvas.beginPath();
-		hexagon(x, y, radius, radius);
+		hexagon(center.x+cell, center.y-row, radius, radius);
 		canvas.closePath();
 		canvas.fill();  }  }
 
@@ -2071,8 +2086,8 @@ SoftMoon.WebWare.BeezEye.calcNativeHSV=function(x, y, maxRadius)  {  // {x,y} ar
 
 
 SoftMoon.WebWare.BeezEye.getColor=function(event)  {
-	var BeezEye=document.getElementById('BeezEye'),
-			palette=BeezEye.getElementsByTagName('canvas')[0],
+	const
+			palette=document.querySelector("#MasterColorPicker #BeezEye canvas"),
 			pStylz=getComputedStyle(palette),
 			w=parseInt(pStylz.width),
 			h=parseInt(pStylz.height),
@@ -2080,20 +2095,17 @@ SoftMoon.WebWare.BeezEye.getColor=function(event)  {
 			variety=settings.variety.value,
 			space={x: w/variety};
 			space.y=Math.sin(_['60°'])*space.x;
-	var maxSatPoint=w/2-space.x/2,
-			x=event.offsetX-center.x,
-			y=center.y-event.offsetY,
-			row=Math.round(y/space.y),
-			clr;
+	const
+			maxSatPoint=w/2-space.x/2;
+	var x=Math.round((event.offsetX-center.x)/space.x)*space.x,
+			y=center.y-event.offsetY;
+	const
+			row=Math.round(y/space.y);
 	y=row*space.y;
-	if (row/2===Math.round(row/2))
-		x=Math.round(x/space.x)*space.x;
-	else
-		x=Math.floor((x)/space.x)*space.x+space.x/2;
+	if (row%2)  x+=space.x/2;
 	SoftMoon.WebWare.BeezEye.calcNativeHSV(x, y, maxSatPoint);  // globals ↓
 	if (saturation>100)  return;
 	return new SoftMoon.WebWare.BeezEyeColor(hue, saturation, color_value);  }
-
 
 SoftMoon.WebWare.BeezEyeColor=function(h, s, v)  { // degrees, percent, percent  → but ¡NO percent% or degrees° marks!
 	if (!new.target)  throw new Error('BeezEyeColor is a constructor, not a function.');
@@ -2102,21 +2114,27 @@ SoftMoon.WebWare.BeezEyeColor=function(h, s, v)  { // degrees, percent, percent 
 		if (settings.model[i].checked)  {model=settings.model[i].value.toUpperCase();  break;}  }
 	this.model=model;
 	h/=360; s/=100;  v/=100;
-	MasterColorPicker.RGB_calc.config.stack({inputAsFactor: {value: true}});
+	MasterColorPicker.RGB_calc.config.stack({inputAsFactor: {value: true}, preserveInputArrays: {value: true}});
+	try {
 	if (model==='CMYK')  {
-		SoftMoon.WebWare.HSVA_Color.config.CMYKAFactory=SoftMoon.WebWare.CMYKA_Color;
+		SoftMoon.WebWare.HSVA_Color.config.CMYKA_Factory=SoftMoon.WebWare.CMYKA_Color;
 		this.CMYK=SoftMoon.WebWare.HSVA_Color.to_CMYK([h, s, v]);
 		this.RGB=MasterColorPicker.RGB_calc.from.cmyk(this.CMYK.cmyk);  }
 	else  {
-		this[model]=new SoftMoon.WebWare.ColorWheel_Color(h, s, v, undefined, model);
-		this.RGB=MasterColorPicker.RGB_calc.from[model.toLowerCase()]([h, s, v]);  }
-	MasterColorPicker.RGB_calc.config.cull();  }
+		this[model]=new SoftMoon.WebWare.ColorWheel_Color(h, s, v, undefined, undefined, model);
+		this.RGB=MasterColorPicker.RGB_calc.from[model.toLowerCase()]([h, s, v]);  }  }
+	finally {MasterColorPicker.RGB_calc.config.cull();}  }
 
 
-	UniDOM.addEventHandler(window, 'onload', function()  { var model, i, BeezEye=SoftMoon.WebWare.BeezEye;
+UniDOM.addEventHandler(window, 'onload', function()  {
+		const BeezEye=SoftMoon.WebWare.BeezEye;
 		//first we set the private global members                                        ↓  this defines property names (of the array-object: settings)
 		settings=UniDOM.getElementsBy$Name(document.getElementById('BeezEye'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <input>s) into an array, with corresponding properties
-		for (i=0; i<settings.model.length; i++)  {
+		const
+			lbl=settings.value.parentNode,
+			crv=settings.curve_value,
+			twt=settings.twist_value;
+		for (let i=0; i<settings.model.length; i++)  {
 			UniDOM.addEventHandler(settings.model[i], 'onchange', setColorSpace);
 			if (settings.model[i].checked)  setColorSpace.call(settings.model[i], false);  }
 		UniDOM.addEventHandler(settings.curve, 'onchange', setColorSpace);
@@ -2130,14 +2148,11 @@ SoftMoon.WebWare.BeezEyeColor=function(h, s, v)  { // degrees, percent, percent 
 		UniDOM.addEventHandler(settings.twist_value, 'onchange', BeezEye.buildPalette);
 		BeezEye.txtInd=document.getElementById('BeezEye_indicator');
 		BeezEye.swatch=document.getElementById('BeezEye_swatch');
-		var cnvsWrap=document.getElementById('BeezEye').getElementsByTagName('canvas')[0].parentNode;
+		const cnvsWrap=document.querySelector("#MasterColorPicker #BeezEye canvas").parentNode;
 		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut', 'onclick'], BeezEye);
 		BeezEye.buildPalette();
 
 		function setColorSpace(flag)  { // flag is false upon start-up and ==true (it’s an “onchange” Event Object) otherwise
-			var lbl=settings.value.parentNode,
-					crv=settings.curve_value,
-					twt=settings.twist_value;
 			switch (this.value.toLowerCase())  {
 			case 'cmyk': lbl.firstChild.data='Black';  lbl.childNodes[1].firstChild.data='(K)';  break;
 			case 'hsv':
@@ -2148,7 +2163,7 @@ SoftMoon.WebWare.BeezEyeColor=function(h, s, v)  { // degrees, percent, percent 
 			case 'twist': UniDOM.disable(twt.parentNode, !this.checked);  break;  }
 			if (flag)  BeezEye.buildPalette();  }
 		});  // close window onload
-})();  // close “BeezEye globals” wrapper
+}  // close BeezEye namespace
 
 
 
@@ -2204,7 +2219,7 @@ RainbowMaestro.buildPalette=function(onlyColorblind)  {
 		outRad[i]=cnvs[i].width*this.grayRing.outRad;
 		oc[i].parentNode.replaceChild(cnvs[i], oc[i]);  }
 
-	RGB_Calc.config.stack({RGBAFactory: {value: Array},
+	RGB_Calc.config.stack({RGBA_Factory: {value: Array},
 												useHexSymbol: {value: true},
 												roundRGB: {value: false} });
 
@@ -2451,7 +2466,7 @@ SoftMoon.WebWare.RainbowMaestro.handleMouse=function(event)  {
 		UniDOM.useClass(hueIndicator.parentNode, 'active', targetHue!==null);  }
 	const spsw=document.getElementById('RainbowMaestro').getElementsByClassName('subpalette_swatch'),
 				count= settings.colorblind.checked  ?  spsw.length : 1;
-	RGB_Calc.config.stack({useHexSymbol: {value: true},  RGBAFactory: {value: Array},  roundRGB: {value: false}});
+	RGB_Calc.config.stack({useHexSymbol: {value: true},  RGBA_Factory: {value: Array},  roundRGB: {value: false}});
 	for (var i=0; i<count; i++)  {
 		spsw[i].style.backgroundColor= (mouseColor)  ?   // && mouseColor.ring
 			((i>0) ?  RGB_Calc.to.hex(RGB_Calc.to.colorblind(mouseColor.RGB.rgba, RGB_Calc.to.colorblind.types[i-1]))
@@ -2564,7 +2579,7 @@ SoftMoon.WebWare.SimpleSqColorPicker=new SoftMoon.WebWare.x_ColorPicker('Simple�
 			RGB_calc=new SoftMoon.WebWare.RGB_Calc({
 				useHexSymbol: true,
 				inputAsFactor: true,
-				RGBAFactory: Array,
+				RGBA_Factory: Array,
 				throwErrors: true });
 //				onError: function() {throw null;}});
 
@@ -2694,7 +2709,7 @@ function getColor(model, h, c_s, g_v_l)  { var RGB, clr, e;
 			RGB=MasterColorPicker.RGB_calc.from[model]([h, c_s, g_v_l])
 			model=model.toUpperCase();
 			clr={RGB: RGB, model: model};
-			clr[model]=new SoftMoon.WebWare.ColorWheel_Color(h, c_s, g_v_l, undefined, model);  }
+			clr[model]=new SoftMoon.WebWare.ColorWheel_Color(h, c_s, g_v_l, undefined, undefined, model);  }
 		catch(e)  {  //round-off errors at high-end of palette
 			clr=false;  }
 		MasterColorPicker.RGB_calc.config.cull();
@@ -2807,7 +2822,7 @@ SoftMoon.WebWare.YinYangNiHong.buildBasePalette=function()  {
 	baseCanvas.context.arc(baseCanvas.centerX, baseCanvas.centerY, inRad, _['π×3÷2'], _['π÷2'], false);
 	baseCanvas.context.fill();
 
-	RGB_Calc.config.stack({RGBAFactory: {value: Array},
+	RGB_Calc.config.stack({RGBA_Factory: {value: Array},
 												useHexSymbol: {value: true},
 												roundRGB: {value: false} });
 
@@ -2822,7 +2837,7 @@ SoftMoon.WebWare.YinYangNiHong.buildBasePalette=function()  {
 //for animated yin/yang
 SoftMoon.WebWare.YinYangNiHong.buildHueSwatches=function(hue)  { //hue should be between 0-1
 	if (typeof hue === 'undefined')  hue=swatchHue;
-	RGB_Calc.config.stack({RGBAFactory: {value:Array}});
+	RGB_Calc.config.stack({RGBA_Factory: {value:Array}});
 	var canvases=document.getElementById('YinYangNíHóng').getElementsByTagName('canvas'),
 			cnvs=document.createElement('canvas'),
 			grad;
@@ -2854,7 +2869,7 @@ SoftMoon.WebWare.YinYangNiHong.buildHueSwatches=function(hue)  { //hue should be
 
 
 SoftMoon.WebWare.YinYangNiHong.buildPalette=function()  {
-	RGB_Calc.config.stack({RGBAFactory: {value: SoftMoon.WebWare.RGBA_Color},  roundRGB: {value: true}});
+	RGB_Calc.config.stack({RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color},  roundRGB: {value: true}});
 	var canvases=document.getElementById('YinYangNíHóng').getElementsByTagName('canvas'),
 			cnvs=document.createElement('canvas'),
 			hue=RGB_Calc.from.hue(focalHue/_['π×2']),
@@ -2938,7 +2953,7 @@ SoftMoon.WebWare.YinYangNiHong.getColor=function(event)  {
 			RGB: RGB_calc.from.hue(fa/_['π×2']),
 			model: mode,
 			focal: fa };
-		Color[mode]=new SoftMoon.WebWare.ColorWheel_Color(fa/_['π×2'], 1, (mode=='HSL') ? .5 : 1, undefined, mode);
+		Color[mode]=new SoftMoon.WebWare.ColorWheel_Color(fa/_['π×2'], 1, (mode=='HSL') ? .5 : 1, undefined, undefined, mode);
 		RGB_calc.config.cull();
 		return Color;  }
 	if (event.target===mainCanvas)  {
@@ -2949,7 +2964,7 @@ SoftMoon.WebWare.YinYangNiHong.getColor=function(event)  {
 			Color={
 				RGB: RGB_calc.from[mode.toLowerCase()]([focalHue/_['π×2'],  y=1-y/255,  x=x/255]),
 				model: mode };
-			Color[mode]=new SoftMoon.WebWare.ColorWheel_Color(focalHue/_['π×2'], y, x, undefined, mode);
+			Color[mode]=new SoftMoon.WebWare.ColorWheel_Color(focalHue/_['π×2'], y, x, undefined, undefined, mode);
 			RGB_calc.config.cull();
 			return Color;  }  }
 	return null;  }
@@ -4285,7 +4300,7 @@ SoftMoon.WebWare.ColorThesaurus.matchColor=function matchColor(color)  { /* as a
 				disparity: SoftMoon.WebWare.ColorThesaurus.compare(color.to.hcg, pltClr.to.hcg) });  }  }  }
 
 /*
-	c1 & c2 should each be a SoftMoon.WebWare.HCGA_Color (or a SoftMoon.WebWare.ColorWheel_Color as an HCG color)
+	c1 & c2 should each be a SoftMoon.WebWare.HCGA_Color
 		or provide similar properties.
 	a “disparity” value is returned: 0 =< disparity < 1
 		0 = no disparity – colors match exactly
@@ -4631,9 +4646,12 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 const
 	Gradientor= SoftMoon.WebWare.Gradientor=new SoftMoon.WebWare.x_ColorPicker('Gradientor'),
 	RGB_calc= new SoftMoon.WebWare.RGB_Calc({
-		RGBAFactory:Array,
-		CMYKAFactory:Array,
-		ColorWheelFactory:Array,
+		defaultAlpha: undefined,
+		RGBA_Factory:Array,
+		HSLA_Factory:Array,
+		HSBA_Factory:Array,
+		HCGA_Factory:Array,
+		CMYKA_Factory:Array,
 		useHexSymbol:true}, true);
 
 var
@@ -4641,7 +4659,7 @@ var
 
 Gradientor.buildTriadicPalette=function buildGradientorTraidicPalette()  {
 	MasterColorPicker.RGB_calc.config.stack({
-		RGBAFactory:{value:Array},
+		RGBA_Factory:{value:Array},
 		defaultAlpha:{value:1}});
 	try {
 	var
@@ -4808,9 +4826,11 @@ Gradientor.processLinearColorStops=function processGradientorColorStops(cSpace) 
 		if (this.doLog)  console.error('MasterColorPicker Gradientor error: ',stops);
 		return;  }
 	MasterColorPicker.RGB_calc.config.stack({
-		RGBAFactory: {value: Array},
-		ColorWheelFactory: {value: Array},
-		CMYKAFactory: {value: Array},
+		RGBA_Factory: {value: Array},
+		HSLA_Factory: {value: Array},
+		HSBA_Factory: {value: Array},
+		HCGA_Factory: {value: Array},
+		CMYKA_Factory: {value: Array},
 		defaultAlpha: {value: 1}
 		});
 	try { for (const stop of stops)  {
@@ -4858,7 +4878,7 @@ Gradientor.getColor=function Gradientor_getColor(event)  {
 	if (event.target.tagName!=='CANVAS'
 	||  event.offsetX<0  ||  event.offsetX>=width)  return null;
 	MasterColorPicker.RGB_calc.config.stack({
-		RGBAFactory:{value:Array},
+		RGBA_Factory:{value:Array},
 		defaultAlpha:{value:1}});
 	try {
 	const
@@ -4898,7 +4918,7 @@ function GradientorColor(c, space)  {
 		try {
 		MasterColorPicker.RGB_calc.config.stack({
 			inputAsFactor: {value: true},
-			RGBAFactory: {value: SoftMoon.WebWare.RGBA_Color}  });
+			RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color}  });
 		this.RGB=MasterColorPicker.RGB_calc.from[space.toLowerCase()](c);
 		} finally {MasterColorPicker.RGB_calc.config.cull();}
 		switch (space)  {
@@ -5009,7 +5029,7 @@ MasterColorPicker=new SoftMoon.WebWare.Picker(  //if you want to debug, you must
 							// to the active MasterColorPicker.dataTarget.value
 
 var calcOpts={
-	RGBAFactory: function(r,g,b,a) {return new SoftMoon.WebWare.RGBA_Color(r,g,b,a,{useHexSymbol: true})},
+	RGBA_Factory: function(r,g,b,a) {return new SoftMoon.WebWare.RGBA_Color(r,g,b,a,{useHexSymbol: true})},
 	useHexSymbol: true  };
 if ("hueAngleUnit" in user) calcOpts.hueAngleUnit=user.hueAngleUnit;  // per SoftMoon.WebWare.RGB_Calc:   'deg' ‖ "°" ‖ 'rad' ‖ "ᴿ" ‖ 'grad' ‖ "%" ‖ 'turn' ‖ "●"
 else
@@ -5018,6 +5038,7 @@ if ("keepPrecision" in user) calcOpts.roundRGB=!user.keepPrecision;
 else
 if ("keepPrecision" in meta) calcOpts.roundRGB=!Boolean.evalString(meta.keepPrecision, !SoftMon.WebWare.RGB_Calc.ConfigStack.prototype.roundRGB);
 MasterColorPicker.RGB_calc=new SoftMoon.WebWare.RGB_Calc(calcOpts);
+
 
 Object.defineProperty(MasterColorPicker, 'HTML', {value: document.getElementById('MasterColorPicker'), enumerable: true});
 
