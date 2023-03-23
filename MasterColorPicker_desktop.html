@@ -129,7 +129,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
-      release 2.4.2  January 27, 2023
+      release 2.4.4  March 23, 2023
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -151,7 +151,7 @@ but to retain the settings this file may be included inside an existing web <for
 
 <div><h3>Options▼</h3>
 <div>
-<fieldset disabled lock-disabled-state style='display:none;' id='x_ColorPicker_options' class='pickerOptions'><legend>RainbowMaestro mode:</legend>
+<fieldset disabled lock-disabled-state style='display:none;' id='Color_Picker_options' class='pickerOptions'><legend>RainbowMaestro mode:</legend>
 	<p class='underConstruction'><span>Under Construction:</span> no functionality</p>
 	<fieldset id='MasterColorPicker_showLocator'>
 		<label>¿<input type='checkbox' name='MasterColorPicker_showLocator' value='true' checked>show locator?</label>
@@ -618,7 +618,7 @@ or pin it to the window when it is pinned to the page.
 	<input type='range' name='MasterColorPicker_opacity_range' min='0' max='100' value='100' style="color:black" tabindex='-1'>
 </fieldset>
 
-<button type='button'><h5>Click to Choose</h5>
+<button type='button' keep-focus='no'><h5>Click to Choose</h5>
 <span class='swatch'></span>
 <table>
 <caption>colorblind</caption>
@@ -787,9 +787,12 @@ triadic</label>
 				“Named color” palettes may have sub-palettes; you may or may not need to include the sub-palette name
 				in your color-spec, depending on the palette.&nbsp;
 				Generally, if all the colors in the parent palette and its sub-palettes have different names,
-				no sub-palette is required in the spec.&nbsp;
-				<code class='block'>ANSI: 35
-ANSI: 8-bit: shades and tones: 35</code>
+				no sub-palette is required in the spec.&nbsp;  For examples:
+				<code class='multiline'>ANSI: 35
+ANSI: 8-bit: shades and tones: 35
+ANSI: Ubuntu: Cyan
+ANSI: 3-bit &amp; 4-bit: Ubuntu: Cyan
+ANSI: Windows 10 Console: Cyan</code>
 				<abbr>CSS</abbr> is the “default” palette and its colors do not need to be prefixed or wrapped.&nbsp;
 				Hackers can change the default palette thought the value at: <code>SoftMoon.defaultPalette</code></li>
 	</ul>
@@ -1326,45 +1329,45 @@ ANSI: 8-bit: shades and tones: 35</code>
 
 <thead><tr><td colspan='100'><table>
 <tr>
-	<td colspan='6'><label>hue variety: <input type='range' name='hue_variety' value='30' max='100' min='10' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()' backtabTo='MasterColorPicker_palette_select'></label>
-									<label>mix variety: <input type='range' name='mix_variety' value='7' max='20' min='5' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'></label><br>
-									<label>x-shift: <input type='range' name='x_shift' value='0' max='6.28' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></label>
-									<label>y-shift: <input type='range' name='y_shift' value='0' max='1' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></label>
-									<label>mix shift: <input type='range' name='phase_shift' value='4.71' max='9.42' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></label></td><!-- Opera limits the number of digits in the value,min,max fields  -->
+	<td colspan='6'><label>hue variety: <input type='range' name='hue_variety' value='30' max='100' min='10' step='1' backtabTo='MasterColorPicker_palette_select'></label>
+									<label>mix variety: <input type='range' name='mix_variety' value='7' max='20' min='5' step='1'></label><br>
+									<label>x-shift: <input type='range' name='x_shift' value='0' max='6.28' min='0' step='0.01'></label>
+									<label>y-shift: <input type='range' name='y_shift' value='0' max='1' min='0' step='0.01'></label>
+									<label>mix shift: <input type='range' name='phase_shift' value='4.71' max='9.42' min='0' step='0.01'></label></td><!-- Opera limits the number of digits in the value,min,max fields  -->
 </tr>
 <tr><th></th><th>channel</th><th>intensity</th><th>variation</th><th>shift</th><th>frequency</th></tr>
 <tr style='color:red'><td>RED</td>
 	<td>
-		<input type='radio' name='red_c' value='1' onchange='SoftMoon.WebWare.buildSpectralPalette()' checked>
-		<input type='radio' name='red_c' value='2' onchange='SoftMoon.WebWare.buildSpectralPalette()'>
-		<input type='radio' name='red_c' value='3' onchange='SoftMoon.WebWare.buildSpectralPalette()'>
+		<input type='radio' name='red_c' value='1' checked>
+		<input type='radio' name='red_c' value='2'>
+		<input type='radio' name='red_c' value='3'>
 	</td>
-	<td><input type='range' name='red_i' value='128' max='255' min='0' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='red_v' value='128' max='255' min='0' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='red_s' value='0' max='6.28' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='red_f' value='1' max='2' min='0.01' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
+	<td><input type='range' name='red_i' value='128' max='255' min='0' step='1'></td>
+	<td><input type='range' name='red_v' value='128' max='255' min='0' step='1'></td>
+	<td><input type='range' name='red_s' value='0' max='6.28' min='0' step='0.01'></td>
+	<td><input type='range' name='red_f' value='1' max='2' min='0.01' step='0.01'></td>
 </tr>
 <tr style='color:lime'><td>GREEN</td>
 	<td>
-		<input type='radio' name='grn_c' value='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'>
-		<input type='radio' name='grn_c' value='2' onchange='SoftMoon.WebWare.buildSpectralPalette()' checked>
-		<input type='radio' name='grn_c' value='3' onchange='SoftMoon.WebWare.buildSpectralPalette()'>
+		<input type='radio' name='grn_c' value='1'>
+		<input type='radio' name='grn_c' value='2' checked>
+		<input type='radio' name='grn_c' value='3'>
 	</td>
-	<td><input type='range' name='grn_i' value='128' max='255' min='0' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='grn_v' value='128' max='255' min='0' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='grn_s' value='0' max='6.28' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='grn_f' value='1' max='2' min='0.01' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
+	<td><input type='range' name='grn_i' value='128' max='255' min='0' step='1'></td>
+	<td><input type='range' name='grn_v' value='128' max='255' min='0' step='1'></td>
+	<td><input type='range' name='grn_s' value='0' max='6.28' min='0' step='0.01'></td>
+	<td><input type='range' name='grn_f' value='1' max='2' min='0.01' step='0.01'></td>
 </tr>
 <tr style='color:#4040FF'><td>BLUE</td>
 	<td>
-		<input type='radio' name='blu_c' value='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'>
-		<input type='radio' name='blu_c' value='2' onchange='SoftMoon.WebWare.buildSpectralPalette()'>
-		<input type='radio' name='blu_c' value='3' onchange='SoftMoon.WebWare.buildSpectralPalette()' checked>
+		<input type='radio' name='blu_c' value='1'>
+		<input type='radio' name='blu_c' value='2'>
+		<input type='radio' name='blu_c' value='3' checked>
 	</td>
-	<td><input type='range' name='blu_i' value='128' max='255' min='0' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='blu_v' value='128' max='255' min='0' step='1' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='blu_s' value='0' max='6.28' min='0' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()'></td>
-	<td><input type='range' name='blu_f' value='1' max='2' min='0.01' step='0.01' onchange='SoftMoon.WebWare.buildSpectralPalette()' tabToTarget='true'></td>
+	<td><input type='range' name='blu_i' value='128' max='255' min='0' step='1'></td>
+	<td><input type='range' name='blu_v' value='128' max='255' min='0' step='1'></td>
+	<td><input type='range' name='blu_s' value='0' max='6.28' min='0' step='0.01'></td>
+	<td><input type='range' name='blu_f' value='1' max='2' min='0.01' step='0.01' tabToTarget='true'></td>
 </tr>
 </table></td></tr></thead>
 
