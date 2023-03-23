@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.4.3  February 27, 2023  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.4.4  March 23, 2023  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -564,7 +564,7 @@ select#MasterColorPicker_palette_select {
 	margin: 0; }
 #MasterColorPicker_options .disabled {
 	opacity: .27; }
-#MasterColorPicker_options > div div fieldset#x_ColorPicker_options {
+#MasterColorPicker_options > div div fieldset#Color_Picker_options {
 	border: 1px solid;
 	margin: 0 -.854em 1em -.854em;
 	padding: 0 .382em .382em .382em;
@@ -582,7 +582,7 @@ select#MasterColorPicker_palette_select {
 	display: inline-block; }
 #MasterColorPicker_options > div div fieldset:first-child fieldset label {
 	margin: 0; }
-#MasterColorPicker_options > div div fieldset#x_ColorPicker_options > label#MasterColorPicker_applyToAll {
+#MasterColorPicker_options > div div fieldset#Color_Picker_options > label#MasterColorPicker_applyToAll {
 	position: absolute;  /* this has a different ref point for the offset parent in different browsers for an unknown reason */
 	top: -0.25em;  /* value for Chrome, ¿more? */
 	right: .382em;
@@ -592,7 +592,7 @@ select#MasterColorPicker_palette_select {
 	color: var(--fore-text);
 	background-color: var(--back-text); }
 @-moz-document url-prefix() {
-	#MasterColorPicker_options > div div fieldset#x_ColorPicker_options > label#MasterColorPicker_applyToAll {
+	#MasterColorPicker_options > div div fieldset#Color_Picker_options > label#MasterColorPicker_applyToAll {
 		top: -1.25em;  /* value for Firefox - they need to fix this issue - going on 10+ years! */
 	}
 }
