@@ -129,7 +129,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
-      release 2.4.4  March 23, 2023
+      release 2.5  April 3, 2023
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -667,12 +667,12 @@ triadic</label>
  <fieldset><swatch></swatch>
 	<input type='text' name='MasterColorPicker_Gradientor_color[1]' placeholder='color'
 		interfaceTarget='true' swatch='this.previousElementSibling' value="">
-	<input type='numeric' min='0' units='%, pixels, px' allow-plus-sign default-value="" placeholder='offset' name='MasterColorPicker_Gradientor_offset[1]'>
+	<input type='numeric' min='0' units='%, pixels, px' auto-append-unit allow-plus-sign default-value="" placeholder='offset' name='MasterColorPicker_Gradientor_offset[1]'>
  </fieldset>
  <fieldset><swatch></swatch>
 	<input type='text' name='MasterColorPicker_Gradientor_color[2]' placeholder='color'
 		interfaceTarget='true' swatch='this.previousElementSibling' value="">
-	<input type='numeric' min='0' units='%, pixels, px' allow-plus-sign default-value="" placeholder='offset' name='MasterColorPicker_Gradientor_offset[2]'>
+	<input type='numeric' min='0' units='%, pixels, px' auto-append-unit allow-plus-sign default-value="" placeholder='offset' name='MasterColorPicker_Gradientor_offset[2]'>
  </fieldset>
 </fieldset>
 <fieldset id='MasterColorPicker_Gradientor_triadic-colors'><legend>(choose colors using any color-picker or type directly)</legend>
@@ -1433,15 +1433,15 @@ ANSI: Windows 10 Console: Cyan</code>
 <thead>
 	<tr><td colspan='2'>
 	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked backtabTo='MasterColorPicker_palette_select'>websafe</label>
-	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true'>split-compliments</label>
+	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true' onfocus="this.parentNode.className='focusWithin'" onblur="this.parentNode.className=''">split-compliments<note> and analogous</note></label>
 	<label><input type='checkbox' name='RainbowMaestro_colorblind' value='true' checked>colorblind assist<mark class='footmark'>‡</mark></label>
 	<label><input type='checkbox' name='RainbowMaestro_lock' value='true'>lock focal hue</label>
 	</td></tr>
 	<tr><td colspan='2'>
 	<label>variety<input type='numeric-slider' name='RainbowMaestro_variety' value='6' min='6' max='32'></label>
 	<label><input type='checkbox' name='RainbowMaestro_focalsOnly' value='true'>focals only</label>
-	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue' value='0' step='any' tabToTarget='true'>
-		<span class='hueIndicator'>&nbsp;</span><p>Hue given in <span class='hueAngleUnit'>degrees (0.0°–359.99°)</span>.</p></label>
+	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue' value='0' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' tabToTarget='true'>
+		<span class='hueIndicator'>&nbsp;</span><p>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.</p></label>
 	</td></tr>
 	<tr><td colspan='2' id='RainbowMaestro_swatch'><span id='RainbowMaestro_indicator'>&nbsp;</span></td><tr>
 </thead>
@@ -1470,7 +1470,10 @@ ANSI: Windows 10 Console: Cyan</code>
 <td colspan='3'><indicator id='Simple²saturation'>99.99%</indicator></td>
 <td colspan='2'   style='border: 1px solid; border-bottom: none'
 		>Chroma<br><span class='begin'>«0→</span>←‖1‖→<span class='end'>←0»</span></td>
-<td colspan='2'><indicator id='Simple²hue'>359.999°</indicator></td>
+<td colspan='2' onmouseup='UniDOM.generateEvent(this.querySelector("input"), "tabIn", {bubbles:true})'><indicator id='Simple²hue'>359.999°</indicator>
+	<label id='Simple²_hueIndicator'>Focal hue:<input type='numeric' name='Simple²_focalHue' value='180' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' backtabTo='MasterColorPicker_palette_select'>
+		<span class='hueIndicator'>&nbsp;</span><dfn>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.</dfn></label>
+</td>
 </tr>
 <tr><!--  ROW 2  -->
 <td style='border-top: 1px solid; border-bottom: 1px solid;'
@@ -1480,10 +1483,10 @@ ANSI: Windows 10 Console: Cyan</code>
 		><canvas width='18' height='360'></canvas></td>
 <td id="Simple²wrapper" colspan='2'   style='border-left: 1px solid'
 		><canvas width='360' height='360'></canvas></td>
-<td style='border: 1px solid; border-left: none'
+<td style='border: 1px solid; border-left: none' onmouseup='UniDOM.generateEvent(document.querySelector("#Simple²_hueIndicator input"), "tabIn", {bubbles:true})'
 		><div><span class='begin'>0°→→</span>←←Hue→→<span class='end'>←←360°»</span></div></td>
 <td id="Simple²interface"><label>variety: <input
-	type='numeric-slider' name='Simple²_variety' value='12' min='12' max='360' step='2' backtabTo='MasterColorPicker_palette_select'></label></td>
+	type='numeric-slider' name='Simple²_variety' value='12' min='12' max='360' step='2'></label></td>
 </tr>
 <tr><!--  ROW 3  -->
 <td rowspan='5'  style='border-bottom: 1px solid'
@@ -1523,12 +1526,19 @@ ANSI: Windows 10 Console: Cyan</code>
 
 
 <table class='picker palette' id='YinYangNíHóng'><caption><h6>YinYang NíHóng<span>the Tao of Color Pickers™</span></h6>click to choose</caption>
-<thead><tr>
-<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='MasterColorPicker_palette_select'>HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
-<td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked>HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
-<td><label><input type='radio' name='YinYang NíHóng' value='HCG' tabToTarget='true'>HCG<dfn>Hue, Chroma, Gray</dfn></label>
-		<input type='hidden' name='YinYang NíHóng focalHue' value='0'></td>
-</tr></thead>
+<thead
+	onfocusin='event.target.parentNode.classList.add("focusWithin"); event.target.closest("tr").classList.add("focusWithin");'
+	onfocusout='event.target.parentNode.classList.remove("focusWithin"); event.target.closest("tr").classList.remove("focusWithin");'>
+<tr>
+	<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='MasterColorPicker_palette_select'>HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
+	<td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked>HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
+	<td><label><input type='radio' name='YinYang NíHóng' value='HCG'>HCG<dfn>Hue, Chroma, Gray</dfn></label></td>
+</tr>
+<tr>
+	<td colspan='3'><label>Focal Hue:<input type='numeric' name='YinYang NíHóng focalHue' value='0' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' tabToTarget='true'>
+		<span class='hueIndicator'>&nbsp;</span><dfn>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.</dfn></label></td>
+</tr>
+</thead>
 <tbody>
 <tr><td colspan='3' id='YinYangNíHóng_swatch'><div><canvas width='421' height='421'></canvas></div></td></tr>
 <tr><td colspan='3' id='YinYangNíHóng_indicator'>&nbsp;</td></tr>
@@ -1546,12 +1556,13 @@ ANSI: Windows 10 Console: Cyan</code>
 <fieldset><button title='full-screen' backtabTo='MasterColorPicker_palette_select'>╬</button><button title='panel'>□</button></fieldset>
 <label>Choose an image file or drag an image or its file here:
 <input type='file' accept='image/*'></label>
+<label>Sample size<input type='range' name='MasterColorPicker_EyeDropper_size' value='0' min='0' max='7' step='1'></label>
 <button title='cut'>&#9988;</button>
 <fieldset>
 	<label>Zoom: <button title='zoom in'>+</button><button title='no zoom'>&empty;</button><button title='zoom out'>−</button></label>
 	<label><input type='checkbox' checked>smooth zoom</label>
 </fieldset>
-<label>Background: <input type='range' value='128' min='0' max='255' tabToTarget>
+<label>Background: <input type='range' name='MasterColorPicker_EyeDropper_background' value='128' min='0' max='255' tabToTarget>
 <note>The background color will not be eye-dropped; it is only for visual contrast in images with transparency.</note></label>
 <indicator> <swatch></swatch></indicator>
 <playground></playground>
