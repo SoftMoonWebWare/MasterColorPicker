@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.2.0  January 26, 2023
+/*  UniDOM-2022  version 1.2.1  March 24, 2023
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -28,7 +28,7 @@
 */
 
 
-;(function UniDOM_NS()  { //open UniDOM’s private namespace (to end of file)
+{ //open UniDOM’s private namespace (to end of file)
 
 														 // ↓ optional
 const UniDOM=function(element, passData)  {  /* ALTERNATE ARGUMENTS:
@@ -97,7 +97,7 @@ if (typeof Element.prototype.querySelectorAll === 'function')
 	function getEventType(eT) {return eT.toLowerCase().match( /^(?:on)?(.+)$/ )[1];}
 	const aSlice=Array.prototype.slice;
 
-	var handlerCounter=0, eventCounter=0;
+	let handlerCounter=0, eventCounter=0;
 
 UniDOM.addEventHandler=addEventHandler;
 function addEventHandler(element, eventType, handler, useCapture)  {
@@ -143,7 +143,7 @@ function addEventHandler(element, eventType, handler, useCapture)  {
 addEventHandler.errorOnDoubleBind=true;  // false quietly ignores double-binds
 
 	//private
-	var addingHandler=false,
+	let addingHandler=false,
 			allEvents;
 	const eventedWindows=new Array;
 
@@ -883,7 +883,7 @@ ElementArray.wrappedElements=false;
 UniDOM.ElementArray=ElementArray;
 
 
-var cb,  //private
+let cb,  //private
 		block=false;
 
 //↓private----===========*********===========----
@@ -927,7 +927,7 @@ var cb,  //private
 		return this;  }
 
 
-var xTimes=0
+let xTimes=0
 
 	function invoke(Obj, method /* , firstArg «, secondArg «, thirdArg, … … … »» , moreArgumentsArray */ )  {    //currently unused by UniDOM
 		const aa=aSlice.call(arguments[arguments.length-1], 0);
@@ -1130,4 +1130,4 @@ if (!('isConnected' in Node.prototype)) {
 window.UniDOM=UniDOM;
 
 
-})();  // close UniDOM private-space wrapper
+}  // close UniDOM private-namespace

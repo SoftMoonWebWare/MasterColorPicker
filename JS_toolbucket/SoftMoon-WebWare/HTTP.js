@@ -1,5 +1,5 @@
 /*  charset="UTF-8"
-	HTTP.js  version 2.2  April 20, 2022
+	HTTP.js  version 2.2.1  March 24, 2023
 	Copyright © 2013, 2017, 2018, 2020, 2021, 2022 by Joe Golembieski, SoftMoon-WebWare.
 
 //  character-encoding: UTF-8 UNIX     includes extended character set in comments example:  far-east asian: Chinese and Japanese
@@ -68,7 +68,7 @@ if (typeof SoftMoon !== 'object')  SoftMoon=new Object;
 if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 */
 
-;(function() {
+{  // open a private namespace
 
 
 //constructor function:
@@ -427,4 +427,5 @@ http://mydomain.com/mypage/jp→日本語→Japanese
 HTTP.handleMultiple.HTML_Element_id='HTTP_handleMultipleFileDownloadChoises';
 
 SoftMoon.WebWare.HTTP=HTTP;
- })();
+
+}  // close private namespace

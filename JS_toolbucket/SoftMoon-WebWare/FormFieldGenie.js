@@ -1,6 +1,6 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.4 (January 20, 2023)
+/* FormFieldGenie version 4.4.1 (March 24, 2023)
  * written by and Copyright © 2010,2011,2012,2015,2019,2020,2022,2023 Joe Golembieski, Softmoon-Webware
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatable with early versions of MSIE =*=*=*
@@ -25,7 +25,7 @@ if (typeof SoftMoon.WebWare !== 'object')  SoftMoon.WebWare=new Object;
 
 
 
-;(function FormFieldGenie_NS(){  // open a private namespace
+{  // open a private namespace
 
 
 
@@ -318,7 +318,6 @@ FormFieldGenie.ConfigStack.prototype={
 	constructor: FormFieldGenie.ConfigStack,
 
 //you may re-define defaults globally through these properties
-	maxGroups: 100,
 	indxTier: 0,
 	climbTiers: true,
 	updateValue: "all",
@@ -327,6 +326,9 @@ FormFieldGenie.ConfigStack.prototype={
 	isActiveField: undefined,   /*Boolean  or  user function returns Boolean;  see also isActiveField() method*/
 	dumpEmpties: dumpEmpties,   /*Boolean  or  user function returns Boolean|null*/
 	minGroups: 1,   /* min number of groups in the batch when checking to dump empties using the above default “dumpEmpties” function */
+	maxGroups: 100,
+	groupClass: "",       /* string  or  RegExp */
+	groupTag: null,        /* htmlTagNameString.toUpper() */
 //	nodeName: null,  /*specific nodeName of Elements in a group when checking to dump empties*/
 	checkForFilled: "one",  // ‖ any ‖ all ‖ some
 	checkField: 0, //← zero(0)-based index when checkForFilled='one';  1-based count when ='some';  may be an Array of indices for 'any' & 'some';  unused otherwise
@@ -334,8 +336,6 @@ FormFieldGenie.ConfigStack.prototype={
 	cloneCustomizer: null,  /*user function*/
 	eventRegistrar: null,   /*user function*/
 	fieldsetCustomizer: null,   /*user function*/
-	groupClass: "",       /* string  or  RegExp */
-	groupTag: null,        /* htmlTagNameString.toUpper() */
 	minPixWidth: 4,  //for an input to be "active"
 	minPixHeight: 4,  // ↑
 	clone: null,
@@ -437,7 +437,7 @@ function dumpEmpties(elmnt)  {
 
 
 	// these are "private" variables "global" to this class
-	var thisGenie,
+	let thisGenie,
 			config,
 			groupClass,
 			batch;
@@ -884,7 +884,7 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
 
 
 
-})()  //close and invoke the NameSpace wrapper for private members/functions
+}  //close the NameSpace wrapper for private members/functions
 
 
 
