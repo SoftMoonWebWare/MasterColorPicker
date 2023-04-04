@@ -1,6 +1,6 @@
 // charset=UTF-8
 //  +++Math.js
-//	November 7, 2022
+//	April 3, 2023
 
 //  JavaScript needs true full UTF-8 support for variable & constant names…
 
@@ -83,6 +83,10 @@ else console.log('Math.deg already exists');
 
 if (typeof Math.rad !== 'function')  Math.rad=Math.sawtooth.bind(Math, _2PI);
 else console.log('Math.rad already exists');
+
+if (typeof Math.turn !== 'function')  Math.turn=Math.sawtooth.bind(Math, 1);
+else console.log('Math.turn already exists');
+
 /*
 
 if (typeof Math.sawtoothAt !== 'function')  Math.sawtoothAt=function(s,e,x) {return Math.sawtooth(e-s, x-s)+s};
