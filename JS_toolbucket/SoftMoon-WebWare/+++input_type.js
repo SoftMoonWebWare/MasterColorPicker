@@ -1,7 +1,7 @@
 //  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 /*   written by and Copyright © 2019, 2022, 2023 Joe Golembieski, SoftMoon WebWare */
 
-// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated January 22, 2023
+// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated April 3, 2023
 // input type='file…………'  April 20, 2022
 
 'use strict';
@@ -72,10 +72,10 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 
 	input.units=units;  //you may modify this Array of units in real-time; the “units” attribute is only read once when first registered…
 
-	function reset_type() {return iType==='numeric-slider' ? 'range' : (input.units ? 'text' : 'number');}
+	function reset_type() {return iType==='numeric-slider' ? 'range' : (input.units && input.value.match( /[^-−+\d.]/ ) ? 'text' : 'number');}
 	function getValueUnitIndex() {return /[^-−+0-9.]/.exec(input.value)?.index;}
   function usesUnit(data) {
-		const unit=data.match(/^([-−+\d.]*)([\D]+)$/);
+		const unit=data.match( /^([-−+\d.]*)([\D]+)$/ );
 		if (unit  &&  input.units)  for (const u of input.units)  {
 			if (u.toUpperCase()===unit[2])  {unit[2]=u;  return unit;}  }
 		return false;  }
@@ -94,7 +94,7 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 		case 'numeric':
 			input.addEventListener('focus', function() {if (this.type!=='text')  {this.type='text';  this.focus();  this.selectionStart=this.value.length;}});
 			if (units)  input.addEventListener('blur', function()  {
-				if (this.value)  {
+				if (this.value  &&  this.hasAttribute('auto-append-unit'))  {
 				  for (const unit of this.units)  {if (this.value.endsWith(unit))  return;}
 				  this.value+=this.units[0];  }  });
 		break;
@@ -167,8 +167,9 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 					event.preventDefault();
 					if (this.selectionStart!==this.value.length
 					||  /[^-−+0-9.]/.test(this.value))  return;
-					for (const unit of this.units)  { if (unit.substr(0,1).toUpperCase()===data)  {
-						data=unit;  addData(true);  return;  }  }  }
+					if (this.units) for (const unit of this.units)  {
+						if (unit.substr(0,1).toUpperCase()===data)  {
+							data=unit;  addData(true);  return;  }  }  }
 			event.preventDefault();  return;  }
 		else  {  //text was pasted (or a “foreign” OS returns a two-character value for a single keystroke)
 			if (base<10)
