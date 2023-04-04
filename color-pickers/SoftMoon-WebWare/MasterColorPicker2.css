@@ -54,6 +54,7 @@ body.MCP_we-be-a-cuttin {
 #MasterColorPicker input,
 #MasterColorPicker select,
 #MasterColorPicker button {
+	border-size: 1px;
 	font-family: monospace;
 	font-size: 13px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
 #MasterColorPicker select,
@@ -1135,12 +1136,14 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	background-color: var(--back-palette);
 	border: 1px solid var(--fore-palette);
 	border-top: none; }
-#MasterColorPicker_EyeDropper input[type='range'] {
+#MasterColorPicker_EyeDropper input[name*='background'] {
 	background: linear-gradient(to right, black, white); }
 #MasterColorPicker_EyeDropper note {
 	display: none; }
-#MasterColorPicker_EyeDropper label:first-of-type {
+#MasterColorPicker_EyeDropper > label {
 	display: block; }
+#MasterColorPicker_EyeDropper > label:last-of-type {
+	display: inline; }
 #MasterColorPicker_EyeDropper > button {
 	margin-right: .618em; }
 #MasterColorPicker_EyeDropper > button.cutting {
@@ -1991,9 +1994,28 @@ table#RainbowMaestro.no_colorblind {padding-right: 0;}
 table#RainbowMaestro thead {
 	text-align: center; }
 table#RainbowMaestro thead label {
-	margin-right: .618em; }
+	margin-right: .618em;
+	position: relative; }
 table#RainbowMaestro thead label:last-child {
 	margin-right: 0; }
+table#RainbowMaestro thead note {
+	display: none; }
+table#RainbowMaestro thead label:hover,
+table#RainbowMaestro thead label.focusWithin {
+	z-index: 1000; }
+table#RainbowMaestro thead label:hover note,
+table#RainbowMaestro thead label.focusWithin note {
+	display: block;
+	position: absolute;
+	top: 100%;
+	left: auto;
+	right: 0;
+	bottom: auto;
+	color: var(--fore-palette);
+	background-color: var(--back-palette);
+	padding: .16em;
+	border: 2px solid var(--fore-palette);
+	border-top: none; }
 table#RainbowMaestro tbody th {
 	border-top: 1px solid;
 	border-left: 1px solid; }
@@ -2096,6 +2118,7 @@ table#Simple² tr:nth-child(2) td:nth-child(2) canvas,
 table#Simple² tr:nth-child(2) td:nth-child(3) canvas {
 	margin: 0 2px;
 	background-color: var(--back-palette); }
+
 table#Simple² indicator,  /*for palette properties, not selected color*/
 table#Simple² div,   /*labels for palettes*/
 table#Simple² label  /*for inputs*/
@@ -2106,6 +2129,25 @@ table#Simple² label  /*for inputs*/
 	writing-mode: vertical-rl;
 	transform: rotate(180deg);
 }
+label#Simple²_hueIndicator {
+	display: none; }
+label#Simple²_hueIndicator.focusWithin {
+	display: block;
+	position: absolute; /* relative to <td> */
+	top: 0;
+	bottom: auto;
+	left: auto;
+	right: 0;
+	color: var(--fore-text);
+	background-color: var(--back-text);
+	padding: .382em .618em;
+	border: 3px double var(--fore-text);
+	font-weight: normal;
+	writing-mode: revert;
+	transform: none;
+	}
+label#Simple²_hueIndicator .hueAngleUnit {
+ font-weight: bold; }
 table#Simple² tr:nth-child(2) div,
 table#Simple² tr:nth-child(2) label {
 	height: 360px;  /* width/height of the canvas */
@@ -2171,35 +2213,61 @@ td#Simple²indicator {
 
 table#YinYangNíHóng {
 /*	padding-right: 1em;  /* ←↓ band-aid fix for lame layout engines: Opera, Google Chrome, Firefox */
+	text-align: center;
 }
 table#YinYangNíHóng h6 span {
 	display: block;
 	padding-left: 4.618em;
 	font-size: 85.4%; }   /* ≈ Φ + (1-Φ)*Φ */
-table#YinYangNíHóng thead tr {
-	position: relative;
+table#YinYangNíHóng thead tr:hover,
+table#YinYangNíHóng thead tr.focusWithin {
 	z-index: 618; }
-table#YinYangNíHóng thead td {
+table#YinYangNíHóng thead tr {
+	position: relative; }
+table#YinYangNíHóng thead tr:first-child td {
 	width: 33.3% }
 table#YinYangNíHóng label {
+	display: inline-block; }
+table#YinYangNíHóng thead tr:nth-child(2) label {
+	position: relative; }
+table#YinYangNíHóng thead tr:nth-child(2) input {
+	width: 7em;
+	margin: 0; }
+table#YinYangNíHóng label .hueIndicator {
+	display: none; }
+table#YinYangNíHóng label span.hueIndicator.active {
 	display: block;
-	text-align: center; }
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: auto;
+	bottom: 0;
+	font-family: monospace;
+	font-size: 13px;  /*lock down the font-size.  This is the same as the input - see top of file */
+	width: calc(7em + 4px);  /* where the extra pixel comes from? input’s width + border ← border should be 2px total  */
+	color: var(--fore-palette);
+	background-color: var(--back-palette); }
 table#YinYangNíHóng label dfn {
 	display: none; }
-table#YinYangNíHóng label:hover dfn {
+table#YinYangNíHóng label:hover dfn,
+table#YinYangNíHóng label.focusWithin dfn {
 	display: block;
 	position: absolute;
 	top: 100%;
 	left: .618em;
+	right: auto;
 	color: var(--fore-palette);
 	background-color: var(--back-palette);
-	border: 1px solid;
+	padding: .162em .38em;
+	border: 2px solid;
 	border-top: none; }
-table#YinYangNíHóng td:nth-child(2) label:hover dfn {
-	left: 7.618em; }
-table#YinYangNíHóng td:last-child label:hover dfn {
-	left: auto;
-	right: .618em; }
+table#YinYangNíHóng td:nth-child(2) label dfn {
+	left: 7.618em !important; }
+table#YinYangNíHóng td:last-child label dfn {
+	left: auto !important;
+	right: .618em !important; }
+table#YinYangNíHóng .hueAngleUnit {
+	font-weight: bold; }
 table#YinYangNíHóng tbody td {
 	position: relative;
 	text-align: center; }
