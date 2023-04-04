@@ -2232,12 +2232,9 @@ RainbowMaestro.focalHuesRing={outRad: 175/360};  //  inRad is always outRad/2
 
 let settings, hexagonSpace, focalHue;
 
-RainbowMaestro.hueAngleUnit=document.getElementsByName('MasterColorPicker_hue_angle_unit')[0];
-RainbowMaestro.hueAngleUnit= RainbowMaestro.hueAngleUnit ? 	RainbowMaestro.hueAngleUnit.value  :  'deg';
-
 RainbowMaestro.buildPalette=function(onlyColorblind)  {
 	focalHue=parseFloat(settings.focalHue.value);
-	if (RainbowMaestro.hueAngleUnit!=='rad'  &&  RainbowMaestro.hueAngleUnit!=='ᴿ')
+	if (RainbowMaestro.hueAngleUnit!=='rad'  &&  RainbowMaestro.hueAngleUnit!=='ᴿ'  &&  RainbowMaestro.hueAngleUnit!=='ᶜ')
 		focalHue=(focalHue/RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])*_['π×2'];
 	var f, h, hcg, i, j, k, km, sa, ea, grdnt, r, x, y, fb, fa, fh, sp, ep, da, dh,
 			variety=parseInt(settings.variety.value);
@@ -2401,7 +2398,7 @@ RainbowMaestro.getColor=function(event)  { mouseColor=null;  targetHue=null;
 	try {
 
 	focalHue=parseFloat(settings.focalHue.value);  //private member
-	if (RainbowMaestro.hueAngleUnit!=='rad'  &&  RainbowMaestro.hueAngleUnit!=='ᴿ')
+	if (RainbowMaestro.hueAngleUnit!=='rad'  &&  RainbowMaestro.hueAngleUnit!=='ᴿ'  &&  RainbowMaestro.hueAngleUnit!=='ᶜ')
 		focalHue=(focalHue/RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])*_['π×2'];
 	const
 			pStylz=getComputedStyle(event.target),
@@ -2588,6 +2585,7 @@ RainbowMaestro.setFocalHue=function(hueAngle, radianFlag)  {  hueAngle=parseFloa
 		RainbowMaestro.buildPalette();  }
 
 UniDOM.addEventHandler( window, 'onload', function()  {
+		RainbowMaestro.hueAngleUnit=document.getElementsByName('MasterColorPicker_hue_angle_unit')[0].value;
 		//first we set the private global members                                               ↓  this defines property names (of the array-object: settings)
 		settings=UniDOM.getElementsBy$Name(document.getElementById('RainbowMaestro'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <inputs>s) into an array, with corresponding properties
 		if (!settings.colorblind.checked)  //the colorblind provider initiator will build the palette otherwise
@@ -2601,10 +2599,15 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 
 		UniDOM.addEventHandler(settings.focalHue, 'onchange', function(event)  {
 			settings.websafe.checked=false;
-			this.value.replace( /[^-0-9.]/ , "");
-			this.value=Math.roundTo(
-				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit],
-				Math.sawtooth(RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit], parseFloat(this.value)) || 0);
+			if (this.value)  {
+				const
+					// here we rely on <input type='numeric'> to properly manage the content of the input’s value
+					u=this.value.match(/[^-+0-9.]+$/),
+					t=Math.turn((parseFloat(this.value)||0) / RGB_Calc.hueAngleUnitFactors[ u ? u[0] : RainbowMaestro.hueAngleUnit ]);
+				this.value=Math.roundTo(
+					SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[RainbowMaestro.hueAngleUnit],
+					t*RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit]);  }
+			else  this.value='0';
 			if ((this.value/RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])*_['π×2'] !== focalHue) //focalHue is a private member
 				RainbowMaestro.buildPalette();  } );
 
@@ -2672,7 +2675,9 @@ SimpleSqColorPicker.buildPalette=function(event)  {
 	updateIndicators();
 	updateAllSubs();  }
 
-let space, c, hue=.5, sat=.5, lvl=.5;
+let space, c,
+		hue=.5,
+		sat=.5, lvl=.5;
 function build_sats(model)  {
 	for (var y=0; y<variety; y++)  {
 		sbcnvs[c].context.fillStyle=RGB_calc.to.hex(RGB_calc.from[model]([hue, 1-(y/(variety-1)), lvl]));
@@ -2749,18 +2754,22 @@ SimpleSqColorPicker.getColor.hcg=function(event)  {
 		blockX=Math.ceil(event.offsetX/spaceX);
 	moHue=Math.floor((event.offsetY/cnvs.height)*variety)/variety;
 	moSat=1-Math.abs((vrtyX+1)/2-blockX)*2/vrtyX;
+	document.getElementById('Simple²hue').firstChild.data=Math.roundTo(
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[SimpleSqColorPicker.hueAngleUnit],
+				moHue*SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors[SimpleSqColorPicker.hueAngleUnit]) + SimpleSqColorPicker.hueAngleUnit;
 	return getColor('HCG', moHue, moSat, Math.floor(event.offsetX/(cnvs.width/2)));  }
 
 
 function getColor(model, h, c_s, g_v_l)  { var clr;
+/*
 		MasterColorPicker.RGB_calc.config.stack({
 				inputAsFactor: {value: true},
 				onError: {value: function() {throw null;}}});
+*/
 		try {clr=new SimpleSqColorPicker.Color_SpecCache(model, h, c_s, g_v_l);}
 		catch(e)  {  //round-off errors at high-end of palette
-console.log('error: ',e)
 			clr=false;  }
-		MasterColorPicker.RGB_calc.config.cull();
+//		MasterColorPicker.RGB_calc.config.cull();
 		return clr;  }
 
 SimpleSqColorPicker.Color_SpecCache= class extends SoftMoon.WebWare.Color_Picker.Color_SpecCache {
@@ -2773,6 +2782,9 @@ SimpleSqColorPicker.Color_SpecCache.prototype.name="SimpleSqColorPicker.Color_Sp
 
 SimpleSqColorPicker.handleClick.hcg=function(event) {
 	hue=moHue;
+	settings.focalHue.value=Math.roundTo(
+			SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[SimpleSqColorPicker.hueAngleUnit],
+			moHue*SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors[SimpleSqColorPicker.hueAngleUnit]);
 	if (!settings.lock.checked)  sat=moSat;
 	updateAllSubs();
 	updateIndicators();  }
@@ -2804,7 +2816,9 @@ SimpleSqColorPicker.getColor.hsL=function(event)  {
 	return getColor('HSL', hue, sat, moLvl);  }
 
 function updateIndicators()  {  //private
-		document.getElementById('Simple²hue').firstChild.data=Math.roundTo(3, hue*360)+'°';
+		document.getElementById('Simple²hue').firstChild.data=Math.roundTo(
+					SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[SimpleSqColorPicker.hueAngleUnit],
+					hue*SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors[SimpleSqColorPicker.hueAngleUnit]) + SimpleSqColorPicker.hueAngleUnit;
 		document.getElementById('Simple²saturation').firstChild.data=Math.roundTo(1, sat*100)+'%';
 		document.getElementById('Simple²lvl').firstChild.data=Math.roundTo(1, lvl*100)+'%';  }
 
@@ -2822,16 +2836,40 @@ SimpleSqColorPicker.handleClick.hsV=function(event)  {
 	updateAllSubs();
 	updateIndicators();  }
 
+function updateFocalHue()  {
+		const
+			factors=SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors,
+			v=this.value;
+		if (v)  {
+			// here we rely on <input type='numeric'> to properly manage the content of the input’s value
+			const u= v.match(/[^-−+0-9.]+$/);
+			hue= Math.turn((parseFloat(v)||0) / factors[ u ? u[0] : SimpleSqColorPicker.hueAngleUnit ]);
+			this.value=Math.roundTo(
+					SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[SimpleSqColorPicker.hueAngleUnit],
+					hue*factors[SimpleSqColorPicker.hueAngleUnit] );  }
+		else {
+			hue=0;
+			this.value='0';  }  }
 
 UniDOM.addEventHandler( window, 'onload', function()  {
 	//first we set the private global members                                        ↓  this defines property names (of the array-object: settings)
 	settings=UniDOM.getElementsBy$Name(document.getElementById('Simple²'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <inputs>s) into an array, with corresponding properties
 
+	UniDOM.addEventHandler(settings.focalHue, 'tabIn', function(){this.parentNode.classList.add('focusWithin')});
+	UniDOM.addEventHandler(settings.focalHue, 'blur', function(){this.parentNode.classList.remove('focusWithin')});
+	UniDOM.addEventHandler(settings.focalHue, 'onChange', [updateFocalHue, updateAllSubs]);
 	UniDOM.addEventHandler(settings.variety, ['onMouseUp', 'onChange', 'onBlur'], SimpleSqColorPicker.buildPalette);
+
+	hue= (parseFloat(settings.focalHue.value)||0) / SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors[document.getElementsByName('MasterColorPicker_hue_angle_unit')[0].value];
+
 
 	SimpleSqColorPicker.txtInd=document.getElementById('Simple²indicator');
 	SimpleSqColorPicker.swatch=document.getElementById('Simple²swatch');
 	SimpleSqColorPicker.noClrTxt=String.fromCharCode(160);
+	UniDOM.addEventHandler(document.getElementById('Simple²wrapper'), 'onMouseOut', function()  {
+		document.getElementById('Simple²hue').firstChild.data=Math.roundTo(
+					SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[SimpleSqColorPicker.hueAngleUnit],
+					hue*SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors[SimpleSqColorPicker.hueAngleUnit]) + SimpleSqColorPicker.hueAngleUnit;  } );
 	const wraps=[
 		{id: 'Simple²wrapper', model: 'hcg'},
 		{id: 'Simple²hSl', model: 'hSl'},
@@ -2843,7 +2881,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut'], SimpleSqColorPicker, false, wraps[i].model);
 		UniDOM.addEventHandler(cnvsWrap, 'onClick', [SimpleSqColorPicker, SimpleSqColorPicker.handleClick], false, wraps[i].model);  }
 
-	SimpleSqColorPicker.buildPalette();  } );
+	UniDOM.addEventHandler(window, 'mastercolorpicker_ready', SimpleSqColorPicker.buildPalette);  } );
 
 }  // close SimpleSqColorPicker namespace
 /*==================================================================*/
@@ -2853,13 +2891,15 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 
 {// open a private namespace for YinYangNiHong
 
-//                                    ↓radians    ↓factor(0-1)
+//                                    ↓factor(0-1)    ↓factor(0-1)
 let baseCanvas, mainCanvas, settings, focalHue=0, swatchHue=0, aniOffset=0, Color;
 const
 	RGB_Calc=SoftMoon.WebWare.RGB_Calc,
 	YinYangNiHong=
 		SoftMoon.WebWare.YinYangNiHong=
 			new SoftMoon.WebWare.Color_Picker('YinYang NíHóng');
+
+
 
 YinYangNiHong.buildBasePalette=function()  {
 	baseCanvas=document.getElementById('YinYangNíHóng').getElementsByTagName('canvas')[0];
@@ -2932,7 +2972,7 @@ YinYangNiHong.buildPalette=function()  {
 	const
 		canvases=document.getElementById('YinYangNíHóng').getElementsByTagName('canvas'),
 		cnvs=document.createElement('canvas'),
-		hue=RGB_Calc.from.hue(focalHue/_['π×2']);
+		hue=RGB_Calc.from.hue(focalHue);
 	var grad;
 	mainCanvas=cnvs;
 	cnvs.width=256;
@@ -2947,53 +2987,53 @@ YinYangNiHong.buildPalette=function()  {
 	case 'HSV':
 	case 'HSB':
 			cnvs.context.beginPath();
-			grad=cnvs.context.createLinearGradient(0,0, 0,256);
+			grad=cnvs.context.createLinearGradient(0,0, 0,255);
 			grad.addColorStop(0, hue.toString('css'));
 			grad.addColorStop(1, '#FFFFFF');
 			cnvs.context.fillStyle=grad;
-			cnvs.context.fillRect(0,0, 256, 256);
-			grad=cnvs.context.createLinearGradient(0,0, 256,0);
+			cnvs.context.fillRect(0,0, 255, 255);
+			grad=cnvs.context.createLinearGradient(0,0, 255,0);
 			grad.addColorStop(0, 'rgba(0,0,0,1)');
 			grad.addColorStop(1, 'rgba(0,0,0,0)');
 			cnvs.context.fillStyle=grad;
-			cnvs.context.fillRect(0,0, 256, 256);
+			cnvs.context.fillRect(0,0, 255, 255);
 			break;
 	case 'HSL':
 			cnvs.context.beginPath();
-			grad=cnvs.context.createLinearGradient(0,0, 256,0);
+			grad=cnvs.context.createLinearGradient(0,0, 255,0);
 			grad.addColorStop(0, '#000000');
 			grad.addColorStop(1, '#FFFFFF');
 			cnvs.context.fillStyle=grad;
-			cnvs.context.fillRect(0,0, 256, 256);
-			grad=cnvs.context.createLinearGradient(0,0, 0,256);
+			cnvs.context.fillRect(0,0, 255, 255);
+			grad=cnvs.context.createLinearGradient(0,0, 0,255);
 			hue.a=1;
 			grad.addColorStop(0, hue.toString('css'));
 			hue.a=0;
 			grad.addColorStop(1, hue.toString('css'));
 			cnvs.context.fillStyle=grad;
-			cnvs.context.fillRect(0,0, 256, 256);
-			grad=cnvs.context.createLinearGradient(0,0, 256,0);
+			cnvs.context.fillRect(0,0, 255, 255);
+			grad=cnvs.context.createLinearGradient(0,0, 255,0);
 			grad.addColorStop(0, 'rgba(0,0,0,1)');
 			grad.addColorStop(.5, 'rgba(128,128,128,0)');
 			grad.addColorStop(1, 'rgba(255,255,255,1)');
 			cnvs.context.fillStyle=grad;
-			cnvs.context.fillRect(0,0, 256, 256);
+			cnvs.context.fillRect(0,0, 255, 255);
 			break;
 	case 'HCG':
 			cnvs.context.beginPath();
-			grad=cnvs.context.createLinearGradient(0,0, 256,0);
+			grad=cnvs.context.createLinearGradient(0,0, 255,0);
 			grad.addColorStop(0, '#000000');
 			grad.addColorStop(1, '#FFFFFF');
 			cnvs.context.fillStyle=grad;
-			cnvs.context.fillRect(0,0, 256, 256);
+			cnvs.context.fillRect(0,0, 255, 255);
 			cnvs.context.beginPath();
-			grad=cnvs.context.createLinearGradient(0,0, 0,256);
+			grad=cnvs.context.createLinearGradient(0,0, 0,255);
 			hue.a=1;
 			grad.addColorStop(0, hue.toString('css'));
 			hue.a=0;
 			grad.addColorStop(1, hue.toString('css'));
 			cnvs.context.fillStyle=grad;
-			cnvs.context.fillRect(0,0, 256, 256);  }  }
+			cnvs.context.fillRect(0,0, 255, 255);  }  }
 	finally {RGB_Calc.config.cull();}  }
 
 
@@ -3006,14 +3046,14 @@ YinYangNiHong.getColor=function(event)  {
 			x=event.offsetX-baseCanvas.centerX,
 			y=baseCanvas.centerY-event.offsetY,
 			r=Math.sqrt(x*x+y*y),
-			fa=Math.Trig.getAngle(x,y);
+			fa=Math.Trig.getAngle(x,y)/_['π×2'];
 		if (r>baseCanvas.centerX  ||  r<baseCanvas.centerX-13)  return null;
 		RGB_calc.config.stack({inputAsFactor: {value: true}});
 		try  { Color=new YinYangNiHong.Color_SpecCache(
-			RGB_calc.from.hue(fa/_['π×2']),
+			RGB_calc.from.hue(fa),
 			mode,
-			fa/_['π×2'], 1, (mode=='HSL') ? .5 : 1,
-			fa );  }
+			fa, 1, (mode=='HSL') ? .5 : 1,
+			fa*RGB_Calc.hueAngleUnitFactors[this.hueAngleUnit] );  }
 		finally {RGB_calc.config.cull();}
 		return Color;  }
 	if (event.target===mainCanvas)  {
@@ -3022,9 +3062,9 @@ YinYangNiHong.getColor=function(event)  {
 		if (x>=0 && x<=255 && y>=0 && y<=255)  {
 			RGB_calc.config.stack({inputAsFactor: {value: true}});
 			try  { Color=new YinYangNiHong.Color_SpecCache(
-				 RGB_calc.from[mode.toLowerCase()]([focalHue/_['π×2'],  y=1-y/255,  x=x/255]),
+				 RGB_calc.from[mode.toLowerCase()]([focalHue,  y=1-y/255,  x=x/255]),
 				 mode,
-				 focalHue/_['π×2'], y, x);  }
+				 focalHue, y, x);  }
 			finally {RGB_calc.config.cull();}
 			return Color;  }  }
 	return null;  }
@@ -3037,17 +3077,22 @@ YinYangNiHong.Color_SpecCache= class extends SoftMoon.WebWare.Color_Picker.Color
 YinYangNiHong.Color_SpecCache.prototype.name="YinYangNiHong.Color_SpecCache";
 
 
+let hueIndicator;
+
 //these mouse event handlers are maintained by UniDOM, and “this” refers to YinYangNiHong
 YinYangNiHong.onmousemove=function(event)  {
 	this.constructor.prototype['on'+event.type].apply(this, arguments);
 	if (Color?.focal!==undefined   &&  event.type==='mousemove')  {
 		mainCanvas.style.display='none';
 		swatchHue=Color[Color.model].hue;
-		this.buildHueSwatches();  }
+		hueIndicator.classList.add('active');
+		hueIndicator.firstChild.data=Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.hueAngleUnit], Color.focal)+this.hueAngleUnit;  }
 	else  {
 		mainCanvas.style.display='block';
-		swatchHue=focalHue/_['π×2'];
-		this.buildHueSwatches();  }  }
+		swatchHue=focalHue;
+		hueIndicator.classList.remove('active');
+		hueIndicator.firstChild.data="";  }
+	this.buildHueSwatches();  }
 
 YinYangNiHong.onmouseout=YinYangNiHong.onmousemove;
 
@@ -3055,11 +3100,11 @@ YinYangNiHong.onmouseout=YinYangNiHong.onmousemove;
 YinYangNiHong.onclick=function()  {
   this.constructor.prototype.onclick.apply(this, arguments);
 	if (Color && Color.focal)  {
-		focalHue=Color.focal;
-		settings.focalHueInput.value=focalHue;
+		focalHue=Color[Color.model].hue;
+		settings.focalHueInput.value=Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.hueAngleUnit], Color.focal);
 		this.buildPalette();  }  }
 
-// our animated swatches look cool.  But they also serve to show “percieved” luminocity.
+// the animated swatches look cool.  But they also serve to show “perceived” luminocity.
 YinYangNiHong.animate=function animate(event)  {
 	if (event.classes[0] !== MasterColorPicker.classNames.activePicker)  return;
 	if (event.pickerStateFlag)  {
@@ -3073,15 +3118,30 @@ YinYangNiHong.animate=function animate(event)  {
 
 
 UniDOM.addEventHandler( window, 'onload', function()  {
-	const picker=document.getElementById('YinYangNíHóng');
+	const
+		picker=document.getElementById('YinYangNíHóng');
 		//first we set the private global members
+	YinYangNiHong.hueAngleUnit= document.getElementsByName('MasterColorPicker_hue_angle_unit')[0].value;
 	settings=UniDOM.getElementsBy$Name(picker, '');
 	settings.focalHueInput=settings[3];
-	focalHue=Math.rad(parseFloat(settings.focalHueInput.value)||0);
-	swatchHue=focalHue/_['π×2'];
+	function updateFocalHue()  {
+		const v=settings.focalHueInput.value;
+		if (v)  {
+			// here we rely on <input type='numeric'> to properly manage the content of the input’s value
+			const u= v.match(/[^-−+0-9.]+$/);
+			focalHue= Math.turn((parseFloat(v)||0) / RGB_Calc.hueAngleUnitFactors[ u ? u[0] : YinYangNiHong.hueAngleUnit ]);
+			settings.focalHueInput.value=Math.roundTo(
+					SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[YinYangNiHong.hueAngleUnit],
+					focalHue*RGB_Calc.hueAngleUnitFactors[YinYangNiHong.hueAngleUnit] );  }
+		else {
+			focalHue=0;
+			settings.focalHueInput.value='0';  }
+		swatchHue=focalHue;  }
+	updateFocalHue();
 
-	for (var i=0; i<settings.length-1; i++)  {
-		UniDOM.addEventHandler(settings[i], 'onchange', YinYangNiHong.buildPalette);  }
+	UniDOM.addEventHandler(settings.focalHueInput, 'onchange', updateFocalHue);
+	UniDOM.addEventHandler(settings, 'onchange', YinYangNiHong.buildPalette);
+	hueIndicator=picker.querySelector('.hueIndicator');
 
 	YinYangNiHong.buildBasePalette();
 	YinYangNiHong.buildHueSwatches();
@@ -4747,15 +4807,28 @@ Blender.loadBG= loadBG;
 // this is called by the Color_Picker prototyped event-handlers
 EyeDropper.getColor=function getEyeDropperColor(event)  {
 	if (event.target.tagName!=='CANVAS')  return null;
-	const pixel=event.target.context.getImageData(event.offsetX, event.offsetY, 1,1).data;
-	return new EyeDropper.Color_SpecCache(new SoftMoon.WebWare.RGBA_Color(pixel[0],pixel[1],pixel[2],pixel[3]/255));  }
+	const
+		radius=EyeDropper.radius,  // radius=0 → one single pixel;  radius=1 → block of pixels (3×3);  etc.
+		r2=radius*radius,
+		pixels=event.target.context.getImageData(event.offsetX-radius, event.offsetY-radius, radius*2+1,radius*2+1).data,
+		bpl=4*(radius*2+1),  // bytes per line
+		center= bpl*radius + 4*radius;
+	let
+		r=0, g=0, b=0, a=0,
+		count=0;
+	for (var x=(-radius); x<=radius; x++)  { const yM=Math.round(Math.sqrt(r2-x*x));  //the EyeDropper sample area is “circularish”, not square
+		for (var y=(-yM); y<=yM; y++)  {
+			const p=center + y*bpl + x*4;
+			r+=pixels[p];  g+=pixels[p+1];  b+=pixels[p+2];  a+=pixels[p+3];
+			count++  }  }
+	return new EyeDropper.Color_SpecCache(new SoftMoon.WebWare.RGBA_Color(r/count, g/count, b/count, (a/count)/255));  }
 
 EyeDropper.Color_SpecCache= class extends SoftMoon.WebWare.Color_Picker.Color_SpecCache {
 	constructor(RGB)  {
 		if (!new.target)  throw new Error('“EyeDropper.Color_SpecCache” is a constructor, not a function.');
 		super(null, 'RGB', RGB);  }  }
 
-// this is the “titie” text for the HTML’s zoom buttons, which JavaScript depends on
+// this is the “title” text for the HTML’s zoom buttons, which JavaScript depends on
 // if you change the HTML for another language, this should be updated also
 EyeDropper.HTMLtext={
 	CUT:  'cut',
@@ -4992,7 +5065,9 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
  	UniDOM.addEventHandler(playgrounds, 'mouseUp', function(event)  {
  			MasterColorPicker.HTML.classList.remove('stasis');  });
 	UniDOM.addEventHandler(playgrounds[0], ['mouseMove', 'mouseOut', 'click'], EyeDropper);  // Color_Picker prototype handles these
-	const bgGray=dropzones[0].querySelector('input[type="range"]');
+	EyeDropper.size=dropzones[0].querySelector('input[name*="size"]');
+	Object.defineProperty(EyeDropper, 'radius', {get() {return parseInt(EyeDropper.size.value);}});
+	const bgGray=dropzones[0].querySelector('input[name*="background"]');
 	function setBG()  {
 		const gray=this.value.toString();
 		playgrounds[0].style.backgroundColor='RGB('+gray+','+gray+','+gray+')';  }
@@ -5082,9 +5157,9 @@ ColorThesaurus.matchColor=function matchColor(color)  { /* as an event-handler, 
 /*
 	c1 & c2 should each be a SoftMoon.WebWare.HCGA_Color
 		or provide similar properties.
-	a “disparity” value is returned: 0 =< disparity < 1
+	a “disparity” value is returned: 0 =< disparity =< 1
 		0 = no disparity – colors match exactly
-		1 = complete mismatch (can never actually reach this level because achromatic values don’t consider hues)
+		1 = complete mismatch (only if one is transparent, otherwise can never actually reach this level because achromatic values don’t consider hues)
 */
 ColorThesaurus.compare=function compareColors(c1, c2)  {
 	if (c1.alpha===0 ^ c2.alpha===0) return 1;
@@ -5176,7 +5251,7 @@ Object.defineProperty(MasterColorPicker, "hueAngleUnit", { enumerable: true,
 	get: function() {return MasterColorPicker.RGB_calc.config.hueAngleUnit;},
 	set: function(hau) {MasterColorPicker.RGB_calc.config.hueAngleUnit=hau;}  });
 MasterColorPicker.useHexSymbol=("useHexSymbol" in user) ? user.useHexSymbol : ("useHexSymbol" in meta) ? Boolean.evalString(meta.useHexSymbol, true) : true;  // ¿prefix hex values with a hash like this: #FF0099 ?
-MasterColorPicker.outputFormat=("outputFormat" in user) ? user.outputFormat : ("outputFormat" in meta) ? meta.outputFormat : 'css';  // see  SoftMoon.WebWare.« RGBA_Color ‖ ColorWheel_Color ‖ CMYKA_Color ».toString  in RGB_Calc.js file
+MasterColorPicker.outputFormat=("outputFormat" in user) ? user.outputFormat : ("outputFormat" in meta) ? meta.outputFormat : 'wrapped';  // see  SoftMoon.WebWare.« RGBA_Color ‖ ColorWheel_Color ‖ CMYKA_Color ».toString  in RGB_Calc.js file
 
 
 //we tell the Color_Picker.pickFilter to use its related colorSwatch function: (we can also use it by calling it directly)
@@ -5305,7 +5380,8 @@ if (inp=userOptions.copyColorToClipboard)
 
 if (inp=userOptions.hue_angle_unit)  {
 	UniDOM.addEventHandler(inp, 'onchange', function(event) {
-		var text, hau, hauFactors=SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors;
+		var text, hau;
+		const hauFactors=SoftMoon.WebWare.RGB_Calc.hueAngleUnitFactors;
 		MasterColorPicker.hueAngleUnit=this.value;
 		switch (this.value) {
 			case 'rad':
@@ -5343,12 +5419,26 @@ if (inp=userOptions.hue_angle_unit)  {
 			case 'turn':
 			case "●":  text='turn of a circle (0.0●—1.0●)';  }
 		document.querySelector('#RainbowMaestro_hueIndicator span.hueAngleUnit').firstChild.data=text;
+		document.querySelector('#YinYangNíHóng span.hueAngleUnit').firstChild.data=text;
+		document.querySelector('#Simple² span.hueAngleUnit').firstChild.data=text;
 		if (!event.init)  {
 			inp=document.getElementsByName('RainbowMaestro_focalHue')[0];
 			inp.value=Math.roundTo(
 				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.value],
-				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.RainbowMaestro.hueAngleUnit])*hauFactors[this.value]);  }
-		SoftMoon.WebWare.RainbowMaestro.hueAngleUnit=this.value;  });
+				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.RainbowMaestro.hueAngleUnit])*hauFactors[this.value]);
+			inp=document.getElementsByName('YinYang NíHóng focalHue')[0];
+			inp.value=Math.roundTo(
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.value],
+				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.YinYangNiHong.hueAngleUnit])*hauFactors[this.value]);
+			inp=document.getElementsByName('Simple²_focalHue')[0];
+			inp.value=Math.roundTo(
+				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.value],
+				(parseFloat(inp.value)/hauFactors[SoftMoon.WebWare.SimpleSqColorPicker.hueAngleUnit])*hauFactors[this.value]);
+			document.getElementById('Simple²hue').firstChild.data=inp.value+this.value;
+			}
+		SoftMoon.WebWare.RainbowMaestro.hueAngleUnit=this.value;
+		SoftMoon.WebWare.YinYangNiHong.hueAngleUnit=this.value;
+		SoftMoon.WebWare.SimpleSqColorPicker.hueAngleUnit=this.value;  });
 
 	UniDOM.generateEvent(inp, 'onchange', {bubbles: false}, {init:true});
 	}
