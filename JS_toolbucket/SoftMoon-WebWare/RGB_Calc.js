@@ -315,7 +315,7 @@ RegExp.cmyk_a= new window.RegExp( '^' +p+ sep +p+ sep +p+ sep +p+ '(?:' +aSep + 
 
 const h_=  '\\s*(-?[0-9]+(?:\\.[0-9]*)?|-?0?\\.[0-9]+)(deg|°|g?rad|ᴿ|ᶜ|ᵍ|%|turn|●)?\\s*',    //captures the postfix text (i.e. the “unit”) separately  →  m[1]='123' , m[2]='deg'
 			h='\\s*((?:-?[0-9]+(?:\\.[0-9]*)?|-?0?\\.[0-9]+)(?:deg|°|g?rad|ᴿ|ᶜ|ᵍ|%|turn|●)?)\\s*';  //does not capture postfix text separately: it is included with the numerical data  →  m[1]='123deg'
-							//hsl,hsv,hsb,hcg:   "v¹, v², v³"  where
+							//hsl,hsv,hsb,hcg,hwb:   "v¹, v², v³"  where
 							// v¹=(±float)(unit),   and  ( 0 <= (float)(v²,v³) <= 100 )
 							// →→→ v¹ may or may not have (unit);  v²,v³ may or may not end with a percent sign %
 RegExp.hsl=
@@ -678,6 +678,8 @@ Object.defineProperties(RGB_Calc.prototype, defem);
 
 const hueAngleUnitFactors=
 RGB_Calc.hueAngleUnitFactors=  //you may add to these …but replacing them altogether does nothing…
+		Math.Trig.angleUnitFactors
+/*
 	Object.defineProperties(new Object, {
 		'deg':  {value: 360,       enumerable: true},
 		"°":    {value: 360,       enumerable: true},
@@ -689,7 +691,7 @@ RGB_Calc.hueAngleUnitFactors=  //you may add to these …but replacing them alto
 		"%":    {value: 100,       enumerable: true},
 		'turn': {value: 1,         enumerable: true},
 		"●":    {value: 1,         enumerable: true}  });
-
+ */
 
 RGB_Calc.outputRGB=
 RGB_Calc.prototype.outputRGB= outputRGB;
