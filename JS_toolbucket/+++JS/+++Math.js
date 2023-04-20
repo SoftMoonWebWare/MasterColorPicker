@@ -40,6 +40,10 @@ const
 
 delete Math['+++angleDefiners'];
 
+Math.Trig.degToRad=function(d) {return (d/360)*_2PI}
+
+for (let a=0; a<360; a++)  {_['_'+a+'deg']=Math.Trig.degToRad(a);}
+
 
 //rounds  x  to  dp  decimal places.
 if (typeof Math.roundTo !== 'function')
@@ -62,6 +66,25 @@ Math.Trig.getAngle=function(x, y, hwRatio)  { var angle;
 	if (x<=0  &&  y<=0)  return  _PI+angle;
 	if (x>=0  &&  y<0)  return  _2PI-angle;
 	return angle;  }
+
+
+Math.Trig.angleUnitFactors=
+	Object.defineProperties(new Object, {
+		'deg':  {value: 360,       enumerable: true},
+		"°":    {value: 360,       enumerable: true},
+		'rad':  {value: 2*Math.PI, enumerable: true},
+		"ᶜ":    {value: 2*Math.PI, enumerable: true},
+		"ᴿ":    {value: 2*Math.PI, enumerable: true},
+		'grad': {value: 400,       enumerable: true},
+		'ᵍ':    {value: 400,       enumerable: true},
+		"%":    {value: 100,       enumerable: true},
+		'turn': {value: 1,         enumerable: true},
+		"●":    {value: 1,         enumerable: true}  });
+
+Math.Trig.readAngle=function(angle, unitIn, unitOut)  {
+	angle=angle.trim().match( /^(-?[0-9]+(?:\.[0-9]*)?|-?0?\.[0-9]+)(deg|°|g?rad|ᴿ|ᶜ|ᵍ|%|turn|●)?$/ );
+	if (angle===null)  throw new Error('malformed angle or unknown angle unit');
+	return (angle[1]/Math.Trig.angleUnitFactors[angle[2] || unitIn]) * Math.Trig.angleUnitFactors[unitOut];  }
 
 
 

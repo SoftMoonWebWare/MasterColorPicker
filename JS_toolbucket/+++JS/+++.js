@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 Unix   tab-spacing: 2   word-wrap: no
-//  last updated May 9, 2022
+//  last updated April 12, 2023
 
 if (RegExp.escape)  console.warn("RegExp.escape already exists.");
 else
@@ -37,6 +37,27 @@ else Boolean.eval=function (b, d, charset)  {
 	if (typeof b === 'number'
 	||  d === undefined)  return Boolean(b);
 	return d;  }
+
+
+
+if (Number.isNumeric)  console.warn('Number.isNumeric already exists.');
+else Number.isNumeric=function(n)  { return  (
+	((typeof n === 'number'  ||  n instanceof Number)  &&  !Number.isNaN(n))
+	||  (typeof n === 'string'  &&  n.trim()!==""  &&  !Number.isNaN(Number(n))));  };
+
+if (Number.parsePercent)  console.warn('Number.parsePercent already exists.');
+else Number.parsePercent=function(s, em)  {
+	if ((typeof s === 'string'  ||  s instanceof String)  &&  (s=s.trim()))  {
+		if (s.endsWith('%'))  s=parseFloat(s)/100;
+		else  s=parseFloat(s);  }
+	else if (s instanceof Number)  {
+		if (s.unit==='%')  s=s.valueOf();
+		else  s=s.valueOf()/100;  }
+	if (Number.isNaN(s)  ||  typeof s !== 'number')  {
+		if (em)  throw new TypeError(em);
+		else s=NaN;  }
+	return s;  };
+
 
 
 if (Object.lock)  console.warn("Object.lock already exists.");
