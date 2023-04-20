@@ -1,7 +1,7 @@
 //  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 /*   written by and Copyright © 2019, 2022, 2023 Joe Golembieski, SoftMoon WebWare */
 
-// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated April 3, 2023
+// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated April 20, 2023
 // input type='file…………'  April 20, 2022
 
 'use strict';
@@ -72,13 +72,29 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 
 	input.units=units;  //you may modify this Array of units in real-time; the “units” attribute is only read once when first registered…
 
-	function reset_type() {return iType==='numeric-slider' ? 'range' : (input.units && input.value.match( /[^-−+\d.]/ ) ? 'text' : 'number');}
+	function reset_type() {
+//console.log('the foo:',iType,input.units,input.value,input.value.match(/[^-−+\d.]/));
+		return iType==='numeric-slider' ? 'range' : ((input.units && input.value.match( /[^-−+\d.]/ )) || input.value==='∞' ? 'text' : 'number');}
+
 	function getValueUnitIndex() {return /[^-−+0-9.]/.exec(input.value)?.index;}
   function usesUnit(data) {
 		const unit=data.match( /^([-−+\d.]*)([\D]+)$/ );
 		if (unit  &&  input.units)  for (const u of input.units)  {
 			if (u.toUpperCase()===unit[2])  {unit[2]=u;  return unit;}  }
 		return false;  }
+	function autoAppendUnit()  {
+		if (this.value  &&  this.hasAttribute('auto-append-unit')  &&  this.value!=='∞')  {
+		  for (const unit of this.units)  {if (this.value.endsWith(unit))  return;}
+		  this.value+=this.units[0];  }  }
+	class OutOfRangeEvent extends UIEvent  {
+		constructor(type, options) {
+			super(type, options);
+			this.max=options.max;
+			this.min=options.min;  }  }
+	function generateErrorEvent(min, max)  {
+		const event=new OutOfRangeEvent('out_of_range', {bubbles:true, cancelable:true, composed: true, min:min, max,max});
+		input.dispatchEvent(event);
+		return event;  }
 
 	if (iBase<=10)  {
 		/* In the past (not sure now), browsers returned ambiguous “unpredictable” variable “typeof” values to JavaScript when using <input type='number'>
@@ -93,10 +109,9 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 		switch (iType)  {
 		case 'numeric':
 			input.addEventListener('focus', function() {if (this.type!=='text')  {this.type='text';  this.focus();  this.selectionStart=this.value.length;}});
-			if (units)  input.addEventListener('blur', function()  {
-				if (this.value  &&  this.hasAttribute('auto-append-unit'))  {
-				  for (const unit of this.units)  {if (this.value.endsWith(unit))  return;}
-				  this.value+=this.units[0];  }  });
+			if (units)  {
+				input.addEventListener('change', autoAppendUnit);
+				input.addEventListener('blur', autoAppendUnit);  }
 		break;
 		case 'numeric-slider':
 			input.addEventListener('keydown', function(event) {
@@ -110,11 +125,38 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 			if (this.value===""
 			&&  this.hasAttribute('default-value'))  this.value=this.getAttribute('default-value');
 			else  {
-				const v=parseFloat(this.value);
-				if (this.hasAttribute('min')  &&
-						(this.value===""  ||  v<parseFloat(this.getAttribute('min'))))  this.value=this.getAttribute('min');
+				if (this.value==='∞')  return;
+				const
+					v=parseFloat(this.value),
+					ui=getValueUnitIndex();
+					/*	          MIN / MAX   === VALUE RULES ===
+					 *	if there is no value, there is no limit, as usual.
+					 *	if there is a single value with no unit, that value applies to all input values with units and unitless numbers.
+					 *	if there is a single value with a unit, that value applies only when the input unit matches; otherwise no limit.
+					 *	if there are multiple values separated with commas, they apply when their unit matches the input unit,
+					 *	  or if a min/max value has no unit, it applies when the input value has no unit; otherwise, no limit.
+					 */
+				var
+					min=this.hasAttribute('min')  &&  this.getAttribute('min').split(",").map(d=>d.trim()),
+					max=this.hasAttribute('max')  &&  this.getAttribute('max').split(",").map(d=>d.trim());
+				if (min.length===1  &&  /^[0-9.]+$/.test(min))  min=min[0];  // oddly, we can syntaxically check “false.length” without error
+				if (max.length===1  &&  /^[0-9.]+$/.test(max))  max=max[0];
+				if (typeof ui === 'number')  {
+					const unit=this.value.substr(ui);
+					if (min instanceof Array)  for (const m of min) {if (m.endsWith(unit)) {min=m;  break;}}
+					if (max instanceof Array)  for (const m of max) {if (m.endsWith(unit)) {max=m;  break;}}  }
+				else   {
+					if (min instanceof Array)  for (const m of min) {if ( /^[0-9.]+$/.test(m) ) {min=m;  break;}}
+					if (max instanceof Array)  for (const m of max) {if ( /^[0-9.]+$/.test(m) ) {max=m;  break;}}  }
+				if (min instanceof Array)  min=false;
+				if (max instanceof Array)  max=false;
+				if (min!==false  &&  (this.value===""  ||  v<parseFloat(min)))  {
+					const e=generateErrorEvent(min, max);
+					if (!e.defaultPrevented)  this.value=min;  }
 				else
-				if (this.hasAttribute('max')  &&  v>parseFloat(this.getAttribute('max')))  this.value=this.getAttribute('max');  }  });
+				if (max!==false  &&  v>parseFloat(max))  {
+					const e=generateErrorEvent(min, max);
+					if (!e.defaultPrevented)  this.value=max;  }  }  });
 		input.addEventListener('blur', function() {this.type= reset_type();});
 		input.type= reset_type();  }
 	else
@@ -124,10 +166,11 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 		var s, allowNegative, allowPositive, allowDecimal, uIndex,
 				data=event.data?.toUpperCase();
 		if (!data)  return;
+		if (this.value==='∞')  {event.preventDefault();  return;}
 		const
 			base=parseInt(this.getAttribute('base')) || 10,
 			testAllowNegative=() => allowNegative=(!this.hasAttribute('min')  ||  parseFloat(this.getAttribute('min'))<0),
-			testAllowPositive=() => allowPositive=((!this.hasAttribute('max')  ||  parseFloat(this.getAttribute('max'))>=0)  &&  this.hasAttribute('allow-plus-sign')),
+			testAllowPositive=() => allowPositive=((!this.hasAttribute('max')  ||  parseFloat(this.getAttribute('max'))>=0  ||  this.getAttribute('max')==='∞')  &&  this.hasAttribute('allow-plus-sign')),
 			testAllowDecimal=() => allowDecimal=(!this.hasAttribute('step')  ||  (s=this.getAttribute('step'))==='any'  ||  s.includes('.')),
 			cleanNum=(data) => data.replace(RegExp('[^' + (testAllowNegative() ? '-−' : "") + (testAllowPositive() ? '+' : "") + (testAllowDecimal() ? '.' : "") + '\\d]', "g"), ""),
 			addData=(doAdd) => {
@@ -161,7 +204,12 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 				break;
 				case '.':
 					if (testAllowDecimal()
-					&&  !this.value.includes('.'))  return;
+					&&  !this.value.includes('.')
+					&&  (this.selectionStart==0  ||  this.value.substr(this.selectionStart-1, 1).match(/\d/)))  return;
+				break;
+				case '~':
+					if ((this.getAttribute('max')==='∞'  &&  this.value=="")
+					||  ((this.getAttribute('min')==='-∞'  &&  this.value==="-"  &&  this.selectionStart===1)))  this.value+='∞';
 				break;
 				default:
 					event.preventDefault();
@@ -222,6 +270,8 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 			max=  this.getAttribute('max'),
 			val= (base===10) ? parseFloat(this.value) : parseInt(this.value, base);
 		if (base===10)  {
+			if (min==='-∞')  min=Number.NEGATIVE_INFINITY;
+			if (max==='∞')  max=Infinity;
 			if ((min  &&  val+step < parseFloat(min))
 			||  (max  &&  val+step > parseFloat(max)))  return;
 			const unit= usesUnit(this.value.toUpperCase());
@@ -238,6 +288,8 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 			max=  this.getAttribute('max'),
 			val= (base===10) ? parseFloat(this.value) : parseInt(this.value, base);
 		if (base===10)  {
+			if (min==='-∞')  min=Number.NEGATIVE_INFINITY;
+			if (max==='∞')  max=Infinity;
 			if ((min  &&  val-step < parseFloat(min))
 			||  (max  &&  val-step > parseFloat(max)))  return;
 			const unit= usesUnit(this.value.toUpperCase());
