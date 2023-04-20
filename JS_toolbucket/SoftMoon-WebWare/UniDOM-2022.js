@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.2.1  March 24, 2023
+/*  UniDOM-2022  version 1.2.2  April 12, 2023
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -1046,7 +1046,7 @@ UniDOM.prototypify=function()  { //invade the DOM
 	Element.prototype.hasAncestor=hasAncestor;
 	Element.prototype.hasElement=hasElement;
 	Element.prototype.has$Class=hasClass;
-	Element.prototype.has=has;
+//	Element.prototype.has=has;
 	Element.prototype.addClass=addClass;
 	Element.prototype.swapOut$Class=swapOutClass;
 	Element.prototype.remove$Class=removeClass;
@@ -1071,10 +1071,10 @@ UniDOM.prototypify=function()  { //invade the DOM
 	Element.prototype.getOffset=function(scroll)  {return UniDOM.getElementOffset(this, scroll);};
 	Element.prototype.getMouseOffset=function(event)  {return UniDOM.getMouseOffset(this, event);};
 
-	Select.prototype.getSelected=getSelectedOptions;
-	Select.prototype.setSelected=setSelectedOptions;
+	HTMLSelectElement.prototype.getSelected=getSelectedOptions;
+	HTMLSelectElement.prototype.setSelected=setSelectedOptions;
 
-	Fieldset.prototype.getSelected=function(forceReturnArray, disabled='disabled')  {
+	HTMLFieldSetElement.prototype.getSelected=function(forceReturnArray, disabled='disabled')  {
 		function goDeep(e) {return !e.disabled && !e.has$Class(disabled);}
 		const selected=this.getElements( elmnt => {
 				if (!elmnt.disabled  &&  elmnt.checked)  switch (elmnt.type)  {
@@ -1083,7 +1083,7 @@ UniDOM.prototypify=function()  { //invade the DOM
 			goDeep);
 		return asArray(selected, forceReturnArray);  }
 
-	Fieldset.prototype.setSelected=function(value, forceReturnArray, disabled='disabled') {
+	HTMLFieldSetElement.prototype.setSelected=function(value, forceReturnArray, disabled='disabled') {
 		function goDeep(e) {return !e.disabled && !e.has$Class(disabled);}
 		const selected=this.getElements( elmnt => {
 				if (!elmnt.disabled)  switch (elmnt.type)  {
