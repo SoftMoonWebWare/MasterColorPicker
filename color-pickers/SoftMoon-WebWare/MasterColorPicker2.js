@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.4.4~BETA   March 23, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.4.5~BETA   April 19, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -77,16 +77,17 @@ SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon=function(context, atVerte
 		RGB_Calc.config.RGBA_Factory === Array
 		RGB_Calc.config.useHexSymbol === true
  */
-SoftMoon.WebWare.canvas_graphics.rainbowRing=function(canvas, centerX, centerY, outRad, inRad, colorFilter)  {
+//SoftMoon.WebWare.canvas_graphics.rainbowRing=function(canvas, centerX, centerY, outRad, inRad, colorFilter)  {
+CanvasRenderingContext2D.prototype.rainbowRing=function(centerX, centerY, outRad, inRad, colorFilter)  {
 	var j, x, y, ym, yq, a;
 	const ors=outRad*outRad, irs=inRad*inRad++, RGB_Calc=SoftMoon.WebWare.RGB_Calc;
 	if (typeof colorFilter !== 'function')  colorFilter=RGB_Calc.to.hex.bind(RGB_Calc.to);
 	for (x=-(outRad++); x<outRad; x++)  {
 		for (y=Math.round(Math.sqrt(ors-x*x)),  ym=(Math.abs(x)<inRad) ? Math.round(Math.sqrt(irs-x*x)) : 0;  y>=ym;  y--)  {
 			for (j=-1; j<2; j+=2)  { yq=y*j;  a=Math.Trig.getAngle(x,yq);
-				canvas.fillStyle=colorFilter(RGB_Calc.from.hue(a / _['π×2']), a);
-				canvas.beginPath();
-				canvas.fillRect(centerX+x, centerY-yq, 1,1);  }  }  } };
+				this.fillStyle=colorFilter(RGB_Calc.from.hue(a / _['π×2']), a);
+				this.beginPath();
+				this.fillRect(centerX+x, centerY-yq, 1,1);  }  }  }  };
 
 
 //                            centerpoint & size given as: pixels,angle → →↓→→→→↓   ↓ pass in function− typically “lineTo”
@@ -768,7 +769,7 @@ function MyPalette(HTML, PNAME)  {
 		switch (tr[i].children[0].nodeName)  {
 		case 'TD':
 			tr[i].children[0].setAttribute('onclick',
-				"var colorSpecCache; if (event.target===this  &&  (colorSpecCache=new Color_Picker.MyPalette_colorSpecCache(this.parentNode.querySelector(\"[name$='[definition]']\").value))  &&  colorSpecCache.RGB)  MasterColorPicker.pick(colorSpecCache, event, '"+PNAME+"');");
+				"var colorSpecCache; if (event.target===this  &&  (colorSpecCache=new SoftMoon.WebWare.Color_Picker.MyPalette.Color_SpecCache(this.parentNode.querySelector(\"[name$='[definition]']\").value))  &&  colorSpecCache.RGB)  MasterColorPicker.pick(colorSpecCache, event, '"+PNAME+"');");
 			tr[i].querySelector('.dragHandle').setAttribute('onmousedown',
 				"if (event.target===this)  MasterColorPicker."+PNAME+".dragger(event, this.parentNode, 'MCP_dragMyPaletteColor', 'isBeingDragged', 'MyColor');");
 		break;
@@ -2306,6 +2307,18 @@ RainbowMaestro.buildPalette=function(onlyColorblind)  {
 				: rgb,
 			a );  };
 	for (i=beginCount; i<cnvs.length; i++)  { //cycle through each canvas
+		cnvs[i].context.rainbowRing(
+			cnvs[i].centerX,  cnvs[i].centerY,
+			Math.floor(cnvs[i].width*this.smRainbowRing.outRad),
+			Math.floor(cnvs[i].width*this.smRainbowRing.inRad),
+			f );
+		cnvs[i].context.rainbowRing(
+			cnvs[i].centerX,  cnvs[i].centerY,
+			Math.floor(cnvs[i].width/2),
+			Math.floor(cnvs[i].width*this.lgRainbowRing.inRad),
+			fb );  }
+
+/*
 		SoftMoon.WebWare.canvas_graphics.rainbowRing(
 			cnvs[i].context,  cnvs[i].centerX,  cnvs[i].centerY,
 			Math.floor(cnvs[i].width*this.smRainbowRing.outRad),
@@ -2316,7 +2329,7 @@ RainbowMaestro.buildPalette=function(onlyColorblind)  {
 			Math.floor(cnvs[i].width/2),
 			Math.floor(cnvs[i].width*this.lgRainbowRing.inRad),
 			fb );  }
-
+*/
 	// focal shades: hexagons arranged in a triangle
 	// “loose diamonds”: mathematically-harmonious (¡NOT exactly color harmony!) hues & shades that fall between focal hues
 	variety--;
@@ -2924,8 +2937,10 @@ YinYangNiHong.buildBasePalette=function()  {
 												roundRGB: {value: false} });
 	try {
 	inRad=Math.floor(inRad);
-	SoftMoon.WebWare.canvas_graphics.rainbowRing(
-		baseCanvas.context,  Math.floor(baseCanvas.centerX), Math.floor(baseCanvas.centerY),  inRad+13, inRad );  }
+	baseCanvas.context.rainbowRing(
+		Math.floor(baseCanvas.centerX), Math.floor(baseCanvas.centerY),  inRad+13, inRad );  }
+//	SoftMoon.WebWare.canvas_graphics.rainbowRing(
+//		baseCanvas.context,  Math.floor(baseCanvas.centerX), Math.floor(baseCanvas.centerY),  inRad+13, inRad );  }
 	finally {RGB_Calc.config.cull();}  }
 
 
