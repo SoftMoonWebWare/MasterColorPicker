@@ -59,6 +59,11 @@ SoftMoon.WebWare.register_input_type_file=function register_input_type_file(inpu
 		event.preventDefault();  });  }
 
 
+class OutOfRangeEvent extends UIEvent  {
+	constructor(type, options) {
+		super(type, options);
+		this.max=options.max;
+		this.min=options.min;  }  }
 
 SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeric(input)	{
 
@@ -86,11 +91,6 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 		if (this.value  &&  this.hasAttribute('auto-append-unit')  &&  this.value!=='∞')  {
 		  for (const unit of this.units)  {if (this.value.endsWith(unit))  return;}
 		  this.value+=this.units[0];  }  }
-	class OutOfRangeEvent extends UIEvent  {
-		constructor(type, options) {
-			super(type, options);
-			this.max=options.max;
-			this.min=options.min;  }  }
 	function generateErrorEvent(min, max)  {
 		const event=new OutOfRangeEvent('out_of_range', {bubbles:true, cancelable:true, composed: true, min:min, max,max});
 		input.dispatchEvent(event);
