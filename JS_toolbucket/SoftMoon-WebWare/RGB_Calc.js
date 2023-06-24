@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.6  February 27, 2023  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.6.1  June 24, 2023  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
@@ -322,17 +322,23 @@ RegExp.hsl=
 RegExp.hsv=
 RegExp.hsb=
 RegExp.hcg=
+RegExp.hwb=
 RegExp.ColorWheelColor=new window.RegExp( '^' +h+ sep +p+ sep +p+ '$' );
 RegExp.hsla=
 RegExp.hsva=
 RegExp.hsba=
 RegExp.hcga=
+RegExp.hwba=
 RegExp.ColorWheelColorA=new window.RegExp( '^' +h+ sep +p+ sep +p+ aSep +f+ '$' );
 RegExp.hsl_a=
 RegExp.hsv_a=
 RegExp.hsb_a=
 RegExp.hcg_a=
+RegExp.hwb_a=
 RegExp.ColorWheelColor_A=new window.RegExp( '^' +h+ sep +p+ sep +p+ '(?:' +aSep +f+ ')?$' );
+RegExp.HWB=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ '$');
+RegExp.HWBA=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ ' +/ +' +f+ '$');
+RegExp.HWB_A=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ '(?: +/ +' +f+ ')?$');
 RegExp.Hue=
 RegExp.angle= new window.RegExp( '^' +h_+ '$' );
 
