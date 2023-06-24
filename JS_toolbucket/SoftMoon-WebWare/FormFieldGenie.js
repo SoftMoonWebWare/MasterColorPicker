@@ -1,7 +1,9 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.4.1 (March 24, 2023)
+/* FormFieldGenie version 4.5  (May 4, 2023)
  * written by and Copyright © 2010,2011,2012,2015,2019,2020,2022,2023 Joe Golembieski, Softmoon-Webware
+ *
+ * API changes from version 4.4 to version 4.5
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatable with early versions of MSIE =*=*=*
 
@@ -153,11 +155,14 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 
 			minGroups: minimum number of clones (groups) in the batch WHEN USING THE DEFAULT dumpEmpties FUNCTION (see below)
 
-			indxTier: number of index “tiers” to ignore at the end of a name; used to skip over tier(s) when updating names.
+			indxTier: number of index “tiers” to ignore from the beginning or end of a name; used to skip over tier(s) when updating names.
 				“climbTiers” must be true (see below).
-				example:  name → myField[4][3][2]  when indxTier=2 the FormFieldGenie updates/modifies the index that contains “4”
+				Positive values skip over tiers starting from the beginning of the name progressing forewards (i.e. a zero-based count),
+				while negative values count tiers starting from the end of the name progressing backwards.
+				example:  name → myField[4][3][2]  when indxTier=(2) the FormFieldGenie updates/modifies the index that contains “2”
+				example:  name → myField[4][3][2]  when indxTier=(-2) the FormFieldGenie updates/modifies the index that contains “3”
 				note the Genie looks for the ==next numeric== index, so note the following
-				example:  name → myField[4][subsection][3][2]  when indxTier=2 the FormFieldGenie updates/modifies the index that contains “4”
+				example:  name → myField[4][subsection][3][2]  when indxTier=(-3) the FormFieldGenie updates/modifies the index that contains “4”
 
 			climbTiers: true | false   check all levels of indices for a numeric value (true is default), or only the last?
 
@@ -318,7 +323,7 @@ FormFieldGenie.ConfigStack.prototype={
 	constructor: FormFieldGenie.ConfigStack,
 
 //you may re-define defaults globally through these properties
-	indxTier: 0,
+	indxTier: -1,
 	climbTiers: true,
 	updateValue: "all",
 	focusField: 0,
@@ -589,11 +594,17 @@ function dumpEmpties(elmnt)  {
 				field.value="["+(Number(valIncr[1])+indxOffset).toString()+"]";  return true;  }  }
 
 		//find and update the last index with a numeric value, or return the original name if none are numeric
-		function updateTieredName(fieldName, position)  { var indx, indxCount=0;
-			position=(typeof position == "number") ?  fieldName.lastIndexOf("[", position-1)  :  fieldName.lastIndexOf("[");
-			do {indx=( Number(fieldName.substring(position+1, fieldName.indexOf("]", position))) +indxOffset ).toString();}
-			while ((indxCount++<config.indxTier  ||  indx==="NaN")
-				&&  config.climbTiers  &&  position>3  &&  (position=fieldName.lastIndexOf("[", position-1)) != (-1));
+		function updateTieredName(fieldName, position)  { var indx, indxCount=0, closePos;
+			if (config.indxTier<0)  {
+				position=(typeof position === "number") ?  fieldName.lastIndexOf("[", position-1)  :  fieldName.lastIndexOf("[");
+				do {indx=( Number(fieldName.substring(position+1, fieldName.indexOf("]", position))) +indxOffset ).toString();}
+				while ((indx==="NaN"  ||  --indxCount>config.indxTier)
+					&&  config.climbTiers  &&  position>3  &&  (position=fieldName.lastIndexOf("[", position-1)) != (-1));  }
+			else  {
+				position=fieldName.indexOf("[");
+				do {indx=( Number(fieldName.substring(position+1, closePos=fieldName.indexOf("]", position))) +indxOffset ).toString();}
+				while ((indx==="NaN"  ||  ++indxCount<config.indxTier)
+					&&  config.climbTiers  &&  position>3  &&  (position=fieldName.indexOf("[", closePos)) != (-1));  }
 			return (indx==="NaN") ? fieldName  :
 				fieldName.substring(0, position+1) +indx+ fieldName.substring(fieldName.indexOf("]", position));  }
 
@@ -654,7 +665,7 @@ function dumpEmpties(elmnt)  {
 				alignSelectValues(cloned, newGroup);
 				offSet=groupPos-clip.position;  }
 			else if (clip instanceof Array)  {
-				for (var i=0; i<clip.length; i++)  {if (popNewField.call(this, focusGroup, opts, clip[i], true))  flag=true;}
+				for (let i=0; i<clip.length; i++)  {if (popNewField.call(this, focusGroup, opts, clip[i], true))  flag=true;}
 				if (flag)  setTimeout(timeoutForInsert, 0);
 				return flag;  }
 			else  return false;  }
@@ -685,7 +696,8 @@ function dumpEmpties(elmnt)  {
 		newGroup.dispatchEvent(new CustomEvent('formfieldgenieclone',
 			{detail: {genie: this, clip:{node:cloned, position:groupPos-offSet}, pasted:pasted}, bubbles: true, cancelable: true}));
 		if (!avoidTimeout)  setTimeout(timeoutForInsert, 0);
-		return true;  }
+//		this.lastNewField=newGroup;
+		return newGroup;  }
 	var nextGroup, emptyFlag, removedCount=0;
 	// remove sibling node Groups with empty text fields
 	if (group!==null)
@@ -747,9 +759,9 @@ function dumpEmpties(elmnt)  {
 					getField(getLastGroup()).focus();  },
 			0);  }
 
-	if (flag)  this.lastNewField=newGroup;
+	//if (flag)  this.lastNewField=newGroup;
 
-	return flag;  }
+	return flag && newGroup;  }
 
 //===============================================================
 
