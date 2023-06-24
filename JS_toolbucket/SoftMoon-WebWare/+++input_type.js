@@ -78,8 +78,7 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 	input.units=units;  //you may modify this Array of units in real-time; the “units” attribute is only read once when first registered…
 
 	function reset_type() {
-//console.log('the foo:',iType,input.units,input.value,input.value.match(/[^-−+\d.]/));
-		return iType==='numeric-slider' ? 'range' : ((input.units && input.value.match( /[^-−+\d.]/ )) || input.value==='∞' ? 'text' : 'number');}
+		return iType==='numeric-slider' ? 'range' : (input.value===""  ||  (input.units && input.value.match( /[^-−+\d.]/ )) || input.value==='∞' ? 'text' : 'number');}
 
 	function getValueUnitIndex() {return /[^-−+0-9.]/.exec(input.value)?.index;}
   function usesUnit(data) {
