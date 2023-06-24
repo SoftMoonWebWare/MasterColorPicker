@@ -1441,8 +1441,8 @@ MyPalette.prototype.toFileText=function toFileText(JSON_Palette, $filetype, $fil
 					clr=color.replace( /°/ , "deg").replace( /ʳ|ᴿ|ᶜ/ , "rad").replace( /ᵍ|ᴳ/ , "grad").replace( /●/ , "turn");
 					if (cd[1].includes("%"))  clr=clr.replace( /[.\d]+%/ , (parseFloat(cd[1])/100)+"turn");  //most browsers recognize hue-angles in percents, but we keep to specs anyway
 					if (cs[1].toLowerCase()==='hwb')  {  // ¡curses to the folks to de-standardized this spec!
-						clr=clr.replace( /\s*,\s*/ , " ");
-						if (cd.length===4)  {
+						clr=clr.replace( /\s*,\s*/g , " ");
+						if (cd.length>4)  {
 							let i=clr.lastIndexOf(" ");
 							clr=clr.substring(0, i)+" /"+clr.substring(i);  }  }  }
 				else  clr=MasterColorPicker.RGB_calc(color)?.toString('#hex');
