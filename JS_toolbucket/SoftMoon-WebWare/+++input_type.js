@@ -1,6 +1,7 @@
 //  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 /*   written by and Copyright © 2019, 2022, 2023 Joe Golembieski, SoftMoon WebWare */
 
+/// plusplusplusInput last updated June 28, 2023
 // input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated April 20, 2023
 // input type='file…………'  April 20, 2022
 
@@ -11,14 +12,20 @@ if (!SoftMoon)  var SoftMoon={};
 if (!SoftMoon.WebWare)  Object.defineProperty(SoftMoon, 'WebWare', {value: {}, enumerable: true});
 */
 
-window.addEventListener("load", function plusplusplusInput() {
-	const inps=document.getElementsByTagName('input');
-	for (const input of inps)  { if (input.hasAttribute('type'))  switch (input.getAttribute('type')?.toLowerCase())  {
-		case 'numeric':
-		case 'numeric-slider':  SoftMoon.WebWare.register_input_type_numeric(input);
-		break;
-		case 'filename':
-		case 'filepath': SoftMoon.WebWare.register_input_type_file(input);  }  }  });
+
+SoftMoon.WebWare.plusplusplusInput=function plusplusplusInput(html)  {
+	const inps=(html instanceof Event ? document : html).getElementsByTagName('input');
+	let attr;
+	for (const input of inps)  {
+		if (input.hasAttribute(attr='enhancedType')  ||  input.hasAttribute(attr='type'))
+			switch (input.getAttribute(attr)?.toLowerCase())  {
+			case 'numeric':
+			case 'numeric-slider':  SoftMoon.WebWare.register_input_type_numeric(input);
+			break;
+			case 'filename':
+			case 'filepath': SoftMoon.WebWare.register_input_type_file(input);  }  }  }
+
+window.addEventListener("load", SoftMoon.WebWare.plusplusplusInput);
 
 
 Object.defineProperty(SoftMoon, 'illegalFilenameChars', {value: [':', '*', '?', '"', '<', '>', '|'], enumerable: true});
@@ -69,8 +76,10 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 
 	const
 		iBase=parseInt(input.getAttribute('base')) || 10,
-		iType=input.getAttribute('type'),
+		hasEnhncd=input.hasAttribute('enhancedType'),
+		iType=(hasEnhncd  &&  input.getAttribute('enhancedType'))  ||  input.getAttribute('type'),
 		units=input.getAttribute('units')?.split(',').map(u=>u.trim());
+	if (!hasEnhncd)  input.setAttribute('enhancedType', iType);
 	if (iType==='numeric-slider'  &&  iBase!==10)  throw new Error('“numeric-slider” <input> types must use base 10.');
 	if (units  &&  iBase!==10)  throw new Error('“numeric” <input> types with a “units” attribute must use base 10.');
 	if (iType==='numeric-slider'  &&  units)  throw new Error('“numeric-slider” <input> types may not use a “units” attribute.');
@@ -78,11 +87,11 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 	input.units=units;  //you may modify this Array of units in real-time; the “units” attribute is only read once when first registered…
 
 	function reset_type() {
-		return iType==='numeric-slider' ? 'range' : (input.value===""  ||  (input.units && input.value.match( /[^-−+\d.]/ )) || input.value==='∞' ? 'text' : 'number');}
+		return iType==='numeric-slider' ? 'range' : (input.value===""  ||  (input.units && input.value.match( /[^-−+\d.]/u )) || input.value==='∞' ? 'text' : 'number');}
 
-	function getValueUnitIndex() {return /[^-−+0-9.]/.exec(input.value)?.index;}
+	function getValueUnitIndex() {return /[^-−+0-9.]/u.exec(input.value)?.index;}
   function usesUnit(data) {
-		const unit=data.match( /^([-−+\d.]*)([\D]+)$/ );
+		const unit=data.match( /^([-−+\d.]*)([\D]+)$/u );
 		if (unit  &&  input.units)  for (const u of input.units)  {
 			if (u.toUpperCase()===unit[2])  {unit[2]=u;  return unit;}  }
 		return false;  }
@@ -213,7 +222,7 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 				default:
 					event.preventDefault();
 					if (this.selectionStart!==this.value.length
-					||  /[^-−+0-9.]/.test(this.value))  return;
+					||  /[^-−+0-9.]/u.test(this.value))  return;
 					if (this.units) for (const unit of this.units)  {
 						if (unit.substr(0,1).toUpperCase()===data)  {
 							data=unit;  addData(true);  return;  }  }  }
