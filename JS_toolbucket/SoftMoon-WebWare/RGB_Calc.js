@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.6.1  June 24, 2023  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.7  June 28, 2023  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
@@ -281,7 +281,8 @@ RegExp.fourFactors_A=new window.RegExp( '^' +f +sep+ f +sep+ f +sep+ f+ '(?:' +a
 const byteVal='1?[0-9]{1,2}|2[0-4][0-9]|25[0-5]',
 			_byte_= '(' + byteVal + ')',
 			_percent_= '((?:' + pVal + ')%)',
-			rgb='\\s*0*((?:' + byteVal + ')|(?:(?:' + pVal + ')%))\\s*?';
+			rgb='\\s*0*((?:' + byteVal + ')|(?:(?:' + pVal + ')%))\\s*?',
+			_r_g_b_='\\s*0*((?:' + byteVal + ')|(?:(?:' + pVal + ')%)|[ _Ø∅*◊])\\s*?';
 
 							//   "v¹, v², v³"  where:  (0 <= (int)vⁿ <= 255)
 RegExp.threeBytes=new window.RegExp( '^' +_byte_ +sep+ _byte_ +sep+ _byte_+ '$' );
@@ -298,6 +299,11 @@ RegExp.threePercents_A=new window.RegExp( '^' +_percent_ +sep+ _percent_ +sep+ _
 RegExp.rgb=new window.RegExp( '^' +rgb+ sep +rgb+ sep +rgb+ '$' );
 RegExp.rgba=new window.RegExp( '^' +rgb+ sep +rgb+ sep +rgb+ aSep + f + '$' );
 RegExp.rgb_a=new window.RegExp( '^' +rgb+ sep +rgb+ sep +rgb+ '(?:' +aSep + f + ')?$' );
+// this non-standard format allows "blank" or "undefined" channels of three types: a blank “space” or “_”; a nullset “Ø” or “∅”; a lozenge “◊”
+// the blank and nullset are meant to mean no mods to that channel;
+// the lozenge in meant to mean a placeholder that will be filled in - specifically when used with gradients.
+// see also .config.allowUndefinedRGBChannels
+RegExp._r_g_b_a_=new window.RegExp('^' +_r_g_b_+ "," +_r_g_b_+ "," +_r_g_b_+ '(?:' +"," + f + ')?$', "u");
 
 //var p='\\s*0*((?:100|[0-9]{1,2}(?:\\.[0-9]*)?|\\.[0-9]+)%?)\\s*';   //no leading zeros in factors <1  (extras truncated)
 const p='\\s*0*?((?:' + pVal + ')%?)\\s*';  //one leading zero allowed in factors <1  (extras truncated)
@@ -323,24 +329,24 @@ RegExp.hsv=
 RegExp.hsb=
 RegExp.hcg=
 RegExp.hwb=
-RegExp.ColorWheelColor=new window.RegExp( '^' +h+ sep +p+ sep +p+ '$' );
+RegExp.ColorWheelColor=new window.RegExp( '^' +h+ sep +p+ sep +p+ '$', "u" );
 RegExp.hsla=
 RegExp.hsva=
 RegExp.hsba=
 RegExp.hcga=
 RegExp.hwba=
-RegExp.ColorWheelColorA=new window.RegExp( '^' +h+ sep +p+ sep +p+ aSep +f+ '$' );
+RegExp.ColorWheelColorA=new window.RegExp( '^' +h+ sep +p+ sep +p+ aSep +f+ '$', "u" );
 RegExp.hsl_a=
 RegExp.hsv_a=
 RegExp.hsb_a=
 RegExp.hcg_a=
 RegExp.hwb_a=
-RegExp.ColorWheelColor_A=new window.RegExp( '^' +h+ sep +p+ sep +p+ '(?:' +aSep +f+ ')?$' );
-RegExp.HWB=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ '$');
-RegExp.HWBA=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ ' +/ +' +f+ '$');
-RegExp.HWB_A=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ '(?: +/ +' +f+ ')?$');
+RegExp.ColorWheelColor_A=new window.RegExp( '^' +h+ sep +p+ sep +p+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.HWB=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ '$', "u");
+RegExp.HWBA=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ ' +/ +' +f+ '$', "u");
+RegExp.HWB_A=new window.RegExp( '^' +h+ " +" +p+ " +" +p+ '(?: +/ +' +f+ ')?$', "u");
 RegExp.Hue=
-RegExp.angle= new window.RegExp( '^' +h_+ '$' );
+RegExp.angle= new window.RegExp( '^' +h_+ '$', "u" );
 
 
 
@@ -357,6 +363,9 @@ RegExp.angle= new window.RegExp( '^' +h_+ '$' );
 function getByteValue(v)  {
 	var isNotPercent=true;  // or a factor…
 	if (typeof v === 'string')  {
+		if (this.config.allowUndefinedRGBChannels)  {
+			if (v==='*'  ||  v==='◊')  return v;
+			if (v===' '  ||  v==='_'  ||  v==='Ø'  ||  v==='∅')  return undefined;  }
 		if (v.substr(-1)==='%')  {v=parseFloat(v)*2.55;  isNotPercent=false;}
 		else  v=parseFloat(v);  }
 	else if (v instanceof Number)  switch (v.unit)  {// this experimental property name is subject to change
@@ -391,6 +400,7 @@ function getFactorValue(v)  {
 	return (v<0 || v>1) ? false : v;  }
 
 function getAlphaFactor(v)  {
+	if (v===""  ||  v===undefined  ||  v===null)  return undefined;
 	v= ((typeof v !== 'string'  ||  !v.endsWith("%"))
 		&&  (!(v instanceof Number)  ||  v.unit!=='%'))  ?  // this experimental property name is subject to change
 		parseFloat(v)  :  (parseFloat(v)/100);
@@ -568,6 +578,14 @@ RGB_Calc.ConfigStack.prototype={
  *    0 <= factor <=1     0 <= percent <= 100     0 <= byte <= 255
  */
 	inputAsFactor: false,
+
+/* this controls whether you can pass undefined channels to the RGB color space.
+ * this non-standard format allows "blank" or "undefined" channels of three types: a blank “ ” (space) or “_”; a nullset “Ø” or “∅”; a lozenge “◊”
+ * the blank and nullset are meant to mean no mods to that channel;
+ * the lozenge in meant to mean a placeholder that will be filled in - specifically when used with gradients.
+ * This flag has no effect when .config.inputAsFactor=true
+ */
+	allowUndefinedRGBChannels: false,
 
 /* When you pass an Array into an “audit” calculator,
  * it will interpret the values and may convert them into factors from 0–1
@@ -1010,7 +1028,7 @@ function fromRGBA(r, g, b, a)  {  // alternate arguments format shown below
 	var matches;
 	if (arguments.length===1)  {
 		if (typeof arguments[0] === 'string'
-		&&  (matches=arguments[0].match(this.config.inputAsFactor ? RegExp.threeFactors_A : RegExp.rgb_a)))  {
+		&&  (matches=arguments[0].match(this.config.inputAsFactor ? RegExp.threeFactors_A : (this.config.allowUndefinedRGBChannels ? RegExp._r_g_b_a_ : RegExp.rgb_a))))  {
 //		&&  ((matches=arguments[0].match(this.config.inputAsFactor ? RegExp.threeFactors : RegExp.rgb))
 //			|| (matches=arguments[0].match(this.config.inputAsFactor ? RegExp.fourFactors : RegExp.rgba))))  {
 			matches.shift();
