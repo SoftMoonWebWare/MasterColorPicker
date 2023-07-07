@@ -1,9 +1,9 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.5  (May 4, 2023)
+/* FormFieldGenie version 4.6  (June 29, 2023)
  * written by and Copyright © 2010,2011,2012,2015,2019,2020,2022,2023 Joe Golembieski, Softmoon-Webware
  *
- * API changes from version 4.4 to version 4.5
+ * API changes from version 4.4 to version 4.5 to version 4.6
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatable with early versions of MSIE =*=*=*
 
@@ -50,24 +50,24 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 	• makes it easy to manage the names of consecutive form-field elements when adding or deleting.
 	• provides a multi-clip clipboard framework for cut/copy/paste operations of a form-field or group of form-fields.
 
-	When adding a new form-field or group of form-fields (using the popNewField() method),
+	When adding a new form-field or group of form-fields (using the popNewGroup() method),
 	the FormFieldGenie can create (clone) one based on what already exists in the form (more on that below),
 	or you can explicitly give it a form-field or group of form-fields to clone.
 	You may define an explicit DOM node (form-field or group of form-fields) to clone
 	when creating an instance of the FormFieldGenie; for example:
 		myGenie=new SoftMoon.WebWare.FormFieldGenie({clone:……my DOM node to clone……, ……more of my options……});
-		myGenie.popNewField(……)
+		myGenie.popNewGroup(……)
 	After creating an instance of the FormFieldGenie, you may also
 	set the instance.config.clone to the explicit DOM node (form-field or group of form-fields) you want to clone (if any).
 	An example of defining an explicit node to clone:
 		myGenie=new SoftMoon.WebWare.FormFieldGenie;
 		myGenie.config.clone= ……my DOM node to clone……
-		myGenie.popNewField(………)
+		myGenie.popNewGroup(………)
 	After creating an instance of the FormFieldGenie, you may also
 	pass-in as an option the explicit DOM node (form-field or group of form-fields) you want to clone (if any).
 	An example of passing an explicit node to clone:
 		myGenie=new SoftMoon.WebWare.FormFieldGenie;
-		myGenie.popNewField({clone:……my DOM node to clone……, ……more of my options……})
+		myGenie.popNewGroup({clone:……my DOM node to clone……, ……more of my options……})
 
 
 	The publicly accessible properties of a FormFieldGenie instance are:
@@ -77,11 +77,11 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 		.tabbedOut
 
 	The publicly accessible user-methods of a FormFieldGenie instance are:
-	popNewField(group, opts)     returns true if a new group is ‘popped’ or false if not.
+	popNewGroup(group, opts)     returns true if a new group is ‘popped’ or false if not.
 	deleteGroup(group, opts)     returns true if the group was deleted, false if not.
 		 cutGroup(group, opts)     returns true if the group was deleted, false if not.  group will always be copied to the clipboard.
 		copyGroup(group, opts)     returns null.  group will always be copied to the clipboard.
-	 pasteField(group, opts)     returns false if the clipboard clip is empty, true if it is pasted.
+	 pasteGroup(group, opts)     returns false if the clipboard clip is empty, true if it is pasted.
 	clearClipboard()
 	getClip(clipID, doInit)  this method is also called internally by other user-methods as a worker-method, but you may utilize it if manually working with the clipboard.
 	update_HTML_clipMenu()   this method is also called internally by other user-methods as a worker-method, but you may utilize it if manually updating the clipboard.
@@ -93,12 +93,12 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 
 
 	Note you can paste _two_ different ways using _three_ different methods:
-		• paste over an existing group using   pasteField(group, {clip: %%your-clip-reference%%})
-		• insert a new group using   pasteField(group, {doso: 'insert', clip: %%your-clip-reference%%})
-		• insert a new group using   popNewField(group, {doso: 'paste', clip: %%your-clip-reference%%})
+		• paste over an existing group using   pasteGroup(group, {clip: %%your-clip-reference%%})
+		• insert a new group using   pasteGroup(group, {doso: 'insert', clip: %%your-clip-reference%%})
+		• insert a new group using   popNewGroup(group, {doso: 'paste', clip: %%your-clip-reference%%})
 	( see “clip” in “opts” below for more info on %%your-clip-reference%% )
-	The difference between popNewField and pasteField is that pasteField will return false if the clip is empty,
-	while popNewField will simply pop a new “blank” clone if the clip is empty.
+	The difference between popNewGroup and pasteGroup is that pasteGroup will return false if the clip is empty,
+	while popNewGroup will simply pop a new “blank” clone if the clip is empty.
 	After creating an instance of the FormFieldGenie, the clipboard Object may be accessed through instance.clipboard;
 	each clipboard Object property may contain another Object with two properties:
 		{
@@ -111,7 +111,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 			DOM node object - either the text-input / text-box, or one of its parent containing nodes (up the DOM hierarchy).
 			If a containing node, it may contain any other DOM nodes including nested “batchs” and their “groups”.
 			The “batch” is the DOM node that contains the complete list/collection of “groups”.
-			However, if  opts.doso='addTo'  is passed into the  popNewField()  method, then the value which is passed in as
+			However, if  opts.doso='addTo'  is passed into the  popNewGroup()  method, then the value which is passed in as
 			group  should instead be the containing node (batch) that holds all the  groups
 			Very simple Example of HTML:
 
@@ -121,7 +121,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 					<input type='text' name='myName[0]'
 						onfocus='Genie.tabbedOut=false'
 						onkeydown='Genie.catchTab(event)'
-						onblur='Genie.popNewField(this.parentNode)' />
+						onblur='Genie.popNewGroup(this.parentNode)' />
 				</label>
 			<fieldset>
 
@@ -138,13 +138,13 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 					<input type='text' name='myName[0]'
 						onfocus='Genie.tabbedOut=false'
 						onkeydown='Genie.catchTab(event)'
-						onblur='Genie.popNewField(this.parentNode)' />
+						onblur='Genie.popNewGroup(this.parentNode)' />
 				</label>
 				<label>
 					<input type='text' name='myName[1]'
 						onfocus='Genie.tabbedOut=false'
 						onkeydown='Genie.catchTab(event)'
-						onblur='Genie.popNewField(this.parentNode)' />
+						onblur='Genie.popNewGroup(this.parentNode)' />
 				</label>
 			<fieldset>
 
@@ -180,7 +180,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 						=== examples only show final indices or lack of; indexed names may have additional indices  ===
 
 			focusField: number
-				========= this applies to pasteField() and popNewField() only =========
+				========= this applies to pasteGroup() and popNewGroup() only =========
 				Pass the field number (counted from ZERO) of the text/filename field you want the cursor focused on
 				when popping a newly cloned group, or pasting a cloned group with  opts.focus=true
 
@@ -189,14 +189,14 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 				these are used to identify which children of a batch are a true group; other children are just ignored “fluff”
 
 			focus: true | false
-				========= this applies to pasteField() and popNewField() only =========
+				========= this applies to pasteGroup() and popNewGroup() only =========
 				If true, the  focusField  will receive focus, whether or not the tab-key was pressed.
 				If false, the  focusField  will not receive focus when the tab key is pressed.
 				If no value is passed, then the tab-key will cause the focusField to receive focus
 				when popping a new fieldNodeGroup.
 
 			dumpEmpties: true | false | function(empty_groupInQuestion, deleteFlag)  remove emptied groups on the fly?
-				========= this applies to deleteGroup() and popNewField() only, and not when inserting or pasting =========
+				========= this applies to deleteGroup() and popNewGroup() only, and not when inserting or pasting =========
 				if a function is supplied, it should return  true | false | null
 				and if null is returned, the function should remove the field itself.
 				If you use deleteGroup(), the fieldNodeGroup will be removed even if dumpEmpties===false;
@@ -204,7 +204,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 					and its return value (true|false) will be respected.
 
 			checkForFilled: 'all' ‖ 'one' ‖ 'some' ‖ 'any'
-				========= this applies to deleteGroup() and popNewField() only, and not when inserting or pasting =========
+				========= this applies to deleteGroup() and popNewGroup() only, and not when inserting or pasting =========
 				If set, the corresponding text/filename fields in the nodeGroup will be checked.
 				By default only the -first- one is checked.
 				If 'one' or 'some' or possibly 'any', the  checkField  option should be used also (see below).
@@ -227,7 +227,7 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 					if all of the fields in the group are empty, the group may be dumped (automatically deleted).
 
 			checkField: number ‖ array
-				========= this applies to deleteGroup() and popNewField() only, and not when inserting or pasting =========
+				========= this applies to deleteGroup() and popNewGroup() only, and not when inserting or pasting =========
 				Used in conjunction with  checkForFilled
 				• if checkField is a number (when  checkForFilled = 'one' ‖ 'some')
 					Pass the field number (counted from ZERO) of the field or fields you want checked for "Empty" when popping.
@@ -278,25 +278,25 @@ function FormFieldGenie(opts, HTML_clipMenu)  {
 				including the new one after it has been added to the document, not simply the newly cloned group.
 
 			doso: true | "insert" | "paste"
-				========= this applies to popNewField() and pasteField() only =========
-				If you pass (Boolean)true when using popNewField(), a new field will be popped at the end regardless of whether the last field is empty;
+				========= this applies to popNewGroup() and pasteGroup() only =========
+				If you pass (Boolean)true when using popNewGroup(), a new field will be popped at the end regardless of whether the last field is empty;
 					but not exceeding maxGroups.  Empty fieldNodeGroups may be removed as usual.
-				Empty fieldNodeGroups will NOT be automatically removed if "insert" when using popNewField().
-				If you pass "insert" or "paste" when using popNewField(), a new field will be popped and inserted BEFORE the passed fieldNodeGroup,
+				Empty fieldNodeGroups will NOT be automatically removed if "insert" when using popNewGroup().
+				If you pass "insert" or "paste" when using popNewGroup(), a new field will be popped and inserted BEFORE the passed fieldNodeGroup,
 					regardless of whether the last field is empty; but not exceeding maxGroups.
-				With popNewField(), “insert” inserts an empty fieldNodeGroup.
-				With pasteField(), “insert” inserts the selected clip.
-				With popNewField(), “paste” inserts the selected clip.
+				With popNewGroup(), “insert” inserts an empty fieldNodeGroup.
+				With pasteGroup(), “insert” inserts the selected clip.
+				With popNewGroup(), “paste” inserts the selected clip.
 
 			addTo: true
-				========= this applies to popNewField() only =========
-				If you pass  opts.addto=true, then the value that would be passed into popNewField as  fieldNodeGroup
+				========= this applies to popNewGroup() only =========
+				If you pass  opts.addto=true, then the value that would be passed into popNewGroup as  fieldNodeGroup
 					will be instead considered the  batch.
 				This will allow you to add a new field to empty  batchs
 					but only if •the Genie.clone is set; •or opts.doso='paste' while the clipboard has contents.
 				Passing  opts.addto=true  acts similar as passing  opts.doso=true  in that it will always pop a new field
 					(unless as noted above the  batch  is empty and there is no clone and no paste)
-				Note that pasteField() with opts.doso='insert' internally calls calls popNewField(), and this option
+				Note that pasteGroup() with opts.doso='insert' internally calls calls popNewGroup(), and this option
 					may then take effect.
 
 			clip: Object-member-identifier  ( Number | String.match( /^[_a-z][_a-z0-9]*$/i ) )
@@ -461,7 +461,7 @@ function dumpEmpties(elmnt)  {
 		else if (config.groupClass instanceof RegExp)  groupClass=config.groupClass;
 		else groupClass="";
 
-		if (addTo)  batch=group;  // only myGenie.popNewField(batch, {addTo:true})
+		if (addTo)  batch=group;  // only myGenie.popNewGroup(batch, {addTo:true})
 		else  batch=group.parentNode;  //may be any parent tag; not limited to <fieldset> <ol> <td> <div> etc.
 
 	}  // close init
@@ -643,7 +643,7 @@ function dumpEmpties(elmnt)  {
 		return _clone_;  }
 
 
- function popNewField(focusGroup, opts, clip, avoidTimeout)  {
+ function popNewGroup(focusGroup, opts, clip, avoidTimeout)  {
 	var newGroup, cloned, groupCount=0, group=getFirstGroup(), flag=false, pasted=false;
 	function timeoutForInsert()  {
 		if (typeof config.fieldsetCustomizer === 'function')  config.fieldsetCustomizer(batch, pasted, config.cbParams);
@@ -665,7 +665,7 @@ function dumpEmpties(elmnt)  {
 				alignSelectValues(cloned, newGroup);
 				offSet=groupPos-clip.position;  }
 			else if (clip instanceof Array)  {
-				for (let i=0; i<clip.length; i++)  {if (popNewField.call(this, focusGroup, opts, clip[i], true))  flag=true;}
+				for (let i=0; i<clip.length; i++)  {if (popNewGroup.call(this, focusGroup, opts, clip[i], true))  flag=true;}
 				if (flag)  setTimeout(timeoutForInsert, 0);
 				return flag;  }
 			else  return false;  }
@@ -769,19 +769,19 @@ function dumpEmpties(elmnt)  {
 // ======= user methods =======
 
 
-FormFieldGenie.prototype.popNewField=function(focusGroup, opts)  {
+FormFieldGenie.prototype.popNewGroup=function(focusGroup, opts)  {
 	try {
 		init.call(this, focusGroup, opts, opts?.addTo);
-		return popNewField.call(this, focusGroup, opts);  }
+		return popNewGroup.call(this, focusGroup, opts);  }
 	finally {if (opts)  this.config.cull();}  }
 
-FormFieldGenie.prototype.pasteField=function(group, opts)  {
+FormFieldGenie.prototype.pasteGroup=function(group, opts)  {
 	try {
 		init.call(this, group, opts);
 		var flag, clip;
 		if ( !( (clip=this.getClip(config.clip))  &&  (clip instanceof Array  ||  clip.node instanceof Element) ) ) return false;
 		if (opts  &&  opts.doso==='insert')  {
-			opts.doso='paste';  flag=popNewField.call(this, group, opts, clip);  opts.doso='insert';
+			opts.doso='paste';  flag=popNewGroup.call(this, group, opts, clip);  opts.doso='insert';
 			return flag;  }
 		const newGroup=clip.node.cloneNode(true);
 		alignSelectValues(clip.node, newGroup);
@@ -796,7 +796,7 @@ FormFieldGenie.prototype.pasteField=function(group, opts)  {
 			if (typeof config.fieldsetCustomizer === 'function')  config.fieldsetCustomizer(batch, 'paste-over', config.cbParams);
 			if (opts  &&  opts.doso)  {
 				const ods=opts.doso;  opts.doso=null;
-				popNewField.call(thisGenie, group, opts);
+				popNewGroup.call(thisGenie, group, opts);
 				opts.doso=ods;  }
 			if (config.doFocus)  getField(newGroup).focus();  }, 0);
 		return true;  }
@@ -911,8 +911,8 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
  *  the end-user copies/cuts to.
  *
 <menu id='myGenie_popUpMenu' standardItems='genie'>
-	<li>insert:<span onclick='myGenie.popNewField(this.closest("."+myGenie.config.groupClass), {doso:"insert"})'>empty field</span>
-							<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteField(this.closest("."+myGenie.config.groupClass), {doso:"insert", clip:event.target.className})'>
+	<li>insert:<span onclick='myGenie.popNewGroup(this.closest("."+myGenie.config.groupClass), {doso:"insert"})'>empty field</span>
+							<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteGroup(this.closest("."+myGenie.config.groupClass), {doso:"insert", clip:event.target.className})'>
 								<li class='genie'>all clips</li>
 							</ul></li>
 	<li>copy to:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.copyGroup(this.closest("."+myGenie.config.groupClass), {clip:event.target.className})'>
@@ -921,7 +921,7 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
 	<li>cut to:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.cutGroup(this.closest("."+myGenie.config.groupClass), {clip:event.target.className})'>
 								<li class='genie'>new clip</li>
 							</ul></li>
-	<li>paste from:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteField(this.closest("."+myGenie.config.groupClass), {clip:event.target.className})'>
+	<li>paste from:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteGroup(this.closest("."+myGenie.config.groupClass), {clip:event.target.className})'>
 								</ul></li>
 	<li onclick='if (confirm("Do you want to delete this group?")) myGenie.deleteGroup(this.closest("."+myGenie.config.groupClass))'>delete</li>
 	<li onclick='myGenie.clearClipboard();'>clear clipboard</li>
@@ -937,7 +937,7 @@ myGenie=new SoftMoon.WebWare.FormFieldGenie(opts, document.getElementById('myGen
 //===================================================================================\\
 
 
-// “updateName” plugin for popNewField
+// “updateName” plugin for popNewGroup
 //  usage example:
 // Genie=new SoftMoon.WebWare.FormFieldGenie( {
 //		updateName: SoftMoon.WebWare.FormFieldGenie.updateNameByList,
