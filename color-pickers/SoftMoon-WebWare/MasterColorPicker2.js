@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.4.6~BETA   June 24, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.4.7~BETA   July 7, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 // requires  SoftMoon.WebWare.FormFieldGenie   → → → →  JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js  → → → →  for MyPalette and ColorFilter and Gradientor
 // requires  SoftMoon.WebWare.HTTP   → → → →  JS_toolbucket/SoftMoon-WebWare/HTTP.js  → → → →  for Palette load/save on a server - not with  file://  protocol use
 // subject to move to unique files (with more functions and features) in the future:
-//  • SoftMoon.WebWare.canvas_graphics
+//  • SoftMoon.WebWare.canvas_graphics → → → → will likely be:  +++Canvas.js
 
 
 /*==================================================================*/
@@ -511,7 +511,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 	UniDOM.addEventHandler(tBody, 'onFocusIn', function() {Genie.tabbedOut=false;});
 	UniDOM.addEventHandler(tBody, 'onKeyDown', Genie.catchTab);
 	UniDOM.addEventHandler(tBody, 'onFocusOut', function()  {
-		if (!Genie.tabbedOut  &&  event.target.name.includes('color'))  Genie.popNewField(event.target.closest('tr'));  });  });
+		if (!Genie.tabbedOut  &&  event.target.name.includes('color'))  Genie.popNewGroup(event.target.closest('tr'));  });  });
 
 
 
@@ -537,7 +537,7 @@ function tabbedOut(GENIE_FIELDS, DOM_CRAWL_STOP, event)  {
 	const tabToTarget=(!event.shiftKey  &&  !event.ctrlKey  &&  event.target.getAttribute('tabToTarget')==='true');
 	var old, e, i=0;
 	if (!tabToTarget  &&  !event.ctrlKey)  old=UniDOM.getElders(event.target, isTabStop, goDeep);
-	this.popNewField(this.config.groupClass ? UniDOM.getAncestorBy$Class(event.target, this.config.groupClass) : event.target);
+	this.popNewGroup(this.config.groupClass ? UniDOM.getAncestorBy$Class(event.target, this.config.groupClass) : event.target);
 	if (event.ctrlKey)  return;  //the Picker will catch it on the bubble-up to the MyPalette picker-panel
 	if (tabToTarget)  {
 		(MasterColorPicker.dataTarget || MasterColorPicker.masterTarget)?.focus();
@@ -727,7 +727,7 @@ function MyPalette(HTML, PNAME)  {
 	UniDOM.addEventHandler(paletteMetaHTML, 'onKeyDown', this.MetaGenie.catchTab);
 	UniDOM.addEventHandler(paletteMetaHTML, 'onFocusOut', function()  {
 		if (event.target.nodeName==='TEXTAREA'
-		&&  !thisPalette.MetaGenie.tabbedOut)  thisPalette.MetaGenie.popNewField(event.target);  });
+		&&  !thisPalette.MetaGenie.tabbedOut)  thisPalette.MetaGenie.popNewGroup(event.target);  });
 
 	UniDOM.addEventHandler(this.table, 'onKeyDown', function(event)  {
 		var inpName;
@@ -761,7 +761,7 @@ function MyPalette(HTML, PNAME)  {
 	UniDOM.getElementsBy$Class(this.table, 'MyColor').map(function(e)  {
 		e.setAttribute('onfocusin', "MasterColorPicker."+PNAME+".ColorGenie.tabbedOut=false");
 		e.setAttribute('onkeydown', "MasterColorPicker."+PNAME+".ColorGenie.catchTab(event)");
-		e.setAttribute('onfocusout', "if (!MasterColorPicker."+PNAME+".ColorGenie.tabbedOut)  MasterColorPicker."+PNAME+".ColorGenie.popNewField(this)");  });
+		e.setAttribute('onfocusout', "if (!MasterColorPicker."+PNAME+".ColorGenie.tabbedOut)  MasterColorPicker."+PNAME+".ColorGenie.popNewGroup(this)");  });
 	UniDOM.getElementsBy$Class(this.table, "dragHandle" ).map(function(e)  { e.setAttribute('oncontextmenu',
 			"if (event.button===2)  MasterColorPicker."+PNAME+".showColorGenieMenu(event, this);");  });
 	const tr=this.trs;
@@ -817,7 +817,7 @@ MyPalette.prototype.addColor=function(color, name)  {
 	inp.value=color;
 	tr.querySelector("[name$='[name]']").value=name||"";
 	MasterColorPicker.colorSwatch(inp);
-	this.ColorGenie.popNewField(tr, {doso:true});
+	this.ColorGenie.popNewGroup(tr, {doso:true});
 	tr.scrollIntoView();
 	return true;  }
 
@@ -866,16 +866,16 @@ MyPalette.prototype.onDelete=function()  {
 
 MyPalette.prototype.moveColor=function(from, to)  {
 		this.ColorGenie.cutGroup(from, {clip:"MCP_system", dumpEmpties:false});
-		this.ColorGenie.pasteField(to, {clip:"MCP_system", doso:"insert", dumpEmpties:false, doFocus:false});  }
+		this.ColorGenie.pasteGroup(to, {clip:"MCP_system", doso:"insert", dumpEmpties:false, doFocus:false});  }
 
 //Note we can always do a simple cut/paste with fields, because there is always an empty field at the end to “insertBefore” — not so with moving subPalettes
 
 MyPalette.prototype.moveSub=function(from, to)  {
 		this.SubPaletteGenie.cutGroup(from, {clip:"MCP_system", dumpEmpties:false});
-		this.SubPaletteGenie.popNewField(to||this.table, {clip:"MCP_system", doso:"paste", addTo:!to, dumpEmpties:false, doFocus:false});  }
+		this.SubPaletteGenie.popNewGroup(to||this.table, {clip:"MCP_system", doso:"paste", addTo:!to, dumpEmpties:false, doFocus:false});  }
 
 MyPalette.prototype.makeSub=function()  {
-	if (this.SubPaletteGenie.popNewField(this.table, {addTo:true}))  {
+	if (this.SubPaletteGenie.popNewGroup(this.table, {addTo:true}))  {
 		for (var i=1, l=this.trs.length-3, newSub=this.tbodys[this.tbodys.length-1];  i<l;  i++)  {
 			if (this.trs[i].querySelector("input[type='checkbox']").checked  &&  this.trs[i]!==this.trs[i].parentNode.lastElementChild)
 				this.moveColor(this.trs[l--, i--], newSub.lastElementChild);  }  }
@@ -951,12 +951,12 @@ MyPalette.prototype.showColorGenieMenu=function(event, handle)  {
 MyPalette.prototype.onColorGenieMenuSelect=function(event)  {
 	const myColor=UniDOM.getAncestorBy$Class(this.ColorGenie.HTML_clipMenu, "MyColor");
 	switch (event.target.tagName)  {
-		case 'SPAN':               return this.ColorGenie.popNewField(myColor, {doso:"insert"});
+		case 'SPAN':               return this.ColorGenie.popNewGroup(myColor, {doso:"insert"});
 		case 'LI':  if (event.target.parentNode.tagName==='UL')  switch (event.target.parentNode.parentNode.firstChild.data.trim())  {
-			case 'insert:':          return this.ColorGenie.pasteField(myColor, {doso:"insert", clip:event.target.innerHTML});
+			case 'insert:':          return this.ColorGenie.pasteGroup(myColor, {doso:"insert", clip:event.target.innerHTML});
 			case 'copy to:':         return this.ColorGenie.copyGroup(myColor, {clip:event.target.innerHTML});
 			case 'cut to:':          return this.ColorGenie.cutGroup(myColor, {clip:event.target.innerHTML});
-			case 'paste from:':      return this.ColorGenie.pasteField(myColor, {clip:event.target.innerHTML});  }
+			case 'paste from:':      return this.ColorGenie.pasteGroup(myColor, {clip:event.target.innerHTML});  }
 			else if (event.detail===3)  switch (event.target.innerHTML)  {
 			case 'delete':           return this.ColorGenie.deleteGroup(myColor);
 			case 'clear clipboard':  return this.ColorGenie.clearClipboard(true);  }  }  }
@@ -996,7 +996,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 		for (var i=0; i<a.length; i++)  {
 			if (!a[i])  continue;
 			flds.lastElementChild.value=a[i];
-			if (!thisPalette.MetaGenie.popNewField(flds.lastElementChild))  break;  }  }
+			if (!thisPalette.MetaGenie.popNewGroup(flds.lastElementChild))  break;  }  }
   metaHTML.querySelector('select.alternative').setSelected(JSON_palette.alternatives ? JSON_palette.alternatives : '—none—');
 
 	var tbody, id;
@@ -1026,7 +1026,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 		return (JSON_palette instanceof SoftMoon.WebWare.Palette) ? Object.getPrototypeOf(JSON_palette.palette) : JSON_palette.palette;  }
 
 	function makeNew_tBody(sName, parentName, parentId)  {
-		if (thisPalette.SubPaletteGenie.popNewField(thisPalette.table, {addTo:true}))	 {
+		if (thisPalette.SubPaletteGenie.popNewGroup(thisPalette.table, {addTo:true}))	 {
 			tbodys[tbodys.length-1].querySelector("input[name$='[Name]']").value=sName;
 			tbodys[tbodys.length-1].querySelector("select[name$='[parent]']").options.add(
 				new Option(parentName, parentId, true, true))
@@ -1251,7 +1251,8 @@ MyPalette.prototype.importPaletteFile=function(PaletteFile)  {
 		div=this.portNotice(MyPalette.NOTICES.BUILDING, true);
 	fr.onload=function()  {
 		try {
-			thisPalette.fromFileText(fr.result)  }
+			thisPalette.fromFileText(fr.result);
+			thisPalette.HTML.querySelector('input[name*="filename"]').value=PaletteFile.name.match( /^(.+)\.palette\.js(?:on)?$/i )[1];  }
 		catch(e)  {
 			console.error(CONSOLE_IMPORT_ERROR,e,"\n ↓ ↓ ↓\n",fr.result);
 			thisPalette.portNotice(MyPalette.NOTICES.CORRUPT);  }
@@ -1298,6 +1299,7 @@ MyPalette.prototype.downloadPalette=function(filename)  {
 		setTimeout(function()  {
 			try {
 				thisPalette.fromFileText(connection.responseText);
+				thisPalette.HTML.querySelector('input[name*="filename"]').value=filename.match( /([^\/]+)\.palette\.js(?:on)?$/i )?.[1];
 				div.parentNode.removeChild(div);  }
 			catch(e) {
 				if (thisPalette.doLog)  console.error(CONSOLE_IMPORT_ERROR,e,"\n ↓ ↓ ↓\n",connection.responseText);
@@ -1344,7 +1346,7 @@ MyPalette.prototype.presentPaletteFileIndex=function(indexText, port, basepath="
 	if (typeof indexText === 'string')
 		indexText=indexText.split("\n").map(function(t) {return t.trim();});
 	else if (!(length in indexText))
-		throw new typeError('“indexText” must be a string or an iterable object.');
+		throw new TypeError('“indexText” must be a string or an iterable object.');
 	if (indexText.length<1)  div.appendChild(document.createElement('p')).append(MyPalette.NOTICES.NO_FILES);
 	else for (const filename of indexText)  {
 		if (port==='server'  &&  this.filterOutPaletteFileForImport(filename))  continue;
@@ -1568,6 +1570,7 @@ MyPalette.prototype.loadPaletteFromBrowserDB=function(filename)  {
 		setTimeout(function()  {
 			try {
 				thisPalette.fromJSON(event.target.result.JSON);                                  // ←← ?? ←←  event.result
+				thisPalette.HTML.querySelector('input[name*="filename"]').value=filename;
 				div.parentNode.removeChild(div);  }
 			catch(e) {
 				if (thisPalette.doLog)  console.error(CONSOLE_IMPORT_ERROR,e,"\n ↓ ↓ ↓\n",event.target.result);  // ←← ?? ←←  event.result
@@ -4745,7 +4748,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 	UniDOM.addEventHandler(colorsFS, 'onFocusIn', function(){genie.tabbedOut=false});
 	UniDOM.addEventHandler(colorsFS, 'onKeyDown', genie.catchTab);
 	UniDOM.addEventHandler(colorsFS, 'onFocusOut', function(event)  {
-		genie.popNewField(event.target.parentNode, {doFocus: event.target.name.includes('offset')});  });
+		genie.popNewGroup(event.target.parentNode, {doFocus: event.target.name.includes('offset')});  });
 	UniDOM.addEventHandler(Gradientor.HTML, 'onChange', buildGradientorPalette);
 	UniDOM.addEventHandler(Gradientor.HTML.querySelectorAll('span[referto]'), 'onClick', function(event)  {
 		MasterColorPicker.userOptions.showHelp.checked=true;
@@ -5024,7 +5027,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 	UniDOM.addEventHandler(swatches, 'focusOut', function(event)  {
 		const textarea=event.target;
 		textarea.classList.add('passive');
-		genie.popNewField(textarea);
+		genie.popNewGroup(textarea);
 		textarea.foreground=textarea.style.color;
 		// MasterColorPicker’s onchange will recolor the swatch immediately after this focusOut event
 		setTimeout(()=>{textarea.style.color="";}, 1);  });
