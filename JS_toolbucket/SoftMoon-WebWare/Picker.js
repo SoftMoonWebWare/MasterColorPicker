@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.0.10   March 21, 2023  by SoftMoon-WebWare.
+// Picker.js  Beta-4.1   October 18, 2023  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -48,12 +48,12 @@ if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 //    and when this dataTarget relinquishes focus, the picker reverts back to using the “masterDataTarget”
 // “opts.classNames” optional - may be an Object with properties to replace the implementation level of
 //    the standard-default Picker.CLASSNAMES
-// “opts.doKeepInterfaceFocus” optional - Boolean ← ¿do interface elements keep focus when the ENTER key is pressed?
+// “opts.doKeepInterfaceFocus” optional - Boolean ← ¿do interface controls keep focus when the ENTER key is pressed?
 //    if not focus is returned to the dataTarget
 //    you can also control this value globally through the prototype
-// if “registerPanel” is not true, you can register individual “interfaceElements” before registering the “mainPanel”
+// if “registerPanel” is not true, you can register individual “interfaceControls” before registering the “mainPanel”
 // (so you can set individual TAB-control and interfaceTarget properties without needing to touch the HTML markup)
-// but you must then be sure to register the mainPanel “manually” after registering the specific “interfaceElements”.
+// but you must then be sure to register the mainPanel “manually” after registering the specific “interfaceControls”.
 SoftMoon.WebWare.Picker=Picker;
 function Picker(mainPanel, opts)  {
 	if (!new.target)  throw new Error("Picker is a constructor, not a function.");
@@ -112,6 +112,18 @@ function Picker(mainPanel, opts)  {
 
 		if ('doKeepInterfaceFocus' in opts)  this.doKeepInterfaceFocus=opts.doKeepInterfaceFocus;  }
 
+//  aria_popUp should be either:
+//    • the mainPanel if it is the only panel
+//    • the parent-container Element of all the panels, if there is more than one panel.
+//  In case a panel must be outside this container, use “aria-owns” on this aria_popUp container to point to the free-range panel.
+//  This will typically be the case when you have multiple targets associated with a Picker widget
+//   that specify “pickerContainers” (see “setActivePickerState()”), & multiple panels in said Picker widget;
+//   the Picker will move the “mainPanel” into these individual containers, while the other panels will remain where they were,
+//   thus allowing the “mainPanel” to move and be displayed next-to or near the target input.
+//  If you don’t want ARIA-support added to your “target” (that Object which recieves the data “picked” by the user)
+//   set aria_popUp ==false
+	this.aria_popUp= (opts  &&  "aria_popUp" in opts) ? opts.aria_popUp : mainPanel;
+
 	if (opts?.registerPanel!==false)  this.registerInterfacePanel(mainPanel, opts?.panelOpts);  }
 
 
@@ -132,19 +144,19 @@ Picker.CLASSNAMES={
 																						 //   • a picker when it is selected and active
 																						 //   • all panels when a picker is active
 	activePickerInterface: 'activePickerInterface',  // ← applied to:
-																						 //   • the selected picker(s) when any interfaceElement has focus
-																						 //     (an interfaceElement is an element in your picker
+																						 //   • the selected picker(s) when any interfaceControl has focus
+																						 //     (an interfaceControl is an element in your picker
 																						 //      or one of the panels, that the user modifies and therefore requires
 																						 //      “focus” — <input type='(most but not all)' /> <textarea> <select> —
 																						 //      to adjust the picker itself and/or its choices;
 																						 //      see “registerInterfacePanel” below)
 	activeInterfaceTarget: 'activeInterfaceTarget', // ← applied to an interfaceTarget when it has focus
 	activeInterface: 'activeInterface',        // ← applied to:
-																						 //   • all panels when any one of the interfaceElements has focus
-																						 //   • an interfaceElement when it has focus
+																						 //   • all panels when any one of the interfaceControls has focus
+																						 //   • an interfaceControl when it has focus
 	activePanel: 'activePickerPanel',          // ← applied to a panel when
 																						 //   • it is the top panel and the dataTarget has focus (is active)
-																						 //   • it is the top panel and one of its interfaceElements has focus
+																						 //   • it is the top panel and one of its interfaceControls has focus
 	topPanel: 'topPickerPanel',                // ← applied to a panel when it is the top panel; see also “panel level” below.
 	panelLevel: 'pickerPanelZLevel' };    // ← panelZLevel will be post-fixed with a digital level (1 – ∞, 1 at the bottom)
 			// representing a CSS z-index level (like this:  div.pickerPanelZLevel1 {z-index: 1}   ← of course use your own z-index values as needed……and any element, not only <div>
@@ -161,13 +173,42 @@ Picker.CLASSNAMES={
 //  • a “logic” array of strings, regular expressions, and/or nested “logic” arrays
 
 
+/* This important property is a flag that controls whether the Picker
+ * “adds” the selection picked by the end-user to the data-target “value(s)” (input, textarea, select, etc.)
+ * or “replaces” the “value”.  The target may have an HTML attribute "additive" that overrides this flag.
+ * <input>s and <textarea>s recognize when the attribute  additive='end'
+ * and will add the picked text to the end of the existing text;
+ * otherwise they add it where the cursor is placed or was last placed, or selected text is replaced.
+ * For examples:
+ * <textarea additive>My thoughts about color are many. My favorite color is  and my next favorite is . … … …</textarea>
+ * ↑↑↑ Here the “additive” attribute has been included but left empty and the picked-text will be added where the cursor is focused.
+ * ↑↑↑ However, if the end-user “selected” (highlighted) a section of text within, it will be replaced.
+ * <input type='text' additive='end' value='My favorite color is '>
+ * ↑↑↑ here the “additive” attribute specifies the picked-text is always added to the end of the existing value
+ * ↑↑↑ regardless of where the cursor is focused or whether text within the value was selected (highlighted) by the end-user.
+ * <select additive><option>…1…</option><option>…2…</option><option selected>…?…</option></select>
+ * ↑↑↑ here an additional <option></option> will be added to the <select></select>, always at the end of the list of options.
+ * ↑↑↑ here the “additive” attribute may not be included, and the “selected option’s value” will be replaced
+ */
+Picker.prototype.targetIsAdditive=false;
+
+
 	// ↓ for “simulating” a double-click, triple-click, etc.,
 	// ↓ when a buttonpress event is generated by the enter-key,
 	// ↓ and it is pressed x times in this many milliseconds
 Picker.prototype.enterKeyPressRepeatTimeoutDelay=1000;
-	// ↓ Boolean ← ¿do InterfaceElements (input-type=text for example) keep focus by default when the ENTER key is pressed?  =false → the data/master target is focused instead
-	// ↓  the InterfaceElement may have an attribute 'keep-focus' —  ===true when value undefined; or the value is evaluated by Boolean.eval()
+	// ↓ Boolean ← ¿do InterfaceControls (input-type=text for example) keep focus by default when the ENTER key is pressed?  =false → the data/master target is focused instead
+	// ↓  the InterfaceControl may have an attribute 'keep-focus' —  ===true when value undefined; or the value is evaluated by Boolean.eval()
 Picker.prototype.doKeepInterfaceFocus=false;
+
+// ARIA specs are such that a “picker widget” is “controlled” by a single other element.
+// We want our widgets to be able to be controlled by many other elements (such as multiple inputs that use the same picker)
+// but we also want to allow our “targets” (that which receives the “picked data”) to be simple JavaScript Objects if desired or required.
+// HTML Elements (such as inputs) should be ARIA compliant, but we don’t want to muddy up other target Objects.
+// When using an HTML Element, we want to add and remove the ARIA support on-the-fly
+// so only one of multiple inputs gets to “control” the “dialog” “popup” at a time.
+// If the “aria-expanded” attribute was on the “popup” instead of the “controller” (as would make more semantic sense anyway), this would not be an issue…
+Picker.prototype.supportsARIA=true;
 
 /* In previous versions, only QUERTY keyboards were supported, and you could avoid pressing  SHIFT  with  CTRL  ,<  .>
 	To support other keyboards, that convenience is now gone.
@@ -176,7 +217,7 @@ Picker.prototype.doKeepInterfaceFocus=false;
 	Still stuck in the “not enough mid-level support in events” rut………
 	…Would love to use the ← → keys (with CTRL) instead, but the browser uses them.
 	You can customize these keys for your keyboard through this prototype or after you create a picker instance
-	(see UniDOM, & the function  keyDownOnInterfaceElement  below).
+	(see UniDOM, & the function  keyDownOnInterfaceControl  below).
 	Note for now, the CTRL key must be pressed for panel-tabbing to work if you customize these keys – it is hardcoded into the function itself.
 	These keys defined ↓ below ↓ control tabbing •from the data-target to the picker-select or a panel, or •from one panel to another
 */
@@ -208,23 +249,45 @@ Picker.prototype.setTopPanel=function setTopPanel(panel, rotate)  {
 Picker.prototype.setActivePickerState=function setActivePickerState(flag, target)  {
 // when flag=true, target is:
 //                     • an object with a “focus()” method and a “value” property which becomes the “dataTarget”
-//                     • a flag when ===false → use the current “dataTarget”
-// when flag=false, target is a flag → true=“revert to masterTarget”  false=“retain dataTarget”
-	if (!flag  &&  this.interfaceActiveFlag   &&  this.interfaceElement)
-		this.setActiveInterfaceState(false, this.interfaceElement);
+//                     • when pickerInstance.aria_popUp!=false, target should be an HTML Element
+//                     • a flag when ==false → use the current “dataTarget” or “masterTarget”
+// when flag=false, target is ignored
+// old & irrevant → when flag=false, target is a flag → true=“revert to masterTarget”  false=“retain dataTarget”
+	if (!flag  &&  this.interfaceActiveFlag   &&  this.interfaceControl)
+		this.setActiveInterfaceState(false, this.interfaceControl);
 	const wasActive=this.pickerActiveFlag;
 	this.pickerActiveFlag=flag;
-	if (target)  this.dataTarget=(flag ? target : this.masterTarget);
+	//if (target)  this.dataTarget=(flag ? target : this.masterTarget);
+	if (flag  &&  target)  this.dataTarget=target;
+	else  target=this.dataTarget || this.masterTarget;
+	if (this.aria_popUp)  {
+		if (flag)  {
+			target.setAttribute('aria-haspopup', this.aria_popUp.getAttribute('role'));
+			target.setAttribute('aria-controls', this.aria_popUp.id);
+			target.setAttribute('aria-expanded', 'true');  }
+		else  {
+			target.removeAttribute('aria-haspopup');
+			target.removeAttribute('aria-controls');
+			target.removeAttribute('aria-expanded');  }  }
 	if (flag  &&  this.dataTarget.pickerContainer)  {
 		if (typeof this.dataTarget.pickerContainer==='string')
 			document.getElementById(this.dataTarget.pickerContainer).appendChild(this.mainPanel);
 		else  this.dataTarget.pickerContainer.appendChild(this.mainPanel);  }
 	this.choosePicker(this.classNames.activePicker, null, flag);
 	this.setTopPanel();
+/**/
 	for (const panel of this.panels)  {
 		UniDOM.useClass(panel, this.classNames.activePicker, flag);
 		UniDOM.generateEvent(panel, 'pickerStateChange',
 			{bubbles:true}, {pickerStateFlag: flag,  oldState: wasActive,  Picker: this,  currentDataTarget: target});  }
+/* note that this coding-format below sets all classNames first, then generates events.
+ * This format fails (¿perhaps because of the above note?), but it seems to be a bug within UniDOM … or maybe in the SpiderMonkey JavaScript engine?
+ * The pickerStateChange event registered (in another file) calls UniDOM.disable, but that function receives a “classname” argument of "pickerStateChange"
+ * when there should be NO ARGUMENT passed at all! (See MasterColorPicker.js line numbers ≈ 5374-5381 (shuts down “picker-options” when no picker is active)) * /
+	this.panels.useClass(this.classNames.activePicker, flag);
+	this.panels.generateEvent('pickerStateChange',
+			{bubbles:true}, {pickerStateFlag: flag,  oldState: wasActive,  Picker: this,  currentDataTarget: target});
+/**/
 	if (this.onPickerStateChange)  this.onPickerStateChange(flag, wasActive, target);  }
 
 
@@ -232,14 +295,14 @@ Picker.prototype.setActivePickerState=function setActivePickerState(flag, target
 Picker.prototype.setActiveInterfaceState=function setActiveInterfaceState(flag, target, isInterfaceTarget)  {
 	if (flag  &&  !this.pickerActiveFlag   &&  this.masterTarget)
 		this.setActivePickerState(true, this.masterTarget);
-	if (flag  &&  this.interfaceActiveFlag  &&  target===this.interfaceElement)  return false;  //avoid wasting time
+	if (flag  &&  this.interfaceActiveFlag  &&  target===this.interfaceControl)  return false;  //avoid wasting time
 	UniDOM.useClass(target, this.classNames.activeInterface, flag);
 	UniDOM.useClass(target, this.classNames.activeInterfaceTarget, flag && isInterfaceTarget);
-	if (!flag  &&  target  &&  this.interfaceElement!==target)  return false;  //avoid overlapping events when calling onfocus of one causes onblur of a previous to follow
+	if (!flag  &&  target  &&  this.interfaceControl!==target)  return false;  //avoid overlapping events when calling onfocus of one causes onblur of a previous to follow
 	const wasActive=this.interfaceActiveFlag;
 	this.interfaceActiveFlag=flag;
 	this.choosePicker(this.classNames.activePickerInterface, null, flag);
-	this.interfaceElement= flag ? target : undefined;
+	this.interfaceControl= flag ? target : undefined;
 	this.interfaceTarget= (flag  &&  isInterfaceTarget) ? target : undefined;
 	for (const panel of this.panels)  {
 		UniDOM.useClass(panel, this.classNames.activeInterface, flag);
@@ -271,26 +334,49 @@ Picker.prototype.choosePicker=function choosePicker(activeClasses, pickerName, f
 Picker.prototype.pick=function pick(chosen)  {
 	chosen=this.applyFilters(...arguments);
 	if (chosen===false)  return;
-	const currentTarget= this.interfaceTarget || this.dataTarget;
+	const currentTarget= this.interfaceTarget || this.dataTarget || this.masterTarget;
+	var isAdditive;
+	if (currentTarget.hasAttribute?.('additive'))  {
+		isAdditive=currentTarget.getAttribute('additive') || true;
+		if (Boolean.eval(isAdditive, true)===false)  isAdditive=false;  }
+	else  isAdditive=this.targetIsAdditive;
 	switch (currentTarget.nodeName)  {
-		case '#text':     currentTarget.data=chosen;
+		case '#text':  if (isAdditive)  currentTarget.data+=chosen;  else  currentTarget.data=chosen;
 		break;
-		case 'SELECT':    currentTarget.options[this.currentTarget.options.length]=chosen;
-											currentTarget.selectedIndex=currentTarget.options.length-1;
+		case 'SELECT':
+			if (isAdditive  ||  currentTarget.options.length<1)
+				currentTarget.add(chosen, chosen, false, true);
+			else  {
+				currentTarget.options[currentTarget.selectedIndex||0].value=chosen;
+				currentTarget.options[currentTarget.selectedIndex||0].text=chosen;  }
 		break;
+		case 'INPUT':
+			const dl=document.getElementById(currentTarget.list);
+			if (dl)  {
+				if (isAdditive  ||  dl.options.length<1)
+					dl.options[dl.options.length]=chosen;
+				else  {
+					dl.options[currentTarget.selectedIndex||0].value=chosen;
+					dl.options[currentTarget.selectedIndex||0].text=chosen;  }  }
 		case 'TEXTAREA':
-			if (currentTarget.getAttribute('type')?.match(/colorPicker/i))
-											currentTarget.value=chosen;
-			else  					currentTarget.value+=chosen;
-		break;
-		case 'INPUT':     const dl=document.getElementById(currentTarget.list);
-											if (dl)  dl.options[dl.options.length]=chosen;
-		default:          currentTarget.value=chosen;  }
+			if (isAdditive)  {
+				if (isAdditive==='end')  currentTarget.value+=chosen;
+				else  {
+					const
+						isFocused= (document.activeElement===currentTarget),
+						ss= isFocused ? currentTarget.selectionStart : (('oldSelectionStart' in currentTarget) ? currentTarget.oldSelectionStart : currentTarget.value.length),
+						se= isFocused ? currentTarget.selectionEnd   : (('oldSelectionEnd' in currentTarget)   ? currentTarget.oldSelectionEnd   : currentTarget.value.length);
+					currentTarget.value= currentTarget.value.substring(0,ss) + chosen + currentTarget.value.substring(se);
+					currentTarget.selectionStart= currentTarget.selectionEnd= ss+chosen.length;
+					currentTarget.newCursorPosition=ss+chosen.length;  }
+				break;  }
+		default:
+			currentTarget.value=chosen;  }
 	if (UniDOM.isElement(currentTarget))  {
 		try {UniDOM.generateEvent(currentTarget, 'onchange', {bubbles:true});}
 		catch(err) {console.error(err);};
 		try {currentTarget.focus();}
-		catch(err) {};  }  }
+		catch(err) {console.error(err);};  }  }
 
 
 
@@ -314,10 +400,17 @@ Picker.prototype.applyFilters=function applyFilters(chosen)  {
 Picker.prototype.registerTargetElement=function registerTargetElement(element, pickerContainer)  {
 	// the following two properties are meant to be attached to an <input>, <textarea> etc. (i.e. a “dataTarget”) as event handlers.
 	UniDOM.addEventHandler(element, 'onFocus', () => {
-		this.setActivePickerState(true, element);  });
+		if ('newCursorPosition' in this)  {
+			this.selectionStart=this.selectionEnd=this.newCursorPosition;
+			delete this.newCursorPosition;  }
+		this.setActivePickerState(true, element);});
 	UniDOM.addEventHandler(element, 'tabIn', () => {element.focus();});
 	UniDOM.addEventHandler(element, 'onBlur', event => {
-		if (!this.isInterfaceElement(event.relatedTarget))  this.setActivePickerState(false, element);  });
+		//here we keep track of the cursor location so we can add text if the input looses focus when we pick
+		event.target.oldSelectionStart=event.target.selectionStart;
+		event.target.oldSelectionEnd=event.target.selectionEnd;
+		delete this.newCursorPosition;
+		if (!this.isInterfaceControl(event.relatedTarget))  this.setActivePickerState(false, element);  });
 	UniDOM.addEventHandler(element, 'onKeyDown', event => {
 		goDeep.className=this.classNames.picker;   // see private members below
 		goDeep.picker_select=this.picker_select;  //
@@ -333,15 +426,15 @@ Picker.prototype.registerTargetElement=function registerTargetElement(element, p
 	this.registeredTargets.push(element);  }
 
 
-Picker.prototype.isInterfaceElement=function(elmnt)  {
+Picker.prototype.isInterfaceControl=function(elmnt)  {
 	//a previous event may have removed this element from the DOM
 	if (elmnt?.parentNode  &&  UniDOM.isElement(elmnt))  {
-		if (this.interfaceElements?.includes(elmnt))  return true;
+		if (this.interfaceControls?.includes(elmnt))  return true;
 		for (const panel of this.panels)  {if (UniDOM.hasAncestor(elmnt, panel))  return true;}  }
 	return false;  }
 
 
-//private members for registering “inputs” (TargetElements & InterfaceElements) - to be used with UniDOM’s DOM-crawling methods
+//private members for registering “inputs” (TargetElements & InterfaceControls) - to be used with UniDOM’s DOM-crawling methods
 function isInput(e)  {
 	return ( e.type!=='hidden'
 				 &&  (e.nodeName==='INPUT' || e.nodeName==='SELECT' || e.nodeName==='TEXTAREA' || e.nodeName==='BUTTON') );  }
@@ -408,11 +501,11 @@ Object.defineProperty(is_UserData_InputType, 'inpTypes', {value: inpTypes, enume
 	 (note an input is “active” unless it is within a “picker” that is not selected as active)
 == TAB | backTAB → from dataTarget  → follows normal HTML DOM form
 == ctrlTAB       → from dataTarget  → to the picker_select (if it exists) or to the first active input on the topmost panel
-== TAB | backTAB → from interfaceElement  → follows the normal HTML DOM form except:
-																				•the first interfaceElement on a panel backTABs to the dataTarget
-																				•the last interfaceElement on a panel TABs to the dataTarget
-== ctrlTAB       → from interfaceElement  → to the first active input on the second-from-topmost panel (and the current-topmost panel is sent to the bottom)
-== ctrlbackTAB   → from interfaceElement  → to the first active input on the bottom panel
+== TAB | backTAB → from interfaceControl  → follows the normal HTML DOM form except:
+																				•the first interfaceControl on a panel backTABs to the dataTarget
+																				•the last interfaceControl on a panel TABs to the dataTarget
+== ctrlTAB       → from interfaceControl  → to the first active input on the second-from-topmost panel (and the current-topmost panel is sent to the bottom)
+== ctrlbackTAB   → from interfaceControl  → to the first active input on the bottom panel
 
 	The “actions” object passed in is optional, and may contain the following relevant functions / properties / flags:
 
@@ -437,14 +530,14 @@ Object.defineProperty(is_UserData_InputType, 'inpTypes', {value: inpTypes, enume
 								with values of 'true' or 'false'.
 	onchange:    «function» enhance the default action of the Picker onchange method, or prevent the default Picker action by returning true.
  */
-// If you ever want to manually focus an InterfaceElement, you should generate a “tabin” event on it.
+// If you ever want to manually focus an InterfaceControl, you should generate a “tabin” event on it.
 // NOTE do NOT use this method for Interface-Elements in a registered Picker-Panel, only “lone-wolf” elements
-Picker.prototype.registerInterfaceElement=function registerInterfaceElement(element, actions)  {
-	if (this.interfaceElements instanceof Array)  {
-		if (this.interfaceElements.includes(element))  return;  }  //prevent multiple-registration
-	else  this.interfaceElements=new UniDOM.ElementArray;
-	this.interfaceElements.push(element);
-	const isTarget=Boolean.eval(element.getAttribute(this.ATTRIBUTE_NAMES.interfaceTarget), null);
+Picker.prototype.registerInterfaceControl=function registerInterfaceControl(element, actions)  {
+	if (this.interfaceControls instanceof Array)  {
+		if (this.interfaceControls.includes(element))  return;  }  //prevent multiple-registration
+	else  this.interfaceControls=new UniDOM.ElementArray;
+	this.interfaceControls.push(element);
+	const isTarget=Boolean.eval(element.getAttribute(this.ATTRIBUTE_NAMES.interfaceTarget), element.hasAttribute(this.ATTRIBUTE_NAMES.interfaceTarget));
 	if (isTarget  ||  (actions?.interfaceTarget  &&  isTarget!==false))  {
 		if (!(this.interfaceTargets instanceof Array))  this.interfaceTargets=new UniDOM.ElementArray;
 		this.interfaceTargets.push(element)  }
@@ -460,29 +553,28 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 	const PickerInstance=this;
 
 	var tabbedOut, enterKeyed, selectPan, escaped;
-
 	if (isUserdataInputType)  {  // these can be focused with the mouse or the TAB key
-		UniDOM.addEventHandler(element, 'onFocus',  focusOnInterfaceElement);
+		UniDOM.addEventHandler(element, 'onFocus',  focusOnInterfaceControl);
 		UniDOM.addEventHandler(element, 'tabIn', tabIntoUserdataInputType);  }
 	else if (isInput(element))  // what is left can only be focused with the TAB key (checkbox | radio)
-		UniDOM.addEventHandler(element, 'tabIn', tabIntoInterfaceElement);
+		UniDOM.addEventHandler(element, 'tabIn', tabIntoInterfaceControl);
 	else  {  // these are panels and do not themselves focus
 		UniDOM.addEventHandler(element, 'tabIn', function tabIntoPanel(event)  {
 			if (is_UserData_InputType(event.target))  tabIntoUserdataInputType(event);
-			else tabIntoInterfaceElement(event);  });
+			else tabIntoInterfaceControl(event);  });
 		UniDOM.addEventHandler(element, 'focusIn', function focusInInPanel(event)  {
-			if (is_UserData_InputType(event.target))  focusOnInterfaceElement(event);  });  }
+			if (is_UserData_InputType(event.target))  focusOnInterfaceControl(event);  });  }
 
 	UniDOM.addEventHandler(element, 'change', function refocusFileInput()  {
 		if (event.target.type==='file')  {
 			PickerInstance.setActivePickerState(true);
 			event.target.focus();  }  });
 
-// If you ever want to manually focus an InterfaceElement, you should generate a “tabin” event on it
+// If you ever want to manually focus an InterfaceControl, you should generate a “tabin” event on it
 // unless it is guaranteed to already be displayed to the user.
-	function focusOnInterfaceElement(event)  {
+	function focusOnInterfaceControl(event)  {
 		const
-			flag=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget, null)),
+			flag=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget, element.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget))),
 			thisPanel=UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel);
 		PickerInstance.setActiveInterfaceState(true, event.target, (flag || (actions?.interfaceTarget && flag!==false)));
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel);
@@ -491,13 +583,13 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 	function tabIntoUserdataInputType(event) {
 		//an element must be displayed to receive focus, so we get a bit redundant
 		const
-			flag=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget), null),
+			flag=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget), element.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.interfaceTarget)),
 			thisPanel=UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel);
 		PickerInstance.setActiveInterfaceState(true, event.target, (flag || (actions?.interfaceTarget && flag!==false)));
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel, event.rotatePanels);
 		setTimeout(() => {event.target.focus();}, 0);  }
 
-	function tabIntoInterfaceElement(event) {
+	function tabIntoInterfaceControl(event) {
 		PickerInstance.setActiveInterfaceState(true, event.target);
 		const
 			thisPanel=UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel);
@@ -506,7 +598,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 		setTimeout(() => {event.target.focus();}, 0);  }
 
 
-	UniDOM.addEventHandler(element, 'onkeydown', function keyDownOnInterfaceElement(event)  {
+	UniDOM.addEventHandler(element, 'onkeydown', function keyDownOnInterfaceControl(event)  {
 		tabbedOut=(event.key==='Tab'  ||  PickerInstance.panelTabKey.sniff(event)  ||  PickerInstance.panelBacktabKey.sniff(event));
 		enterKeyed=(event.key==='Enter');
 		selectPan=(event.target.nodeName==='SELECT'  &&  (event.key==='ArrowUp' || event.key==='ArrowDown'));
@@ -542,7 +634,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 						UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target});
 						UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});
 						return;  }  }
-				catch(e) {console.error("Custom tab expression failed in Picker’s “interfaceElement.onKeyDown” handler:",e);};
+				catch(e) {console.error("Custom tab expression failed in Picker’s “interfaceControl.onKeyDown” handler:",e);};
 			const
 				tabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)),
 				backtabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget));
@@ -594,22 +686,22 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 	var enterKeyPressCount=0, enterKeyPressRepeatTimeout;
 
 	if (isInput(element))
-		UniDOM.addEventHandler(element, 'onBlur', focusOutOfInterfaceElement);
+		UniDOM.addEventHandler(element, 'onBlur', focusOutOfInterfaceControl);
 	else
 		UniDOM.addEventHandler(element, 'focusOut', function(event)  {
-			if (isInput(event.target))  focusOutOfInterfaceElement(event);  });
+			if (isInput(event.target))  focusOutOfInterfaceControl(event);  });
 
 
-	function focusOutOfInterfaceElement(event)  {
+	function focusOutOfInterfaceControl(event)  {
 		if (enterKeyed)  {
 			enterKeyed=false;
 			if (Boolean.eval(event.target.getAttribute('keep-focus'), true))  {event.target.focus();  return;}  }
 		PickerInstance.setActiveInterfaceState(false, event.target);
-		if (!tabbedOut  //we can only TAB to other related InterfaceElements
+		if (!tabbedOut  //we can only TAB to other related InterfaceControls
 		&&  (!event.relatedTarget  //but we can click anywhere…
 			||  ( event.relatedTarget!==PickerInstance.dataTarget
 				&&  event.relatedTarget!==PickerInstance.masterTarget ))
-		&&  !PickerInstance.isInterfaceElement(event.relatedTarget))
+		&&  !PickerInstance.isInterfaceControl(event.relatedTarget))
 			PickerInstance.setActivePickerState(false);  }
 
 
@@ -631,9 +723,9 @@ Picker.prototype.registerInterfacePanel=function(panel, actions)  {
 	UniDOM.addEventHandler(panel, 'onMouseDown', mousedownOnInterfacePanel);
 
 	function clickOnInterfacePanel(event)  {
-		if (is_UserData_InputType(event.target))  return ;
+		if (is_UserData_InputType(event.target))  return;
 		if (!document.hasFocus()
-		||  (  (!PickerInstance.isInterfaceElement(event.target)  ||  !is_UserData_InputType(event.target))
+		||  (  (!PickerInstance.isInterfaceControl(event.target)  ||  !is_UserData_InputType(event.target))
 				&&  !PickerInstance.registeredTargets.includes(document.activeElement)))    {
 			setTimeout(function refocusTarget()  { //help Google’s Chrome to keep track of what’s going on by setting a timeout (it has a hard time remembering to make the cursor blink)
 				(PickerInstance.interfaceTarget || PickerInstance.dataTarget || PickerInstance.masterTarget)?.focus?.();  },
