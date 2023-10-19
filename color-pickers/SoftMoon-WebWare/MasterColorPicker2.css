@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.4.4  March 23, 2023  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.5.0  October 19, 2023  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -41,6 +41,7 @@ body.MCP_we-be-a-cuttin {
 	--fore-button: black;
 	--back-button: lightSkyBlue;
 	--back-button-active: paleGreen;
+	--back-button-pressed: lightCyan;
 	--back-button-toggled: orange;
 	--border-cold: gray;  /* inactive picker panel */
 	--border-hot: red;    /* active picker panel, etc. */
@@ -137,6 +138,9 @@ span.MCP_fix_Safari {
 	border-radius: .618em / 1em;
 	font-size: 15px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
 
+#MasterColorPicker button[aria-pressed="true"] {
+	background-color: var(--back-button-pressed); }
+
 #MasterColorPicker kbd {
 	display: inline-block;  }
 #MasterColorPicker kbd span {
@@ -157,6 +161,7 @@ span.MCP_fix_Safari {
 
 #MasterColorPicker mark {
 	background-color: inherit; }
+#MasterColorPicker footmark,
 #MasterColorPicker .macronym {
 	display: inline;
 	font-size: .763924em;
@@ -719,11 +724,11 @@ select#MasterColorPicker_palette_select {
 	display: none; }
 /* #MasterColorPicker_MyPalette p+fieldset:has(fieldset:hover),   /* is it just me, or is waiting 10 years for browsers to mature a bit slow? */
 #MasterColorPicker_MyPalette p+fieldset.pseudoHover,       /* class controlled by JavaScript  … pitiful in 2020 ! */
-#MasterColorPicker_MyPalette p+fieldset.focus-within-options {      /* class controlled by JavaScript  … pitiful in 2020 ! */
+#MasterColorPicker_MyPalette p+fieldset.focus-within-options {      /* class controlled by JavaScript to allow tab-in */
 	overflow: visible;
 	z-index: 10; }
 #MasterColorPicker_MyPalette fieldset.options:hover,
-#MasterColorPicker_MyPalette fieldset.options.focus-within { /* class controlled by JavaScript  … pitiful in 2020 ! */
+#MasterColorPicker_MyPalette fieldset.options.focus-within { /* class controlled by JavaScript to allow tab-in */
 	border: 1px solid;
 	border-top: none;
 	height: auto;
@@ -731,11 +736,9 @@ select#MasterColorPicker_palette_select {
 	background-color: var(--back-text);
 	color: var(--fore-text); }
 #MasterColorPicker_MyPalette fieldset.options:hover label,
-#MasterColorPicker_MyPalette fieldset.options.focus-within label { /* class controlled by JavaScript  … pitiful in 2020 ! */
+#MasterColorPicker_MyPalette fieldset.options.focus-within label { /* class controlled by JavaScript to allow tab-in */
 	display: block;
 	z-index: 1; }
-#MasterColorPicker_MyPalette fieldset.options label:hover {
-	z-index: 2; }
 #MasterColorPicker_MyPalette .portDialog:disabled,
 #MasterColorPicker_MyPalette .portDialog .import,
 #MasterColorPicker_MyPalette .portDialog .export,
@@ -759,11 +762,15 @@ select#MasterColorPicker_palette_select {
 	position: relative;
 	z-index: 1; }
 #MasterColorPicker_MyPalette fieldset.options,
-#MasterColorPicker_MyPalette .options lable:hover,
+#MasterColorPicker_MyPalette fieldset.options label:hover,
+#MasterColorPicker_MyPalette fieldset.options label:focus-within,
 #MasterColorPicker_MyPalette .port,
 #MasterColorPicker_MyPalette .port label:hover,
+#MasterColorPicker_MyPalette .port label:focus-within,
 #MasterColorPicker_MyPalette .paletteMerge label:hover,
-#MasterColorPicker_MyPalette .paletteMeta label:hover {
+#MasterColorPicker_MyPalette .paletteMerge label:focus-within,
+#MasterColorPicker_MyPalette .paletteMeta label:hover,
+#MasterColorPicker_MyPalette .paletteMeta label:focus-within {
 	z-index: 2; }
 #MasterColorPicker_MyPalette .options note,
 #MasterColorPicker_MyPalette .portDialog note {
@@ -775,7 +782,9 @@ select#MasterColorPicker_palette_select {
 	color: var(--fore-text-note);
 	display: none; }
 #MasterColorPicker_MyPalette .options label:hover note,
-#MasterColorPicker_MyPalette .portDialog label:hover note {
+#MasterColorPicker_MyPalette .portDialog label:hover note,
+#MasterColorPicker_MyPalette .options label:focus-within note,
+#MasterColorPicker_MyPalette .portDialog label:focus-within note {
 	display: block; }
 #MasterColorPicker_MyPalette .portDialog note.warn {
 	background-color: var(--back-text-note-warn); }
@@ -1806,16 +1815,15 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_mainPanel .palette input {
 	margin: 2px;
 	padding: 0; }
-#MasterColorPicker_mainPanel .palette mark.footmark {
+#MasterColorPicker_mainPanel .palette footmark {
 	font-size: .618em;
+	vertical-align: baseline;
 	position: relative;
 	bottom: .382em;
 	top: auto;
 	display: inline;
 	margin: 0;
-	padding: 0;
-	color: inherit;
-	background-color: inherit; }
+	padding: 0; }
 #MasterColorPicker_mainPanel .palette > tfoot td {
 	text-align: center; }
 

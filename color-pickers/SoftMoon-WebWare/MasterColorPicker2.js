@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.4.7~BETA   July 7, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.5.0~BETA   October 19, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -499,7 +499,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			groupClass: 'filterColor',
 			doFocus:false,  //at this time (Feb2020) giving focus to the newly cloned field via the Genie will cause the Picker to disapear, as focus is lost in the current field before giving focus to the new element
 			cloneCustomizer:function(tr)  { var s=tr.getElementsByTagName('span')[0]; s.style.backgroundColor=""; s.style.color="";
-				UniDOM.getElementsBy$Name(tr).remove$Class([MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceElement]);  },
+				UniDOM.getElementsBy$Name(tr).remove$Class([MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceControl]);  },
 			fieldsetCustomizer:function()  { Filter.getElementsBy$Name( /apply\[/ ).map( function(e, i, a)  {
 				e.element.setAttribute("tabToTarget", (i<a.length-1) ? "false" : "true");  } );  }  } );
 	Genie.catchTab=tabbedOut.bind(Genie, /color/ ,  /_average/ );
@@ -520,7 +520,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 // this is here for your convenience in hacking.  Changing it will not affect normal operation.
 Color_Picker.tabbedOut=tabbedOut;
 
-// This supersedes the Picker’s InterfaceElement → keydown handler.
+// This supersedes the Picker’s InterfaceControl → keydown handler.
 // Getting the FormFieldGenie and the Picker to work together is like choreographing a dance where one is doing the Waltz and the other the Lindy.
 // The first two (2) arguments and the value of “this” are bound by/to the Genies.
 // The “event” Object argument is passed by UniDOM.
@@ -578,7 +578,7 @@ function MyPalette(HTML, PNAME)  {
 		doFocus: false,
 		grouptTag: 'TEXTAREA',
 		cloneCustomizer:function(ta)  {
-			UniDOM.remove$Class(ta, [MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceElement]);  },
+			UniDOM.remove$Class(ta, [MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceControl]);  },
 		dumpEmpties:true  });
 	this.MetaGenie.catchTab=tabbedOut.bind(this.MetaGenie, /header|footer/ ,  /_name/ );
 	this.MetaGenie.isActiveField=UniDOM.alwaysTrue;
@@ -600,7 +600,7 @@ function MyPalette(HTML, PNAME)  {
 			if (!paste)  { for (i=0; i<4; i++)  {
 				td=tr.children[i]; td.style.backgroundColor=""; td.style.color=""; td.style.borderStyle=""; td.style.borderColor=""  }  }
 			if (menu=tr.getElementsByClassName("MyPalette_ColorGenieMenu")[0])  menu.parentNode.removeChild(menu);
-			UniDOM.getElementsBy$Name(tr).remove$Class([MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceElement]);  },
+			UniDOM.getElementsBy$Name(tr).remove$Class([MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceControl]);  },
 		fieldsetCustomizer:function(tb) {UniDOM.getElementsBy$Name(tb, /\[name\]/ ).map(function(e, i, a)  {
 			e.setAttribute("tabToTarget", (i<a.length-1  ||  tb!==tb.parentNode.lastElementChild) ? "false" : "true")});}  });
 	this.ColorGenie.catchTab=tabbedOut.bind(this.ColorGenie, /\d\]\[(?:definition|name)/ , /addToHere/ );
@@ -651,12 +651,25 @@ function MyPalette(HTML, PNAME)  {
 	showColorBlind();
 
 	const
+		porterFlag=UniDOM.getElementsBy$Name(HTML, /_port\]?$/ , 1)[0],  //the button that opens/closes the port dialog
 		portHTML=HTML.querySelector(".portDialog"),
 		paletteMetaHTML=portHTML.querySelector(".paletteMeta");
 
+	/* The MyPalette interface is designed to NOT have hardcoded “id” attributes in the HTML,
+	 * as it is meant to be cloned to allow multiple “MyPalette” interfaces (someday in the “pro” version).
+	 * But to be ARIA compliant (silly as it may seem, but for folks who can’t read, not folks who can’t see where picking a color means nothing anyway!)
+	 * we need ids.  So here we create unique ids for the elements that need them:
+	 */
+	portHTML.id=portHTML.id+"&"+Date.now();
+	porterFlag.setAttribute('aria-controls', portHTML.id);
+
 	UniDOM(HTML).getElementsBy$Name( /_delete/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.onDelete();});
 	UniDOM(HTML).getElementsBy$Name( /_makeSub/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.makeSub();});
-	UniDOM(HTML).getElementsBy$Name( /_port\]?$/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {portHTML.disabled= !portHTML.disabled});
+	UniDOM.addEventHandler(porterFlag, ['onclick', 'buttonpress'], function()  {
+		porterFlag.setAttribute('aria-pressed', portHTML.disabled ? 'true' : 'false');
+		porterFlag.setAttribute('aria-expanded', portHTML.disabled ? 'true' : 'false');
+		portHTML.disabled= !portHTML.disabled;  });
+	//↓the “load”/“save” button (only active after the proper required options are selected in the port dialog)
 	UniDOM(HTML).getElementsBy$Name( /_porter/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function(event) {thisPalette.porter(event);});
 
 
@@ -996,6 +1009,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 		for (var i=0; i<a.length; i++)  {
 			if (!a[i])  continue;
 			flds.lastElementChild.value=a[i];
+console.log("=========\n",thisPalette,thisPalette.MetaGenie,'\n========');
 			if (!thisPalette.MetaGenie.popNewGroup(flds.lastElementChild))  break;  }  }
   metaHTML.querySelector('select.alternative').setSelected(JSON_palette.alternatives ? JSON_palette.alternatives : '—none—');
 
@@ -1076,7 +1090,7 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 MyPalette.prototype.referenceMarks=[ '«' , '»' ];
 
 
-MyPalette.prototype.toJSON=function(onDupColor)  {
+MyPalette.prototype.toJSON=function toJSON(onDupColor)  {
 	var requireSubindex=false;
 	const
 		metaHTML=this.HTML.querySelector('.paletteMeta'),
@@ -1110,7 +1124,7 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 				switch (onDupColor)  {
 				case 'forbid':
 				case 'forbid all':
-					e=new Error('Duplicate Color Names in the '+(tbIndex!==0 ? 'same sub-' : (tbodys.length>1 ? 'root ' : ""))+'Palette found when building MyPalette JSON');
+					e=new Error(toJSON.errorNotes[0](tbIndex, tbodys));
 					e.name='MyPalette Duplicate Name';
 					e.type='Color';
 					e.duplicateName=cName;
@@ -1123,7 +1137,7 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 			if (tbIndex!==0
 			&&  subs.some(function(sp){return cName in sp  &&  (p=sp);}) )  {
 				if (onDupColor==='forbid all'  &&  !p[cName].palette)  {
-					e=new Error('Duplicate Color Names found when building MyPalette JSON');
+					e=new Error(toJSON.errorNotes[1]);
 					e.name='MyPalette Duplicate Name';
 					e.type='Color';
 					e.duplicateName=cName;
@@ -1141,7 +1155,7 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 						||  ("{"+tbIndex+"}") );
 			loop:{ while (subName in pltt)  { switch (onDupColor)  {
 				case 'forbid':
-					e=new Error('Duplicate Color/sub-Palette Names found when building MyPalette JSON');
+					e=new Error(toJSON.errorNotes[2]);
 					e.name='MyPalette Duplicate Name';
 					e.type='sub-Palette';
 					e.duplicateName=subName;
@@ -1152,21 +1166,27 @@ MyPalette.prototype.toJSON=function(onDupColor)  {
 			pltt[subName] = {paletteName: subName, palette: buildPaletteObject(tbodys[tbIndex], tbIndex)};  }
 		return pltt;  }  }
 
+MyPalette.prototype.toJSON.errorNotes=[ // here you can change the language on-the-fly
+	(tbIndex, tbodys) => 'Duplicate Color Names in the '+(tbIndex!==0 ? 'same sub-' : (tbodys.length>1 ? 'root ' : ""))+'Palette found when building MyPalette JSON',
+	'Duplicate Color Names found when building MyPalette JSON',
+	'Duplicate Color/sub-Palette Names found when building MyPalette JSON' ];
+
+
 
 MyPalette.prototype.portNotice=function(notice, wait)  {
 	const div=document.createElement('div'),
-				portDialog=this.HTML.querySelector('.portDialog');
+				portLog=this.HTML.querySelector('.portLog');
 	div.className='portNotice' + (wait? ' wait' : "");
 	div.wait=wait;
 	div.innerHTML=notice;
-	portDialog.insertBefore(div, portDialog.querySelector('.port'));
+	portLog.appendChild(div);
 	return div;  }
 
 
 const
 	CONSOLE_IMPORT_ERROR='MasterColorPicker MyPalette import file error:\n';
 
-//here you can change the output notices language for MyPalette
+//here you can change the output notices language for MyPalette on-the-fly
 MyPalette.NOTICES={
 	CHOOSE_PRE: '<strong>Please choose a MasterColorPicker™ Palette Table from the main palette-select.</strong>',
 	CHOOSE:   '<h4>Choose a Palette to import:</h4>',
@@ -4400,14 +4420,18 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
 		['click', 'buttonpress'], addAllSelected);
 	UniDOM.addEventHandler(HTML.getElementsByTagName('ul'),
 		['click', 'contextmenu', 'change', 'keydown'], renamePalette, true);
+	const openButton=document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open');
 	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_close"]'),
-		['click', 'buttonpress'], function() {UniDOM.disable(HTML, true);});
-	UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open'),
+		['click', 'buttonpress'], function()  {
+			openButton.ariaExpanded='false';
+			UniDOM.disable(HTML, true);  });
+	UniDOM.addEventHandler(openButton,
 		['click', 'buttonpress'], function()  {
 			if (HTML.disabled)  {
 				refreshDBList();
 				refreshServerList();  }
 			UniDOM.disable(HTML, false);
+			this.ariaExpanded='true';
 			setTimeout(function(){MasterColorPicker.setTopPanel(HTML);}, 20);  });
 	if (!(HTML.disabled=UniDOM.has$Class(HTML, 'disabled')))  {
 		refreshDBList();
@@ -4731,7 +4755,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 	width=cnvs.width;  height=cnvs.height;
 	const
 		colorsFS=document.getElementById('MasterColorPicker_Gradientor_linear-colors'),
-		triadsFS=document.getElementById('MasterColorPicker_Gradientor_triadic-colors'),
+		//triadsFS=document.getElementById('MasterColorPicker_Gradientor_triadic-colors'),
 		genie=new SoftMoon.WebWare.FormFieldGenie({
 			minGroups: 2,
 			maxGroups: 64,
@@ -4758,12 +4782,13 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 	const init=UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', buildGradientorPalette);
 	function buildGradientorPalette()  {
 		if (init.id)  init.remove();
-		const format=Gradientor.HTML.querySelector('input[name*="format"]:checked').value;
-		UniDOM.swapOut$Class(Gradientor.HTML, ["linear", "triadic"], format)
-		colorsFS.disabled= (format!=='linear');
-		triadsFS.disabled= (format!=='triadic');
+		const format=Gradientor.HTML.querySelector('input[name*="format"]:checked');
+		UniDOM.swapOut$Class(Gradientor.HTML, ["linear", "triadic"], format.value);
+		UniDOM.toggleTab(format, true);
+		//colorsFS.disabled= (format!=='linear');
+		//triadsFS.disabled= (format!=='triadic');
 		Gradientor.HTML.querySelector('canvas').style.display='none';
-		switch (format)  {
+		switch (format.value)  {
 		case 'triadic': Gradientor.buildTriadicPalette();
 		break;
 		case 'linear':  Gradientor.buildLinearPalette();  }  }
@@ -5132,19 +5157,20 @@ ColorThesaurus.refreshPaletteList=function refreshPaletteList()  {
 	fs.lastChild.firstChild.setAttribute('tabToTarget', 'true');  }
 
 ColorThesaurus.matchColor=function matchColor(color)  { /* as an event-handler, “color” is not a color, it’s an Event object and is ignored */
-	const html=document.querySelector('#MasterColorPicker_Thesaurus');
-	while (html.lastChild.tagName!=='FIELDSET')  html.removeChild(html.lastChild);
+	const
+		output=document.querySelector('#MasterColorPicker_Thesaurus output');
+	while (output.lastChild)  {output.removeChild(output.lastChild);}
 	if (!(color instanceof SoftMoon.WebWare.RGBA_Color))  /* if you pass in a color, it MUST have a valid format */
 		color=MasterColorPicker.RGB_calc(document.querySelector('#MasterColorPicker_Thesaurus input').value);
 	if (!color)  {
-		html.appendChild(document.createElement('p')).append(ColorThesaurus.HTML.INVALID);
+		output.appendChild(document.createElement('p')).append(ColorThesaurus.HTML.INVALID);
 		return;  }
 	const
 		plts=document.querySelectorAll('#MasterColorPicker_Thesaurus input'),
 		results=[];
 	for (var i=1; i<plts.length; i++)  {if (plts[i].checked)  searchPalette(SoftMoon.palettes[plts[i].value], plts[i].value);}
 	if (results.length===0)   {
-		html.appendChild(document.createElement('p')).append(ColorThesaurus.HTML.SELECT);
+		output.appendChild(document.createElement('p')).append(ColorThesaurus.HTML.SELECT);
 		return;  }
 	results.sort((a,b) => a.disparity-b.disparity);
 	const
@@ -5159,8 +5185,8 @@ ColorThesaurus.matchColor=function matchColor(color)  { /* as an event-handler, 
 		swatch.style.backgroundColor=clr.color.hex;
 		swatch.style.color=clr.color.contrast;
 		ol.appendChild(document.createElement('li')).append(span, " — ", swatch, clr.name);  }
-	html.appendChild(document.createElement(p)).append(ColorThesaurus.HTML.DISPARITY+' —');
-	html.append(ol);
+	output.appendChild(document.createElement(p)).append(ColorThesaurus.HTML.DISPARITY+' —');
+	output.append(ol);
 	function searchPalette(plt, name, alts, refMarks, requireSubIndex)  {
 		if (plt.alternatives)  alts=plt.alternatives;
 		if (plt.referenceMarks)  refMarks=plt.referenceMarks;
@@ -5244,7 +5270,8 @@ MasterColorPicker=new SoftMoon.WebWare.Picker(  //if you want to debug, you must
 		// debugLogger: new SoftMoon.WebWare.Log(),  //requires SoftMoon.WebWare.Log, but will log to the console with event-grouping
 	  // debugLogger: window.console,
 		//  registerPanel: true,  //currently is default
-		doKeepInterfaceFocus: true,  //←most interface elements keep focus when the ENTER key is pressed
+		aria_popUp: document.getElementById('MasterColorPicker'),
+		doKeepInterfaceFocus: true,  //←most interface control elements keep focus when the ENTER key is pressed
 		picker_select: document.getElementById('MasterColorPicker_palette_select'),
 		pickFilters: [SoftMoon.WebWare.Color_Picker.ColorFilter,   //modifies the selected color: filters colors in or out
 									SoftMoon.WebWare.ColorSpaceLab.setColor,      //sets the input-values of the Lab and expands the selected color’s data-format to include all applicable Color-Spaces
@@ -5316,7 +5343,7 @@ try{MasterColorPicker.registerInterfacePanel(document.getElementById('MasterColo
 
 
 try{UniDOM.generateEvent(document.getElementById('MasterColorPicker_showMyPalette'), 'change');}catch(e){}
-try{UniDOM.generateEvent(document.getElementById('MasterColorPicker_showLab'), 'change');}catch(e){}
+try{UniDOM.generateEvent(document.getElementById('MasterColorPicker_showLab'), 'change');}catch(e){}  // id required elsewhere
 try{UniDOM.generateEvent(document.getElementById('MasterColorPicker_showMixer'), 'change');}catch(e){}
 try{UniDOM.generateEvent(document.getElementById('MasterColorPicker_showGradientor'), 'change');}catch(e){}
 try{UniDOM.generateEvent(document.getElementById('MasterColorPicker_showThesaurus'), 'change');}catch(e){}
@@ -5355,7 +5382,8 @@ UniDOM.addEventHandler(optsHTML, 'pickerStateChange',
 	// as the “onclick” event for the picker happens first and re-focuses the dataTarget;
 	// this should not be guaranteed (events occur by definition in random order){{old docs...for legacy MSIE only}}.
 	// Using UniDOM.disable preserves the disabled states of subsections…
-	function(event) {if (event.oldState!==event.pickerStateFlag)  UniDOM.getElementsBy$Class(this, 'pickerOptions').disable(!event.pickerStateFlag);},
+	function(event) {
+		if (event.oldState!==event.pickerStateFlag)  UniDOM.getElementsBy$Class(this, 'pickerOptions').disable(!event.pickerStateFlag);},
 	false);
 //we could avoid this handler below altogether if MSIE or MS-Edge was up-to-date on CSS rules.
 //UniDOM.addEventHandler([optsHTML, labOptsHTML], 'interfaceStateChange',
@@ -5363,7 +5391,7 @@ UniDOM.addEventHandler(optsHTML, 'interfaceStateChange',
 	function() {
 		UniDOM.useClass( optsubHTML,
 			MasterColorPicker.classNames.activeInterface,
-			MasterColorPicker.interfaceActiveFlag  &&  UniDOM.hasAncestor(MasterColorPicker.interfaceElement, optsubHTML));  },
+			MasterColorPicker.interfaceActiveFlag  &&  UniDOM.hasAncestor(MasterColorPicker.interfaceControl, optsubHTML));  },
 	false);
 //we could avoid this handler below altogether if CSS rules allowed the ~ combinator to select previous siblings.
 //this is for when the options panel is before the mainPanel in the HTML layout
@@ -5539,7 +5567,10 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 					event.preventDefault();
 					userOptions.showHelp.checked= !event.shiftKey;
 					UniDOM.generateEvent(userOptions.showHelp, 'change');
-					if (!event.ShiftKey)  MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));  }
+					if (!event.ShiftKey)  {
+						MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
+						const note=event.target.labels[0]?.querySelector('note[referto]');
+						if (note)  document.getElementById(note.getAttribute('referto')).scrollIntoView();  }  }
 				else if (!event.shiftKey)  {
 					event.preventDefault();
 					userOptions.showHelp.checked= true;
