@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.2.2  April 12, 2023
+/*  UniDOM-2022  version 1.3  October 12, 2023
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -661,11 +661,14 @@ function alwaysTrue() {return true}
 		this.className=aClass(cn, ac);  }
 
 
-	function disable(flag, className='disabled', bubbles)  {
+	function disable(flag, className='disabled', bubbles=false)  {
+		if (className!=='disabled')  console.trace('className=',className);
+
 		if (this.hasAttribute('lock-disabled-state'))  return;
 		flag=Boolean(flag);
 		this.disabled=flag;
 		useClass.call(this, className, flag);
+		this.setAttribute('aria-disabled', flag ? 'true' : 'false')
 		try {generateEvent(this, 'onDisabledStateChange', {bubbles:bubbles}, {disable:flag});}  catch(e) {console.warn(e);};
 		for (const field of getElements.call(this, isInterface, goDeeper))  {
 			field.disabled=flag;
@@ -676,6 +679,41 @@ function alwaysTrue() {return true}
 		function goDeeper(e) {return !e.disabled  &&  !hasClass.call(e, className);};  }
 
 
+	function toggleTab(flag, disabledClassName, bubbles=true)  {
+		if (flag===undefined)  flag=!(this.getAttribute('aria-expanded')==='true');
+		const tablist=this.closest('[role="tablist"]');
+		if (tablist?.getAttribute('aria-multiselectable')!=='true')  {
+			for (const tab of tablist.querySelectorAll('[role="tab"]'))  {
+				if (this!==tab)  {
+					const
+						ac=tab.getAttribute('aria-controls'),
+						panel= ac ? document.getElementById(ac) : null,
+						wasOpen=panel?.getAttribute('aria-expanded')==='true';
+					try  { generateEvent(panel, 'beforetoggle', {bubbles:bubbles},
+										{oldState: wasOpen?'open':'closed', newState: flag?'open':'closed', tabIsOpen:flag});  }
+					catch(e) {console.warn(e);};
+					tab.setAttribute('aria-selected', 'false');
+					tab.setAttribute('aria-expanded', 'false');
+					if (ac)  disable.call(document.getElementById(ac), true, disabledClassName, bubbles);
+					try  { generateEvent(panel, 'toggle', {bubbles:bubbles},
+										{oldState: wasOpen?'open':'closed', newState: flag?'open':'closed', tabIsOpen:flag});  }
+					catch(e) {console.warn(e);};
+					}  }  }
+		this.setAttribute('aria-selected', flag ? 'true' : 'false');
+		this.setAttribute('aria-expanded', flag ? 'true' : 'false');
+		const
+			ac=this.getAttribute('aria-controls'),
+			panel= ac ? document.getElementById(ac) : null;
+		if (panel)  {
+			const wasOpen=panel.getAttribute('aria-expanded')==='true';
+			try  { generateEvent(panel, 'beforetoggle', {bubbles:bubbles},
+								{oldState:wasOpen?'open':'closed', newState: flag?'open':'closed', tabIsOpen:flag});  }
+			catch(e) {console.warn(e);};
+			disable.call(panel, !flag, disabledClassName, bubbles);
+			try  { generateEvent(panel, 'toggle', {bubbles:bubbles},
+								{oldState:wasOpen?'open':'closed', newState: flag?'open':'closed', tabIsOpen:flag});  }
+			catch(e) {console.warn(e);};  }
+		return flag;  }
 
 
 
@@ -698,6 +736,7 @@ UniDOM.remove$Class=function(element)  {return removeClass.apply(xElement(elemen
 UniDOM.useClass=function(element)  {return useClass.apply(xElement(element), aSlice.call(arguments, 1));};
 UniDOM.swapOut$Class=function(element)  {return swapOutClass.apply(xElement(element), aSlice.call(arguments, 1));};
 UniDOM.disable=function(element)  {return disable.apply(xElement(element), aSlice.call(arguments, 1));};
+UniDOM.toggleTab=function(element)  {return toggleTab.apply(xElement(element), aSlice.call(arguments, 1));};
 UniDOM.getSelected=function(element)  { element=xElement(element)
 	return  element.nodeName==='SELECT' ?
 			getSelectedOptions(element)
@@ -905,6 +944,7 @@ let cb,  //private
 		for (const e of this)  {
 			const args=Array.from(arguments);  args.unshift(xElement(e));
 			r=r.concat(cb.apply(UniDOM, args));  }
+//			r=r.concat(cb(...args));  }  // ¿causing errors in FireFox? ¡code causes OTHER code in OTHER files that DOES NOT call this function to fail to work properly (code calls “addClass” UniDOM function), but console shows no problems!
 		return r;  }
 
 	function asArray(a, asArray) {return asArray ? a : (a.length<1 ? null : ((asArray===false && a.length<2) ? a[0] : a));}
