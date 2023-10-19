@@ -117,7 +117,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 </p>
 
 
-<!-------------- cut here to use the MasterColorPicker HTML (below) in your own page ---------------->
+<!--  ------------ cut here to use the MasterColorPicker HTML (below) in your own page --------------  -->
 
 <script>
 window.addEventListener('mastercolorpicker_ready', function()  {
@@ -125,18 +125,18 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 	} );
 </script>
 
-<section id='MasterColorPicker' charset='UTF-8'>
+<section id='MasterColorPicker' charset='UTF-8' role='dialog' aria-labeledby='MasterColorPicker_header'>
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
-      release 2.5  April 3, 2023
+      release 2.5.0  October 19, 2023
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
 
 
-<div id='MasterColorPicker_options' class='pickerPanel'>
-<header><h1>MasterColorPicker™</h1> by <address>SoftMoon-WebWare</address></header>
+<div id='MasterColorPicker_options' class='pickerPanel' role='tabpanel'>
+<header><h1 id='MasterColorPicker_header'>MasterColorPicker™</h1> by <address>SoftMoon-WebWare</address></header>
 
 <label for='MasterColorPicker_palette_select'>palette:
 <select id='MasterColorPicker_palette_select' name='MasterColorPicker_palette_select' backtabToTarget='true'>
@@ -199,24 +199,30 @@ but to retain the settings this file may be included inside an existing web <for
 		onchange='MasterColorPicker.copyToClipboard=this.checked;'>copy selected color to system clipboard?</label>
 </fieldset>
 
-<fieldset class='pickerOptions'>
-<label>¿<input type='checkbox' name='MasterColorPicker_showHelp' id='MasterColorPicker_showHelp' value='false'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Help"), !this.checked);'
+<fieldset class='pickerOptions' role='tablist' aria-multiselectable="true" aria-orientation="vertical">
+<label>¿<input type='checkbox' name='MasterColorPicker_showHelp' id='MasterColorPicker_showHelp'
+		role='tab' aria-controls='MasterColorPicker_Help' aria-labeledby='MasterColorPicker_Help_header'
+		onchange='UniDOM.toggleTab(this, this.checked);'
 		checked>show ☺ Help ☺? <kbd><span>F1</span></kbd></label>
-<label>¿<input type='checkbox' name='MasterColorPicker_showMyPalette' id='MasterColorPicker_showMyPalette' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_MyPalette"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
+<label>¿<input type='checkbox' name='MasterColorPicker_showMyPalette' id='MasterColorPicker_showMyPalette'
+		role='tab' aria-controls='MasterColorPicker_MyPalette' aria-labeledby='MasterColorPicker_MyPalette_header'
+		onchange='UniDOM.toggleTab(this, this.checked);'
 		checked>show/use MyPalette? <kbd><span>F2</span></kbd></label>
-<label>¿<input type='checkbox' name='MasterColorPicker_showLab' id='MasterColorPicker_showLab' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Lab"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
+<label>¿<input type='checkbox' name='MasterColorPicker_showLab' id='MasterColorPicker_showLab'
+		role='tab' aria-controls='MasterColorPicker_Lab' aria-labeledby='MasterColorPicker_Lab_header'
+		onchange='UniDOM.toggleTab(this, this.checked);'
 		checked>show/use Color-Space Lab? <kbd><span>F3</span></kbd></label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showMixer' id='MasterColorPicker_showMixer' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Mixer"), !this.checked); /*  if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
+		role='tab' aria-controls='MasterColorPicker_Mixer' aria-labeledby='MasterColorPicker_Mixer_header'
+		onchange='UniDOM.toggleTab(this, this.checked);'
 		checked>show/use Color-Mixer?</label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showGradientor' id='MasterColorPicker_showGradientor' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Gradientor"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
+		role='tab' aria-controls='MasterColorPicker_Gradientor' aria-labeledby='MasterColorPicker_Gradientor_header'
+		onchange='UniDOM.toggleTab(this, this.checked);'
 		checked>show Gradientor?</label>
 <label>¿<input type='checkbox' name='MasterColorPicker_showThesaurus' id='MasterColorPicker_showThesaurus' value='true'
-		onchange='UniDOM.disable(document.getElementById("MasterColorPicker_Thesaurus"), !this.checked);  /* if (!this.checked)  MasterColorPicker.masterTarget.focus(); */'
+		role='tab' aria-controls='MasterColorPicker_Thesaurus' aria-labeledby='MasterColorPicker_Thesaurus_header'
+		onchange='UniDOM.toggleTab(this, this.checked);'
 		checked>show color Thesaurus? <kbd><span>F4</span></kbd></label>
 <p id='MasterColorPicker_returnPanelsOn3'>Drag panels by their handles.&nbsp;
 Triple-click on panel handles (or this message) to return the panel(s) to home position.&nbsp;
@@ -224,7 +230,9 @@ Right-click or Shift-click to: pin a panel to the page when it is pinned to the 
 or pin it to the window when it is pinned to the page.
 </p>
 </fieldset>
-<button type='button' name='MasterColorPicker_PaletteMngr_open'>open the Palette Manager</button>
+<button type='button' name='MasterColorPicker_PaletteMngr_open'
+	role='conbobox' aria-haspopup='dialog' aria-controls='MasterColorPicker_PaletteMngr' aria-expanded='false'
+	aria-labeledby='MasterColorPicker_PaletteMngr_header'>open the Palette Manager</button>
 <fieldset>
 	<p>Hue angle unit values may be forced at any time when entered with a trailing unit;
 		for example a “degrees” ° symbol or by using the three letters “deg”.</p>
@@ -267,8 +275,8 @@ or pin it to the window when it is pinned to the page.
 
 
 
-<div id='MasterColorPicker_PaletteManager' class='pickerPanel expanding disabled'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Palette Manager</span></h2>
+<div id='MasterColorPicker_PaletteManager' class='pickerPanel expanding disabled' role='tabpanel'>
+<h2>MasterColorPicker<footmark>™</footmark> <span>Palette Manager</span></h2>
 <fieldset class='controls'>
 <button type='button' name='MasterColorPicker_PaletteMngr_close'>X</button>
 <!--  button type='button' name='MasterColorPicker_PaletteMngr_close'>close</button  -->
@@ -314,13 +322,15 @@ or pin it to the window when it is pinned to the page.
 
 
 
-<div id='MasterColorPicker_MyPalette' class='pickerPanel expanding'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F2 for shortcut">MyPalette</span></h2>
+<div id='MasterColorPicker_MyPalette' class='pickerPanel expanding' role='tabpanel'>
+<h2 id='MasterColorPicker_MyPalette_header'>MasterColorPicker<footmark>™</footmark> <span title="press F2 for shortcut">MyPalette</span></h2>
 <p>(choose colors using any color-picker or type directly)</p>
 <fieldset>
 <button type='button' name='MasterColorPicker_MyPalette_makeSub' backtabToTarget='true'>create sub-palette</button>
 <button type='button' name='MasterColorPicker_MyPalette_delete'>delete selected</button>
-<button type='button' name='MasterColorPicker_MyPalette_port'>import/export palette</button>
+<button type='button' name='MasterColorPicker_MyPalette_port'
+	role='combobox' aria-haspopup='dialog' aria-controls='MasterColorPicker_MyPalette_porter' aria-expanded='false' aria-pressed='false'
+	>import/export palette</button>
 <fieldset class='options'><legend>▼ Options</legend>
 	<label><input type='checkbox' name='MasterColorPicker_MyPalette_showColorblind'>show color-blind simulations
 		<note>Note simulations are approximate and may vary between individuals and monitors.</note></label>
@@ -335,11 +345,12 @@ or pin it to the window when it is pinned to the page.
 	<option>never</option>
 	</select></label>
 </fieldset>
-<fieldset class='portDialog' disabled>
+<fieldset id='MasterColorPicker_MyPalette_porter' class='portDialog' disabled role='dialog'>
 	<fieldset class='portMode'>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_portMode' value='import'>Import a palette to “MyPalette”</label>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_portMode' value='export'>Export this “MyPalette”</label>
 	</fieldset>
+	<output class='portLog' role='log' aria-label='file porter notices'></output>
 	<fieldset class='port'><legend><span class='import'>import from:</span><span class='export'>save to:</span></legend>
 		<script type='text/javascript'> if (window.location.protocol.match( /^https?\:$/ ))  document.writeln(
 		"<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='server'>" +
@@ -450,11 +461,14 @@ or pin it to the window when it is pinned to the page.
 </div><!--  close  MyPalette  -->
 
 
-<div id='MasterColorPicker_Mixer' class='pickerPanel filter'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Color-Mixer</span></h2>
-<fieldset onchange='UniDOM.swapOut$Class(this.parentNode, ["filter", "blender"], event.target.value);'>
-	<label><input type='radio' name='MasterColorPicker_mixerMode' value='filter' checked>Color-picker Filter</label>
-	<label><input type='radio' name='MasterColorPicker_mixerMode' value='blender'>Alpha-Blender</label>
+<div id='MasterColorPicker_Mixer' class='pickerPanel filter' role='tabpanel'>
+<h2 id='MasterColorPicker_Mixer_header'>MasterColorPicker<footmark>™</footmark> <span>Color-Mixer</span></h2>
+<fieldset role='tablist' aria-label='mixer mode'
+	onchange='UniDOM.swapOut$Class(this.parentNode, ["filter", "blender"], event.target.value);  UniDOM.toggleTab(event.target, true);'>
+	<label><input type='radio' name='MasterColorPicker_mixerMode' value='filter' checked
+		role='tab' aria-controls='MasterColorPicker_Filter' aria-selected='true'>Color-picker Filter</label>
+	<label><input type='radio' name='MasterColorPicker_mixerMode' value='blender'
+		role='tab' aria-controls='MasterColorPicker_Blender' aria-selected='false'>Alpha-Blender</label>
 </fieldset>
 <div id='MasterColorPicker_Filter'>
 <h3>Color-picker Filter</h3>
@@ -502,8 +516,8 @@ or pin it to the window when it is pinned to the page.
 </div><!--  close  MasterColorPicker_Mixer  -->
 
 
-<div id='MasterColorPicker_Lab' class='pickerPanel'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F3 for shortcut">Color-Space Lab</span></h2>
+<div id='MasterColorPicker_Lab' class='pickerPanel' role='tabpanel'>
+<h2 id='MasterColorPicker_Lab_header'>MasterColorPicker<footmark>™</footmark> <span title="press F3 for shortcut">Color-Space Lab</span></h2>
 <table class='primaries'><caption><abbr>RGB</abbr></caption>
 <tr><th>primary</th><th>byte value</th><th>#hex</th><th>percent%</th><td></td></tr>
 <tr class='red'><th><label for='MasterColorPicker_Rgb_byte' style="color:red">Red:</label></th>
@@ -643,13 +657,14 @@ or pin it to the window when it is pinned to the page.
 
 
 
-<div id='MasterColorPicker_Gradientor' class='pickerPanel linear'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span>Gradientor</span></h2>
-<!--  p class='underConstruction'><span>Under Construction:</span> no functionality</p  -->
-<fieldset><legend>mix format:</legend>
-<label><input type='radio' name='MasterColorPicker_Gradientor_format' value='linear' checked backtabToTarget>
+<div id='MasterColorPicker_Gradientor' class='pickerPanel linear' role='tabpanel'>
+<h2 id='MasterColorPicker_Gradientor_header'>MasterColorPicker<footmark>™</footmark> <span>Gradientor</span></h2>
+<fieldset role='tablist'><legend>mix format:</legend>
+<label><input type='radio' name='MasterColorPicker_Gradientor_format' value='linear' checked backtabToTarget
+  role='tab' aria-controls='MasterColorPicker_Gradientor_linear-colors' aria-selected='true'>
 multistop linear</label>
-<label><input type='radio' name='MasterColorPicker_Gradientor_format' value='triadic'>
+<label><input type='radio' name='MasterColorPicker_Gradientor_format' value='triadic'
+	role='tab' aria-controls='MasterColorPicker_Gradientor_triadic-colors' aria-selected='false'>
 triadic</label>
 </fieldset>
 <label>Grade through color-space:<select name='MasterColorPicker_Gradientor_colorSpace'>
@@ -693,8 +708,8 @@ triadic</label>
 
 
 
-<div id='MasterColorPicker_Thesaurus' class='pickerPanel'>
-<h2>MasterColorPicker<mark class='macronym'>™</mark> <span title="press F7 for shortcut">Thesaurus</span></h2>
+<div id='MasterColorPicker_Thesaurus' class='pickerPanel' role='tabpanel'>
+<h2 id='MasterColorPicker_Thesaurus_header'>MasterColorPicker<footmark>™</footmark> <span title="press F7 for shortcut">Thesaurus</span></h2>
 <p>This tool can help you identify the names of the closest colors in the chosen Palettes.</p>
 <fieldset><legend>Choose color using any color-picker,
 	press <kbd><span>CTRL</span>+<span>F7</span></kbd> from another color-input with a valid color,
@@ -703,16 +718,18 @@ triadic</label>
 	<input type='text' name='MasterColorPicker_Thesaurus_color'
 		interfaceTarget='true' swatch='this.nextSibling' value='' backtabToTarget='true'><span class='swatch'></span></label>
 </fieldset>
-<button class='refresh'>refresh palette list</button>
-<button class='match'>match color</button>
-<fieldset class='palette-list'><legend>Search these named-color Palettes:</legend>
+<button type='button' class='refresh' aria-controls='MasterColorPicker_Thesaurus_palette-list'>refresh palette list</button>
+<button type='button' class='match' aria-controls='MasterColorPicker_Thesaurus_output' id='MasterColorPicker_Thesaurus_matcher'>match color</button>
+<fieldset id='MasterColorPicker_Thesaurus_palette-list' class='palette-list'
+		aria-label='palette list' aria-atomic='true' aria-live='polite'><legend>Search these named-color Palettes:</legend>
 </fieldset>
+<output for='MasterColorPicker_Thesaurus_matcher' id='MasterColorPicker_Thesaurus_output' aria-role="" aria-live='polite' aria-atomic='true'></output>
 </div><!--  close  MasterColorPicker_Thesaurus  -->
 
 
 
-<div id='MasterColorPicker_Help' class='pickerPanel help'>
- <h2>MasterColorPicker<mark class='macronym'>™</mark><span title="press F1 for shortcut">☺Help☺</span></h2>
+<div id='MasterColorPicker_Help' class='pickerPanel help' role='tabpanel'>
+ <h2 id='MasterColorPicker_Help_header'>MasterColorPicker<footmark>™</footmark><span title="press F1 for shortcut">☺Help☺</span></h2>
  <div class='scrollbox'>
 	<nav>
 		<button type='button' section='defining-colors'>defining colors</button>
@@ -726,7 +743,7 @@ triadic</label>
 			<button type='button' section='MyPalette_browserDB'>using the browser’s private storage database</button>
 			<button type='button' section='MyPalette_serverDB'>saving files to a server</button>
 			<button type='button' section='MyPalette_local-file'>saving files to your personal filesystem</button>
-			<button type='button' section='MyPalette_autoload'>auto-loading your palettes when MasterColorPicker<mark class='macronym'>™</mark> starts</button>
+			<button type='button' section='MyPalette_autoload'>auto-loading your palettes when MasterColorPicker<footmark>™</footmark> starts</button>
 			<button type='button' section='MyPalette_CSS-files'>exporting to a CSS file</button>
 			</div>
 		<button type='button' section='PltMngr'>using the Palette Manager</button>
@@ -1321,7 +1338,7 @@ ANSI: Windows 10 Console: Cyan</code>
 
 
 
-<div id='MasterColorPicker_mainPanel' class='pickerPanel expanding'>
+<div id='MasterColorPicker_mainPanel' class='pickerPanel expanding' role='tabpanel'>
 
 <!--  div id='MasterColorPicker_palettes'  -->
 
@@ -1434,7 +1451,7 @@ ANSI: Windows 10 Console: Cyan</code>
 	<tr><td colspan='2'>
 	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked backtabTo='MasterColorPicker_palette_select'>websafe</label>
 	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true' onfocus="this.parentNode.className='focusWithin'" onblur="this.parentNode.className=''">split-compliments<note> and analogous</note></label>
-	<label><input type='checkbox' name='RainbowMaestro_colorblind' value='true' checked>colorblind assist<mark class='footmark'>‡</mark></label>
+	<label><input type='checkbox' name='RainbowMaestro_colorblind' value='true' checked>colorblind assist<footmark>‡</footmark></label>
 	<label><input type='checkbox' name='RainbowMaestro_lock' value='true'>lock focal hue</label>
 	</td></tr>
 	<tr><td colspan='2'>
@@ -1447,17 +1464,17 @@ ANSI: Windows 10 Console: Cyan</code>
 </thead>
 <tbody>
 <tr><th>full color</th>
-		<th class='colorblind'>Protan simulation<mark class='footmark'>‡</mark></th></tr>
+		<th class='colorblind'>Protan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></th></tr>
 <tr><td><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td>
 		<td class='colorblind'><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td></tr>
-<tr><th class='colorblind'>Deutan simulation<mark class='footmark'>‡</mark></th>
-		<th class='colorblind'>Tritan simulation<mark class='footmark'>‡</mark></th></tr>
+<tr><th class='colorblind'>Deutan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></th>
+		<th class='colorblind'>Tritan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></th></tr>
 <tr><td class='colorblind'><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td>
 		<td class='colorblind'><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td></tr>
 </tbody>
 <tfoot>
-	<tr class='colorblind'><td colspan='2'><mark class='footmark'>‡</mark>simulations are approximate, and may vary between individuals and monitors</td></tr>
-	<tr class='colorblind'><td colspan='2'><mark class='footmark'>‡</mark><span class='thanks'></span></td></tr>
+	<tr class='colorblind'><td colspan='2' id='RainbowMaestro_note1'><footmark>‡</footmark>simulations are approximate, and may vary between individuals and monitors</td></tr>
+	<tr class='colorblind'><td colspan='2' id='RainbowMaestro_note2'><footmark>‡</footmark><span class='thanks'></span></td></tr>
 </tfoot>
 </table>
 
@@ -1586,7 +1603,6 @@ ANSI: Windows 10 Console: Cyan</code>
 
 
 <!-------------- cut here to use the MasterColorPicker HTML in your own page  ---------------->
-
 
 </body>
 </html>
