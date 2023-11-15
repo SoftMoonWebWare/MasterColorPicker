@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.5.0~BETA   October 19, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.5.1~BETA   October 26, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -500,7 +500,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			doFocus:false,  //at this time (Feb2020) giving focus to the newly cloned field via the Genie will cause the Picker to disapear, as focus is lost in the current field before giving focus to the new element
 			cloneCustomizer:function(tr)  { var s=tr.getElementsByTagName('span')[0]; s.style.backgroundColor=""; s.style.color="";
 				UniDOM.getElementsBy$Name(tr).remove$Class([MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceControl]);  },
-			fieldsetCustomizer:function()  { Filter.getElementsBy$Name( /apply\[/ ).map( function(e, i, a)  {
+			batchCustomizer:function()  { Filter.getElementsBy$Name( /apply\[/ ).map( function(e, i, a)  {
 				e.element.setAttribute("tabToTarget", (i<a.length-1) ? "false" : "true");  } );  }  } );
 	Genie.catchTab=tabbedOut.bind(Genie, /color/ ,  /_average/ );
 	filterOptions=Filter.getElementsBy$Name( /average/i , true, function(n) {return n.name.match( /Filter_(.+)$/ )[1];}, true);
@@ -601,7 +601,7 @@ function MyPalette(HTML, PNAME)  {
 				td=tr.children[i]; td.style.backgroundColor=""; td.style.color=""; td.style.borderStyle=""; td.style.borderColor=""  }  }
 			if (menu=tr.getElementsByClassName("MyPalette_ColorGenieMenu")[0])  menu.parentNode.removeChild(menu);
 			UniDOM.getElementsBy$Name(tr).remove$Class([MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceControl]);  },
-		fieldsetCustomizer:function(tb) {UniDOM.getElementsBy$Name(tb, /\[name\]/ ).map(function(e, i, a)  {
+		batchCustomizer:function(tb) {UniDOM.getElementsBy$Name(tb, /\[name\]/ ).map(function(e, i, a)  {
 			e.setAttribute("tabToTarget", (i<a.length-1  ||  tb!==tb.parentNode.lastElementChild) ? "false" : "true")});}  });
 	this.ColorGenie.catchTab=tabbedOut.bind(this.ColorGenie, /\d\]\[(?:definition|name)/ , /addToHere/ );
 	this.ColorGenie.isActiveField=UniDOM.alwaysTrue;
@@ -616,7 +616,7 @@ function MyPalette(HTML, PNAME)  {
 		cloneCustomizer:function(tbody)  {
 			idGen(tbody);
 			if (thisPalette.options.autoSelect)  tbody.querySelector("[name$='addToHere']").checked=true;  },
-		fieldsetCustomizer:function(tbl)  {
+		batchCustomizer:function(tbl)  {
 			thisPalette.alignParentPaletteSelectors();
 			for (var i=1; i<tbl.children.length; i++)  {
 				UniDOM.getElementsBy$Class(tbl.children[i].firstElementChild, 'subPalette').disable(i===1);
@@ -1009,7 +1009,6 @@ MyPalette.prototype.fromJSON=function(JSON_palette, mergeMode)  {
 		for (var i=0; i<a.length; i++)  {
 			if (!a[i])  continue;
 			flds.lastElementChild.value=a[i];
-console.log("=========\n",thisPalette,thisPalette.MetaGenie,'\n========');
 			if (!thisPalette.MetaGenie.popNewGroup(flds.lastElementChild))  break;  }  }
   metaHTML.querySelector('select.alternative').setSelected(JSON_palette.alternatives ? JSON_palette.alternatives : '—none—');
 
@@ -1026,12 +1025,12 @@ console.log("=========\n",thisPalette,thisPalette.MetaGenie,'\n========');
 		default:  tbody=makeNew_tBody(pName, rootName.value.trim(), tbodys[0].id);  if (id)  tbodys.id=id;  }
 
 	const
-		CGFC=this.ColorGenie.config.fieldsetCustomizer,
-		SPGFC=this.SubPaletteGenie.config.fieldsetCustomizer;
-	this.ColorGenie.config.fieldsetCustomizer=null;  this.SubPaletteGenie.config.fieldsetCustomizer=null;
+		CGBC=this.ColorGenie.config.batchCustomizer,
+		SPGBC=this.SubPaletteGenie.config.batchCustomizer;
+	this.ColorGenie.config.batchCustomizer=null;  this.SubPaletteGenie.config.batchCustomizer=null;
 	try {fill_tBody(palette, tbody, JSON_palette.referenceMarks, [pName]);}
-	finally {this.ColorGenie.config.fieldsetCustomizer=CGFC;  this.SubPaletteGenie.config.fieldsetCustomizer=SPGFC;}
-	SPGFC.call(this.SubPaletteGenie, this.table);
+	finally {this.ColorGenie.config.batchCustomizer=CGBC;  this.SubPaletteGenie.config.batchCustomizer=SPGBC;}
+	SPGBC.call(this.SubPaletteGenie, this.table);
 	this.alignParentPaletteSelectors();
 	tbodys[0].querySelector("input[name$='addToHere']").checked=true;
 	tbodys[0].scrollIntoView(true);
@@ -1084,7 +1083,7 @@ console.log("=========\n",thisPalette,thisPalette.MetaGenie,'\n========');
 					if (trs[i].querySelector("input[name$='[name]']").value.trim()===cName)
 						thisPalette.ColorGenie.deleteGroup(trs[i]);  }  }
 			thisPalette.addColor(palette[pRef].trim().replace(marks?.open,"").replace(marks?.close,""), cName);  }
-		CGFC.call(thisPalette.ColorGenie, tbody);  }  }
+		CGBC.call(thisPalette.ColorGenie, tbody);  }  }
 
 
 MyPalette.prototype.referenceMarks=[ '«' , '»' ];
@@ -4423,7 +4422,8 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
 	const openButton=document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open');
 	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_close"]'),
 		['click', 'buttonpress'], function()  {
-			openButton.ariaExpanded='false';
+			openButton.setAttribute('aria-expanded', 'false');
+			openButton.setAttribute('aria-pressed', 'false');
 			UniDOM.disable(HTML, true);  });
 	UniDOM.addEventHandler(openButton,
 		['click', 'buttonpress'], function()  {
@@ -4431,7 +4431,8 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
 				refreshDBList();
 				refreshServerList();  }
 			UniDOM.disable(HTML, false);
-			this.ariaExpanded='true';
+			this.setAttribute('aria-expanded', 'true');
+			this.setAttribute('aria-pressed', 'true');
 			setTimeout(function(){MasterColorPicker.setTopPanel(HTML);}, 20);  });
 	if (!(HTML.disabled=UniDOM.has$Class(HTML, 'disabled')))  {
 		refreshDBList();
