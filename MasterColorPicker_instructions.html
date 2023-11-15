@@ -178,19 +178,11 @@ kbd span {
 p kbd span {
 	font-size: 85.4%;  }
 
-mark {
-	color: inherit;
-	background-color: inherit; }
-.numerance {
-	font-size: .618em;
-	vertical-align: .618em;
-	line-height: 100%; }
-.macronym {
-	display: inline;
+abbr[tm] {
 	font-size: .763924em;
 	vertical-align: .236076em;
 	line-height: 100%; }
-abbr.macronym {
+abbr[sm] {
 	font-size: .382em;
 	vertical-align: 1.1618em;
 	border-bottom: none; }
@@ -199,16 +191,6 @@ code {font-family: monospace;}
 .attention {color: red;}
 strong em {text-transform: uppercase;}
 
-main dd {
-	position: relative;
-.construction {
-	position: absolute;
-	left: 2.618em;
-	top: -.618em;
-	transform: rotate(-13.1deg);
-	color: red;
-	font-weight: bold;
-	border: 1px. dotted red; }
 </style>
 </head>
 <body>
@@ -216,11 +198,11 @@ main dd {
 <h1>Custom Web Software Development</h1>
 <figure>
 <img id='logo' src="images/SoftMoon.gif" alt="SoftMoon-WebWare">
-<figcaption>JavaScript<mark class='macronym'>™</mark>, <abbr>HTML 5</abbr>, <abbr>CSS 4</abbr>, &amp; <abbr>PHP 8</abbr>:
+<figcaption>JavaScript<abbr tm>™</abbr>, <abbr>HTML 5</abbr>, <abbr>CSS 4</abbr>, &amp; <abbr>PHP 8</abbr>:
 <span>Innovative Enterprise level Scripting for interactive sites, <acronym title='software as a service'>SaaS</acronym>, &amp; cross-platform desktop apps</span></figcaption>
 </figure>
-<h1>MasterColorPicker<mark class='macronym'>™</mark>
-<span>all the color you can handle<abbr class='macronym' title="service mark">SM</abbr></span></h1>
+<h1>MasterColorPicker<abbr tm>™</abbr>
+<span>all the color you can handle<abbr sm title="service mark">SM</abbr></span></h1>
 </header>
 
 <div>
@@ -243,7 +225,7 @@ on this page:
 </div>
 
 <main id='content'>
-<p>SoftMoon-WebWare’s MasterColorPicker package delivers five JavaScript<mark class='macronym'>™</mark> powered professional quality
+<p>SoftMoon-WebWare’s MasterColorPicker package delivers five JavaScript<abbr tm>™</abbr> powered professional quality
 interactive graphical color-pickers, an EyeDropper color-picker, plus a named-color-table based color-picker framework with nine
 named-color database files included: <abbr>ANSI</abbr>, Brewer, common, Crayola, <abbr>CSS</abbr>, Material Design, OpenOffice, universal, &amp; X11.&nbsp;
 Your chosen colors can be returned in the most popular color-space models including hexadecimal-<abbr>RGB</abbr>,
@@ -260,21 +242,21 @@ Best of all, you can work with one color-space graphically,
 while outputting the corresponding conversion value from another color-space.&nbsp;
 The five interactive graphical color-pickers included are:</p>
 <dl>
-	<dt>RainbowMaestro Harmonic Color Picker<mark class='macronym'>™</mark></dt>
+	<dt>RainbowMaestro Harmonic Color Picker<abbr tm>™</abbr></dt>
 		<dd>Specializes in color-harmony, shows light/dark tints/tones/shades (monochromatic) of a selected hue and its complement,
 				triadic complements, split-complements, and analogous colors, all in one color-wheel.
 				Includes a “websafe colors” setting;&nbsp;
 				Colorblind assistant shows protan, deutan, &amp; tritan simulations of the palette and selected color.</dd>
-	<dt>Spectral Progressive Color Picker<mark class='macronym'>™</mark></dt>
+	<dt>Spectral Progressive Color Picker<abbr tm>™</abbr></dt>
 		<dd>Shows the progression of colors in steps based on the <abbr>RGB</abbr> color-space.&nbsp;
 				Works with browsers as far back as Internet Exploder 6.</dd>
-	<dt>BeezEye Color Picker<mark class='macronym'>™</mark></dt>
+	<dt>BeezEye Color Picker<abbr tm>™</abbr></dt>
 		<dd>Classic color-wheel shows <abbr>HSL</abbr>, <abbr>HSB-HSV</abbr>, <abbr>HCG</abbr>,
 				and <abbr>CMYK</abbr> color-spaces (one at a time) with user-controlled Lightness/Brightness-Value/Gray/Black.</dd>
-	<dt>Simple² Color Picker<mark class='macronym'>™</mark></dt>
+	<dt>Simple² Color Picker<abbr tm>™</abbr></dt>
 		<dd>Works with the <abbr>HSL</abbr> and <abbr>HSB-HSV</abbr> color-spaces (both at once) to bring you
 				simple access to the tints/tones/shades of any color (hue) from the “pure” (fully chromatic) color to →black, →white, and →gray.</dd>
-	<dt>YinYang NíHóng Color Picker<mark class='macronym'>™</mark></dt>
+	<dt>YinYang NíHóng Color Picker<abbr tm>™</abbr></dt>
 		<dd>Another classic style, delivers all of the 11,777,216 colors your 24-bit monitor can show within two easy clicks
 				using either the <abbr>HSL</abbr>, <abbr>HSB-HSV</abbr> or <abbr>HCG</abbr> color-spaces.</dd>
 </dl>
@@ -382,10 +364,10 @@ including its own <abbr>CSS</abbr> stylesheet file (unless the user selects them
 <p>The named-colors database files themselves need to be adapted to the protocol they are used in.&nbsp;
 With server based (<code>http://</code> or <code>https://</code> protocol) usage,
 these files are <acronym title='JavaScript Object Notation'>JSON</acronym> formatted,
-and loaded using JavaScript<mark class='macronym'>™</mark>
+and loaded using JavaScript<abbr tm>™</abbr>
 to make HTTP calls back to the server (think ajax);
 whereas with <code>file://</code> protocol usage,
-they are themselves JavaScript<mark class='macronym'>™</mark> files loaded with an <abbr>HTML</abbr>
+they are themselves JavaScript<abbr tm>™</abbr> files loaded with an <abbr>HTML</abbr>
 <code>&lt;script src='colors-filename.palette.js'&gt;</code> tag.&nbsp;
 Without a server, the palette files need to be hard-coded into the web page.&nbsp;
 However, the server can tell MasterColorPicker what files are available
@@ -439,7 +421,7 @@ at whatever place in your document you desire.</p>
 <p>Take a look at the “demo” <code class='filename'>MasterColorPicker_desktop.php</code> file
 and note that it “includes” the
 <code class='filename'>color-pickers/SoftMoon-WebWare/MasterColorPicker.htm</code> file,
-and how the required JavaScript<mark class='macronym'>™</mark> and <abbr>CSS</abbr> files are loaded.&nbsp;
+and how the required JavaScript<abbr tm>™</abbr> and <abbr>CSS</abbr> files are loaded.&nbsp;
 Note that if you want your webpage to be loadable from the local filesystem
 using the <code>file://</code> protocol (you click on the file in your filesystem for example),
 you must also include links to the named-color-table palette files
@@ -465,7 +447,7 @@ unless the end-user specifically selects that file by hand.</p>
 
 <p>Your <abbr>HTML</abbr> (web page) file <strong>must</strong> be encoded in <abbr>UTF-8</abbr>.&nbsp;
 You should already be using this encoding in all your web page files anyway.&nbsp;
-JavaScript<mark class='macronym'>™</mark> is required to be encoded in <abbr>UTF-8</abbr>,
+JavaScript<abbr tm>™</abbr> is required to be encoded in <abbr>UTF-8</abbr>,
 and this project uses a character set beyond the standard <acronym>ASCII</acronym> characters.&nbsp;
 Remember, <abbr>UTF-8</abbr> is <em>the</em> #1 international choice for character encoding.</p>
 
@@ -485,7 +467,7 @@ the user’s input to basic ways of defining colors, which means that your Maste
 its output to hexadecimal <abbr>RGB</abbr> with a leading <code>#</code> symbol.</p>
 
 <p>If you don’t like non-standard tag attributes, or you otherwise want to link an input tag to the MasterColorPicker,
-after the <code class='filename'>MasterColorPicker.js</code> file is loaded, you can use JavaScript<mark class='macronym'>™</mark> to
+after the <code class='filename'>MasterColorPicker.js</code> file is loaded, you can use JavaScript<abbr tm>™</abbr> to
 link the input tag something like this:
 </p>
 <code>&#60;script type='text/javascript'&#62;
@@ -508,9 +490,9 @@ is determined by the first valid condition in this list:</p>
 	<li>If the target is as such: <code>&lt;input swatchId='myDocumentId' /&gt;</code>
 			then the swatch is a document element with an <abbr title='identification attribute'>id</abbr>
 			that matches “myDocumentId” if it exists.</li>
-	<li>If the target-object has a JavaScript<mark class='macronym'>™</mark> property “swatch,”
+	<li>If the target-object has a JavaScript<abbr tm>™</abbr> property “swatch,”
 			then the swatch is that property’s value.</li>
-	<li>If the JavaScript<mark class='macronym'>™</mark> Object property <code>MasterColorPicker.swatch</code> is set,
+	<li>If the JavaScript<abbr tm>™</abbr> Object property <code>MasterColorPicker.swatch</code> is set,
 			then the swatch is that property’s value.</li>
 	<li>The document Element that follows the target-input.</li>
 </ol>
@@ -522,22 +504,22 @@ for more details on using the “color swatch”.</p>
 <p>You don’t need to use an <code>&lt;input type='text' /&gt;</code> with MasterColorPicker.&nbsp;
 <code>&lt;textarea&gt;</code>s, <code>&lt;select&gt;</code>s, <code>&lt;input type='text' list='datalistID' /&gt;</code>s,
 and even document text-nodes are automatically recognized by the <code>MasterColorPicker.pick()</code> method.&nbsp;
-By default, the JavaScript<mark class='macronym'>™</mark> value of
+By default, the JavaScript<abbr tm>™</abbr> value of
 <code>MasterColorPicker.dataTarget.value</code> is set when a color is picked.&nbsp;
 If no <code>dataTarget</code> is set then the <code>MasterColorPicker.masterTarget</code> is used, if any.&nbsp;
 The <code>dataTarget</code> and <code>masterTarget</code> each may be any
-JavaScript<mark class='macronym'>™</mark> Object.&nbsp;
+JavaScript<abbr tm>™</abbr> Object.&nbsp;
 Or they may be <code>&lt;input type='hidden'&gt;</code> if you don't care to show the user the dirty color-code,
 but want to send the value back to the server with a form-submittal.&nbsp;
-To supplement this functionality, add a JavaScript<mark class='macronym'>™</mark> function to the
+To supplement this functionality, add a JavaScript<abbr tm>™</abbr> function to the
 Array of <code>MasterColorPicker.pickFilters</code>.&nbsp;
 To replace this functionality, replace the <code>MasterColorPicker.pick</code> method with your own function.&nbsp;
 See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> for more details.</p>
 
 
-<h3 id='your_filesystem'>MasterColorPicker’s<mark class='macronym'>™</mark> file system structure.</h3>
+<h3 id='your_filesystem'>MasterColorPicker’s<abbr tm>™</abbr> file system structure.</h3>
 
-<p>The MasterColorPicker<mark class='macronym'>™</mark> JavaScript<mark class='macronym'>™</mark> codebase does not rely on
+<p>The MasterColorPicker<abbr tm>™</abbr> JavaScript<abbr tm>™</abbr> codebase does not rely on
 any particular file-system structure or filenames,
 <strong>¡except!</strong> for the <code class='filename'>color_palettes/</code> folder
 and its <code class='filename'>index.…</code> file
@@ -571,9 +553,9 @@ You simply need to modify the <code>&lt;script&gt;</code> tags that actually loa
 You can <code>defer</code> them for faster page rendering.&nbsp;
 As of 2022, the hard-coded <code>&lt;script&gt;</code> tag that defines the
 <code>SoftMoon.WebWare</code> &amp; <code>SoftMoon.loaded_palettes</code> namespace properties
-should always go before any other MasterColorPicker<mark class='macronym'>™</mark> files or Palette files.</p>
+should always go before any other MasterColorPicker<abbr tm>™</abbr> files or Palette files.</p>
 <p>Developers should note that the files in the folder <code class='filename'>+++JS/</code>
-modify standard JavaScript<mark class='macronym'>™</mark> Objects and/or their <code>prototypes</code>.&nbsp;
+modify standard JavaScript<abbr tm>™</abbr> Objects and/or their <code>prototypes</code>.&nbsp;
 That is why they have been given thier own folder — to make it easier to keep track of in case of conflicts.</p>
 
 
@@ -599,7 +581,7 @@ of the <code>&lt;canvas&gt;</code>, so it is best to keep the width/height of th
 The important requirements to follow are listed below for each of the color-pickers in the MasterColorPicker project:
 </p>
 <ul id='picker_requirements'>
-<li><h4>RainbowMaestro Harmonic Color Picker<mark class='macronym'>™</mark></h4>
+<li><h4>RainbowMaestro Harmonic Color Picker<abbr tm>™</abbr></h4>
 	<h5><abbr>HTML</abbr> requirements:</h5>
 	<ul>
 	<li>There must be a “wrapper” tag with an <code>id='RainbowMaestro'</code> containing:
@@ -622,13 +604,13 @@ The important requirements to follow are listed below for each of the color-pick
 	<h5><abbr>CSS</abbr> requirements:</h5>
 	none.
 </li>
-<li><h4>Spectral Progressive Color Picker<mark class='macronym'>™</mark></h4>
+<li><h4>Spectral Progressive Color Picker<abbr tm>™</abbr></h4>
 	<h5><abbr>HTML</abbr> requirements:</h5>
 	Do not alter the <abbr>HTML</abbr> for this picker.
 	<h5><abbr>CSS</abbr> requirements:</h5>
 	none.
 </li>
-<li><h4>BeezEye Color Picker<mark class='macronym'>™</mark></h4>
+<li><h4>BeezEye Color Picker<abbr tm>™</abbr></h4>
 	<h5><abbr>HTML</abbr> requirements:</h5>
 	<ul>
 	<li>There must be a “wrapper” tag with an <code>id='BeezEye'</code> containing:
@@ -646,7 +628,7 @@ The important requirements to follow are listed below for each of the color-pick
 	<h5><abbr>CSS</abbr> requirements:</h5>
 	none.
 </li>
-<li><h4>Simple² Color Picker<mark class='macronym'>™</mark></h4>
+<li><h4>Simple² Color Picker<abbr tm>™</abbr></h4>
 	<h5><abbr>HTML</abbr> requirements:</h5>
 	<ul>
 	<li>Your file <strong>must</strong> be encoded in <abbr>UTF-8</abbr>.</li>
@@ -678,7 +660,7 @@ The important requirements to follow are listed below for each of the color-pick
 	<h5><abbr>CSS</abbr> requirements:</h5>
 	none.
 </li>
-<li><h4>YinYang NíHóng Color Picker<mark class='macronym'>™</mark></h4>
+<li><h4>YinYang NíHóng Color Picker<abbr tm>™</abbr></h4>
 	<h5><abbr>HTML</abbr> requirements:</h5>
 	<ul>
 	<li>Your file <strong>must</strong> be encoded in <abbr>UTF-8</abbr>.</li>
@@ -714,7 +696,7 @@ all receive the classname “activePicker”.&nbsp;
 There are other classnames added to various <abbr>HTML</abbr> elements in the MasterColorPicker under other various conditions.&nbsp;
 For more detailed info on what classnames are applied and when, please see the comments in the
 <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> file.&nbsp;
-To modify these used classnames, modify the values of the JavaScript<mark class='macronym'>™</mark>
+To modify these used classnames, modify the values of the JavaScript<abbr tm>™</abbr>
 properties of <code>MasterColorPicker.classnames</code>.&nbsp;
 By understanding when and why these classnames are applied,
 you can create your own <abbr>CSS</abbr> file to control the dynamic display of the MasterColorPicker.</p>
@@ -723,9 +705,9 @@ you can create your own <abbr>CSS</abbr> file to control the dynamic display of 
 
 <p>You may add your own color-pickers to, or remove individual color-pickers from the MasterColorPicker framework.&nbsp;
 To remove one or more of the included color-pickers, simply remove its <abbr>HTML</abbr>
-and JavaScript<mark class='macronym'>™</mark> from the given files.&nbsp;
+and JavaScript<abbr tm>™</abbr> from the given files.&nbsp;
 The sections are clearly deliminated with comments.&nbsp;
-The <code>x_ColorPicker</code> JavaScript<mark class='macronym'>™</mark> Class is universal to
+The <code>x_ColorPicker</code> JavaScript<abbr tm>™</abbr> Class is universal to
 all color-pickers in the MasterColorPicker framework, and should remain.&nbsp;
 Don’t forget to lighten the weight of the <abbr>CSS</abbr> file, but that is not a requirement.&nbsp;<p>
 
@@ -739,7 +721,7 @@ for example a choice of “YinYang NíHóng” corresponds to <abbr title='ident
 
 <p>To interface another color-picker with the MasterColorPicker framework is easy,
 but as powerful things go, this process has details that must be understood to fully utilize.&nbsp;
-Most simply, when a color is selected, using JavaScript<mark class='macronym'>™</mark>,
+Most simply, when a color is selected, using JavaScript<abbr tm>™</abbr>,
 simply call <code>MasterColorPicker.pick(<var>……colorChoiceText……</var>)</code>;&nbsp;
 however this bypasses the central <code>x_ColorPicker</code> framework which can
 convert the choice to the user’s color-space preferences,
@@ -782,7 +764,7 @@ using <code>MasterColorPicker.registerInterfaceElement(<var>……element……<
 <p>The <abbr>HTML</abbr> options panel may offer your users more control of the returned color than you need them to have.&nbsp;
 You may only want values returned as hexadecimal-<abbr>RGB</abbr>, or whatever.&nbsp;
 The color-pickers included in the MasterColorPicker project all rely on
-SoftMoon-WebWare’s JavaScript<mark class='macronym'>™</mark> <code>RGB_Calc</code> Class for all their
+SoftMoon-WebWare’s JavaScript<abbr tm>™</abbr> <code>RGB_Calc</code> Class for all their
 color-space conversion needs.&nbsp;
 This class has several flags that you can set
 (see the comments in the <code class='filename'>JS_toolbox/SoftMoon-WebWare/RGB_Calc.js</code> file),
