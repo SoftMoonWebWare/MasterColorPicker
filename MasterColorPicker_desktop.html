@@ -352,7 +352,7 @@ or pin it to the window when it is pinned to the page.
 	</fieldset>
 	<output class='portLog' role='log' aria-label='file porter notices'></output>
 	<fieldset class='port'><legend><span class='import'>import from:</span><span class='export'>save to:</span></legend>
-		<script type='text/javascript'> if (window.location.protocol.match( /^https?\:$/ ))  document.writeln(
+		<script type='text/javascript'> if (/^https?\:$/.test(window.location.protocol))  document.writeln(
 		"<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='server'>" +
 			(window.location.hostname==='localhost' ? "your local server (“localhost”)" : (window.location.host+" —(i.e. “the cloud”)")) + "</label>"  );
 		</script>
@@ -440,19 +440,19 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' placeholder='color name'></td></tr>
 	</tbody>
 </table>
-<menu class='MyPalette_ColorGenieMenu' standardItems='genie' title="">
+<menu class='MyPalette_ColorGenieMenu' title="">
 <!--  The JavaScript is greatly dependent on the structure and text-content in this section.
 			You may safely modify the content of the ‹span› tag  -->
 	<li>insert:
-		<span class='genie'>new color</span>
+		<span standard>new color</span>
 		<ul>
-			<li class='genie'>all clips</li>
+			<li standard>all clips</li>
 		</ul>
 	</li>
 	<li>copy to:<ul>
-		<li class='genie'>new clip</li></ul></li>
+		<li standard>new clip</li></ul></li>
 	<li>cut to:<ul>
-		<li class='genie'>new clip</li></ul></li>
+		<li standard>new clip</li></ul></li>
 	<li>paste from:<ul>
 		</ul></li>
 	<li title='triple-click'>delete</li>
