@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.1   October 18, 2023  by SoftMoon-WebWare.
+// Picker.js  Beta-4.2   November 26, 2023  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 // requires SoftMoon-WebWare’s UniDOM-2020 package.
 
 
-/*   The SoftMoon property is usually a constant defined in a “pinnicle” file somewhere else
+/*   The SoftMoon object is usually a constant defined in a “pinnicle” file somewhere else
 if (typeof SoftMoon !== 'object')  SoftMoon=new Object;
 if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
 */
@@ -64,8 +64,18 @@ function Picker(mainPanel, opts)  {
 	this.pickers=new UniDOM.ElementArray(false);
 	this.pickerActiveFlag=false;
 	this.interfaceActiveFlag=false;
-	this.dataTarget=null;
 	this.masterTarget=null;
+	var dataTarget=null;
+	Object.defineProperty(this, "dataTarget", { enumerable:true,
+		get: function()  {
+		return (  (dataTarget?.isConnected  &&  dataTarget)
+					 || (this.masterTarget?.isConnected  &&  this.masterTarget)  );  },
+		set: dT=>dataTarget=dT });
+	this.interfaceTarget=undefined;
+	Object.defineProperty(this, "currentTarget", { enumerable:true,
+		get:function()  {
+		return (  (this.interfaceTarget?.isConnected  &&  this.interfaceTarget)
+					 || this.dataTarget  );  }});
 	this.registeredTargets=new UniDOM.ElementArray(false);
 	this.pickFilters=new Array;
 	this.ATTRIBUTE_NAMES=Object.create(Picker.ATTRIBUTE_NAMES);
@@ -99,7 +109,6 @@ function Picker(mainPanel, opts)  {
 			else if (opts.pickFilters[i])  throw new TypeError("Picker “opts.pickFilters["+i+"]” must be a function");  }
 
 		if (opts.masterDataTarget)  {
-			this.dataTarget=opts.masterDataTarget;
 			this.masterTarget=opts.masterDataTarget;  }
 
 		if (opts.classNames)  { const errTxt="Picker “classNames” Object is invalid.";
@@ -140,7 +149,7 @@ Picker.CLASSNAMES={
 	picker: 'picker',/*see ‡NOTE‡ below*/      // ← the className that needs to be applied to all pickers in all panels
 	pickerPanel: 'pickerPanel',                // ← applied to the mainPanel and any other registered panels
 	selectedPicker: 'selectedPicker',          // ← applied to a picker when it is selected
-	activePicker: 'activePicker',              // ← applied to:  ((active means the dataTarget input has focus))
+	activePicker: 'activePicker',              // ← applied to:  ((active means the currentTarget input has focus))
 																						 //   • a picker when it is selected and active
 																						 //   • all panels when a picker is active
 	activePickerInterface: 'activePickerInterface',  // ← applied to:
@@ -155,7 +164,7 @@ Picker.CLASSNAMES={
 																						 //   • all panels when any one of the interfaceControls has focus
 																						 //   • an interfaceControl when it has focus
 	activePanel: 'activePickerPanel',          // ← applied to a panel when
-																						 //   • it is the top panel and the dataTarget has focus (is active)
+																						 //   • it is the top panel and the currentTarget has focus (is active)
 																						 //   • it is the top panel and one of its interfaceControls has focus
 	topPanel: 'topPickerPanel',                // ← applied to a panel when it is the top panel; see also “panel level” below.
 	panelLevel: 'pickerPanelZLevel' };    // ← panelZLevel will be post-fixed with a digital level (1 – ∞, 1 at the bottom)
@@ -235,7 +244,7 @@ Picker.prototype.setTopPanel=function setTopPanel(panel, rotate)  {
 	for (var i=0; i<this.panels.length; i++)  {
 		UniDOM.generateEvent(this.panels[i], 'pickerPanelZLevelChange',
 			{bubbles:true}, {Picker: this, newTopPanel: panel, currentLevel: i, rotate: rotate});  }
-	const rc=RegExp('\\b(' + this.classNames.panelLevel + '[0-9]+|' + this.classNames.topPanel + '|' + this.classNames.activePanel + ')\\b', 'g');
+	const rc=RegExp('\\b(' + RegExp.escape(this.classNames.panelLevel) + '[0-9]+|' + RegExp.escape(this.classNames.topPanel) + '|' + RegExp.escape(this.classNames.activePanel) + ')\\b', 'g');
 	for (i=0; i<this.panels.length; i++)  {
 		UniDOM.swapOut$Class(this.panels[i], rc, this.classNames.panelLevel+String(i+1));  }
 	const tc=[this.classNames.topPanel];
@@ -250,16 +259,15 @@ Picker.prototype.setActivePickerState=function setActivePickerState(flag, target
 // when flag=true, target is:
 //                     • an object with a “focus()” method and a “value” property which becomes the “dataTarget”
 //                     • when pickerInstance.aria_popUp!=false, target should be an HTML Element
-//                     • a flag when ==false → use the current “dataTarget” or “masterTarget”
+//                     • a flag when ==false → use the current “dataTarget” (or “masterTarget”←that happens automatically)
 // when flag=false, target is ignored
 // old & irrevant → when flag=false, target is a flag → true=“revert to masterTarget”  false=“retain dataTarget”
 	if (!flag  &&  this.interfaceActiveFlag   &&  this.interfaceControl)
 		this.setActiveInterfaceState(false, this.interfaceControl);
 	const wasActive=this.pickerActiveFlag;
 	this.pickerActiveFlag=flag;
-	//if (target)  this.dataTarget=(flag ? target : this.masterTarget);
 	if (flag  &&  target)  this.dataTarget=target;
-	else  target=this.dataTarget || this.masterTarget;
+	else  target=this.dataTarget;
 	if (this.aria_popUp)  {
 		if (flag)  {
 			target.setAttribute('aria-haspopup', this.aria_popUp.getAttribute('role'));
@@ -269,10 +277,10 @@ Picker.prototype.setActivePickerState=function setActivePickerState(flag, target
 			target.removeAttribute('aria-haspopup');
 			target.removeAttribute('aria-controls');
 			target.removeAttribute('aria-expanded');  }  }
-	if (flag  &&  this.dataTarget.pickerContainer)  {
-		if (typeof this.dataTarget.pickerContainer==='string')
-			document.getElementById(this.dataTarget.pickerContainer).appendChild(this.mainPanel);
-		else  this.dataTarget.pickerContainer.appendChild(this.mainPanel);  }
+	if (flag  &&  target?.pickerContainer)  {
+		if (typeof target.pickerContainer==='string')
+			document.getElementById(target.pickerContainer).appendChild(this.mainPanel);
+		else  target.pickerContainer.appendChild(this.mainPanel);  }
 	this.choosePicker(this.classNames.activePicker, null, flag);
 	this.setTopPanel();
 /**/
@@ -334,7 +342,7 @@ Picker.prototype.choosePicker=function choosePicker(activeClasses, pickerName, f
 Picker.prototype.pick=function pick(chosen)  {
 	chosen=this.applyFilters(...arguments);
 	if (chosen===false)  return;
-	const currentTarget= this.interfaceTarget || this.dataTarget || this.masterTarget;
+	const currentTarget= this.currentTarget;
 	var isAdditive;
 	if (currentTarget.hasAttribute?.('additive'))  {
 		isAdditive=currentTarget.getAttribute('additive') || true;
@@ -404,11 +412,13 @@ Picker.prototype.registerTargetElement=function registerTargetElement(element, p
 			this.selectionStart=this.selectionEnd=this.newCursorPosition;
 			delete this.newCursorPosition;  }
 		this.setActivePickerState(true, element);});
-	UniDOM.addEventHandler(element, 'tabIn', () => {element.focus();});
+	UniDOM.addEventHandler(element, 'tabIn', () => {
+		element.scrollIntoView({behavior:'smooth', block:'nearest'});
+		element.focus();  });
 	UniDOM.addEventHandler(element, 'onBlur', event => {
 		//here we keep track of the cursor location so we can add text if the input looses focus when we pick
-		event.target.oldSelectionStart=event.target.selectionStart;
-		event.target.oldSelectionEnd=event.target.selectionEnd;
+		element.oldSelectionStart=element.selectionStart;
+		element.oldSelectionEnd=  element.selectionEnd;
 		delete this.newCursorPosition;
 		if (!this.isInterfaceControl(event.relatedTarget))  this.setActivePickerState(false, element);  });
 	UniDOM.addEventHandler(element, 'onKeyDown', event => {
@@ -551,8 +561,8 @@ Picker.prototype.registerInterfaceControl=function registerInterfaceControl(elem
 //  private METHOD of a Picker-instance
 function registerInterfaces(element, actions, isUserdataInputType)  {  //element may be an INPUT (etc.) or a whole panel
 	const PickerInstance=this;
-
 	var tabbedOut, enterKeyed, selectPan, escaped;
+
 	if (isUserdataInputType)  {  // these can be focused with the mouse or the TAB key
 		UniDOM.addEventHandler(element, 'onFocus',  focusOnInterfaceControl);
 		UniDOM.addEventHandler(element, 'tabIn', tabIntoUserdataInputType);  }
@@ -562,7 +572,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 		UniDOM.addEventHandler(element, 'tabIn', function tabIntoPanel(event)  {
 			if (is_UserData_InputType(event.target))  tabIntoUserdataInputType(event);
 			else tabIntoInterfaceControl(event);  });
-		UniDOM.addEventHandler(element, 'focusIn', function focusInInPanel(event)  {
+		UniDOM.addEventHandler(element, 'focusIn', function focusIn_InPanel(event)  {
 			if (is_UserData_InputType(event.target))  focusOnInterfaceControl(event);  });  }
 
 	UniDOM.addEventHandler(element, 'change', function refocusFileInput()  {
@@ -587,7 +597,10 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 			thisPanel=UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel);
 		PickerInstance.setActiveInterfaceState(true, event.target, (flag || (actions?.interfaceTarget && flag!==false)));
 		if (thisPanel)  PickerInstance.setTopPanel(thisPanel, event.rotatePanels);
-		setTimeout(() => {event.target.focus();}, 0);  }
+		setTimeout(() => {
+				event.target.scrollIntoView({behavior:'smooth', block:'nearest'});
+				event.target.focus();},
+			0);  }
 
 	function tabIntoInterfaceControl(event) {
 		PickerInstance.setActiveInterfaceState(true, event.target);
@@ -595,7 +608,10 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 			thisPanel=UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel);
 		if (thisPanel) PickerInstance.setTopPanel(thisPanel, event.rotatePanels);
 		tabbedOut= enterKeyed= selectPan= escaped= false;
-		setTimeout(() => {event.target.focus();}, 0);  }
+		setTimeout(() => {
+				event.target.scrollIntoView({behavior:'smooth', block:'nearest'});
+				event.target.focus();},
+			0);  }
 
 
 	UniDOM.addEventHandler(element, 'onkeydown', function keyDownOnInterfaceControl(event)  {
@@ -605,19 +621,24 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 		escaped=(event.key==='Escape');
 		if (tabbedOut)  {
 			if (actions?.onTabOut?.(event))  return;
-			var tabTo, i;
-			const shifted=(event.key==='Tab' && event.shiftKey)  ||  PickerInstance.panelBacktabKey.sniff(event);
+			let
+				tabTo, indx,
+				shifted=(event.key==='Tab' && event.shiftKey)  ||  PickerInstance.panelBacktabKey.sniff(event);
+			function getAdjacentPanelTabStop()  {
+				return (
+					( tabTo= PickerInstance.panels.ctrlTabTo  // this property is entirely outer-application controlled; it may be a tabStop or a UniDOM.ElementArray of panel(s) with a tabStop
+										||  ( (indx=PickerInstance.panels.indexOf(UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel))),
+													PickerInstance.panels.slice(indx+1).concat(PickerInstance.panels.slice(0, indx)) ) )
+					&&  ( isTabStop(tabTo)  //  ← see private members above  ↓                         ↓          ↓
+						|| (tabTo=(shifted ? tabTo : tabTo.reverse()).filter(outDisabled).getElements(isTabStop, goDeep)[0])
+						|| (isTabStop(PickerInstance.dataTarget)  &&  (tabTo=PickerInstance.dataTarget))  ) );  }
 			event.preventDefault();
 			goDeep.className=PickerInstance.classNames.picker;
 			goDeep.picker_select=PickerInstance.picker_select;
 			if (event.ctrlKey  //note browsers use CTRL-TAB to switch between open browser tabs - this key-combo is fully blocked to scripts and should be - too easy to spoof “PayPal” if your script opens paypal.com in a new window for a “payment” …
-			&&  ( tabTo= PickerInstance.panels.ctrlTabTo  // this property is entirely application controlled; it may be a tabStop or a UniDOM.ElementArray of panel(s) with a tabStop
-								||  ( (i=PickerInstance.panels.indexOf(UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.pickerPanel))),
-											PickerInstance.panels.slice(i+1).concat(PickerInstance.panels.slice(0, i)) ) )
-			&&  ( isTabStop(tabTo)  //  ← see private members above  ↓                         ↓          ↓
-				 || (tabTo=(shifted ? tabTo : tabTo.reverse()).filter(outDisabled).getElements(isTabStop, goDeep)[0])
-				 || (isTabStop(PickerInstance.dataTarget)  &&  (tabTo=PickerInstance.dataTarget))  ) )  {
-				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels: (shifted ? false : i )});
+/**/
+			&&  getAdjacentPanelTabStop())  {
+				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels: (shifted ? false : indx )});
 				UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabTo: tabTo});
 				return;  }
 			if ((!shifted
@@ -625,26 +646,46 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 			||  (shifted
 					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabTo)  ||  event.target[PickerInstance.ATTRIBUTE_NAMES.backtabTo]  ||  actions?.backtabTo))))
 				try {
+					let rotated;
 					if (typeof tabTo === 'string')  {
 						if (tabTo==='{none}')  return;
+						switch (tabTo.substring(0,1))  {
+							case '#': tabTo=event.target.ownerDocument.getElementById(tabTo.substring(1));
+							break;
+							case '@': switch (tabTo.substring(1))  {
+								case 'next-panel': rotated=shifted=false;  getAdjacentPanelTabStop();
+								break;
+								case 'previous-panel': shifted=true;  getAdjacentPanelTabStop();  rotated=indx;
+								break;
+								case 'adjacent-panel': getAdjacentPanelTabStop();
+								break;
+								case 'target': tabTo= PickerInstance.dataTarget;
+								break;
+								default: tabTo=null;  }
+							break;
+							default: tabTo=(new Function('event', 'PickerInstance', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions);  }  }
+/*
 						tabTo=( event.target.ownerDocument.getElementById(tabTo)
-								 || (new Function('event', 'actions', 'return ('+tabTo+');')).call(event.target, event, actions) );  }
-					else if (typeof tabTo == 'function')  tabTo=tabTo(event);
+								 || (new Function('event', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions) );  }
+*/
+					else if (typeof tabTo == 'function')  tabTo=tabTo(event, PickerInstance, actions);
 					if (UniDOM.isElement(tabTo))  {
-						UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target});
+						UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels:rotated});
 						UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});
 						return;  }  }
-				catch(e) {console.error("Custom tab expression failed in Picker’s “interfaceControl.onKeyDown” handler:",e);};
+				catch(e) {console.error("Custom tab-expression or tab-event failed for:",event.target,"\n in Picker’s “keyDownOnInterfaceControl” handler:",e);};
 			const
 				tabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)),
 				backtabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget));
 			if ((!shifted  &&  (tabToTarget  ||  (actions?.tabToTarget  &&  tabToTarget!==false)))
-			||  (shifted  &&  (backtabToTarget  ||  (actions?.backtabToTarget  &&  backtabToTarget!==false))))
+			||  (shifted  &&  (backtabToTarget  ||  (actions?.backtabToTarget  &&  backtabToTarget!==false))))  {
 				try {
-					UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: PickerInstance.dataTarget, tabbedTo: PickerInstance.dataTarget});
-					PickerInstance.dataTarget.focus();  // tabIn to a dataTarget does nothing special
-					return;  }
-				catch(e) {};
+					const target=PickerInstance.dataTarget;
+					if (target)  {
+						UniDOM.generateEvent(target, 'tabIn', {bubbles:true}, {relatedTarget:event.target, tabbedFrom: event.target});
+						UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget:target, tabbedTo: target});  }  }
+				catch(e) {}
+				finally {return;}  }
 			if (tabTo=( shifted ? UniDOM.getElders(event.target, isTabStop, goDeep)[0] : UniDOM.getJuniors(event.target, isTabStop, goDeep)[0]))  {
 				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target});
 				UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});  }  }
@@ -666,7 +707,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 								Boolean.eval(event.target.getAttribute('keep-focus'), true)
 							: PickerInstance.doKeepInterfaceFocus )
 					{;} //event.target.focus();
-				else  try {(PickerInstance.dataTarget || PickerInstance.masterTarget)?.focus();}catch(e){}  }
+				else  try {PickerInstance.dataTarget?.focus?.();}catch(e){}  }
 			else {
 				if (event.target.type==='checkbox'  ||  event.target.type==='radio')  {event.target.checked=!event.target.checked;  event.preventDefault();}
 				else if (event.target.nodeName==='BUTTON')  {
@@ -678,25 +719,29 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 				}  }
 		if (escaped)  {
 			if (actions?.onEscape?.(event))  return;
-			const tabTo=PickerInstance.dataTarget || PickerInstance.masterTarget;
+			const tabTo=PickerInstance.dataTarget;
 			UniDOM.generateEvent(event.target, 'tabout', {bubbles:true}, {tabbedTo: tabTo} );
 			try {tabTo?.focus?.();}catch(e){}  }  });
 
 
 	var enterKeyPressCount=0, enterKeyPressRepeatTimeout;
 
+/*
 	if (isInput(element))
 		UniDOM.addEventHandler(element, 'onBlur', focusOutOfInterfaceControl);
 	else
 		UniDOM.addEventHandler(element, 'focusOut', function(event)  {
 			if (isInput(event.target))  focusOutOfInterfaceControl(event);  });
+*/
+	UniDOM.addEventHandler(element, 'focusOut', focusOutOfInterfaceControl);
 
 
 	function focusOutOfInterfaceControl(event)  {
 		if (enterKeyed)  {
 			enterKeyed=false;
 			if (Boolean.eval(event.target.getAttribute('keep-focus'), true))  {event.target.focus();  return;}  }
-		PickerInstance.setActiveInterfaceState(false, event.target);
+		//PickerInstance.setActiveInterfaceState(false, event.target);
+		if (isInput(event.target))  PickerInstance.setActiveInterfaceState(false, event.target);
 		if (!tabbedOut  //we can only TAB to other related InterfaceControls
 		&&  (!event.relatedTarget  //but we can click anywhere…
 			||  ( event.relatedTarget!==PickerInstance.dataTarget
@@ -724,12 +769,11 @@ Picker.prototype.registerInterfacePanel=function(panel, actions)  {
 
 	function clickOnInterfacePanel(event)  {
 		if (is_UserData_InputType(event.target))  return;
-		if (!document.hasFocus()
-		||  (  (!PickerInstance.isInterfaceControl(event.target)  ||  !is_UserData_InputType(event.target))
-				&&  !PickerInstance.registeredTargets.includes(document.activeElement)))    {
-			setTimeout(function refocusTarget()  { //help Google’s Chrome to keep track of what’s going on by setting a timeout (it has a hard time remembering to make the cursor blink)
-				(PickerInstance.interfaceTarget || PickerInstance.dataTarget || PickerInstance.masterTarget)?.focus?.();  },
-				0);  }
+		if (PickerInstance.currentTarget
+		&&  (!document.hasFocus()
+				||  (  (!PickerInstance.isInterfaceControl(event.target)  ||  !is_UserData_InputType(event.target))
+						&&  !PickerInstance.registeredTargets.includes(document.activeElement))))    
+			UniDOM.generateEvent(PickerInstance.currentTarget, 'tabIn', {bubbles:true});  
 		if (!PickerInstance.interfaceTarget
 		||  !event.target.parentNode  // a previous event-handler may have removed this element from the DOM
 		||  !UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.picker))
