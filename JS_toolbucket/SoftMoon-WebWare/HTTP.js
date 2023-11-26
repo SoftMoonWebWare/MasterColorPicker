@@ -1,5 +1,5 @@
 /*  charset="UTF-8"
-	HTTP.js  version 2.2.1  March 24, 2023
+	HTTP.js  version 2.2.2  November 15, 2023
 	Copyright © 2013, 2017, 2018, 2020, 2021, 2022 by Joe Golembieski, SoftMoon-WebWare.
 
 //  character-encoding: UTF-8 UNIX     includes extended character set in comments example:  far-east asian: Chinese and Japanese
@@ -63,12 +63,15 @@
 
  */
 
-/*   The SoftMoon property is usually a constant defined in a “pinnicle” file somewhere else
-if (typeof SoftMoon !== 'object')  SoftMoon=new Object;
-if (typeof SoftMoon.WebWare !== 'object')   SoftMoon.WebWare=new Object;
+'use strict';
+
+/*   The SoftMoon property is usually a global constant defined in a “pinnicle” file somewhere else
+const SoftMoon=Object.defineProperty({}, "WebWare", {value: {}, enumerable: true});
 */
 
 {  // open a private namespace
+
+SoftMoon.WebWare.HTTP=HTTP;
 
 
 //constructor function:
@@ -243,7 +246,7 @@ HTTP.prototype.redirect=function(connection, url, userArgs)  {
 	return true;  }
 
 
-HTTP.redirectFilter=function(connection)  { url=connection.url, unredirected=true;
+HTTP.redirectFilter=function(connection)  { var url=connection.url, unredirected=true;
 	while (unredirected)  {
 		for (var i=0; i<HTTP.redirectList.length; i++)  {
 			if (HTTP.redirectList[i].substring(0, url.length+1)===url+' ')  {
@@ -425,7 +428,5 @@ http://mydomain.com/mypage/jp→日本語→Japanese
 	setTimeout(function() {inp[0].focus();}, 0);  }
 
 HTTP.handleMultiple.HTML_Element_id='HTTP_handleMultipleFileDownloadChoises';
-
-SoftMoon.WebWare.HTTP=HTTP;
 
 }  // close private namespace
