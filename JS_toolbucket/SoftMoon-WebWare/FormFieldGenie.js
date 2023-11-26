@@ -1,6 +1,6 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.7  (November 14, 2023)
+/* FormFieldGenie version 4.8.1  (November 25, 2023)
  * written by and Copyright © 2010,2011,2012,2015,2019,2020,2022,2023 Joe Golembieski, Softmoon-Webware
  *
  * API changes from version 4.4 to version 4.5 to version 4.6 to version 4.8
@@ -341,6 +341,8 @@ FormFieldGenie.ConfigStack.prototype={
 	clip: "_system_",  //if you cut/copy/paste w/out specifying the clipboard “clip”
 	only_clips_inAll: true, // when using Genie.getClip('all clips'), only return the clipboard.clips array ? (clipboard is itself an Array that can hold other clips).
 	no_system_inAllClips: true, // when using Genie.getClip('all clips'), avoid clips with names that contain _system_ ?
+	// the above two items also control the  update_HTML_clipMenu()  method and which clipboard items are added to the menu.
+	make_clipMenu_focusable: true,  // add a  tabindex="-1"  attribute to dynamic HTML_clipMenu list items
 	namedElements: 'input, textarea, select, button',  //←this string must work with querySelectorAll();  These are elements who’s names will be updated
 	userDataInputTypes: [  // these are the input-types that users have to type something into for them to have a “value”
 		'text', 'search', 'tel', 'url', 'email', 'password', 'datetime', 'date',
@@ -639,11 +641,11 @@ function dumpEmpties(elmnt)  {
 		return _clone_;  }
 
 
- function popNewGroup(focusGroup, opts, clip, avoidTimeout)  {
+ function popNewGroup(focusGroup, opts, clip, avoidInsertTimeout=false)  {
 	var newGroup, cloned, groupCount=0, group=getFirstGroup(), flag=false, pasted=false;
-	function timeoutForInsert()  {
+	function timeoutForInsert(insertedGroup)  {
 		if (typeof config.batchCustomizer === 'function')  config.batchCustomizer(batch, pasted, config.cbParams);
-		if (config.doFocus!==false)  getField(newGroup).focus();  }
+		if (config.doFocus!==false)  getField(insertedGroup).focus();  }
 
 	if (opts  &&  (opts.doso==='insert'  ||  opts.doso==='paste'))  {
 		var groupPos=0, offSet;
@@ -661,8 +663,10 @@ function dumpEmpties(elmnt)  {
 				alignSelectValues(cloned, newGroup);
 				offSet=groupPos-clip.position;  }
 			else if (clip instanceof Array)  {
-				for (let i=0; i<clip.length; i++)  {if (popNewGroup.call(this, focusGroup, opts, clip[i], true))  flag=true;}
-				if (flag)  setTimeout(timeoutForInsert, 0);
+				for (let i=0; i<clip.length; i++)  {
+					const inserted=popNewGroup.call(this, focusGroup, opts, clip[i], true);
+					if (inserted)  {flag=true;  newGroup=inserted;}  }
+				if (flag)  setTimeout(timeoutForInsert.bind(null, newGroup), 0);
 				return flag;  }
 			else  return false;  }
 		else if (config.clone instanceof Element)  {
@@ -691,7 +695,7 @@ function dumpEmpties(elmnt)  {
 		if (typeof config.eventRegistrar === 'function')  config.eventRegistrar(newGroup, pasted, config.cbParams);
 		newGroup.dispatchEvent(new CustomEvent('formfieldgenieclone',
 			{detail: {genie: this, clip:{node:cloned, position:groupPos-offSet}, pasted:pasted}, bubbles: true, cancelable: true}));
-		if (!avoidTimeout)  setTimeout(timeoutForInsert, 0);
+		if (!avoidInsertTimeout)  setTimeout(timeoutForInsert.bind(null, newGroup), 0);
 //		this.lastNewField=newGroup;
 		return newGroup;  }
 	var nextGroup, emptyFlag, removedCount=0;
@@ -880,12 +884,14 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
 	if (this.clipboard.clips instanceof Array)  for (let i=0; i<this.clipboard.clips.length; i++)  {
 		if (this.clipboard.clips[i])  {
 			const li=document.createElement('li');
-			li.appendChild(document.createTextNode(this.TEXT.clip+(1+i)));
+			li.append(this.TEXT.clip+(1+i));
+			if (this.config.make_clipMenu_focusable)  li.setAttribute('tabindex', '-1');
 			items.appendChild(li);  }  }
-	if (!config.only_clips_inAll)  for (const i in this.clipboard)  {
-		if (i==='clips'  ||  (config.no_system_inAllClips  &&  i.match( /_system_/ )))  continue;
+	if (!this.config.only_clips_inAll)  for (const i in this.clipboard)  {
+		if (i==='clips'  ||  (this.config.no_system_inAllClips  &&  i.match( /_system_/ )))  continue;
 		const li=document.createElement('li');
-		li.appendChild(document.createTextNode(i));
+		li.append(i);
+		if (this.config.make_clipMenu_focusable)  li.setAttribute('tabindex', '-1');
 		items.appendChild(li);  }
 	for (let i=0; i<ul.length; i++)  {
 		const li=ul[i].getElementsByTagName('li');
