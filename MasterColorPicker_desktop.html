@@ -80,7 +80,7 @@ Object.defineProperties(SoftMoon, {
 
 <!--  These load the palette files for a  file://  based usage
 		You can use them (or a similar file of your own palette colors) for  http://  based usage also.
-		But it is recommended that they be converted to .json format
+		But it is recommended that they then be converted to .json format
 		( see the file:  color_palettes/converting_palette_formats.odt )
 		and autoloaded directly by MasterColorPicker at startup;
 		then these script tags should be removed
@@ -129,7 +129,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
-      release 2.5.0  October 19, 2023
+      release 2.5.2  November 26, 2023
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -416,9 +416,9 @@ or pin it to the window when it is pinned to the page.
 		<th class='colorblind'>↓<span>protan</span></th>
 		<th class='colorblind'>↓<span>deutan</span></th>
 		<th class='colorblind'>↓<span>tritan</span></th>
-		<th><label for='MasterColorPicker_MyPalette_[0][0][definition]'>↓ ↓ color definition ↓ ↓</label></th>
+		<th><label for='MasterColorPicker_MyPalette[0][0][definition]'>↓ ↓ color definition ↓ ↓</label></th>
 		<th></th>
-		<th><label for='MasterColorPicker_MyPalette_[0][0][name]'>↓ ↓ color name ↓ ↓</label></th></tr>
+		<th><label for='MasterColorPicker_MyPalette[0][0][name]'>↓ ↓ color name ↓ ↓</label></th></tr>
 	</thead>
 	<tbody class='MyPaletteBody'>
 	<tr>
@@ -440,23 +440,24 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='text' name='MasterColorPicker_MyPalette[0][0][name]' tabToTarget='true' value='' placeholder='color name'></td></tr>
 	</tbody>
 </table>
-<menu class='MyPalette_ColorGenieMenu' title="">
+<menu class='MyPalette_ColorGenieMenu'>
 <!--  The JavaScript is greatly dependent on the structure and text-content in this section.
+			See the FormFieldGenie.js file and instructions for more info.
 			You may safely modify the content of the ‹span› tag  -->
-	<li>insert:
-		<span standard>new color</span>
+	<li class='insert' tabindex="-1">insert:
+		<span tabindex="-1">new color</span>
 		<ul>
-			<li standard>all clips</li>
+			<li standard tabindex="-1">all clips</li>
 		</ul>
 	</li>
-	<li>copy to:<ul>
-		<li standard>new clip</li></ul></li>
-	<li>cut to:<ul>
-		<li standard>new clip</li></ul></li>
-	<li>paste from:<ul>
+	<li class='copy' tabindex="-1">copy to:<ul>
+		<li standard tabindex="-1">new clip</li></ul></li>
+	<li class='cut' tabindex="-1">cut to:<ul>
+		<li standard tabindex="-1">new clip</li></ul></li>
+	<li class='paste' tabindex="-1">paste from:<ul>
 		</ul></li>
-	<li title='triple-click'>delete</li>
-	<li title='triple-click'>clear clipboard</li>
+	<li class='delete' title='triple-click' tabindex="-1">delete</li>
+	<li title='triple-click' tabindex="-1">clear clipboard</li>
 </menu>
 </div><!--  close  MyPalette  -->
 
@@ -625,6 +626,7 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='range' name='MasterColorPicker_cmyK_range' min='0' max='100' value='100' style="color:black" tabindex='-1'></td>
 </tr>
 </table>
+<div><indicator>average perceived relative Luminance: <span></span></indicator><indicator id='MasterColorPicker_LabContrast' class='disabled'>contrast ratio: <span></span></indicator></div>
 <fieldset>
 	<legend><label for='MasterColorPicker_opacity_range'>Alpha (opacity)</label></legend>
 	<label title='Opacity is applied when applicable to colors chosen from a color picker.'>¿<input type='checkbox' name='MasterColorPicker_applyOpacity'>apply?</label>
@@ -632,8 +634,9 @@ or pin it to the window when it is pinned to the page.
 	<input type='range' name='MasterColorPicker_opacity_range' min='0' max='100' value='100' style="color:black" tabindex='-1'>
 </fieldset>
 
+<contrastSwatch></contrastSwatch>
 <button type='button' keep-focus='no'><h5>Click to Choose</h5>
-<span class='swatch'></span>
+<swatch></swatch>
 <table>
 <caption>colorblind</caption>
 <td title='protan'></td>
@@ -649,7 +652,12 @@ or pin it to the window when it is pinned to the page.
 <fieldset>
 <label>¿<input type='radio' name='MasterColorPicker_alphaApplicationMode' value='convert' checked>convert named colors to RGB to apply alpha?</label>
 <label>¿<input type='radio' name='MasterColorPicker_alphaApplicationMode' value='avoid'>do not apply alpha value to named colors?</label>
-<label>¿<input type='radio' name='MasterColorPicker_alphaApplicationMode' value='apply' tabToTarget='true'>apply alpha value to color name?</label>
+<label>¿<input type='radio' name='MasterColorPicker_alphaApplicationMode' value='apply'>apply alpha value to color name?</label>
+</fieldset>
+<fieldset>
+	<label>¿<input type='checkbox' name='MasterColorPicker_showContrastInLab' tabToTarget='true'>show contrast ratio?</label>
+	<label class='depends disabled'>background color:<input type='text' interfaceTarget='true' tabToTarget='true'
+		name='MasterColorPicker_LabContrastColor' value="white" disabled></label>
 </fieldset>
 </fieldset>
 </aside>
@@ -732,7 +740,7 @@ triadic</label>
  <h2 id='MasterColorPicker_Help_header'>MasterColorPicker<footmark>™</footmark><span title="press F1 for shortcut">☺Help☺</span></h2>
  <div class='scrollbox'>
 	<nav>
-		<button type='button' section='defining-colors'>defining colors</button>
+		<button type='button' section='defining-colors' backtabToTarget>defining colors</button>
 		<button type='button' section='Alpha'>using “Alpha” opacity (transparency)</button>
 		<button type='button' section='examples'>example color definitions</button>
 		<button type='button' section='keyboard'>keyboard shortcuts</button>
@@ -747,7 +755,7 @@ triadic</label>
 			<button type='button' section='MyPalette_CSS-files'>exporting to a CSS file</button>
 			</div>
 		<button type='button' section='PltMngr'>using the Palette Manager</button>
-		<button type='button' section='Gradientor'>using the Gradientor</button>
+		<button type='button' section='Gradientor' tabToTarget>using the Gradientor</button>
 	</nav>
 	<h4 id='MasterColorPicker_helpFor_defining-colors'>Colors with MasterColorPicker</h4>
 	<p>MasterColorPicker uses a color-specification based loosely on the CSS4 specs.
@@ -813,6 +821,7 @@ ANSI: Windows 10 Console: Cyan</code>
 				<abbr>CSS</abbr> is the “default” palette and its colors do not need to be prefixed or wrapped.&nbsp;
 				Hackers can change the default palette thought the value at: <code>SoftMoon.defaultPalette</code></li>
 	</ul>
+
 	<h4 id='MasterColorPicker_helpFor_Alpha'>Alpha (opacity):</h4>
 	<p>You may specify opacity (the opposite of transparency) in any of the color space models
 			(RGB, CMYK, CMY, HSV, HSL, HCG, HWB, Hue)
@@ -832,6 +841,7 @@ ANSI: Windows 10 Console: Cyan</code>
 				<li><kbd>DodgerBlue, 78%;</kbd></li>
 				<li><kbd>ANSI: 35 / .84 opacity;</kbd></li>
 			</ul>
+
 	<hr>
 	<h5 id='MasterColorPicker_helpFor_examples'>>Examples:</h5>
 	<ul>
@@ -868,7 +878,15 @@ ANSI: Windows 10 Console: Cyan</code>
 	</ul>
 
 	<hr>
-	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions, and the <abbr>CMYK<abbr> and <abbr>LCH<abbr> color spaces</h4>
+	<h4>“Average Perceived Relative Luminance”</h4>
+	<p>Every monitor is different, and has a unique contrast-ratio, color-mix, brightness setting, etc.&nbsp;
+	Every individual is unique and can perceive colors a little differently, especially color-blind folks.&nbsp;
+	The Average Perceived Relative Luminance is based on the “official”
+	<a href='https://www.w3.org/TR/WCAG21/#dfn-relative-luminance' target='W3C'>►luminance formula from the <abbr title='World Wide Web Consortium'>W3C</abbr></a>
+	and is considered relative to “white” <nobr>(<kbd>RGB(255,255,255)</kbd>)</nobr>
+	as displayed by the average monitor and viewed by the average user.</p>
+
+	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions, and the <abbr>CMYK<abbr> color spaces</h4>
 
 	<p>The <abbr>CMYK<abbr> color space was designed for print-graphics using inks that “mix” on white paper.&nbsp;
 	It is supported herein to help those more familiar with how inks mix in the printing world,
@@ -903,62 +921,20 @@ ANSI: Windows 10 Console: Cyan</code>
 	and the color-picker output is also specified in the same color-space.
 	</p>
 
-	<p>The <abbr>LCH<abbr> color-space is another "real-life" specification that is not directly compatible with
-	current computer monitor screens or the color-spaces used within this software to specify colors.&nbsp;
-	This is because these other color-spaces are <em><strong>relative</strong></em>,
-	whereas the <abbr>LCH<abbr> color-space is <em><strong>absolute</strong></em>.&nbsp;
-	Your monitor is fairly unique.&nbsp;  It has a maximum brightness that is different from other monitor makes/models.&nbsp;
-	Each colored light in the pixels has its own maximum brightness, which changes the overall color-mix.&nbsp;
-	Each monitor has a different “contrast ratio” which defines how dark the "black" is.&nbsp;
-	Compare a typical Apple® monitor to a nice ViewSonic® monitor with 20,000:1 contrast ratio,
-	and the Apple® looks “washed out” in color and a bit “brighter” because the black is not as dark.&nbsp;
-	In addition, the ambient light that the monitor is in can effect the overall perception
-	of the user viewing the screen.&nbsp;
-	Furthermore complicating this matter, the user can typically change the settings of the monitor
-	to adjust the overall brightness, contrast ratio, and sometimes even the color-balance.&nbsp;
-	The color-spaces used to define colors for screen-graphics take these differences into account;
-	They simply say "the brightest red is the brightest that whatever monitor with whatever settings used can make"
-	and so forth for the other colors; the value given is relative to the monitor.&nbsp;
-	Therefore the exact same graphic will look different on different monitors.&nbsp;
-	The <abbr>LCH<abbr> color space says there is no limit to the brightness; it says “I want it exactly <em>this</em> bright”
-	and that should look the same on any monitor.&nbsp;
-	At this time, there is no way for the JavaScript software to “know” the exact current specs of the monitor
-	being used or its current user-adjusted settings (it is hardware dependent, and that spec would need to be “told” to JavaScript by the Operating System),
-	so there is no way to adjust the mathematical formula for converting <abbr>LCH<abbr> to/from RGB to match the monitor.&nbsp;
-	One must also question the logic of allowing software, even at the level of the Operating System,
-	to display an image with “absolutely-defined” brightness levels that are brighter
-	than the user cares to view at the given moment,
-	i.e. the user has the monitor’s brightness at or near minimum,
-	especially if the user is in a dark environment;
-	a photo of the rising sun may temporarily blind the user, like looking directly into a camera's flash-bulb at night.&nbsp;
-	A much smarter solution would be to expand the overall capacity of monitors to allow greater brightness,
-	as well as the capacity of computer memory and graphics chips so that each color-channel
-	has a greater resolution than 8-bits,
-	while adding an additional spec to the “relative” color-spaces used within this software
-	to define whether they describe a “standard” (the current 8-bit) or “expanded” brightness level.&nbsp;
-	The <abbr>LCH<abbr> color space may be good for photography
-	when trying to capture a real-life image with the greatest fidelity;
-	but for graphic &amp; web-page design, where most visual aspects are better rendered <em><strong>relatively</strong></em>,
-	it is a poor choice: the other color-spaces supported within this software are preferred.&nbsp;
-	Therefore the <abbr>LCH<abbr> color space is not supported by MasterColorPicker at this time.
-	</p>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_keyboard'>Keyboard shortcuts:</h4>
-	<p>These are defined for a <abbr>QUERTY</abbr> keyboard; other keyboards may be similar.&nbsp;
-	Hackers of JavaScript™ can redefine these keys: &nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
-	if their keyboard normally generates different characters than <code>&gt;</code> and <code>&lt;</code>
-	when the <kbd><span>CTRL</span></kbd> key is pressed.</p>
+	<p>These are defined for a <abbr>QUERTY</abbr> keyboard; other keyboards may be similar.</p>
 
-	<p>Note browsers usually keep <kbd>(<span>SHIFT</span>)?+<span>CTRL</span>+<span>TAB</span></kbd>
-	and <kbd><span>F7</span></kbd> for themselves, but if not…you can use them!&nbsp;
+	<p><causion>¡</causion>Note browsers usually keep <kbd>(<span>SHIFT</span>)?+<span>CTRL</span>+<span>TAB</span></kbd>
+	and sometimes <kbd><span>F7</span></kbd> for themselves, but if not…you can use them<causion>!</causion>&nbsp;
 	See also the Hue-Angle Symbols shortcuts above.</p>
 	<dl>
-		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd></dt>
+		<dt><kbd><span>CTRL</span>+<span>TAB</span></kbd> <causion>!</causion></dt>
 		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>.&gt;</span></kbd></dt>
 		<dd>Tab to the first input box in the top panel or next panel.</dd>
 
-		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>TAB</span></kbd></dt>
+		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>TAB</span></kbd> <causion>!</causion></dt>
 		<dt><kbd><span>SHIFT</span>+<span>CTRL</span>+<span>,&lt;</span></kbd></dt>
 		<dd>Tab to the first input box in the bottom panel or previous panel.</dd>
 
@@ -977,18 +953,52 @@ ANSI: Windows 10 Console: Cyan</code>
 		<dd>Shows the Color-Space Lab panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
 				If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F3</span></kbd>
 				syncs the Color-Space Lab with that color.</dd>
-
+		
 		<dt><kbd><span>F4</span></kbd></dt>
 		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
 		(usually is available even if <kbd><span>F7</span></kbd> is not)</dd>
 
-		<dt><kbd><span>F7</span></kbd></dt>
+		<dt><kbd><span>F7</span></kbd> <causion>!</causion></dt>
 		<dd>Shows the Color Thesaurus panel, or hides it when pressed with the <kbd><span>SHIFT</span></kbd> key.&nbsp;
 		(this is the typical key for a thesaurus in many applications)</dd>
 
 		<dt><kbd><span>CTRL</span>+<span>F7</span></kbd></dt>
 		<dd>If there is a valid color in the input-box, pressing <kbd><span>CTRL</span>+<span>F7</span></kbd>
 				syncs the Thesaurus with that color.</dd>
+
+		<dt><kbd><span>ALT</span>+<span>≡</span></kbd></dt>
+		<dd><ul>
+		<li>When “keyboard focus” is <em>within the ColorSpaceLab</em>, pressing the “Alternate Context-Menu” key
+				moves focus directly to the ColorSpaceLab <strong>Options</strong> dialog.</li>
+		<li>When “keyboard focus” is <em>within the PaletteManager</em> and associated with a Palette file-name,
+				pressing the “Alternate Context-Menu” key lets you edit the file-name.</li>
+		<li>When “keyboard focus” is <em>within the MyPalette interface</em> and associated with a color,
+				pressing the “Alternate Context-Menu” key pops up the insert/cut/copy/paste/delete menu.&nbsp;
+				(This same menu can be found by “right-clicking” the “drag-handle” <code>↕</code>
+				found between the color-definition and color-name, but then without keyboard interaction.)&nbsp;
+				This menu works on the whole <em>color spec</em>, not just the text in the input-box
+				(use just <kbd><span>≡</span></kbd> alone for that standard <abbr>OS</abbr> functionality as usual).&nbsp;
+				Use the Arrow Keys <kbd><span>↓</span></kbd><kbd><span>→</span></kbd><kbd><span>↑</span></kbd><kbd><span>←</span></kbd>
+				to navigate through this pop-up menu.&nbsp;
+				Use the <kbd><span>Insert</span></kbd><kbd><span>Cut</span></kbd><kbd><span>Copy</span></kbd><kbd><span>Paste</span></kbd><kbd><span>Delete</span></kbd>
+				keys to quick-navigate to that section of the menu.&nbsp;
+				Use the Number Keys <kbd><span>0</span>…<span>9</span></kbd>
+				to quick-navigate to a specific “clip” when inserting, cutting, copying, or pasting is selected.&nbsp;
+				Press <kbd><span>Enter</span></kbd> or <kbd><span>Space</span></kbd> to make a clip selection in the menu.&nbsp;
+				To delete a color or clear the clipboard, you will have to press
+				<kbd><span>Enter</span></kbd> or <kbd><span>Space</span></kbd> three (3) times quickly
+				(or click with the mouse three (3) times quickly … i.e. “triple-click”).&nbsp;
+				Press <kbd><span>Esc</span></kbd> or <kbd><span>ALT</span>+<span>≡</span></kbd> again
+				to exit the menu with no selection.</li></ul></dd>
+
+		<dt><kbd><span>↑</span></kbd> and <kbd><span>↓</span></kbd></dt>
+			<dd>When “keyboard focus” is <em>within the MyPalette interface</em> and associated with a color,
+			these are “vertical tab” keys and will move the keyboard focus up or down in the palette list.</dd>
+
+		<dt><kbd><span>ALT</span>+<span>↑</span></kbd></dt>
+		<dt><kbd><span>ALT</span>+<span>↓</span></kbd></dt>
+			<dd>When “keyboard focus” is <em>within the MyPalette interface</em> and associated with a color,
+			these keys will move the color up or down in the palette list.</dd>
 
 	</dl>
 	<table><caption>Extended Characters</caption>
@@ -1016,6 +1026,13 @@ ANSI: Windows 10 Console: Cyan</code>
 	Focus the “slider” by clicking on it or by using the <kbd><span>Tab</span></kbd> key
 	then press a numeric key (<kbd><span>0</span></kbd> – <kbd><span>9</span></kbd>) to modify the value directly,
 	or <kbd><span>NumLock</span></kbd> to see the current value that you can then modify.</p>
+
+	<p>Hackers of JavaScript™ can redefine these keys:
+	&nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
+	if their keyboard normally generates different characters than <code>&gt;</code> and <code>&lt;</code>
+	when the <kbd><span>CTRL</span></kbd> key is pressed.&nbsp;
+	Hackers can also redefine &nbsp;<code>MasterColorPicker.altMenuKey</code>&nbsp;
+	if their system uses the <kbd><span>Alt</span> + <span>≡</span></kbd> key-combo.</p>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_MyPalette'>Using MyPalette</h4>
@@ -1208,7 +1225,7 @@ ANSI: Windows 10 Console: Cyan</code>
 	until focus is within the PaletteManager panel, then press <kbd><span>TAB</span></kbd>
 	until focus is on the file you want to rename, then
 	you can •double-press <kbd><span>ENTER</span></kbd> or •use <kbd><span>SHIFT</span>+<span>ENTER</span></kbd>
-	or •use the “menu” key (looks kinda like this: <kbd><span>≡</span></kbd>) when present.</p>
+	or •use <kbd><span>Alt</span>+<span>≡</span></kbd> (the “Alternate Context-Menu” key) when present.</p>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_Gradientor'>Using the Gradientor</h4>
