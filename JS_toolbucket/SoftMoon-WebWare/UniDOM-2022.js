@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.3  October 12, 2023
+/*  UniDOM-2022  version 1.4  November 20, 2023
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -281,9 +281,11 @@ function generateEvent(element, eventType, eSpecs, userArgs)  {
 	for (let eT of eventType)  {
 		eT=getEventType(eT);
 		let
-			subT=eT.match( /wheel|mouse|click|key|focus|touch|resize|scroll|./ ),
+			subT=eT.match( /change|wheel|mouse|click|key|focus|touch|resize|scroll|./ ),
 			event;
 		switch (subT[0])  {
+			case 'change': event=new Event(eT, eSpecs);
+			break;
 			case 'wheel': event=new WheelEvent(eT, eSpecs);
 			break;
 			case 'mouse':
