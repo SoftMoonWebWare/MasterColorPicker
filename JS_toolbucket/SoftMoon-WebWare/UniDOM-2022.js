@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.4  November 20, 2023
+/*  UniDOM-2022  version 1.5  December 4, 2023
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -111,7 +111,8 @@ function addEventHandler(element, eventType, handler, useCapture)  {
 		userArgs=aSlice.call(arguments, 4),
 		wrappers=new Array,
 		doWrap=useCapture?.doWrap;
-	eventType=arrayify(eventType);  handler=arrayify(handler);  useCapture=Boolean(typeof useCapture === 'object' ? useCapture.useCapture : useCapture);
+	eventType=arrayify(eventType);  handler=arrayify(handler);
+	useCapture= (useCapture instanceof Boolean) ?  useCapture.valueOf()  :  Boolean(typeof useCapture === 'object' ? useCapture.useCapture : useCapture);
 	for (let i=0; i<eventType.length; i++)  {
 		const etype=getEventType(eventType[i]);
 		if (UniDOM.getEventHandler(element, etype, handler, useCapture) !== false)  {
@@ -193,7 +194,7 @@ function EventHandler(element, eventType, handler, useCapture, wrapper, userArgs
 EventHandler.prototype.remove=function()  {
 	// since EventHandler objects are now frozen/locked (they could not be when UniDOM was created and JavaScript was young)
 	// there should be no way to throw Errors; but just in case…we leave the sanity checks.
-	if (!isElement(this.element)  &&  !isWindow(this.element))
+	if (!isElement(this.element)  &&  !isWindow(this.element)  &&  !isDocument(this.element))
 		throw new Error("Can not remove “UniDOM.EventHandler”: its “element reference” has been corrupted.");
 	const w=(this.element.ownerDocument  ||  this.element.document  ||  this.element).defaultView;  // ← (ElementNode || window || document)
 	getAllEventsInWindow(w, false);
@@ -414,6 +415,9 @@ function isLast(e) {return (e instanceof Element)  &&   e===e.parentNode?.lastEl
 
 UniDOM.isLastNode=isLastNode;
 function isLastNode(e) {return (n instanceof Node)  &&   n===n.parentNode?.lastChild;}
+
+UniDOM.isDocument=isDocument;
+function isDocument(d)  {return  d instanceof Document;}
 
 UniDOM.isWindow=isWindow;
 function isWindow(w)  {return  w instanceof Window;}
