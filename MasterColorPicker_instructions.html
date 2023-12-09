@@ -5,8 +5,8 @@
 <meta name='description' content='MasterColorPicker: a JavaScript color-picker delivering all the color you can handle.'>
 <meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker'>
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
-<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022 Joe Golembieski, SoftMoon-WebWare'>
-<meta name='page_last-udate' content='January 22, 2023'>
+<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare'>
+<meta name='page_last-udate' content='December 6, 2023'>
 <title>MasterColorPicker Instructions from SoftMoon-WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <style type="text/css">
@@ -501,19 +501,34 @@ for more details on using the “color swatch”.</p>
 
 <h3 id="your_target">Targets other than text <code>&lt;input&gt;</code>s.</h3>
 
-<p>You don’t need to use an <code>&lt;input type='text' /&gt;</code> with MasterColorPicker.&nbsp;
+<p>You don’t need to use an <code>&lt;input type='text'&gt;</code> with MasterColorPicker.&nbsp;
 <code>&lt;textarea&gt;</code>s, <code>&lt;select&gt;</code>s, <code>&lt;input type='text' list='datalistID' /&gt;</code>s,
 and even document text-nodes are automatically recognized by the <code>MasterColorPicker.pick()</code> method.&nbsp;
 By default, the JavaScript<abbr tm>™</abbr> value of
 <code>MasterColorPicker.dataTarget.value</code> is set when a color is picked.&nbsp;
+With text-nodes, the text is changed to the selected color.&nbsp;
 If no <code>dataTarget</code> is set then the <code>MasterColorPicker.masterTarget</code> is used, if any.&nbsp;
-The <code>dataTarget</code> and <code>masterTarget</code> each may be any
-JavaScript<abbr tm>™</abbr> Object.&nbsp;
+For drag-&amp;-drop functionality (and the “sizzors” in the EyeDropper) to work flawlessly,
+the <code>dataTarget</code> (and <code>masterTarget</code>) should be any
+<acronym>DOM</acronym> Element that can receive keyboard focus.&nbsp;
+If it doesn’t naturally activate keyboard focus (e.g. like an <code>&lt;input&gt;</code> does)
+your JavaScript<abbt tm>™</abbt> code should activate its focus in some way that you determine;
+and correspondingly, it should have a <code>tabindex="-1"</code> attribute.&nbsp;
+Without keyboard focus on your target,
+if your end-user tries to drag something off the page and drop it there
+it will causes an error in functionality.&nbsp;
+Having keyboard focus is also required if you want the MasterColorPicker to “pop-up” &amp; “pop-down”
+or otherwise change display-state (in the code this is the <code>MasterColorPicker.activeInterfaceState</code> flag)
+though changing class-names on the “panels” (<code>.activeInterface</code>).&nbsp;
+<!--
+The <code>dataTarget</code> (and <code>masterTarget</code>) may be any
+JavaScript<abbr tm>™</abbr> Object.
 Or they may be <code>&lt;input type='hidden'&gt;</code> if you don't care to show the user the dirty color-code,
 but want to send the value back to the server with a form-submittal.&nbsp;
-To supplement this functionality, add a JavaScript<abbr tm>™</abbr> function to the
+-->
+To supplement the default functionality of picking a color, add a JavaScript<abbr tm>™</abbr> function to the
 Array of <code>MasterColorPicker.pickFilters</code>.&nbsp;
-To replace this functionality, replace the <code>MasterColorPicker.pick</code> method with your own function.&nbsp;
+To replace this functionality, replace the <code>MasterColorPicker.pick()</code> method with your own function.&nbsp;
 See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> for more details.</p>
 
 
