@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.5.2~BETA   November 26, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.5.3~BETA   December 4, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -937,7 +937,7 @@ MyPalette.prototype.addSelected=function(tbody)  {
 			else  this.alignParentPaletteSelectors();  }  }  }
 
 MyPalette.prototype.dragger=function(event, group, bodyClass, dragClass, groupClass)  {
-	if (event.button!==0)  return;
+	if (event.buttons!==1)  return;
 	event.preventDefault();
 	UniDOM.addClass(document.body, bodyClass);
 	UniDOM.addClass(group, dragClass);
@@ -945,29 +945,38 @@ MyPalette.prototype.dragger=function(event, group, bodyClass, dragClass, groupCl
 	const
 		thisPalette=this,
 		tablePos=this.HTML.getBoundingClientRect(),
-		drop=UniDOM.addEventHandler(document.body, 'onMouseUp',
+		//  ↓↓ see “A Note About dragging & dropping” near the end of this file ↓↓
+		auditor=UniDOM.addEventHandler(document, ['onVisibilityStateChange', 'onPickerStateChange'], done, true),
+		drop=UniDOM.addEventHandler(document.body, 'onMouseUp', [done, mover], true),
+		catsEye=UniDOM.addEventHandler(document.body, 'onMouseMove',
 			function(event)  {
-				event.preventDefault();
-				UniDOM.remove$Class(document.body, bodyClass);
-				UniDOM.remove$Class(group, dragClass);
-				drop.onMouseUp.remove();
-				catsEye.onMouseMove.remove();
-				clearInterval(scroller);
-				var moveTo;
-				if (UniDOM.hasAncestor(event.target, thisPalette.table)
-				&&  (moveTo= UniDOM.has$Class(event.target, groupClass)  ?  event.target : UniDOM.getAncestorBy$Class(event.target, groupClass))
-				&&  group!==moveTo  &&  group.nextElementSibling!==moveTo)
-					(group.tagName==="TR") ? thisPalette.moveColor(group, moveTo) : thisPalette.moveSub(group, moveTo);  },
+				if (event.buttons===1)  mouseEvent=event;
+				else  done(event);  },
 			true),
-		catsEye=UniDOM.addEventHandler(document.body, 'onMouseMove', function(event) {mouseEvent=event}, true),
-		scroller=setInterval(function()  {
+		scroller=setInterval(
+			function()  {
 				if (!mouseEvent  ||  mouseEvent.clientX<tablePos.left  ||  mouseEvent.clientX>tablePos.right)  return;
 				if (mouseEvent.clientY<tablePos.top)  thisPalette.HTML.scrollTop-=tablePos.top-mouseEvent.clientY;
 				else
 				if (mouseEvent.clientY>tablePos.bottom)  thisPalette.HTML.scrollTop+=mouseEvent.clientY-tablePos.bottom;  },
-			42);  }
+			42);
+		function done(event)  {
+			event.preventDefault();
+			UniDOM.remove$Class(document.body, bodyClass);
+			UniDOM.remove$Class(group, dragClass);
+			auditor.onVisibilityStateChange.remove();
+			auditor.onPickerStateChange.remove();
+			drop.onMouseUp.remove();
+			catsEye.onMouseMove.remove();
+			clearInterval(scroller);  }
+		function mover(event)  {
+			var moveTo;
+			if (UniDOM.hasAncestor(event.target, thisPalette.table)
+			&&  (moveTo= UniDOM.has$Class(event.target, groupClass)  ?  event.target : UniDOM.getAncestorBy$Class(event.target, groupClass))
+			&&  group!==moveTo  &&  group.nextElementSibling!==moveTo)
+				(group.tagName==="TR") ? thisPalette.moveColor(group, moveTo) : thisPalette.moveSub(group, moveTo);  }  }
 
-			
+	
 MyPalette.prototype.showColorGenieMenu=function(event1, handle)  {
 	event1.preventDefault();  event1.stopPropagation();
 	const menu=this.ColorGenie.HTML_clipMenu;
@@ -2216,13 +2225,26 @@ UniDOM.addEventHandler(window, 'onload', function() {
 	ColorSpaceLab.update_Alpha_rangeHandle();
 
 	function updateHandle(event, updater)  {
+		if ((event.buttons&1)===0)  {
+			console.log('can not update ColorSpaceLab handle using non-primary mouse button');
+			return;  }  
 		const
+			slider=event.target,
+			eye=UniDOM.addEventHandler(document, 'onVisibilityStateChange', event=>done(event,'eyeballer')),
+			audit=UniDOM.addEventHandler(document.body, 'onMouseMove', auditor, true),  
 			move=UniDOM.addEventHandler(document.body, 'onMouseMove', updater, true),
-			drop=UniDOM.addEventHandler(document.body, 'onMouseUp',
-				function(event)  {
-					move.onMouseMove.remove();  drop.onMouseUp.remove();
-					event.stopPropagation();  },
-				true);
+//with FireFox (¿others?), the mouseUp event happens even if the mouse moves off the browser window when the button is released, likely because it is a native slider
+			drop=UniDOM.addEventHandler(document.body, 'onMouseUp', done, true);
+		function done(event, canceler='mouseUp')  {
+console.log('we be done updatin the handle, according to '+canceler)
+			eye.onVisibilityStateChange.remove();
+			audit.onMouseMove.remove();
+			move.onMouseMove.remove();
+			drop.onMouseUp.remove();
+			event.stopImmediatePropagation();  }
+		function auditor(event)  {  //if the end-user releases the button dragging the handle while the mouse is off the web-page
+			if ((event.buttons&1)===0
+			||  document.activeElement!==slider)  done(event, 'auditor');  }
 		event.stopPropagation();  }
 
 	UniDOM.addEventHandler(settings.Hue_range, 'onMouseDown',
@@ -5141,16 +5163,18 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 	UniDOM.addEventHandler(EyeDropper.sizzors, ['click'], function(event)  {
 		const thisButton=this, sizzors={
 			onmousedown: function (event) {
-				if (event.target!==EyeDropper.playground.bgElement)  {closeCutter();  return;}
+				if (event.buttons!==1
+				||  event.target!==EyeDropper.playground.bgElement)  {closeCutter();  x= y= undefined;  return;}
 				event.stopPropagation();  event.preventDefault();
 				x=event.offsetX;  y=event.offsetY;
 				EyeDropper.playground.appendChild(box);
 				box.style.width= box.style.height= '0px';
 				box.style.left=parseInt(event.target.style.left||0)+x+'px';
 				box.style.top=parseInt(event.target.style.top||0)+y+'px';  },
-			onmousemove: function (event) {
+			onmousemove: function(event)  {
 				event.stopPropagation();  event.preventDefault();
 				if (x===undefined)  return;
+				if (event.buttons!==1)  {closeCutter();  x= y= undefined;  return;}
 				const
 					canvas=EyeDropper.playground.bgElement,
 					offset=canvas.getBoundingClientRect(),
@@ -5161,9 +5185,8 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 					bs=box.style;
 				bs.width=Math.abs(w)+'px';  bs.height=Math.abs(h)+'px';
 				bs.left=parseInt(canvas.style.left||0)+x+(w<0 ? w : 0)+'px';
-				bs.top=parseInt(canvas.style.top||0)+y+(h<0 ? h : 0)+'px';
-				},
-			onmouseup: function (event) {
+				bs.top=parseInt(canvas.style.top||0)+y+(h<0 ? h : 0)+'px';  },
+			onmouseup: function(event)  {
 				event.stopPropagation();  event.preventDefault();
 				const
 					canvas=EyeDropper.playground.bgElement,
@@ -5178,14 +5201,19 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 								Math.abs(w)/scale,
 								Math.abs(h)/scale);
 				thisButton.classList.replace('cutting','uncut');  thisButton.title=EyeDropper.HTMLtext.UNCUT;
-				closeCutter();  }  };
+				closeCutter();  },
+			// ↓↓ see “A Note About dragging & dropping” near the end of this file
+			onpickerstatechange: done,
+			onvisibilitystatechange: done };
+		function done()  {closeCutter();  x= y= undefined;}
 		function closeCutter()  {
 			weBeACuttin=false;
 			document.body.classList.remove('MCP_we-be-a-cuttin');
 			thisButton.classList.remove('cutting');
 			if (box.isConnected)  EyeDropper.playground.removeChild(box);
 			if (cutter)  {
-				cutter.onMouseDown.remove();  cutter.onMouseMove.remove();  cutter.onMouseUp.remove();  }
+				cutter.onMouseDown.remove();  cutter.onMouseMove.remove();  cutter.onMouseUp.remove();
+				cutter.onPickerStateChange.remove();  cutter.onVisibilityStateChange.remove();  }
 			cutter=undefined;  }
 		if (weBeACuttin)  {closeCutter();  x= y= undefined;  return;}  // ←this shouldn’t happen unless we allow buttonpress events on this “cut” button: the sizzors’ mousedown will block it.
 		else  {
@@ -5193,7 +5221,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 				weBeACuttin=true;
 				document.body.classList.add('MCP_we-be-a-cuttin');
 				thisButton.classList.add('cutting')
-				cutter=UniDOM.addEventHandler(document.body, ['onMouseDown','onMouseMove','onMouseUp'], sizzors, true);  }
+				cutter=UniDOM.addEventHandler(document, ['onMouseDown','onMouseMove','onMouseUp','onPickerStateChange','onVisibilityStateChange'], sizzors, true);  }
 			else  {
 				x= y= undefined;
 				thisButton.classList.remove('cutting', 'uncut');  thisButton.title=EyeDropper.HTMLtext.CUT;
@@ -5235,7 +5263,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 		textarea.foreground=textarea.style.color;
 		// MasterColorPicker’s onchange will recolor the swatch immediately after this focusOut event
 		setTimeout(()=>{textarea.style.color="";}, 1);  });
-	UniDOM.addEventHandler(swatches, 'mouseDown', function(event)  {
+	UniDOM.addEventHandler(swatches, 'mouseDown', function dragSwatch(event)  {
 		if (event.target===swatches)  {
 			if (event.detail===3
 			||  (event.detail===1  &&  event.ctrlKey))  {
@@ -5263,29 +5291,40 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 				r=swatch.getBoundingClientRect(),
 				mXoff=event.clientX-r.left,
 				mYoff=event.clientY-r.top,
-				drag=UniDOM.addEventHandler(document.body, 'onMouseMove', function(event)  {
-					const
-						fr=swatches.getBoundingClientRect(),      //swatches’ fieldset rectangle
-						br=Blender.HTML.getBoundingClientRect();  //tool panel’s rectangle
-					if (event.clientX<br.left  ||  event.clientX>br.right
-					||  event.clientY<br.top   ||  event.clientY>br.bottom)  {
-						s.position='fixed';
-						s.left=(event.clientX-mXoff)+"px";
-						s.top= (event.clientY-mYoff)+"px";  }
-					else
-					if (event.clientX<fr.left  ||  event.clientX>fr.right
-					||  event.clientY<fr.top   ||  event.clientY>fr.bottom)  {
-						s.position='absolute';
-						s.left=(event.clientX-br.x-mXoff)+"px";
-						s.top= (event.clientY-br.y-mYoff)+"px";  }
-					else  {
-						if (s.position!=='relative'  ||  !swatch.homeRect)  {
-							s.position='relative';  s.left='0px';  s.top='0px';
-							swatch.homeSpot=swatch.getBoundingClientRect();  }
-						s.left=(event.clientX-swatch.homeSpot.x-mXoff)+"px";
-						s.top= (event.clientY-swatch.homeSpot.y-mYoff)+"px";  }  }),
-				endDrag=UniDOM.addEventHandler(document.body, 'onMouseUp', function(event)  {
-					drag.onMouseMove.remove();  endDrag.onMouseUp.remove();  });  }  });
+				drag=UniDOM.addEventHandler(document.body, 'onMouseMove', dragger, true);
+				// ↓↓ see “A Note About dragging & dropping” near the end of this file
+				endDrag=UniDOM.addEventHandler(document, ['onMouseUp', 'onPickerStateChange', 'onVisibilityStateChange'], done, true);  
+			function dragger(event)  {
+				event.stopPropagation();  event.preventDefault();
+				if (event.buttons!==1)  {done();  return;}
+				const
+					fr=swatches.getBoundingClientRect(),      //swatches’ fieldset rectangle
+					br=Blender.HTML.getBoundingClientRect();  //tool panel’s rectangle
+				if (event.clientX<br.left  ||  event.clientX>br.right
+				||  event.clientY<br.top   ||  event.clientY>br.bottom)  {
+					s.position='fixed';
+					s.left=(event.clientX-mXoff)+"px";
+					s.top= (event.clientY-mYoff)+"px";
+					s.classList.add('superTop');  }
+				else
+				if (event.clientX<fr.left  ||  event.clientX>fr.right
+				||  event.clientY<fr.top   ||  event.clientY>fr.bottom)  {
+					s.position='absolute';
+					s.left=(event.clientX-br.x-mXoff)+"px";
+					s.top= (event.clientY-br.y-mYoff)+"px";
+					s.classList.remove('superTop');   }
+				else  {
+					if (s.position!=='relative'  ||  !swatch.homeSpot)  {
+						s.position='relative';  s.left='0px';  s.top='0px';
+						swatch.homeSpot=swatch.getBoundingClientRect();  }
+					s.left=(event.clientX-swatch.homeSpot.x-mXoff)+"px";
+					s.top= (event.clientY-swatch.homeSpot.y-mYoff)+"px";
+					s.classList.remove('superTop');  }  }
+			function done()  {
+				drag.onMouseMove.remove();
+				endDrag.onMouseUp.remove();
+				endDrag.onPickerStateChange.remove();
+				endDrag.onVisibilityStateChange.remove();  }  }  });
 	UniDOM.addEventHandler(playgrounds, 'mouseDown', function(event)  {
 		const resize= (event.offsetX>this.offsetWidth-14  &&  event.offsetY>this.offsetHeight-14);
 		if (resize  &&  event.detail===1)  {
@@ -5896,8 +5935,11 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 	function dragPanel(event, stickyPanels, side)  {
 		event.stopPropagation();
 		event.preventDefault();
-		if (event.detail>1  ||  !MasterColorPicker.enablePanelDrag)  return;
+		if (event.detail>1
+		||  (event.buttons!==1  &&  event.buttons!==2)
+		||  !MasterColorPicker.enablePanelDrag)  return;
 		const
+			currentButton=event.buttons,
 			stick=(event.shiftKey || event.button===2) && MasterColorPicker.enableStickyPanels,
 			ttcn= (stick ? 'MCP_thumbtack' : ""),
 			CSS=getComputedStyle(stickyPanels[0], null),  // remember this is a live object
@@ -5906,42 +5948,69 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 					 y: event.clientY-parseInt(CSS.top)}
 				: UniDOM.getMouseOffset(stickyPanels[0], event),
 		  dragHandle=event.currentTarget,
-			move=UniDOM.addEventHandler(document.body, 'onmousemove', function panelMover(event)  {
-				if (CSS.position==='fixed')
-				var b={w: document.body.offsetWidth, h: document.documentElement.clientHeight || window.innerHeight, x: 0, y: 0},
-						y=(event.clientY - mOff.y),
-						x= (side==='right') ?
-							((b.w-event.clientX) - mOff.x)
-						: (event.clientX - mOff.x);
-				else
-				var b=UniDOM.getElementOffset(stickyPanels[0].offsetParent, MasterColorPicker.dragBounder),
-				    b={y: b.y, x: b.x, w: MasterColorPicker.dragBounder.offsetWidth, h: MasterColorPicker.dragBounder.offsetHeight},
-				    m=UniDOM.getMouseOffset(stickyPanels[0].offsetParent, event),
-						y=m.y - (parseInt(CSS.marginTop) + mOff.y),
-						x= (side==='right') ?
-							(b.w-m.x) - (stickyPanels[0].offsetWidth-mOff.x) + parseInt(CSS.marginRight)
-						//: (b.w-m.x) + (stickyPanels[0].offsetWidth-mOff.x) + parseInt(CSS.marginLeft);
-						: (m.x - mOff.x) + parseInt(CSS.marginLeft);
+			move=UniDOM.addEventHandler(document.body, 'onMouseMove', panelMover, true),
+			blockMenu=UniDOM.addEventHandler(document.body, 'onContextMenu', abortContextMenu, true),
+			drop=UniDOM.addEventHandler(document, ['onMouseUp', 'onPickerStateChange', 'onVisibilityStateChange'], done, true);
+		/* “A Note About dragging & dropping”
+		 * If the end-user is dragging and dropping a panel
+		 * (or color in MyPalette, swatch in Blender, or using the scizzors in EyeDropper, etc.)
+		 * we typically look for a mouseUp event,
+		 * but if the end-user moves the mouse-cursor off the browser window and releases the button,
+		 * we don’t get the mouseUp event.
+		 * If the end-user then presses the button again off-page
+		 * and while holding the button moves back onto the page,
+		 * the mouseMove & mouseUp would not know; yet we should not then still be dragging.
+		 * Typically, we can fall back on the pickerStateChange event,
+		 * because it is triggered by an onBlur event that occurs when
+		 * the .currentTarget looses focus as the end-user clicks off-page.
+		 * We don’t want to listen for an onBlur event directly,
+		 * as this may occur “by accident” and the .currentTarget will be re-focused.
+		 * However, in implementations where the .dataTarget is not a focusable element
+		 * (such as a text-node that simply recieves the picked color)
+		 * (and the MasterColorPicker is not implemented to changePickerState with a change in keyboard-focus)
+		 * we are out of luck.
+		 * Testing in FireFox yields no reason to supply an "onVisibilityStateChange" event-handler to end the drag,
+		 * but if your dataTarget is not focusable, it helps, but is not a guaranteed fix.
+		 * In the future, I may complicate the drag & drop interfaces even more,
+		 * and use setPointerLock, but then the mouse pointer disappears and we want it…
+		 * however, using mouseOut on the body to set the pointer-lock
+		 * and then release it if the user nudges the mouse in the reverse direction may be the way to go…
+		 */
+		function panelMover(event)  {
+			if ((event.buttons&currentButton)===0)  {done(event);  return;}
+			if (CSS.position==='fixed')
+			var b={w: document.body.offsetWidth, h: document.documentElement.clientHeight || window.innerHeight, x: 0, y: 0},
+					y=(event.clientY - mOff.y),
+					x= (side==='right') ?
+						((b.w-event.clientX) - mOff.x)
+					: (event.clientX - mOff.x);
+			else
+			var b=UniDOM.getElementOffset(stickyPanels[0].offsetParent, MasterColorPicker.dragBounder),
+			    b={y: b.y, x: b.x, w: MasterColorPicker.dragBounder.offsetWidth, h: MasterColorPicker.dragBounder.offsetHeight},
+			    m=UniDOM.getMouseOffset(stickyPanels[0].offsetParent, event),
+					y=m.y - (parseInt(CSS.marginTop) + mOff.y),
+					x= (side==='right') ?
+						(b.w-m.x) - (stickyPanels[0].offsetWidth-mOff.x) + parseInt(CSS.marginRight)
+					//: (b.w-m.x) + (stickyPanels[0].offsetWidth-mOff.x) + parseInt(CSS.marginLeft);
+					: (m.x - mOff.x) + parseInt(CSS.marginLeft);
 //console.log('------\n',x);
-				y= (y<-b.y) ?  (-b.y)  :  ( (y>(m=b.h-(stickyPanels[0].offsetHeight+parseInt(CSS.marginTop)+parseInt(CSS.marginBottom)+b.y))) ? m : y );
-				x= (x<-b.x) ?  (-b.x)  :  ( (x>(m=b.w-(stickyPanels[0].offsetWidth+parseInt(CSS.marginLeft)+parseInt(CSS.marginRight)+b.x))) ? m : x );
+			y= (y<-b.y) ?  (-b.y)  :  ( (y>(m=b.h-(stickyPanels[0].offsetHeight+parseInt(CSS.marginTop)+parseInt(CSS.marginBottom)+b.y))) ? m : y );
+			x= (x<-b.x) ?  (-b.x)  :  ( (x>(m=b.w-(stickyPanels[0].offsetWidth+parseInt(CSS.marginLeft)+parseInt(CSS.marginRight)+b.x))) ? m : x );
 //console.log(x,'\n------');
-				for (var i=0;  i<stickyPanels.length;  i++)  {
-					stickyPanels[i].style.top= y + 'px';
-					stickyPanels[i].style[side]= x + 'px';  }
-				event.stopPropagation();
-				event.preventDefault();  }
-			, true),
-			blockMenu=UniDOM.addEventHandler(document.body, 'oncontextmenu', abortContextMenu, true),
-			drop=UniDOM.addEventHandler(document.body, 'onmouseup', function(event)  {
-				move.onmousemove.remove();  blockMenu.oncontextmenu.remove();  drop.onmouseup.remove();
-				event.stopPropagation();
-				event.preventDefault();
-			  for (var i=0;  i<stickyPanels.length;  i++)  {UniDOM.remove$Class(stickyPanels[i], ['dragging', ttcn]);}
-				UniDOM.remove$Class(document.body, ['MCP_drag', ttcn]);
-				if (stick) dragHandle.removeChild(MasterColorPicker.thumbtackImage);
-				try {MasterColorPicker.dataTarget.focus();} catch(e) {}  }
-			, true);
+			for (var i=0;  i<stickyPanels.length;  i++)  {
+				stickyPanels[i].style.top= y + 'px';
+				stickyPanels[i].style[side]= x + 'px';  }
+			event.stopPropagation();
+			event.preventDefault();  }
+		function done(event)  {
+			move.onMouseMove.remove();  blockMenu.onContextMenu.remove();
+			drop.onMouseUp.remove();  drop.onPickerStateChange.remove();  drop.onVisibilityStateChange.remove();
+			event.stopPropagation();
+			event.preventDefault();
+		  for (var i=0;  i<stickyPanels.length;  i++)  {UniDOM.remove$Class(stickyPanels[i], ['dragging', ttcn]);}
+			UniDOM.remove$Class(document.body, ['MCP_drag', ttcn]);
+			if (stick) dragHandle.removeChild(MasterColorPicker.thumbtackImage);
+			try {MasterColorPicker.dataTarget.focus();} catch(e) {}  }
 	  for (var i=0;  i<stickyPanels.length;  i++)  {
 		  UniDOM.addClass(stickyPanels[i], ['dragging', ttcn]);
 			MasterColorPicker.setTopPanel(stickyPanels[i]);  }
@@ -5955,7 +6024,6 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 				var currentCN='scrollable', newCN='floating';  }
 		  while (--i>=0)  {UniDOM.swapOut$Class(stickyPanels[i], currentCN, newCN);}
 		  dragHandle.appendChild(MasterColorPicker.thumbtackImage);
-		  //move.onmousemove.wrapper(event);  }
 		  move.onmousemove.handler(event);  }
 		UniDOM.addClass(document.body, ['MCP_drag', ttcn]);  }
 	function returnPanelsOn3(event, stickyPanels)  {
