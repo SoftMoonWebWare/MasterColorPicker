@@ -129,7 +129,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
-      release 2.5.2  November 26, 2023
+      release 2.5.4  December 14, 2023
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -326,24 +326,25 @@ or pin it to the window when it is pinned to the page.
 <h2 id='MasterColorPicker_MyPalette_header'>MasterColorPicker<footmark>™</footmark> <span title="press F2 for shortcut">MyPalette</span></h2>
 <p>(choose colors using any color-picker or type directly)</p>
 <fieldset>
-<button type='button' name='MasterColorPicker_MyPalette_makeSub' backtabToTarget='true'>create sub-palette</button>
-<button type='button' name='MasterColorPicker_MyPalette_delete'>delete selected</button>
-<button type='button' name='MasterColorPicker_MyPalette_port'
-	role='combobox' aria-haspopup='dialog' aria-controls='MasterColorPicker_MyPalette_porter' aria-expanded='false' aria-pressed='false'
-	>import/export palette</button>
-<fieldset class='options'><legend>▼ Options</legend>
-	<label><input type='checkbox' name='MasterColorPicker_MyPalette_showColorblind'>show color-blind simulations
-		<note>Note simulations are approximate and may vary between individuals and monitors.</note></label>
-	<label><input type='checkbox' name='MasterColorPicker_MyPalette_autoSelect' checked>automatically select newly created Sub-Palettes for “auto add colors”</label>
-	<label><input type='checkbox' name='MasterColorPicker_MyPalette_autoUncheck' checked>automatically un-check items upon “add selected”</label>
-</fieldset>
-<label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette'>
-	<option selected>double-click</option>
-	<option>shift-click</option>
-	<option>all selected</option>
-	<option>single-click</option>
-	<option>never</option>
-	</select></label>
+	<label>Auto-add to MyPalette: <select name='MasterColorPicker_addToMyPalette' backtabToTarget='true'>
+		<option selected>double-click</option>
+		<option>shift-click</option>
+		<option>all selected</option>
+		<option>single-click</option>
+		<option>never</option>
+		</select></label>
+	<fieldset class='options'><legend>▼ Options</legend>
+		<label>¿<input type='checkbox' name='MasterColorPicker_MyPalette_showColorblind'>show color-blind simulations?
+			<note>Note simulations are approximate and may vary between individuals and monitors.</note></label>
+		<label>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoSelect' checked>automatically select newly created Sub-Palettes for “auto add colors”?</label>
+		<label>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoUncheck1' checked>automatically un-check items upon “add selected” &amp; “paste all”?</label>
+		<label>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoUncheck2' checked>automatically un-check items upon “copy selected”?</label>
+		<label>¿<input type='checkbox' name='MasterColorPicker_MyPalette_autoClearClip'>automatically clear “clip” from clipboard when “pasting”?</label>
+		<label>¿<input type='checkbox' name='MasterColorPicker_MyPalette_keepEditorsSticky' checked>keep editing buttons visible when scrolling?</label>
+	</fieldset>
+	<button type='button' name='MasterColorPicker_MyPalette_port'
+		role='combobox' aria-haspopup='dialog' aria-controls='MasterColorPicker_MyPalette_porter' aria-expanded='false' aria-pressed='false'
+		>import/export palette</button>
 </fieldset>
 <fieldset id='MasterColorPicker_MyPalette_porter' class='portDialog' disabled role='dialog'>
 	<fieldset class='portMode'>
@@ -409,6 +410,13 @@ or pin it to the window when it is pinned to the page.
 		</fieldset>
 	</fieldset>
 </fieldset>
+<fieldset class='editors'>
+	<button type='button' name='MasterColorPicker_MyPalette_makeSub'>create sub-palette</button>
+	<button type='button' name='MasterColorPicker_MyPalette_copy'>copy selected</button>
+	<button type='button' name='MasterColorPicker_MyPalette_cut'>cut selected</button>
+	<button type='button' name='MasterColorPicker_MyPalette_delete'>delete selected</button>
+	<button type='button' name='MasterColorPicker_MyPalette_clearClips'>clear clipboard</button>
+</fieldset>
 <table>
 	<thead>
 	<tr>
@@ -425,10 +433,12 @@ or pin it to the window when it is pinned to the page.
 		<th colspan='7'>
 			<label class='subPalette'>parent Palette: <select name='MasterColorPicker_MyPalette[0][parent]'><option>«MyPalette root»</option></select></label>
 			<label><span class='subPalette'>Sub-</span>Palette Name: <input type='text' name='MasterColorPicker_MyPalette[0][Name]'></label>
+			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere'>Auto-add new Colors to this palette</label>
 			<label><input type='checkbox' name='MasterColorPicker_MyPalette_selectAll'>select all</label>
 			<label class='subPalette'><input type='checkbox' name='MasterColorPicker_MyPalette_selectThis'>select this</label>
 			<button type='button' name='MasterColorPicker_MyPalette_addSelected'>add selected</button>
-			<label><input type='radio' name='MasterColorPicker_MyPalette_addToHere'>Auto-add new Colors below</label></th></tr>
+			<button type='button' name='MasterColorPicker_MyPalette_pasteAll'>paste all</button>
+		</th></tr>
 	<tr class='MyColor'>
 		<td toggleBorder='no'><input type='checkbox' name='MasterColorPicker_MyPalette[0][0][selected]'></td>
 		<td class='colorblind' colorblind='protan' toggleBorder='no'></td>
@@ -444,17 +454,17 @@ or pin it to the window when it is pinned to the page.
 <!--  The JavaScript is greatly dependent on the structure and text-content in this section.
 			See the FormFieldGenie.js file and instructions for more info.
 			You may safely modify the content of the ‹span› tag  -->
-	<li class='insert' tabindex="-1">insert:
-		<span tabindex="-1">new color</span>
-		<ul>
+	<li class='insert' tabindex="-1" controls='MyPalette_ColorGenieMenu_insertA MyPalette_ColorGenieMenu_insertB'>insert:
+		<span id='MyPalette_ColorGenieMenu_insertA' tabindex="-1">new color</span>
+		<ul id='MyPalette_ColorGenieMenu_insertB'>
 			<li standard tabindex="-1">all clips</li>
 		</ul>
 	</li>
-	<li class='copy' tabindex="-1">copy to:<ul>
+	<li class='copy'  tabindex="-1" controls='MyPalette_ColorGenieMenu_copy'>copy to:<ul id='MyPalette_ColorGenieMenu_copy'>
 		<li standard tabindex="-1">new clip</li></ul></li>
-	<li class='cut' tabindex="-1">cut to:<ul>
+	<li class='cut'   tabindex="-1" controls='MyPalette_ColorGenieMenu_cut'>cut to:<ul id='MyPalette_ColorGenieMenu_cut'>
 		<li standard tabindex="-1">new clip</li></ul></li>
-	<li class='paste' tabindex="-1">paste from:<ul>
+	<li class='paste' tabindex="-1" controls='MyPalette_ColorGenieMenu_paste'>paste from:<ul id='MyPalette_ColorGenieMenu_paste'>
 		</ul></li>
 	<li class='delete' title='triple-click' tabindex="-1">delete</li>
 	<li title='triple-click' tabindex="-1">clear clipboard</li>
@@ -788,7 +798,7 @@ triadic</label>
 				<li>Hue ←&nbsp; define only a hue-angle-value and see the full-color (fully chromatic) tone of the hue.</li>
 				<li>XYZ →&nbsp; (Observer = 2°, Illuminant = D65) <kbd>0 ≤ X ≤ 95.047</kbd>, <kbd>0 ≤ Y ≤ 100</kbd>, <kbd>0 ≤ Z ≤ 108.883</kbd></li>
 			</ul>
-				<p>Use models by wrapping() or prefixing: their given values.&nbsp;
+				<p>Use models by <kbd>wrapping()</kbd> or <kbd>prefixing:</kbd> their given values.&nbsp;
 				Each value may be separated by spaces/commas.&nbsp;
 				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %);
 				except Hue values are given in angular values (starting at 3:00 and going counter-clockwise) using one of the following units:
@@ -808,7 +818,7 @@ triadic</label>
 				<li>The “turn” <kbd>●</kbd> symbol may be entered by typing <kbd><span>CTRL</span>+<span>1!</span></kbd></li>
 			</ul></li>
 		<li>Any of the available “named-colors” found in the color-table-palettes.&nbsp;
-				Colors should be prefixed: or wrapped() with the appropriate color-table-palette name.&nbsp;
+				Colors should be <kbd>prefixed:</kbd> or <kbd>wrapped()</kbd> with the appropriate color-table-palette name.&nbsp;
 				“Named color” palettes may have sub-palettes; you may or may not need to include the sub-palette name
 				in your color-spec, depending on the palette.&nbsp;
 				Generally, if all the colors in the parent palette and its sub-palettes have different names,
@@ -817,7 +827,8 @@ triadic</label>
 ANSI: 8-bit: shades and tones: 35
 ANSI: Ubuntu: Cyan
 ANSI: 3-bit &amp; 4-bit: Ubuntu: Cyan
-ANSI: Windows 10 Console: Cyan</code>
+ANSI: Windows 10 Console: Cyan
+ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 				<abbr>CSS</abbr> is the “default” palette and its colors do not need to be prefixed or wrapped.&nbsp;
 				Hackers can change the default palette thought the value at: <code>SoftMoon.defaultPalette</code></li>
 	</ul>
@@ -878,13 +889,23 @@ ANSI: Windows 10 Console: Cyan</code>
 	</ul>
 
 	<hr>
-	<h4>“Average Perceived Relative Luminance”</h4>
+	<h4>“Average Perceived Relative Luminance” &amp; “Contrast Ratios”</h4>
 	<p>Every monitor is different, and has a unique contrast-ratio, color-mix, brightness setting, etc.&nbsp;
 	Every individual is unique and can perceive colors a little differently, especially color-blind folks.&nbsp;
 	The Average Perceived Relative Luminance is based on the “official”
 	<a href='https://www.w3.org/TR/WCAG21/#dfn-relative-luminance' target='W3C'>►luminance formula from the <abbr title='World Wide Web Consortium'>W3C</abbr></a>
 	and is considered relative to “white” <nobr>(<kbd>RGB(255,255,255)</kbd>)</nobr>
-	as displayed by the average monitor and viewed by the average user.</p>
+	as displayed by the average monitor and viewed by the average user.&nbsp;
+	The Contrast Ratio relates to the luminance of two colors
+	and is based on the “official”
+	<a href='https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio' target='W3C'>►contrast formula from the <abbr title='World Wide Web Consortium'>W3C</abbr></a>.&nbsp;
+	These official formulas <strong>do not</strong> take into consideration the alpha (opacity/transparancy) channel;
+	however, MasterColorPicker <strong>does</strong> factor in the alpha channel,
+	reducing the luminance of a color as the opacity reduces,
+	and increasing the forground-color’s luminance by its transparancy factor related to the background color’s luminance.&nbsp;
+	Note that if the background-color is partially opaque/transparent, the color behind it (a third color),
+	and recursively the colors behind the third if they are partially opaque/transparent,
+	would legitimately influence the contrast ratio of the first two beyond the scope of this app.</p>
 
 	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions, and the <abbr>CMYK<abbr> color spaces</h4>
 
@@ -975,7 +996,7 @@ ANSI: Windows 10 Console: Cyan</code>
 		<li>When “keyboard focus” is <em>within the MyPalette interface</em> and associated with a color,
 				pressing the “Alternate Context-Menu” key pops up the insert/cut/copy/paste/delete menu.&nbsp;
 				(This same menu can be found by “right-clicking” the “drag-handle” <code>↕</code>
-				found between the color-definition and color-name, but then without keyboard interaction.)&nbsp;
+				found between the color-definition and color-name.)&nbsp;
 				This menu works on the whole <em>color spec</em>, not just the text in the input-box
 				(use just <kbd><span>≡</span></kbd> alone for that standard <abbr>OS</abbr> functionality as usual).&nbsp;
 				Use the Arrow Keys <kbd><span>↓</span></kbd><kbd><span>→</span></kbd><kbd><span>↑</span></kbd><kbd><span>←</span></kbd>
@@ -984,9 +1005,9 @@ ANSI: Windows 10 Console: Cyan</code>
 				keys to quick-navigate to that section of the menu.&nbsp;
 				Use the Number Keys <kbd><span>0</span>…<span>9</span></kbd>
 				to quick-navigate to a specific “clip” when inserting, cutting, copying, or pasting is selected.&nbsp;
-				Press <kbd><span>Enter</span></kbd> or <kbd><span>Space</span></kbd> to make a clip selection in the menu.&nbsp;
+				Press <kbd><span>&crarr; Enter</span></kbd> or <kbd><span>Space</span></kbd> to make a clip selection in the menu.&nbsp;
 				To delete a color or clear the clipboard, you will have to press
-				<kbd><span>Enter</span></kbd> or <kbd><span>Space</span></kbd> three (3) times quickly
+				<kbd><span>&crarr; Enter</span></kbd> or <kbd><span>Space</span></kbd> three (3) times quickly
 				(or click with the mouse three (3) times quickly … i.e. “triple-click”).&nbsp;
 				Press <kbd><span>Esc</span></kbd> or <kbd><span>ALT</span>+<span>≡</span></kbd> again
 				to exit the menu with no selection.</li></ul></dd>
@@ -1031,8 +1052,8 @@ ANSI: Windows 10 Console: Cyan</code>
 	&nbsp;<code>MasterColorPicker.panelTabKey</code>&nbsp; and &nbsp;<code>MasterColorPicker.panelBacktabKey</code>&nbsp;
 	if their keyboard normally generates different characters than <code>&gt;</code> and <code>&lt;</code>
 	when the <kbd><span>CTRL</span></kbd> key is pressed.&nbsp;
-	Hackers can also redefine &nbsp;<code>MasterColorPicker.altMenuKey</code>&nbsp;
-	if their system uses the <kbd><span>Alt</span> + <span>≡</span></kbd> key-combo.</p>
+	Hackers can also redefine &nbsp;<code>SoftMoon.altMenuKey</code>&nbsp;
+	if their system uses the <kbd><span>Alt</span>+<span>≡</span></kbd> key-combo.</p>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_MyPalette'>Using MyPalette</h4>
@@ -1048,6 +1069,28 @@ ANSI: Windows 10 Console: Cyan</code>
 	If you plan on creating final bit-map images with high-compression using a paletted-image
 	format (such as .png), you can begin by creating and saving your palette of choice colors
 	using MasterColorPicker’s™ MyPalette.</p>
+	<p>You can re-organize the palette you are creating in various ways,
+	including “dragging” Color-Specs and Sub-Palettes
+	with the “drag-handle” <strong><code>↕</code></strong> using the mouse,
+	moving colors up and down in the list with the
+	<kbd><span>Alt</span>+<span>↑</span></kbd> and <kbd><span>Alt</span>+<span>↓</span></kbd> keys,
+	or by cutting, copying, &amp; pasting using the multi-clip clipboard.&nbsp;
+	While many systems allow you to copy/cut and then paste multiple items,
+	they typically must be pre-selected, then copied and pasted in one group;
+	and when you copy something new, the last thing copied is lost.&nbsp;
+	The MyPalette interface works like that when use use the “checkboxes” to select colors,
+	then use the “copy selected” or “cut selected” buttons, and then use a “paste all” button;
+	and the copied Color-Specs are added to the end of the (Sub-)Palette;
+	<strong><em>except</em></strong> previously copied items
+	<em>are always retained</em> when you copy a new item or items.&nbsp;
+	However, you also have direct access to the clipboard items by
+	“context-menu-clicking” (typically right-clicking) the
+	mouse button on the “drag-handle” <strong><code>↕</code></strong>,
+	or pressing <kbd><span>Alt</span>+<span>≡</span></kbd> (the context-menu key) while editing a Color-Spec;
+	you can then copy multiple items individually at different times,
+	and you can then also paste-over any individual Color-Spec
+	or insert one or all copied Color-Specs into anywhere in the list.&nbsp;
+	Don’t forget to check or un-check the “automatically clear clip” option to your liking in the ▼Options menu.</p>
 	<p>When you save the palette you create,
 	your colors and sub-palettes can be named or not or a mix,
 	and if named it must have unique name in the “main palette” or “sub-palette” it is in,
@@ -1318,7 +1361,7 @@ ANSI: Windows 10 Console: Cyan</code>
 		<li>Open the browser’s console by pressing the <kbd><span>F12</span></kbd> key,
 				or go to the browser’s main-menu and open “developer tools” and choose the console tab.</li>
 		<li>Focus the cursor in the console and type in:
-				<kbd>SoftMoon.WebWare.Gradientor.doLog=true<span>&crarr;Enter</span></kbd></li>
+				<kbd>SoftMoon.WebWare.Gradientor.doLog=true<span>&crarr; Enter</span></kbd></li>
 		<li>Keep the console open, and watch for error messages to appear as you use the Gradientor.&nbsp;
 				Processed gradient data is also presented, with stop-positions all converted to factors from 0–1 (i.e. 0%–100%),
 				and colors presented as Arrays of values in the chosen color-space.&nbsp;
@@ -1332,7 +1375,7 @@ ANSI: Windows 10 Console: Cyan</code>
 		<li>Note that as you hover your mouse over the displayed gradient,
 				the color-stops are interpreted every time you move and this will fill up the console.&nbsp;
 				For the best performance, after you find your errors, type into the console:
-				<kbd>SoftMoon.WebWare.Gradientor.doLog=false<span>&crarr;Enter</span></kbd></li>
+				<kbd>SoftMoon.WebWare.Gradientor.doLog=false<span>&crarr; Enter</span></kbd></li>
 	</ol>
 
 	<hr>
@@ -1475,7 +1518,7 @@ ANSI: Windows 10 Console: Cyan</code>
 	<label>variety<input type='numeric-slider' name='RainbowMaestro_variety' value='6' min='6' max='32'></label>
 	<label><input type='checkbox' name='RainbowMaestro_focalsOnly' value='true'>focals only</label>
 	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue' value='0' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' tabToTarget='true'>
-		<span class='hueIndicator'>&nbsp;</span><p>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.</p></label>
+		<span class='hueIndicator'>&nbsp;</span><note>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.</note></label>
 	</td></tr>
 	<tr><td colspan='2' id='RainbowMaestro_swatch'><span id='RainbowMaestro_indicator'>&nbsp;</span></td><tr>
 </thead>
@@ -1560,9 +1603,7 @@ ANSI: Windows 10 Console: Cyan</code>
 
 
 <table class='picker palette' id='YinYangNíHóng'><caption><h6>YinYang NíHóng<span>the Tao of Color Pickers™</span></h6>click to choose</caption>
-<thead
-	onfocusin='event.target.parentNode.classList.add("focusWithin"); event.target.closest("tr").classList.add("focusWithin");'
-	onfocusout='event.target.parentNode.classList.remove("focusWithin"); event.target.closest("tr").classList.remove("focusWithin");'>
+<thead>
 <tr>
 	<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='MasterColorPicker_palette_select'>HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
 	<td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked>HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
