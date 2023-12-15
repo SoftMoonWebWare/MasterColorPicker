@@ -6,7 +6,7 @@
 <meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker'>
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
 <meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare'>
-<meta name='page_last-udate' content='December 6, 2023'>
+<meta name='page_last-udate' content='December 10, 2023'>
 <title>MasterColorPicker Instructions from SoftMoon-WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <style type="text/css">
@@ -278,6 +278,8 @@ allowing complete and simple management of all colors used throughout an entire 
 <dd>gives you direct control of, and displays a color’s definitive values
 in the RGB, HSV/HSB, HSL, HCG, HWB, &amp; CMYK color-spaces.&nbsp;
 It also allows you to add an Alpha (opacity) value to your selected color, automatically if you choose.&nbsp;
+The selected color’s Luminance is shown,
+as well as optionally the contrast with a specific previously selected color.&nbsp;
 It can update automatically as you hover over a color in a palette;
 or you can use it to manually make color-space conversions.</dd>
 
@@ -323,17 +325,19 @@ With server-based (<code>http://</code> or <code>https://</code> protocol) usage
 you simply create the named-color database file and add it to the proper folder; that’s it.&nbsp;
 Or you can use the MyPalette interface to create your named-color-table and save your file to the server,
 and not even worry about which folders where … or about the file formatting details …
-MasterColorPicker takes care of it all for you and even lets you autoload them in the future.&nbsp;
-Simply remove your database file from the folder when you are done with it.&nbsp;
-With <code>file://</code> protocol usage, you must manually add and remove links to each of the named-color tables
+MasterColorPicker takes care of it all for you and even lets you auto-load them in the future.&nbsp;
+When you are done with your Palette file, simply use the PaletteManager to remove it,
+or manually remove it from the server’s folder.&nbsp;
+With <code>file://</code> protocol usage, you must manually add and remove
+<abbr>HTML</abbr> links to each of the named-color tables
 <strong>if you want them to auto-load when MasterColorPicker starts</strong>.&nbsp;
 You can find info on doing such in MasterColorPicker’s ☺Help☺ panel while it is up-and-running.
 Both <code>file://</code> and <code>http://</code> (&amp; <code>https://</code>) protocol usages
-allow you to create, save &amp; load MyPalette and other named-color-table-palette files
+allow you to easily save &amp; load MyPalette and other named-color-table-palette files
 to &amp; from your computer’s local filesystem,
-or the borwser’s private storeage database,
+or the borwser’s private storage database,
 so without a server you are not high-and-dry;
-the advantage of server usage is the simplified autoload feature,
+the advantage of server usage is the simplified auto-load feature,
 and having a centralized project host center for multiple developers.&nbsp;
 </p>
 
@@ -350,7 +354,7 @@ and also of the subtle differences in the CSS and how the palette files are load
 (no HTML <code>&lt;script&gt;</code> tags needed to load them).&nbsp;
 ¡Note both files support being used with a server!&nbsp;
 There are two simple, primary differences between the files:&nbsp;
-First, the <code class='filename'>.html</code> file adds hardcoded links to the named-color-table files;
+First, the <code class='filename'>.html</code> file adds hard-coded links to the named-color-table files;
 (¡note both files recognize the environment they are active in, and if served from a server (via <code>http://</code> or <code>https://</code>)
 the <code class='filename'>.html</code> file will still allow you save &amp; load palette files to/from the server-host!)&nbsp;
 Second, the <code class='filename'>.html</code> file adds a copy of some of the <abbr>CSS</abbr> styling
@@ -369,9 +373,9 @@ to make HTTP calls back to the server (think ajax);
 whereas with <code>file://</code> protocol usage,
 they are themselves JavaScript<abbr tm>™</abbr> files loaded with an <abbr>HTML</abbr>
 <code>&lt;script src='colors-filename.palette.js'&gt;</code> tag.&nbsp;
-Without a server, the palette files need to be hard-coded into the web page.&nbsp;
-However, the server can tell MasterColorPicker what files are available
-and MasterColorPicker can load what it wants.&nbsp;
+Without a server, the palette files’ links need to be hard-coded into the web page.&nbsp;
+However when using a server, it can tell MasterColorPicker what files are available,
+and MasterColorPicker can then load what it wants.&nbsp;
 Look at the difference in the two <code class='filename'>MasterColorPicker_desktop</code> files
 for an example of this principle.&nbsp;
 See also the file <code class='filename'>color_palettes/index.php</code> and note that
@@ -387,10 +391,10 @@ and even it can be replaced with a simple <code class='filename'>.txt</code> fil
 
 <p>Because the named-color database tables are required to be in only slightly different formats,
 and many of the files are very long, these database files only come packaged in one format:
-for <code>file://</code> protocol usage (extention <code class='filename'>.js</code>).&nbsp;
+for <code>file://</code> protocol usage (extension <code class='filename'>.js</code>).&nbsp;
 There is an included <abbr>PHP</abbr> powered converter which will convert all the files
 to the server (<code>http://</code> or <code>https://</code> protocol)
-usage format (extention <code class='filename'>.json</code>).&nbsp;
+usage format (extension <code class='filename'>.json</code>).&nbsp;
 There is also an instruction file which explains the details on how to do this using the included converter,
 and also how to do this by hand (which is remarkably simple) if you don't have <abbr>PHP</abbr> installed.&nbsp;
 These two files, <code class='filename'>convert_palette_formats.php</code>
@@ -457,10 +461,10 @@ which creates a new input “type:” picker.&nbsp;
 Using this interface is easy.&nbsp;
 The most simple way to use this project is to place anywhere within your document any number of
 <code>&lt;input type='MasterColorPicker' /&gt;</code> tags and/or
-<code>&lt;input type='text' pickerType='MasterColorPicker' /&gt;</code> tags.&nbsp;
+<code>&lt;input type='text' picker-type='MasterColorPicker' /&gt;</code> tags.&nbsp;
 The MasterColorPicker will find them when the document is fully loaded and automatically “register them,” i.e.
 add the necessary event-handlers to interface with the Picker.&nbsp;
-Using <code>&lt;input type='color' pickerType='MasterColorPicker' /&gt;</code> tags can work with the MasterColorPicker
+Using <code>&lt;input type='color' picker-type='MasterColorPicker' /&gt;</code> tags can work with the MasterColorPicker
 also, and with browsers that already support this natively, you will get the native color-picker plus the MasterColorPicker;&nbsp;
 but caution:&nbsp; the <abbr>W3C</abbr> specs say that <code>&lt;input type='color' /&gt;</code> should limit
 the user’s input to basic ways of defining colors, which means that your MasterColorPicker implementation should limit
@@ -483,11 +487,11 @@ MasterColorPicker.registerTargetElement(myInput)&#59;
 <p>When a color is clicked on, the target element’s value is changed to the color-value-text.&nbsp;
 Also, the associated “color swatch” has its background-color changed to the user-selected color,
 while its foreground-color becomes either black or white, opposing the background-color’s brightness.&nbsp;
-The “color swatch” is either the target element itself when <code>MasterColorPicker.showSwatchAs='background'</code>,
-or when <code>MasterColorPicker.showSwatchAs='swatch'</code> the color swatch
+The “color swatch” is either the target element itself when <code>MasterColorPicker.showColorAs='background'</code>,
+or when <code>MasterColorPicker.showColorAs='swatch'</code> the color swatch
 is determined by the first valid condition in this list:</p>
 <ol>
-	<li>If the target is as such: <code>&lt;input swatchId='myDocumentId' /&gt;</code>
+	<li>If the target is as such: <code>&lt;input swatch='myDocumentId' /&gt;</code>
 			then the swatch is a document element with an <abbr title='identification attribute'>id</abbr>
 			that matches “myDocumentId” if it exists.</li>
 	<li>If the target-object has a JavaScript<abbr tm>™</abbr> property “swatch,”
@@ -506,13 +510,17 @@ for more details on using the “color swatch”.</p>
 and even document text-nodes are automatically recognized by the <code>MasterColorPicker.pick()</code> method.&nbsp;
 By default, the JavaScript<abbr tm>™</abbr> value of
 <code>MasterColorPicker.dataTarget.value</code> is set when a color is picked.&nbsp;
-With text-nodes, the text is changed to the selected color.&nbsp;
 If no <code>dataTarget</code> is set then the <code>MasterColorPicker.masterTarget</code> is used, if any.&nbsp;
-For drag-&amp;-drop functionality (and the “sizzors” in the EyeDropper) to work flawlessly,
+With text-nodes, the text is changed to the selected color.&nbsp;
+However, for drag-&amp;-drop functionality (and the “sizzors” in the EyeDropper) to work flawlessly,
 the <code>dataTarget</code> (and <code>masterTarget</code>) should be any
-<acronym>DOM</acronym> Element that can receive keyboard focus.&nbsp;
-If it doesn’t naturally activate keyboard focus (e.g. like an <code>&lt;input&gt;</code> does)
-your JavaScript<abbt tm>™</abbt> code should activate its focus in some way that you determine;
+<acronym>DOM</acronym> Element that can receive keyboard focus;
+this eliminates the possibility of using text-nodes as data-targets
+if the end-user drags and tries to drop an item off the browser window;
+setting <code>MasterColorPicker.enablePanelDrag=false</code> can help somewhat,
+but doesn’t completely solve the problem.&nbsp;
+If it doesn’t naturally activate keyboard focus (like an <code>&lt;input&gt;</code> does)
+your JavaScript code should activate its focus in some way that you determine;
 and correspondingly, it should have a <code>tabindex="-1"</code> attribute.&nbsp;
 Without keyboard focus on your target,
 if your end-user tries to drag something off the page and drop it there
@@ -534,7 +542,7 @@ See the file <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code>
 
 <h3 id='your_filesystem'>MasterColorPicker’s<abbr tm>™</abbr> file system structure.</h3>
 
-<p>The MasterColorPicker<abbr tm>™</abbr> JavaScript<abbr tm>™</abbr> codebase does not rely on
+<p>The MasterColorPicker<abbr tm>™</abbr> JavaScript<abbr tm>™</abbr> code-base does not rely on
 any particular file-system structure or filenames,
 <strong>¡except!</strong> for the <code class='filename'>color_palettes/</code> folder
 and its <code class='filename'>index.…</code> file
@@ -563,7 +571,7 @@ so the server will automatically use it.&nbsp;
 Don’t copy the included <code class='filename'>color_palettes/index.php</code> file into sub-folders;
 it is not needed.</p>
 <p>Other folders and filenames may be changed or moved to suit your filesystem arrangement and organization.&nbsp;
-You simply need to modify the <code>&lt;script&gt;</code> tags that actually load the files to match your new filepaths.&nbsp;
+You simply need to modify the <code>&lt;script&gt;</code> tags that actually load the files to match your new file-paths.&nbsp;
 ¡The order the <code>&lt;script&gt;</code> files load is important!&nbsp;
 You can <code>defer</code> them for faster page rendering.&nbsp;
 As of 2022, the hard-coded <code>&lt;script&gt;</code> tag that defines the
@@ -571,7 +579,7 @@ As of 2022, the hard-coded <code>&lt;script&gt;</code> tag that defines the
 should always go before any other MasterColorPicker<abbr tm>™</abbr> files or Palette files.</p>
 <p>Developers should note that the files in the folder <code class='filename'>+++JS/</code>
 modify standard JavaScript<abbr tm>™</abbr> Objects and/or their <code>prototypes</code>.&nbsp;
-That is why they have been given thier own folder — to make it easier to keep track of in case of conflicts.</p>
+That is why they have been given their own folder — to make it easier to keep track of in case of conflicts.</p>
 
 
 <h3 id='your_structure'>Structuring your own <abbr>HTML</abbr> and <abbr>CSS</abbr></h3>
@@ -707,13 +715,13 @@ The important requirements to follow are listed below for each of the color-pick
 the MasterColorPicker is activated.&nbsp;
 When activated, the MasterColorPicker “main panel” and “options panel” (see the <abbr>HTML</abbr>),
 as well as the currently selected color-picker,
-all receive the classname “activePicker”.&nbsp;
-There are other classnames added to various <abbr>HTML</abbr> elements in the MasterColorPicker under other various conditions.&nbsp;
-For more detailed info on what classnames are applied and when, please see the comments in the
+all receive the class-name “activePicker”.&nbsp;
+There are other class-names added to various <abbr>HTML</abbr> elements in the MasterColorPicker under other various conditions.&nbsp;
+For more detailed info on what class-names are applied and when, please see the comments in the
 <code class='filename'>JS_toolbox/SoftMoon-WebWare/Picker.js</code> file.&nbsp;
-To modify these used classnames, modify the values of the JavaScript<abbr tm>™</abbr>
+To modify these used class-names, modify the values of the JavaScript<abbr tm>™</abbr>
 properties of <code>MasterColorPicker.classnames</code>.&nbsp;
-By understanding when and why these classnames are applied,
+By understanding when and why these class-names are applied,
 you can create your own <abbr>CSS</abbr> file to control the dynamic display of the MasterColorPicker.</p>
 
 <h3 id='add_rmv_pckr'>Adding &amp; removing color-pickers</h3>
