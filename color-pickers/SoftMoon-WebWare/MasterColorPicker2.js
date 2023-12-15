@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.5.3~BETA   December 4, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.5.4~BETA   December 14, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -148,32 +148,37 @@ SoftMoon.WebWare.canvas_graphics.copyPixels=function copyPixels(src, dst, sx, sy
 window.addEventListener('load', function settings_restorer()  {
 	const err=localStorage.getItem('restoreError');
 	localStorage.setItem('restoreError', "");
-	if (err)  console.error('error saving settings last time: ',err);
+	if (err)  console.error('Error saving MasterColorPicker settings last time: ',err);
 	const allSettings=UniDOM.getElementsBy$Name(document.getElementById('MasterColorPicker'), "", true, undefined, true);
 	try {
-		const allValues=JSON.parse(localStorage.getItem('settingsValues'));
-		for (const p in allValues)  { if (p in allSettings)
-			switch (allSettings[p].type)  {
-				//  radio buttons come in ElementArray groups, not alone; but as a backup…
-			case 'radio':  allSettings[p].checked=(allSettings[p].value===allValues[p]);
-			break;
-			case 'checkbox':  allSettings[p].checked=allValues[p];
-			break;
-			case 'select-one':
-			case 'select-multiple':
-			case 'UniDOM ElementArray': allSettings[p].setSelected(allValues[p]);
-			break;
-			default:  if (allSettings[p].hasAttribute('value'))  allSettings[p].value=allValues[p];  }  }  }
-	catch(e) {console.error("error restoring settings upon startup: ",e);}
-	window.addEventListener('unload', function()  {  // pagehide  visualstatechange
+		const storage=localStorage.getItem('MasterColorPicker_settingsValues');
+		if (storage)  {
+			const allValues=JSON.parse(storage);
+			console.log('Restoring MasterColorPicker settings…');
+			for (const p in allValues)  { if (p in allSettings)
+				switch (allSettings[p].type)  {
+					//  radio buttons come in ElementArray groups, not alone; but as a backup…
+				case 'radio':  allSettings[p].checked=(allSettings[p].value===allValues[p]);
+				break;
+				case 'checkbox':  allSettings[p].checked=allValues[p];
+				break;
+				case 'select-one':
+				case 'select-multiple':
+				case 'UniDOM ElementArray': allSettings[p].setSelected(allValues[p]);
+				break;
+				default:  if (allSettings[p].hasAttribute('value'))  allSettings[p].value=allValues[p];  }  }  }  
+		else  console.log('No MasterColorPicker settings found to restore.');  }
+	catch(e) {console.error("Error restoring MasterColorPicker settings upon startup: ",e);}
+	window.addEventListener('unload', function settings_unloader()  {  // pagehide  visualstatechange
 		try  { if (document.getElementsByName('MasterColorPicker_preserveSettings')[0].checked)  {
 			const allValues={};
 			for (const p in allSettings)  {
-				if (( /^[0-9]+$/ ).test(p)
-				||  ( /^MasterColorPicker_Gradientor/ ).test(p)
-				||  ( /^MasterColorPicker_PaletteMngr/ ).test(p)
-				||  (( /^MasterColorPicker_MyPalette/ ).test(p)
-						 &&  (allSettings[p] instanceof Array || !allSettings[p].closest('.options'))))  continue;
+				if (allSettings[p].type==='file'
+				||  allSettings[p].type==='button'
+				||  ( /\[\d+\]/ ).test(p)
+				||  p.startsWith('MasterColorPicker_Gradientor')
+				||  p.startsWith('MasterColorPicker_PaletteMngr')
+				||  (p.startsWith('MasterColorPicker_MyPalette')  &&  !allSettings[p].closest('.options')))  continue;
 				switch (allSettings[p].type)  {
 				//  radio buttons come in ElementArray groups, not alone; but as a backup…
 				case 'radio':  if (allSettings[p].checked)  allValues[p]=allSettings[p].value;
@@ -185,12 +190,15 @@ window.addEventListener('load', function settings_restorer()  {
 				case 'UniDOM ElementArray': {const s=allSettings[p].getSelected();  if (s)  allValues[p]=s.value;}
 				break;
 				default:  if (allSettings[p].getAttribute('value')!==undefined)  allValues[p]=allSettings[p].value;  }  }
-			localStorage.setItem('settingsValues', JSON.stringify(allValues));  }
+			localStorage.setItem('MasterColorPicker_settingsValues', JSON.stringify(allValues));  }
 		else
-			localStorage.setItem('settingsValues', "");  }
+			localStorage.setItem('MasterColorPicker_settingsValues', "");  }
 		catch(e) {localStorage.setItem('restoreError', e.toString());}  });  });
 /*==================================================================*/
 /*==================================================================*/
+
+
+
 
 
 //  the Color_Picker class is an extension of and interface between
@@ -566,13 +574,13 @@ Color_Picker.idGen=idGen;
 Color_Picker.MyPalette=MyPalette;
 function MyPalette(HTML, PNAME)  {
 	if (!new.target) throw new Error("“MyPalette” is a constructor, not a method or function.");
-	var thisPalette=this;
+	const thisPalette=this;
 	//this.palette=new Array;
 	this.HTML=HTML;
 	this.table=HTML.getElementsByTagName('table')[0];
 	this.tbodys=this.table.getElementsByTagName('tbody');
 	this.trs=this.table.getElementsByTagName('tr');
-	this.addToMyPalette=UniDOM.getElementsBy$Name(HTML, /addToMyPalette/ , 1)[0];
+	this.addToMyPalette=HTML.querySelector('select[name*="addToMyPalette"]');  //UniDOM.getElementsBy$Name(HTML, /addToMyPalette/ , 1)[0];
 	this.MetaGenie=new SoftMoon.WebWare.FormFieldGenie({
 		maxGroups: 10,
 		doFocus: false,
@@ -600,12 +608,32 @@ function MyPalette(HTML, PNAME)  {
 			if (!paste)  { for (i=0; i<4; i++)  {
 				td=tr.children[i]; td.style.backgroundColor=""; td.style.color=""; td.style.borderStyle=""; td.style.borderColor=""  }  }
 			if (menu=tr.getElementsByClassName("MyPalette_ColorGenieMenu")[0])  menu.parentNode.removeChild(menu);
+			if (thisPalette.options.autoUncheck1.checked)  tr.querySelector('input[type="checkbox"]').checked=false;
 			UniDOM.getElementsBy$Name(tr).remove$Class([MasterColorPicker.classNames.activeInterface, MasterColorPicker.classNames.activeInterfaceControl]);  },
 		batchCustomizer:function(tb) {UniDOM.getElementsBy$Name(tb, /\[name\]/ ).map(function(e, i, a)  {
 			e.setAttribute("tabToTarget", (i<a.length-1  ||  tb!==tb.parentNode.lastElementChild) ? "false" : "true")});}  });
 	this.ColorGenie.catchTab=tabbedOut.bind(this.ColorGenie, /\d\]\[(?:definition|name)/ , /addToHere/ );
 	this.ColorGenie.isActiveField=UniDOM.alwaysTrue;
-	this.ColorGenie.HTML_clipMenu=HTML.removeChild(HTML.getElementsByClassName('MyPalette_ColorGenieMenu')[0]);;
+	this.ColorGenie.bind_clipMenu(HTML.getElementsByClassName('MyPalette_ColorGenieMenu')[0]);
+	UniDOM.addEventHandler(this.ColorGenie.HTML_clipMenu, new String('popUp'), function(event)  {
+	/* we do this because the menu may appear low on the panel, which has CSS overflow:auto,
+	* so the menu can not then be properly rendered - it should overflow the boundaries of the panel if necessary.
+	* However, if the panel is "pinned" to the page (it scrolls with the page)
+	* the user may scroll the panel away from the pop-up menu, which is a delema without a good known solution
+	* (block the page scroll while the menu is shown?)
+	* At this time, the CSS file positions the menu absolutely. */
+		thisPalette.ColorGenie.config.stack({doFocus: true});
+		const xyPos=UniDOM.getElementOffset(event.container, true);
+		this.style.position= 'fixed';
+		this.style.top= xyPos.y+'px';
+		this.style.left=xyPos.x+'px';  });
+	UniDOM.addEventHandler(this.ColorGenie.HTML_clipMenu, new String('popDown'), function(event)  {
+		switch (event.detail.type)  {
+		case 'keydown':
+			if (document.activeElement!==MasterColorPicker.currentTarget)
+				MasterColorPicker.currentTarget?.focus();
+		break;
+		case 'focusout': thisPalette.ColorGenie.config.cull();  }  });
 	this.SubPaletteGenie=new SoftMoon.WebWare.FormFieldGenie({
 		indxTier:0,
 		groupTag:"TBODY",
@@ -648,7 +676,17 @@ function MyPalette(HTML, PNAME)  {
 			, 1);  }  }
 
 	showColorBlind();
+	
+	UniDOM.addEventHandler(this.options.autoClearClip, 'onchange', alignAutoClearClip);
+	function alignAutoClearClip() {thisPalette.ColorGenie.config.clear_clips_whenRetrieved=this.checked;}
+	
+	alignAutoClearClip.call(this.options.autoClearClip);
 
+	UniDOM.addEventHandler(this.options.keepEditorsSticky, 'onchange', keepEditorsSticky);
+	function keepEditorsSticky() {this.closest('.pickerPanel').querySelector('fieldset.editors').classList[this.checked ? 'add' : 'remove']('sticky');}
+	
+	keepEditorsSticky.call(this.options.keepEditorsSticky);
+	
 	const
 		porterFlag=UniDOM.getElementsBy$Name(HTML, /_port\]?$/ , 1)[0],  //the button that opens/closes the port dialog
 		portHTML=HTML.querySelector(".portDialog"),
@@ -662,8 +700,16 @@ function MyPalette(HTML, PNAME)  {
 	portHTML.id=portHTML.id+"&"+Date.now();
 	porterFlag.setAttribute('aria-controls', portHTML.id);
 
-	UniDOM(HTML).getElementsBy$Name( /_delete/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.onDelete();});
 	UniDOM(HTML).getElementsBy$Name( /_makeSub/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.makeSub();});
+	UniDOM(HTML).getElementsBy$Name( /_copy/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.onCopy();});
+	UniDOM(HTML).getElementsBy$Name( /_cut/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.onCut();});
+	UniDOM(HTML).getElementsBy$Name( /_delete/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function() {thisPalette.onDelete();});
+	UniDOM(HTML).getElementsBy$Name( /_clearClips/ , 1)[0].addEventHandler(['onclick', 'buttonpress'], function()  {
+		if (event.detail===3)  thisPalette.ColorGenie.clearClipboard(true);  });
+	UniDOM(HTML).getElementsBy$Name( /_copy/ , 1).addEventHandler(['mousedown', 'mouseup'], function(e)  {
+		this.classList[e.type==='mousedown' ? 'add' : 'remove']('pressed')});
+	UniDOM(HTML).getElementsBy$Name( /_clearClips/ , 1).addEventHandler(['mousedown', 'mouseup'], function(e)  {
+		this.classList[e.type==='mousedown' ? 'add' : 'remove'](e.detail<3 ? 'pressed' : 'activated');  });
 	UniDOM.addEventHandler(porterFlag, ['onclick', 'buttonpress'], function()  {
 		porterFlag.setAttribute('aria-pressed', portHTML.disabled ? 'true' : 'false');
 		porterFlag.setAttribute('aria-expanded', portHTML.disabled ? 'true' : 'false');
@@ -781,24 +827,25 @@ function MyPalette(HTML, PNAME)  {
 			thisPalette.ColorGenie.cutGroup(event.target.closest('.MyColor'));
 			thisPalette.ColorGenie.pasteGroup(neighbor, {doso:'insert', doFocus:true});  }
 		else
-		if (MasterColorPicker.altMenuKey.sniff(event)
-		&&  /\[(selected|definition|name)\]/.test(event.target.name))  
-			thisPalette.showColorGenieMenu(event, event.target.closest("tr.MyColor").querySelector(".dragHandle"));  });
+		if (SoftMoon.altMenuKey.sniff(event)
+		&&  /\[(selected|definition|name)\]/.test(event.target.name))  {
+			const group=event.target.closest("tr.MyColor");
+			thisPalette.ColorGenie.show_clipMenu(event, group, group.querySelector(".dragHandle"));  }  });
 
-	UniDOM.addEventHandler(this.table, 'buttonpress', function(event)  {
-		if (( /addSelected/ ).test(event.target.name))  thisPalette.addSelected(event.target.parentNode.parentNode.parentNode);  });
+	UniDOM.addEventHandler(this.table, ['click', 'buttonpress'], function(event)  {
+		if (/addSelected/.test(event.target.name))  thisPalette.addSelected(event.target.closest('tbody'));
+		else
+		if (/pasteAll/.test(event.target.name))  thisPalette.onPaste(event.target.closest('tbody'));  });
 	// Note we set attributes so the FormFieldGenies will clone them without hassle.
 	UniDOM.getElementsBy$Name(this.table, /selectAll/ ).map(function(e)  {e.setAttribute('onchange',
 			"MasterColorPicker."+PNAME+".selectAll(event, this);")  });
-	UniDOM.getElementsBy$Name(this.table, /addSelected/ ).map(function(e)  { e.setAttribute('onclick',
-			"MasterColorPicker."+PNAME+".addSelected(this.closest('tbody'));")  });
 	UniDOM.getElementsBy$Name(this.table, /addToHere/ , 1)[0].checked=true;
 	UniDOM.getElementsBy$Class(this.table, 'MyColor').map(function(e)  {
 		e.setAttribute('onfocusin', "MasterColorPicker."+PNAME+".ColorGenie.tabbedOut=false");
 		e.setAttribute('onkeydown', "MasterColorPicker."+PNAME+".ColorGenie.catchTab(event)");
 		e.setAttribute('onfocusout', "if (!MasterColorPicker."+PNAME+".ColorGenie.tabbedOut)  MasterColorPicker."+PNAME+".ColorGenie.popNewGroup(this)");  });
 	UniDOM.getElementsBy$Class(this.table, "dragHandle" ).map(function(e)  { e.setAttribute('oncontextmenu',
-			"if (event.button===2)  MasterColorPicker."+PNAME+".showColorGenieMenu(event, this);");  });
+			"MasterColorPicker."+PNAME+".ColorGenie.show_clipMenu(event, this.closest('tr.MyColor'), this);");  });
 	const tr=this.trs;
 	for (var sel, i=1;  i<tr.length;  i++)  {
 		switch (tr[i].children[0].nodeName)  {
@@ -888,6 +935,22 @@ MyPalette.prototype.selectAll=function(event, checkbox)  {
 	const tr=checkbox.closest('tbody').getElementsByTagName('tr');
 	for (var i=1;  i<tr.length-1;  i++)  {tr[i].children[0].children[0].checked=checkbox.checked;}  }
 
+MyPalette.prototype.onCopy=function()  {
+	for (var i=1;  i<this.trs.length-1;  i++)  {
+		if (this.trs[i].children[0].nodeName==='TH')  continue;
+		if (this.trs[i].children[0].children[0].checked)  {
+			this.ColorGenie.copyGroup(this.trs[i], {clip:'new clip'});
+			if (this.options.autoUncheck2.checked)  {
+				this.trs[i].children[0].children[0].checked=false;
+				this.trs[i].closest('tbody').querySelector('input[name*="selectAll"]').checked=false;  }  }  }  }
+
+MyPalette.prototype.onCut=function()  {
+	for (var i=1;  i<this.trs.length-1;  i++)  {
+		if (this.trs[i].children[0].nodeName==='TH')  continue;
+		if (this.trs[i].children[0].children[0].checked)
+			this.ColorGenie.cutGroup(this.trs[i--], {clip:'new clip'});  }
+	UniDOM.getElementsBy$Name(this.table, /selectAll/ ).map(function(e) {e.checked=false;});  }
+
 MyPalette.prototype.onDelete=function()  {
 	for (var i=1;  i<this.trs.length-1;  i++)  {
 		if (this.trs[i].children[0].nodeName==='TH'
@@ -898,6 +961,9 @@ MyPalette.prototype.onDelete=function()  {
 		if (this.trs[i].children[0].children[0].checked)
 			this.ColorGenie.deleteGroup(this.trs[i--]);  }
 	UniDOM.getElementsBy$Name(this.table, /selectAll/ ).map(function(e) {e.checked=false;});  }
+
+MyPalette.prototype.onPaste=function(tbody)  {
+	this.ColorGenie.pasteGroup(tbody.rows[tbody.rows.length-1], {clip:'all clips', doso:'insert', dumpEmpties:false, doFocus:false});  }  
 
 MyPalette.prototype.moveColor=function(from, to)  {
 		this.ColorGenie.cutGroup(from, {clip:"MCP_system", dumpEmpties:false});
@@ -921,15 +987,15 @@ MyPalette.prototype.addSelected=function(tbody)  {
 		if (this.trs[i].parentNode===tbody)  {iOff=0;  continue;}
 		if (this.trs[i].children[0].nodeName==='TH')  continue;
 		if ((chk=this.trs[i].querySelector("input[type='checkbox']")).checked  &&  this.trs[i]!==this.trs[i].parentNode.lastElementChild)  {
-			if (this.options.autoUncheck.checked)  chk.checked=false;
+			if (this.options.autoUncheck1.checked)  chk.checked=false;
 			this.moveColor(this.trs[i], tbody.lastElementChild);
 			i-=iOff;  }  }
 	var chk, sel, index=Array.prototype.indexOf.call(this.tbodys, tbody)+1;
 	for (i=1; i<this.tbodys.length; i++)  {
 		if (i===index-1)  continue;
-		if (this.options.autoUncheck.checked)  this.tbodys[i].children[0].querySelector("[name$='selectAll']").checked=false;
+		if (this.options.autoUncheck1.checked)  this.tbodys[i].children[0].querySelector("[name$='selectAll']").checked=false;
 		if ((chk=this.tbodys[i].children[0].querySelector("[name$='selectThis']")).checked)  {
-			if (this.options.autoUncheck.checked)  chk.checked=false;
+			if (this.options.autoUncheck1.checked)  chk.checked=false;
 			sel=this.tbodys[i].children[0].querySelector("select[name$='[parent]']");
 			if (sel.options[tbody.id])  sel.options[tbody.id].selected=true;
 			else  sel.options.add(new Option('♪Hi♫ HO!  ♫HI♪ ho! It’s home from work we go…♪♫♪♫', tbody.id, false, true));
@@ -975,156 +1041,6 @@ MyPalette.prototype.dragger=function(event, group, bodyClass, dragClass, groupCl
 			&&  (moveTo= UniDOM.has$Class(event.target, groupClass)  ?  event.target : UniDOM.getAncestorBy$Class(event.target, groupClass))
 			&&  group!==moveTo  &&  group.nextElementSibling!==moveTo)
 				(group.tagName==="TR") ? thisPalette.moveColor(group, moveTo) : thisPalette.moveSub(group, moveTo);  }  }
-
-	
-MyPalette.prototype.showColorGenieMenu=function(event1, handle)  {
-	event1.preventDefault();  event1.stopPropagation();
-	const menu=this.ColorGenie.HTML_clipMenu;
-	if (menu.parentNode  &&  UniDOM.hasAncestor(menu, handle))  return;
-	handle.classList.add("withMenu");
-	var nextOfKin;
-	if (event1.type==='keydown')  {  
-		nextOfKin=event1.target.closest('tr.MyColor');
-		nextOfKin=nextOfKin.nextElementSibling||nextOfKin.previousElementSibling;
-		nextOfKin=nextOfKin?.querySelector('input[name*='+event.target.name.match(/definition|name/)[0]+']');  }
-	const
-		thisPalette=this,
-		xer=UniDOM.addEventHandler(handle, event1.type==='keydown' ? ['onKeyDown', 'onFocusOut', 'onClick'] : ['onMouseLeave', 'onClick'],
-			function(event2)  {
-				if (event2.type==='keydown'  &&  handleKeydown(event2))  return;
-				if (event2.type==='click')  {
-					thisPalette.onColorGenieMenuSelect(event2);
-					if (event.menuSelectReturnStatus)  return;  }
-				if (event2.type==='focusout'
-				&&  ( event2.relatedTarget?.closest('menu.MyPalette_ColorGenieMenu')
-					 || !event.target.isConnected))  return;
-				xer.onKeyDown?.remove();
-				xer.onFocusOut?.remove();
-				xer.onMouseLeave?.remove();
-				xer.onClick.remove();
-				menu.classList.remove('focus-within');
-				for (const li of menu.querySelectorAll('.focus-within'))  {li.classList.remove('focus-within');}
-				if (event2.type==='keydown')  switch (event2.opStatus)  {  //other OpStatus means the Genie handles focus
-					case 'noMod':
-						event1.target.focus(); 
-					break;
-					case 'removed':  // the Genie will always insure at least one color is left
-						nextOfKin.scrollIntoView({behavior:'smooth', block:'nearest'});
-						nextOfKin.focus();  }  
-				handle.classList.remove("withMenu");
-				handle.removeChild(menu);  }),
-/* we do this because the menu may appear low on the panel, which has CSS overflow:auto,
- * so the menu can not then be properly rendered - it should overflow the boundaries of the panel if necessary.
- * However, if the panel is "pinned" to the page (it scrolls with the page)
- * the user may scroll the panel away from the pop-up menu, which is a delema without a good known solution
- * (block the page scroll while the menu is shown?)
- * At this time, the CSS file positions the menu absolutely. */
-		xyPos=UniDOM.getElementOffset(handle, true);
-	menu.style.position= 'fixed';
-	menu.style.top= xyPos.y+'px';
-	menu.style.left=xyPos.x+'px';
-/**/
-	handle.appendChild(menu);  
-	if (event1.type==='keydown')  {
-		menu.classList.add('focus-within');
-		menu.querySelector('li').focus();  }
-
-	var
-		enterTime,
-		enterCount=0;  //user must press Enter/Space 3 times within (2)(default) secs to delete or clear-clipboard
-		
-	function handleKeydown(event)  {
-		event.preventDefault();  event.stopPropagation();
-		if (event.key!=='Enter'  &&  event.key!=="Space")  enterTime=enterCount=0;
-		if (MasterColorPicker.altMenuKey.sniff(event))  {menu.classList.remove('focus-within');  return false;}
-		if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey
-		||  event.getModifierState('AltGraph')  ||  event.getModifierState('OS'))  return true;
-		var newFocus;
-		if (event.key>="0"  &&  event.key<="9")  numberKey: {
-			const ul= (event.target.parentNode.tagName==='UL') ? event.target.parentNode : event.target.querySelector('ul');
-			if (ul)  for (const li of ul.children)  {
-				if (li.innerText.endsWith(" "+event.key))  {
-					newFocus=li;
-					break numberKey;  }  }
-			return true;  }
-		else switch (event.key)  {
-		case 'Space':
-		case 'Enter':
-			if (!enterTime  
-			||  enterTime+MasterColorPicker.enterKeyPressRepeatTimeoutDelay<event.timeStamp)  {
-					enterTime=event.timeStamp;
-					enterCount=0;  }  
-			event.enterPress=++enterCount;
-			thisPalette.onColorGenieMenuSelect(event);
-			return event.menuSelectReturnStatus;
-		case 'Escape': event.opStatus='noMod';   
-			return false;
-		case 'ArrowDown':
-			if (newFocus=event.target.nextElementSibling)  {
-				if (newFocus.tagName==='UL')  newFocus=newFocus.firstElementChild;  }
-			else return true;
-			if (newFocus)  break;
-			else return true;
-		case 'ArrowUp':
-			if (newFocus=event.target.previousElementSibling)  break;
-			newFocus=event.target.parentNode.previousElementSibling;
-			if (newFocus?.tagName==='SPAN')  break;
-			return true;
-		case 'ArrowRight':
-			if (newFocus=event.target.firstElementChild)  {
-				if (newFocus.tagName==='UL')  
-					newFocus=newFocus.firstElementChild;
-				if (newFocus)  {
-					event.target.classList.add('focus-within');  
-					break;  }  }
-			return true;
-		case 'ArrowLeft':
-			if (event.target.parentNode.tagName==='MENU')  return true;
-			newFocus=event.target.parentNode;
-			while (newFocus.parentNode.tagName!=='MENU')  {
-				newFocus=newFocus.parentNode;  }
-			newFocus.classList.remove('focus-within');
-		break;
-		case 'Insert': newFocus=menu.querySelector('.insert');
-		break;
-		case 'Delete': newFocus=menu.querySelector('.delete');
-		break;
-		case 'Cut':    newFocus=menu.querySelector('.cut');
-		break;
-		case 'Copy':   newFocus=menu.querySelector('.copy');
-		break;
-		case 'Paste':  newFocus=menu.querySelector('.paste');
-		break;
-		default: return true;  }
-		newFocus.focus();  
-		return true;  }  }
-
-MyPalette.ColorGenieMenuText={
-	insert: 'insert:',
-	copy:'copy to:',      
-	cut:'cut to:',        
-	paste:'paste from:',    
-	dlt:'delete',         
-	clear:'clear clipboard' };
-	
-MyPalette.prototype.onColorGenieMenuSelect=function(event)  {
-	const
-		myColor=this.ColorGenie.HTML_clipMenu.closest(".MyColor"),
-		CGMText=MyPalette.ColorGenieMenuText;
-	event.menuSelectReturnStatus=false;
-	switch (event.target.tagName)  {
-		case 'SPAN':               return this.ColorGenie.popNewGroup(myColor, {doso:"insert", doFocus:true});
-		case 'LI':  if (event.target.parentNode.tagName==='UL')  switch (event.target.parentNode.parentNode.firstChild.data.trim())  {
-			case CGMText.insert:          return this.ColorGenie.pasteGroup(myColor, {doso:"insert", clip:event.target.innerText, doFocus:true});
-			case CGMText.copy:         event.opStatus='noMod';  return this.ColorGenie.copyGroup(myColor, {clip:event.target.innerText});
-			case CGMText.cut:          event.opStatus='removed';  return this.ColorGenie.cutGroup(myColor, {clip:event.target.innerText});
-			case CGMText.paste:      return this.ColorGenie.pasteGroup(myColor, {clip:event.target.innerText, doFocus:true});  }
-			else
-			if (event.detail===3  ||  event.enterPress===3)  switch (event.target.innerText)  {
-			case CGMText.dlt:           event.opStatus='removed';  return this.ColorGenie.deleteGroup(myColor);
-			case CGMText.clear:  event.opStatus='noMod';  return this.ColorGenie.clearClipboard(true);  }
-			else
-			event.menuSelectReturnStatus=true;  }  }
 
 MyPalette.prototype.clearPalette=function()  {
 	var paletteMeta=this.HTML.querySelector('.paletteMeta');
@@ -2019,16 +1935,18 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 	finally {RGB_Calc.config.cull();}
 	ColorSpaceLab.update_Hue_rangeHandle();
 	ColorSpaceLab.luminanceIndicator.innerText=Math.roundTo(2, 100*RGB_Calc.luminance(CLR.RGB.rgba))+'%';
-	if (settings.showContrastInLab.checked)  {
-		MasterColorPicker.RGB_calc.config.stack({RGBA_Factory:{value:Array}});
-		try  {
-		const back=MasterColorPicker.RGB_calc(settings.LabContrastColor.value);
-		if (back)  ColorSpaceLab.contrastIndicator.innerText=Math.roundTo(1, RGB_Calc.contrastRatio(CLR.RGB.rgba, back))+':1';  }
-		finally {MasterColorPicker.RGB_calc.config.cull();}  } 
+	if (settings.showContrastInLab.checked)  updateContrastInd(CLR.RGB.rgba);
 	ColorSpaceLab.swatch.color(CLR);
 
 	return CLR;  }
 
+function updateContrastInd(rgba)  {
+	MasterColorPicker.RGB_calc.config.stack({RGBA_Factory:{value:Array}});
+	try  {
+	const back=MasterColorPicker.RGB_calc(settings.LabContrastColor.value);
+	if (back)  ColorSpaceLab.contrastIndicator.innerText=Math.roundTo(1, RGB_Calc.contrastRatio(rgba, back))+':1';  }
+	finally {MasterColorPicker.RGB_calc.config.cull();}  } 
+	
 
 ColorSpaceLab.alignColor=function(event)  {
 	// the Picker class controls the Tab key and generates a “tabIn” event that transfers focus to another <input> before the TAB key can be released.
@@ -2144,7 +2062,7 @@ ColorSpaceLab.update_Alpha_rangeHandle=function()  {
 		MCP_stylesheet.ss.cssRules[i].style.backgroundColor=cssColor;  }  }
 
 
-UniDOM.addEventHandler(window, 'onload', function() {
+UniDOM.addEventHandler(window, 'onload', function()  {
 	ColorSpaceLab.HTML=document.getElementById('MasterColorPicker_Lab');
 	settings=UniDOM.getElementsBy$Name(ColorSpaceLab.HTML, "", true,
 																				function(e) {return e.name.match( /^[a-z]+_([a-z_]+)$/i )[1];});
@@ -2208,7 +2126,7 @@ UniDOM.addEventHandler(window, 'onload', function() {
 
 	UniDOM.addEventHandler(ColorSpaceLab.HTML, 'onKeyDown', function(event)  {
 		if (event.target.closest('.options')!==ColorSpaceLab.optionsHTML
-		&&  MasterColorPicker.altMenuKey.sniff(event))  {
+		&&  SoftMoon.altMenuKey.sniff(event))  {
 			event.preventDefault();
 			UniDOM.generateEvent(settings.updateLabOnMouseMove, 'tabIn', {bubbles:true});  }  });
 			
@@ -2236,7 +2154,6 @@ UniDOM.addEventHandler(window, 'onload', function() {
 //with FireFox (¿others?), the mouseUp event happens even if the mouse moves off the browser window when the button is released, likely because it is a native slider
 			drop=UniDOM.addEventHandler(document.body, 'onMouseUp', done, true);
 		function done(event, canceler='mouseUp')  {
-console.log('we be done updatin the handle, according to '+canceler)
 			eye.onVisibilityStateChange.remove();
 			audit.onMouseMove.remove();
 			move.onMouseMove.remove();
@@ -2251,15 +2168,18 @@ console.log('we be done updatin the handle, according to '+canceler)
 		updateHandle, false, ColorSpaceLab.update_Hue_rangeHandle);
 	UniDOM.addEventHandler(settings.opacity_range, 'onMouseDown',
 		updateHandle, false, ColorSpaceLab.update_Alpha_rangeHandle);
-	UniDOM.addEventHandler([settings.opacity_percent, settings.opacity_range], 'onChange', function() {settings.applyOpacity.checked=true;});
+	UniDOM.addEventHandler([settings.opacity_percent, settings.opacity_range], 'onChange', function()  {
+		settings.applyOpacity.checked=true;
+		const rgba=[settings.Rgb_byte.value, settings.rGb_byte.value, settings.rgB_byte.value, this.value/100];
+		ColorSpaceLab.luminanceIndicator.innerText=Math.roundTo(2, 100*RGB_Calc.luminance(rgba))+'%';
+		if (settings.showContrastInLab.checked)  updateContrastInd(rgba);  });
 	UniDOM.addEventHandler(settings.applyOpacity, 'onChange', function() {settings.opacity_percent.value=settings.opacity_range.value=100;});
-
-  });
-
-UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function() {
-	SoftMoon.WebWare.Color_Picker.colorSwatch(settings.LabContrastColor);
-	UniDOM.generateEvent(settings.showContrastInLab, 'change', {bubbles:true});
 });
+
+UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', function()  {
+		SoftMoon.WebWare.Color_Picker.colorSwatch(settings.LabContrastColor);
+		UniDOM.generateEvent(settings.showContrastInLab, 'change', {bubbles:true});  },
+	{once:true});
 
 } //  close private namespace of ColorSpaceLab
 // =================================================================================================== \\
@@ -2834,7 +2754,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		//first we set the private global members                                               ↓  this defines property names (of the array-object: settings)
 		settings=UniDOM.getElementsBy$Name(document.getElementById('RainbowMaestro'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <inputs>s) into an array, with corresponding properties
 		if (!settings.colorblind.checked)  //the colorblind provider initiator will build the palette otherwise
-			UniDOM.addEventHandler(window, 'mastercolorpicker_ready', ()=>{RainbowMaestro.buildPalette();});
+			UniDOM.addEventHandler(window, 'mastercolorpicker_ready', ()=>{RainbowMaestro.buildPalette();}, {once:true});
 		UniDOM.addEventHandler(settings.websafe, 'onchange', RainbowMaestro.makeWebsafe);
 		UniDOM.addEventHandler(settings.splitComplement, 'onchange', RainbowMaestro.makeSplitComplement);
 		UniDOM.addEventHandler(settings.lock, 'onchange', RainbowMaestro.lock);
@@ -3126,7 +3046,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut'], SimpleSqColorPicker, false, wraps[i].model);
 		UniDOM.addEventHandler(cnvsWrap, 'onClick', [SimpleSqColorPicker, SimpleSqColorPicker.handleClick], false, wraps[i].model);  }
 
-	UniDOM.addEventHandler(window, 'mastercolorpicker_ready', SimpleSqColorPicker.buildPalette);  } );
+	UniDOM.addEventHandler(window, 'mastercolorpicker_ready', SimpleSqColorPicker.buildPalette, {once:true});  } );
 
 }  // close SimpleSqColorPicker namespace
 /*==================================================================*/
@@ -4443,7 +4363,7 @@ function renamePalette(event)  {
 		if (event.type==='change'  &&  event.target.type==='checkbox'  &&  event.enterKeyed
 		&&  (event.keyedCount===2 || event.shiftKey))
 			break;
-		if (event.type==='keydown'  &&  event.target.type==='checkbox'  &&  MasterColorPicker.altMenuKey.sniff(event))
+		if (event.type==='keydown'  &&  event.target.type==='checkbox'  &&  SoftMoon.altMenuKey.sniff(event))
 			break;
 	default: return;  }
 	event.preventDefault();  //this will not stop the ContextMenu from popping up in Firefox (at least) when you press the “menu” key !?¡¿
@@ -4596,49 +4516,52 @@ function refreshServerList(clearNotices) {
 			};
 		connector.commune(indexConn);  }  }
 
-UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
-	HTML=document.getElementById('MasterColorPicker_PaletteManager');
-	renamer=HTML.querySelector('input[name*="renamer"]');
-	renamer.parentNode.removeChild(renamer);
-	const server=( /^https?\:$/ ).test(window.location.protocol);
-	if (server)  HTML.querySelector('fieldset.server legend').firstChild.data+=SoftMoon.colorPalettes_defaultPath;
-	UniDOM.disable(HTML.querySelector('fieldset.server'), !(server  &&  SoftMoon.WebWare.HTTP));
-	//UniDOM.addEventHandler(UniDOM.getElementsBy$Name(HTML, /selectAll/ ), 'onchange', function(event)  {
-	UniDOM.getElementsBy$Name(HTML, /selectAll/ ).addEventHandler('onchange', function(event)  {
-		const chkBoxs=event.target.closest('fieldset').querySelectorAll('input[type="checkbox"]');
-		for (var i=1; i<chkBoxs.length; i++)  {chkBoxs[i].checked=event.target.checked;}  });
-	UniDOM.addEventHandler(HTML.querySelector('.browser button[name="MasterColorPicker_PaletteMngr_refresh"]'),
-		['click', 'buttonpress'], refreshDBList);
-	UniDOM.addEventHandler(HTML.querySelector('.server button[name="MasterColorPicker_PaletteMngr_refresh"]'),
-		['click', 'buttonpress'], refreshServerList);
-	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_load"]'),
-		['click', 'buttonpress'], loadAllSelected);
-	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_delete"]'),
-		['click', 'buttonpress'], deleteAllSelected);
-	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_addSelected"]'),
-		['click', 'buttonpress'], addAllSelected);
-	UniDOM.addEventHandler(HTML.getElementsByTagName('ul'),
-		['click', 'contextmenu', 'change', 'keydown'], renamePalette, true);
-	const openButton=document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open');
-	UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_close"]'),
-		['click', 'buttonpress'], function()  {
-			openButton.setAttribute('aria-expanded', 'false');
-			openButton.setAttribute('aria-pressed', 'false');
-			UniDOM.disable(HTML, true);  });
-	UniDOM.addEventHandler(openButton,
-		['click', 'buttonpress'], function()  {
-			if (HTML.disabled)  {
-				refreshDBList();
-				refreshServerList();  }
-			UniDOM.disable(HTML, false);
-			this.setAttribute('aria-expanded', 'true');
-			this.setAttribute('aria-pressed', 'true');
-			setTimeout(function(){MasterColorPicker.setTopPanel(HTML);}, 20);  });
-	if (!(HTML.disabled=UniDOM.has$Class(HTML, 'disabled')))  {
-		refreshDBList();
-		refreshServerList();  }
-	UniDOM.addEventHandler(window, ['MasterColorPicker_BrowserDB_update', 'MasterColorPicker_ServerDB_update'], PaletteManager);
-});
+UniDOM.addEventHandler(window, 'mastercolorpicker_database_ready', function(event)  {
+		HTML=document.getElementById('MasterColorPicker_PaletteManager');
+		renamer=HTML.querySelector('input[name*="renamer"]');
+		renamer.parentNode.removeChild(renamer);
+		const server=( /^https?\:$/ ).test(window.location.protocol)  &&  SoftMoon.WebWare.HTTP;
+		if (server)  HTML.querySelector('fieldset.server legend').firstChild.data+=SoftMoon.colorPalettes_defaultPath;
+		UniDOM.disable(HTML.querySelector('fieldset.server'), !server);
+		//UniDOM.addEventHandler(UniDOM.getElementsBy$Name(HTML, /selectAll/ ), 'onchange', function(event)  {
+		UniDOM.getElementsBy$Name(HTML, /selectAll/ ).addEventHandler('onchange', function(event)  {
+			const chkBoxs=event.target.closest('fieldset').querySelectorAll('input[type="checkbox"]');
+			for (var i=1; i<chkBoxs.length; i++)  {chkBoxs[i].checked=event.target.checked;}  });
+		if (event.detail)
+			UniDOM.addEventHandler(HTML.querySelector('.browser button[name="MasterColorPicker_PaletteMngr_refresh"]'),
+				['click', 'buttonpress'], refreshDBList);
+		else  UniDOM.disable(HTML.querySelector('fieldset.browser'), true);
+		if (server)
+			UniDOM.addEventHandler(HTML.querySelector('.server button[name="MasterColorPicker_PaletteMngr_refresh"]'),
+				['click', 'buttonpress'], refreshServerList);
+		UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_load"]'),
+			['click', 'buttonpress'], loadAllSelected);
+		UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_delete"]'),
+			['click', 'buttonpress'], deleteAllSelected);
+		UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_addSelected"]'),
+			['click', 'buttonpress'], addAllSelected);
+		UniDOM.addEventHandler(HTML.getElementsByTagName('ul'),
+			['click', 'contextmenu', 'change', 'keydown'], renamePalette, true);
+		const openButton=document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open');
+		UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_close"]'),
+			['click', 'buttonpress'], function()  {
+				openButton.setAttribute('aria-expanded', 'false');
+				openButton.setAttribute('aria-pressed', 'false');
+				UniDOM.disable(HTML, true);  });
+		UniDOM.addEventHandler(openButton,
+			['click', 'buttonpress'], function()  {
+				if (HTML.disabled)  {
+					refreshDBList();
+					refreshServerList();  }
+				UniDOM.disable(HTML, false);
+				this.setAttribute('aria-expanded', 'true');
+				this.setAttribute('aria-pressed', 'true');
+				setTimeout(function(){MasterColorPicker.setTopPanel(HTML);}, 20);  });
+		if (!(HTML.disabled=UniDOM.has$Class(HTML, 'disabled')))  {
+			refreshDBList();
+			refreshServerList();  }
+		UniDOM.addEventHandler(window, ['MasterColorPicker_BrowserDB_update', 'MasterColorPicker_ServerDB_update'], PaletteManager);  },
+	{once:true});
 
 }  // close the private namespace for the PaletteManager
 
@@ -4980,9 +4903,8 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 		UniDOM.generateEvent(MasterColorPicker.userOptions.showHelp, 'change');
 		MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
 		document.getElementById(event.currentTarget.getAttribute('referto')).scrollIntoView();  });
-	const init=UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', buildGradientorPalette);
+	const init=UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', buildGradientorPalette, {once:true});
 	function buildGradientorPalette()  {
-		if (init.id)  init.remove();
 		const format=Gradientor.HTML.querySelector('input[name*="format"]:checked');
 		UniDOM.swapOut$Class(Gradientor.HTML, ["linear", "triadic"], format.value);
 		UniDOM.toggleTab(format, true);
@@ -5291,7 +5213,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 				r=swatch.getBoundingClientRect(),
 				mXoff=event.clientX-r.left,
 				mYoff=event.clientY-r.top,
-				drag=UniDOM.addEventHandler(document.body, 'onMouseMove', dragger, true);
+				drag=UniDOM.addEventHandler(document.body, 'onMouseMove', dragger, true),
 				// ↓↓ see “A Note About dragging & dropping” near the end of this file
 				endDrag=UniDOM.addEventHandler(document, ['onMouseUp', 'onPickerStateChange', 'onVisibilityStateChange'], done, true);  
 			function dragger(event)  {
@@ -5305,21 +5227,21 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 					s.position='fixed';
 					s.left=(event.clientX-mXoff)+"px";
 					s.top= (event.clientY-mYoff)+"px";
-					s.classList.add('superTop');  }
+					swatch.classList.add('superTop');  }
 				else
 				if (event.clientX<fr.left  ||  event.clientX>fr.right
 				||  event.clientY<fr.top   ||  event.clientY>fr.bottom)  {
 					s.position='absolute';
 					s.left=(event.clientX-br.x-mXoff)+"px";
 					s.top= (event.clientY-br.y-mYoff)+"px";
-					s.classList.remove('superTop');   }
+					swatch.classList.remove('superTop');   }
 				else  {
 					if (s.position!=='relative'  ||  !swatch.homeSpot)  {
 						s.position='relative';  s.left='0px';  s.top='0px';
 						swatch.homeSpot=swatch.getBoundingClientRect();  }
 					s.left=(event.clientX-swatch.homeSpot.x-mXoff)+"px";
 					s.top= (event.clientY-swatch.homeSpot.y-mYoff)+"px";
-					s.classList.remove('superTop');  }  }
+					swatch.classList.remove('superTop');  }  }
 			function done()  {
 				drag.onMouseMove.remove();
 				endDrag.onMouseUp.remove();
@@ -5403,7 +5325,7 @@ ColorThesaurus.matchColor=function matchColor(color)  { /* as an event-handler, 
 		swatch.style.backgroundColor=clr.color.hex;
 		swatch.style.color=clr.color.contrast;
 		ol.appendChild(document.createElement('li')).append(span, " — ", swatch, clr.name);  }
-	output.appendChild(document.createElement(p)).append(ColorThesaurus.HTML.DISPARITY+' —');
+	output.appendChild(document.createElement('p')).append(ColorThesaurus.HTML.DISPARITY+' —');
 	output.append(ol);
 	function searchPalette(plt, name, alts, refMarks, requireSubIndex)  {
 		if (plt.alternatives)  alts=plt.alternatives;
@@ -5447,12 +5369,13 @@ ColorThesaurus.compare=function compareColors(c1, c2)  {
 					Math.abs(c1.chroma-c2.chroma)
 				 )/2;  }
 
-UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
-	//SoftMoon.WebWare.ColorThesaurus.refreshPaletteList();
-	UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Thesaurus button.refresh'),
-		['click', 'buttonpress'], ColorThesaurus.refreshPaletteList);
-	UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Thesaurus button.match'),
-		['click', 'buttonpress'], ColorThesaurus.matchColor);  });
+UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', function()  {
+		//SoftMoon.WebWare.ColorThesaurus.refreshPaletteList();
+		UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Thesaurus button.refresh'),
+			['click', 'buttonpress'], ColorThesaurus.refreshPaletteList);
+		UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Thesaurus button.match'),
+			['click', 'buttonpress'], ColorThesaurus.matchColor);  },
+	{once:true});
 
 }  // close  ColorThesaurus  private namespace
 
@@ -5581,10 +5504,10 @@ DB.onupgradeneeded= () => {
 	DB.result.createObjectStore('trash', {keyPath: 'filename'});  };
 DB.onsuccess= () => {
 	MasterColorPicker.db=DB.result;
-	UniDOM.generateEvent(window, 'mastercolorpicker_ready');  };
+	UniDOM.generateEvent(window, 'mastercolorpicker_database_ready', {detail:true});  };
 DB.onerror= () => {
 	console.warn('Could not access the MasterColorPicker DataBase in the browser’s private storage.');
-	UniDOM.generateEvent(window, 'mastercolorpicker_ready');  };
+	UniDOM.generateEvent(window, 'mastercolorpicker_database_ready', {detail:false});  };
 
 
 /****************************************************
@@ -5859,7 +5782,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 
 	MasterColorPicker.enhanceKeybrd=enhanceKeybrd;
 	MasterColorPicker.syncLabAndSwatch=syncLabAndSwatch;
-	MasterColorPicker.altMenuKey=new UniDOM.KeySniffer('ContextMenu', false, false, true, false, false, false); // ← Alt ContextMenu
+	SoftMoon.altMenuKey??=new UniDOM.KeySniffer('ContextMenu', false, false, true, false, false, false); // ← Alt ContextMenu  a.k.a.  Alt ≡
 	
 	MasterColorPicker.registerTargetElement=function(inp)  {
 		UniDOM.addEventHandler(inp, 'onkeydown', enhanceKeybrd);
@@ -5868,8 +5791,8 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 		return Object.getPrototypeOf(this).registerTargetElement.call(this, inp);  };
 
 	for (const inp of document.getElementsByTagName('input'))  {
-		if (inp.getAttribute('type').toLowerCase() === 'mastercolorpicker'
-		||  (inp.hasAttribute('pickerType')  &&  inp.getAttribute('pickerType').toLowerCase() === 'mastercolorpicker'))
+		if (inp.getAttribute('type')?.toLowerCase() === 'mastercolorpicker'
+		||  (inp.getAttribute('picker-type')?.toLowerCase() === 'mastercolorpicker'))
 			MasterColorPicker.registerTargetElement(inp);  }
 	UniDOM.addEventHandler(MasterColorPicker.HTML, 'onKeyDown', enhanceKeybrd);
 	UniDOM.addEventHandler(MasterColorPicker.HTML, ['onKeyUp','onPaste','onChange'], syncLabAndSwatch);
@@ -5884,6 +5807,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 				return;  }  }
 		setTimeout(function() {MasterColorPicker.dataTarget.focus();}, 0);  });
 
+	UniDOM.generateEvent(window, 'mastercolorpicker_ready');
 
 
 

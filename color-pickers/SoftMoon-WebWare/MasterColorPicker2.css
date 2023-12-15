@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.5.2  November 26, 2023  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.5.4  December 15, 2023  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -32,8 +32,12 @@ body.MCP_we-be-a-cuttin {
 	--back-text-note-refer: gold;
 	--fore-text-GenieMenu: black;
 	--back-text-GenieMenu: paleGreen;
-	--fore-text-GenieMenu-highlight: white;  
-	--back-text-GenieMenu-highlight: DarkGreen;  /*  Indigo;  */
+	--fore-text-GenieMenu-focused: white;  
+	--back-text-GenieMenu-focused: DarkGreen;  /*  Indigo;  */
+	--fore-text-GenieMenu-hoveredOver: white;  
+	--back-text-GenieMenu-hoveredOver: Indigo;  /* ← HCG(274.62deg, 51%, 0%) *//* DarkBlue;  */
+	--fore-text-GenieMenu-hoveredSet: black;  
+	--back-text-GenieMenu-hoveredSet: #C97DFF;  /* ← HCG(274.62deg, 51%, 100%) *//* LightSkyBlue;  */
 	--fore-text-kbd: white;    /* keyboard keys */
 	--back-text-kbd: #202040;
 	--fore-text-lab: var(--fore-text);
@@ -519,6 +523,8 @@ select#MasterColorPicker_palette_select {
 
 #MasterColorPicker_options p {
 	display: none;  }
+#MasterColorPicker_options.activePicker label:focus-within > p,
+#MasterColorPicker_options.activePicker fieldset:focus-within > p,
 #MasterColorPicker_options.activePicker label:hover > p,
 #MasterColorPicker_options.activePicker fieldset:hover > p {
 /* all popups */
@@ -535,6 +541,8 @@ select#MasterColorPicker_palette_select {
 	border-bottom: none;
 	background-color: var(--back-text);
 	color: var(--fore-text); }
+#MasterColorPicker_options.activePicker label#MasterColorPicker_interlink:focus-within > p,
+#MasterColorPicker_options.activePicker label#MasterColorPicker_keepPrecision:focus-within > p,
 #MasterColorPicker_options.activePicker label#MasterColorPicker_interlink:hover > p,
 #MasterColorPicker_options.activePicker label#MasterColorPicker_keepPrecision:hover > p {
 	top: 1.162em;
@@ -542,8 +550,10 @@ select#MasterColorPicker_palette_select {
 	bottom: auto;
 	border: 1px solid var(--border-hot);
 	border-top: none; }
+#MasterColorPicker_options.activePicker fieldset:focus-within > p:first-child,
 #MasterColorPicker_options.activePicker fieldset:hover > p:first-child {
 /* Hue Angle Units notice popup */ }
+#MasterColorPicker_options.activePicker fieldset.pickerOptions:focus-within > p,
 #MasterColorPicker_options.activePicker fieldset.pickerOptions:hover > p {
 /* flaoting panels notice popup */
 	top: -0.162em;
@@ -568,6 +578,7 @@ select#MasterColorPicker_palette_select {
 	margin: .618em 0;
 	padding: 0;
 	border: none; }
+#MasterColorPicker_options > div div fieldset:focus-within,
 #MasterColorPicker_options > div div fieldset:hover {
 	z-index: 3; }
 #MasterColorPicker_options > div div fieldset label {
@@ -712,12 +723,17 @@ select#MasterColorPicker_palette_select {
 	overflow: hidden; }
 #MasterColorPicker_MyPalette p+fieldset > label {
 	display: block;
-	padding-top: 0.382em;
-	text-align: right; }
+	margin: 0;
+	padding: 0; }
+#MasterColorPicker_MyPalette p+fieldset > button {
+	float: right; }
 #MasterColorPicker_MyPalette button {
-	margin-left: .618em;
-	margin-right: 0;
-	break-before: avoid; }
+	margin-left: 0.382em;
+	margin-right: 0; }
+#MasterColorPicker_MyPalette button.pressed {
+	background-color: var(--back-button-pressed); }
+#MasterColorPicker_MyPalette button.activated {
+	background-color: var(--back-button-active); }
 #MasterColorPicker_MyPalette fieldset.options {
 	position: absolute;
 	top: calc(100% - 1.382em);
@@ -727,6 +743,7 @@ select#MasterColorPicker_palette_select {
 	height: 0;
 	border: none; }
 #MasterColorPicker_MyPalette fieldset.options label {
+	white-space: nowrap;
 	display: none; }
 /* #MasterColorPicker_MyPalette p+fieldset:has(fieldset:hover),   /* is it just me, or is waiting 10 years for browsers to mature a bit slow? */
 #MasterColorPicker_MyPalette p+fieldset.pseudoHover,       /* class controlled by JavaScript  … pitiful in 2020 ! */
@@ -784,6 +801,7 @@ select#MasterColorPicker_palette_select {
 	top: 100%;
 	left: 38.2%;
 	padding: 0 1em .618em 1em;
+	white-space: normal;
 	background-color: var(--back-text-note);
 	color: var(--fore-text-note);
 	display: none; }
@@ -832,7 +850,7 @@ select#MasterColorPicker_palette_select {
 	margin-right: .382em; }
 #MasterColorPicker_MyPalette .portNotice {
 	display: block;
-	background-color: var(--back-text-hot);
+	background-color: var(--back-text-hot); 
 	width: 30em;
 	white-space: pre-wrap;
 	overflow-wrap: break-word; }
@@ -861,6 +879,22 @@ select#MasterColorPicker_palette_select {
 	text-align: left; }
 #MasterColorPicker_MyPalette .portNotice button:hover {
 	outline: 1px solid var(--border-button-hover); }
+#MasterColorPicker_MyPalette fieldset.editors {
+	text-align: center;
+	white-space: nowrap; }
+#MasterColorPicker_MyPalette > fieldset.editors.sticky {
+	position: sticky;
+	top: -0.382em;  /* .pickerPanel padding */
+	z-index: 7;
+	background-color: inherit;  /* var(--back-text); */
+	margin: 0 0 0 -0.382em;  /* .pickerPanel padding */
+	width: 100%;
+	border: none; }
+#MasterColorPicker_MyPalette fieldset.editors button:first-child {
+	display: block;
+	margin: 0 auto 0.162em; }
+#MasterColorPicker_MyPalette fieldset.editors button:nth-child(2) {
+	margin-left: 0; }
 #MasterColorPicker_MyPalette table {
 	margin: 0.618em 0 0 0;
 	padding: 0;
@@ -927,7 +961,7 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 	white-space: nowrap; }
 #MasterColorPicker_MyPalette tbody th {
 	position: relative;
-	padding: 0 0 0 .382em;
+	padding: .382em 0 0 .382em;
 	border: 1px solid;
 	border-bottom: none;
 	text-align: left; }
@@ -935,17 +969,12 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 #MasterColorPicker_MyPalette th input[name$='[Name]'] {
 	width: 30em; }
 #MasterColorPicker_MyPalette tbody th label:last-child {
-	position: absolute;
-	left: auto;
-	right: .382em;
-	top: auto;
-	bottom: 0; }
+	 }
 #MasterColorPicker_MyPalette tbody th label:first-child,
-#MasterColorPicker_MyPalette tbody th label:nth-child(2) {
+#MasterColorPicker_MyPalette tbody th label:nth-child(2), 
+#MasterColorPicker_MyPalette tbody th label:nth-child(3) {
 	display: block;
-	margin: 0.618em 0; }
-#MasterColorPicker_MyPalette tbody th label:nth-child(5) {
-	margin-left: 1.618em; }
+	margin: 0; }
 #MasterColorPicker_MyPalette td:first-child {
 	padding: 0 1.618em 0 .382em;
 	border: 1px solid; }
@@ -962,38 +991,52 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 	list-style-type: none;
 	cursor: default;
 	padding: .162em .27em;
-	padding: 0;
-	border: solid var(--back-text-GenieMenu);
-	border-width: .162em .27em;
 	z-index: 13;
 	display: none; }
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu ul {
+	border: solid var(--back-text-GenieMenu);
+	border-width: 0 .27em 0 0;
+	overflow: auto;
+	scrollbar-gutter: stable;
+	scrollbar-width: thin; }
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu:hover ul {
+	border: solid var(--back-text-GenieMenu-hoveredSet);  }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li {
 	position: relative; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu ul {
 	top: -.162em;
-	left: 100%; }
+	left: 100%;
+	max-height: 8em; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span+ul {
 	top: 100%; }
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu.focus-within,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu:focus-within,
-#MasterColorPicker_MyPalette .dragHandle:hover .MyPalette_ColorGenieMenu,
+#MasterColorPicker_MyPalette .dragHandle[aria-expanded='true'] .MyPalette_ColorGenieMenu,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true'] span,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true'] ul { 
+	display: block; }
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu:hover li[aria-expanded='true']:focus span,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu:hover li[aria-expanded='true']:focus ul { 
+	display: none; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover span,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus span,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover ul,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus ul,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li.focus-within span,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus-within span,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li.focus-within ul, 
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus-within ul {
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true']:focus:hover span,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true']:focus:hover ul { 
 	display: block; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus-within,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span:focus,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span:hover,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus {
+	color: var(--fore-text-GenieMenu-focused);
+	background-color: var(--back-text-GenieMenu-focused);
+	z-index: 20; }
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover span,
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover ul {
+	color: var(--fore-text-GenieMenu-hoveredSet);
+	background-color: var(--back-text-GenieMenu-hoveredSet); }
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover span:hover,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover {
-	color: var(--fore-text-GenieMenu-highlight);
-	background-color: var(--back-text-GenieMenu-highlight); }
+	color: var(--fore-text-GenieMenu-hoveredOver);
+	background-color: var(--back-text-GenieMenu-hoveredOver);
+	z-index: 30; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu :focus {
 	outline: var(--border-hot) double medium; }
 
@@ -1192,6 +1235,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker_EyeDropper label:last-of-type {
 	margin-left: .618em;
 	position: relative; }
+#MasterColorPicker_EyeDropper label:focus-within note,
 #MasterColorPicker_EyeDropper label:hover note {
 	display: block;
 	position: absolute;
@@ -1630,6 +1674,11 @@ indicator#MasterColorPicker_LabContrast.disabled {
 #MasterColorPicker_Thesaurus fieldset {
 	max-height: 17em;
 	overflow-y: auto; }
+#MasterColorPicker_Thesaurus p {
+	padding: 0;
+	margin: .382em 0; }
+#MasterColorPicker_Thesaurus output p {
+	margin: 0; }
 #MasterColorPicker_Thesaurus ol {
 	margin: 0;
 	padding: 0;
@@ -1976,6 +2025,7 @@ table#BeezEye fieldset {
 	z-index: 2; }
 table#BeezEye fieldset dl {
 	display: none; }
+table#BeezEye fieldset:focus-within dl,
 table#BeezEye fieldset:hover dl {
 	display: block;
 	position: absolute;
@@ -2072,10 +2122,10 @@ table#RainbowMaestro thead label:last-child {
 table#RainbowMaestro thead note {
 	display: none; }
 table#RainbowMaestro thead label:hover,
-table#RainbowMaestro thead label.focusWithin {
+table#RainbowMaestro thead label:focus-within {
 	z-index: 1000; }
 table#RainbowMaestro thead label:hover note,
-table#RainbowMaestro thead label.focusWithin note {
+table#RainbowMaestro thead label:focus-within note {
 	display: block;
 	position: absolute;
 	top: 100%;
@@ -2138,9 +2188,10 @@ table#RainbowMaestro div.subpalette_swatch {
 	font-size: 1.0618em;
 	color: var(--fore-palette);
 	background-color: var(--back-palette); }
-#RainbowMaestro_hueIndicator p {
+#RainbowMaestro_hueIndicator note {
 	display: none; }
-#RainbowMaestro_hueIndicator:hover p {
+#RainbowMaestro_hueIndicator:focus-within note,
+#RainbowMaestro_hueIndicator:hover note {
   display: block;
 	position: absolute;
 	top: 100%;
@@ -2150,11 +2201,9 @@ table#RainbowMaestro div.subpalette_swatch {
 	color: var(--fore-palette);
 	background-color: var(--back-palette);
 	border: 3px double var(--border-hot);
-	border-top: none;
-}
-#RainbowMaestro_hueIndicator:hover p span.hueAngleUnit {
-	font-weight: bold;
-}
+	border-top: none; }
+#RainbowMaestro_hueIndicator note span.hueAngleUnit {
+	font-weight: bold; }
 td#RainbowMaestro_swatch  {
 	text-align: center;
 	height: 2em;  }
@@ -2291,7 +2340,7 @@ table#YinYangNíHóng h6 span {
 	padding-left: 4.618em;
 	font-size: 85.4%; }   /* ≈ Φ + (1-Φ)*Φ */
 table#YinYangNíHóng thead tr:hover,
-table#YinYangNíHóng thead tr.focusWithin {
+table#YinYangNíHóng thead tr:focus-within {
 	z-index: 618; }
 table#YinYangNíHóng thead tr {
 	position: relative; }
@@ -2321,7 +2370,7 @@ table#YinYangNíHóng label span.hueIndicator.active {
 table#YinYangNíHóng label dfn {
 	display: none; }
 table#YinYangNíHóng label:hover dfn,
-table#YinYangNíHóng label.focusWithin dfn {
+table#YinYangNíHóng label:focus-within dfn {
 	display: block;
 	position: absolute;
 	top: 100%;
