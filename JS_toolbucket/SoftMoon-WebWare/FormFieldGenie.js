@@ -1,9 +1,9 @@
 //    encoding: UTF-8 UNIX   tabspacing: 2   word-wrap: none
 
-/* FormFieldGenie version 4.8.1  (November 25, 2023)
+/* FormFieldGenie version 4.9  (December 13, 2023)
  * written by and Copyright © 2010,2011,2012,2015,2019,2020,2022,2023 Joe Golembieski, Softmoon-Webware
  *
- * API changes from version 4.4 to version 4.5 to version 4.6 to version 4.8
+ * API changes from version 4.4 to version 4.5 to version 4.6 to version 4.8 to version 4.9
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatible with early versions of MSIE =*=*=*
 
@@ -26,7 +26,7 @@
 
 
 /*   The SoftMoon “namespace” is usually a constant defined in a “pinnicle” file somewhere else
-const SoftMoon=Object.defineProperties({}, {WebWare: {value:{}, enumerable:true}});
+const SoftMoon=Object.defineProperty({}, "WebWare", {value:{}, enumerable:true});
 */
 
 
@@ -42,8 +42,8 @@ function FormFieldGenie(opts, HTML_clipMenu, name)  {
 	if (!new.target)  throw new Error("“FormFieldGenie” is a constructor, not a function or method.");
 	this.config=new FormFieldGenie.ConfigStack(this, opts);
 	this.clipboard=new Array;  //new Object; ← the Array acts like a simple Object
-	if (HTML_clipMenu instanceof Element)  this.HTML_clipMenu=HTML_clipMenu;
-	else if (HTML_clipMenu!==undefined)  throw new Error('The FormFieldGenie “HTML_clipMenu” must be a DOM Element. passed in:',HTML_clipMenu)
+	if (HTML_clipMenu instanceof Element)  this.bind_clipMenu(HTML_clipMenu);  
+	else if (HTML_clipMenu!==undefined)  throw new Error('The FormFieldGenie “HTML_clipMenu” must be a DOM Element. passed in:',HTML_clipMenu);
 	Object.defineProperty(this, "name",
 		{get: ()=>name,
 		 set: n=>  {
@@ -339,6 +339,7 @@ FormFieldGenie.ConfigStack.prototype={
 	minPixHeight: 4,  // ↑
 	clone: null,
 	clip: "_system_",  //if you cut/copy/paste w/out specifying the clipboard “clip”
+	clear_clips_whenRetrieved: false, // can we paste the same clip multiple times, or do we automatically free up memory?
 	only_clips_inAll: true, // when using Genie.getClip('all clips'), only return the clipboard.clips array ? (clipboard is itself an Array that can hold other clips).
 	no_system_inAllClips: true, // when using Genie.getClip('all clips'), avoid clips with names that contain _system_ ?
 	// the above two items also control the  update_HTML_clipMenu()  method and which clipboard items are added to the menu.
@@ -522,10 +523,15 @@ function dumpEmpties(elmnt)  {
 
 	function isGroup(e)  {return (!config.groupTag  ||  e.nodeName===config.groupTag)  &&  e.className.match(groupClass);}
 
-	function getNextGroup(nodeGroup)  {
-		do {nodeGroup=nodeGroup.nextElementSibling}
-		while  (nodeGroup!=null  &&  (!isGroup(nodeGroup)  ||  getField(nodeGroup)==null));
-		return  nodeGroup;  }
+	function getNextGroup(group)  {
+		do {group=group.nextElementSibling}
+		while  (group!=null  &&  (!isGroup(group)  ||  getField(group)==null));
+		return  group;  }
+
+	function getPreviousGroup(group)  {
+		do {group=group.previousElementSibling}
+		while  (group!=null  &&  (!isGroup(group)  ||  getField(group)==null));
+		return  group;  }
 
 	function getFirstGroup()  { var firstGroup=batch.firstElementChild;
 		while (firstGroup!=null  &&  (!isGroup(firstGroup)  ||  getField(firstGroup)==null))  {
@@ -659,7 +665,8 @@ function dumpEmpties(elmnt)  {
 		&&  (clip=clip||this.getClip(config.clip)))  {
 			if (clip.node instanceof Element)  {
 				pasted=true;
-				newGroup=(cloned=clip.node).cloneNode(true);
+				cloned=clip.node;
+				newGroup=config.clear_clips_whenRetrieved ? cloned : cloned.cloneNode(true);
 				alignSelectValues(cloned, newGroup);
 				offSet=groupPos-clip.position;  }
 			else if (clip instanceof Array)  {
@@ -783,7 +790,7 @@ FormFieldGenie.prototype.pasteGroup=function(group, opts)  {
 		if (opts  &&  opts.doso==='insert')  {
 			opts.doso='paste';  flag=popNewGroup.call(this, group, opts, clip);  opts.doso='insert';
 			return flag;  }
-		const newGroup=clip.node.cloneNode(true);
+		const newGroup=config.clear_clips_whenRetrieved ? clip.node : clip.node.cloneNode(true);
 		alignSelectValues(clip.node, newGroup);
 		updateGroupNames(newGroup, getPosition(group)-clip.position, false);
 		if (typeof config.cloneCustomizer === 'function')
@@ -831,47 +838,68 @@ FormFieldGenie.prototype.copyGroup=function(group, opts)  {
 		if (opts)  this.config.cull();  }  }
 
 
-// here you can change the language that the FormFieldGenie recognizes in “HTML_clipMenus”
-FormFieldGenie.prototype.TEXT={
+// here you can change the text-content and/or language that the FormFieldGenie recognizes/produces in “HTML_clipMenus”
+FormFieldGenie.prototype.HTML_clipMenu_TEXT={
+	insert: 'insert:',
+	copy:'copy to:',      
+	cut:'cut to:',        
+	paste:'paste from:',    
+	dlt:'delete',         
+	clear:'clear clipboard',
+	confirm: "Do you want to clear this Form's Clipboard?",
 	clip: "clip ",
 	allClips: "all clips",
-	newClip: "new clip",
-	confirm: "Do you want to clear this Form's Clipboard?"
-	};
+	newClip: "new clip" };
+	
 
 // note that when  ref='clip X'  (where X is a number) clipboard.clips[X-1] is returned
 // but that when  ref=X  (where X is a number) clipboard.clips[X] is returned
-FormFieldGenie.prototype.getClip=function(ref, doInit)  { var x;
-	if (!(this.clipboard instanceof Object))  {
-		if (doInit)  this.clipboard=new Object;
-		else  return false;  }
-	if (typeof ref === 'string')  {
-		if (ref.toLowerCase()===this.TEXT.allClips)  {
-			var allClips= (this.clipboard.clips instanceof Array  &&  this.clipboard.clips.length>0  &&  this.clipboard.clips.slice(0));
-			if (config.only_clips_inAll)  return allClips;
-			allClips= allClips || new Array;
-			for (x in this.clipboard)  {
-				if (x==='clips'  ||  (config.no_system_inAllClips  &&  x.match( /_system_/ )))  continue;
-				allClips.push(this.clipboard[x]);  }
-			return allClips.length>0  &&  allClips;  }
-		if (ref.toLowerCase()===this.TEXT.newClip)  {
-			if (!(this.clipboard.clips instanceof Array))  this.clipboard.clips=new Array;
-			return this.clipboard.clips[this.clipboard.clips.length]=new Object;  }
-		if (!doInit  &&  this.clipboard[ref] instanceof Object)  return this.clipboard[ref];
-		if (x=ref.match( /^clip ?([0-9]+)$/i ))  ref=parseInt(x[1])-1;
-		else
-		if (doInit)  return this.clipboard[ref]=new Object;  }
-	if (typeof ref !== 'number')  return false;
-	if (!(this.clipboard.clips instanceof Array))  {
-		if (doInit)  this.clipboard.clips=new Array;
-		else  return false;  }
-	if (doInit)  return this.clipboard.clips[ref]=new Object;
-	if (this.clipboard.clips[ref] instanceof Object)  return this.clipboard.clips[ref];
-	return false;  }
+FormFieldGenie.prototype.getClip=function(ref, doInit)  {
+	var x, grabbed=false;
+	try  {
+		if (!(this.clipboard instanceof Object))  {
+			if (doInit)  this.clipboard=new Object;
+			else  return false;  }
+		if (typeof ref === 'string')  {
+			if (ref.toLowerCase()===this.HTML_clipMenu_TEXT.allClips)  {
+				var allClips= (this.clipboard.clips instanceof Array  &&  this.clipboard.clips.length>0  &&  this.clipboard.clips.slice(0));
+				if (allClips)  grabbed=true;
+				if (config.clear_clips_whenRetrieved)  this.clipboard.clips=new Array;
+				if (config.only_clips_inAll)  return allClips;
+				allClips= allClips || new Array;
+				for (x in this.clipboard)  {
+					if (x==='clips'  ||  (config.no_system_inAllClips  &&  /_system_/.test(x)))  continue;
+					grabbed=true;
+					allClips.push(this.clipboard[x]);
+					if (config.clear_clips_whenRetrieved)  delete this.clipboard[x];  }
+				return allClips.length>0  &&  allClips;  }
+			if (ref.toLowerCase()===this.HTML_clipMenu_TEXT.newClip)  {
+				if (!(this.clipboard.clips instanceof Array))  this.clipboard.clips=new Array;
+				return this.clipboard.clips[this.clipboard.clips.length]=new Object;  }
+			if (!doInit  &&  this.clipboard[ref] instanceof Object)  {
+				grabbed=true;
+				const clip=this.clipboard[ref];
+				if (config.clear_clips_whenRetrieved)  delete this.clipboard[ref];
+				return clip;  }
+			if (x=ref.match( /^clip ?([0-9]+)$/i ))  ref=parseInt(x[1])-1;
+			else
+			if (doInit)  return this.clipboard[ref]=new Object;  }
+		if (typeof ref !== 'number')  return false;
+		if (!(this.clipboard.clips instanceof Array))  {
+			if (doInit)  this.clipboard.clips=new Array;
+			else  return false;  }
+		if (doInit)  return this.clipboard.clips[ref]=new Object;
+		if (this.clipboard.clips[ref] instanceof Object)  {
+			grabbed=true;
+			const clip=this.clipboard.clips[ref];
+			if (config.clear_clips_whenRetrieved)  delete this.clipboard.clips[ref];
+			return clip;  }
+		return false;  }
+	finally {if (grabbed  &&  config.clear_clips_whenRetrieved)  this.update_HTML_clipMenu();}  }
 
 
 FormFieldGenie.prototype.clearClipboard=function(confirmed)  {
-	if (confirmed  ||  confirm(this.TEXT.confirm))  {
+	if (confirmed  ||  confirm(this.HTML_clipMenu_TEXT.confirm))  {
 		this.clipboard=new Object;
 		this.update_HTML_clipMenu();  }  }
 
@@ -884,18 +912,21 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
 	if (this.clipboard.clips instanceof Array)  for (let i=0; i<this.clipboard.clips.length; i++)  {
 		if (this.clipboard.clips[i])  {
 			const li=document.createElement('li');
-			li.append(this.TEXT.clip+(1+i));
-			if (this.config.make_clipMenu_focusable)  li.setAttribute('tabindex', '-1');
+			li.append(this.HTML_clipMenu_TEXT.clip+(1+i));
+			if (this.config.make_clipMenu_focusable
+			||  this.HTML_clipMenu_is_bound)  li.setAttribute('tabindex', '-1');
 			items.appendChild(li);  }  }
 	if (!this.config.only_clips_inAll)  for (const i in this.clipboard)  {
 		if (i==='clips'  ||  (this.config.no_system_inAllClips  &&  i.match( /_system_/ )))  continue;
 		const li=document.createElement('li');
 		li.append(i);
-		if (this.config.make_clipMenu_focusable)  li.setAttribute('tabindex', '-1');
+		if (this.config.make_clipMenu_focusable
+		||  this.HTML_clipMenu_is_bound)  li.setAttribute('tabindex', '-1');
 		items.appendChild(li);  }
+
 	for (let i=0; i<ul.length; i++)  {
 		const li=ul[i].getElementsByTagName('li');
-		for (let j=0; j<li.length; )  {if (li[j].hasAttribute('standard'))  j++;  else  ul[i].removeChild(li[j]);}
+		for (let j=0; j<li.length  &&  li.length!==0; )  {if (li[j].hasAttribute('standard'))  j++;  else  ul[i].removeChild(li[j]);}
 		if (items.hasChildNodes())  {
 			if  ((i+1) === ul.length)
 				ul[i].appendChild(items);
@@ -906,42 +937,280 @@ FormFieldGenie.prototype.update_HTML_clipMenu=function()  {
 	this.HTML_clipMenu.dispatchEvent(event);  }
 
 
+FormFieldGenie.prototype.bind_clipMenu=function bind_clipMenu(flag=true)  {
+	const menu=(flag instanceof Element) ? flag : this.HTML_clipMenu;
+	flag=Boolean(flag);
+	if (flag)  {
+		this.HTML_clipMenu=menu;
+		menu.addEventListener('click', this);
+		menu.addEventListener('keydown', this);
+		menu.addEventListener('focusout', this);  }
+	else  {
+		menu.removeEventListener('click', this);
+		menu.removeEventListener('keydown', this);
+		menu.removeEventListener('focusout', this);  }
+	this.HTML_clipMenu_is_bound=flag;
+	// we initially remove the menu from the DOM so it is not displayed or active
+	menu.remove();  }
+
+
+FormFieldGenie.prototype.show_clipMenu=function show_clipMenu(event, group, container)  {
+	event.preventDefault();  event.stopPropagation();
+	const menu=this.HTML_clipMenu;
+	if (menu.isConnected)  {
+		if  (container.contains(menu))  return;
+		menu.parentNode.removeAttribute('aria-controls');
+		menu.parentNode.removeAttribute('aria-expanded');
+		for (const li of menu.querySelectorAll('*[aria-expanded]'))  {li.setAttribute('aria-expanded', 'false');}  }
+	currentGroup=group;
+	container.appendChild(menu);
+	container.setAttribute('aria-controls', menu.id);
+	container.setAttribute('aria-expanded', 'true');
+
+	originalTarget= (event.type==='keydown') ?  event.target : undefined; 
+	nextOfKin=getNextGroup(group)||getPreviousGroup(group);
+	if (nextOfKin)  nextOfKin=getField(nextOfKin);
+
+	const e=new CustomEvent('popUp', {bubbles:true, detail:event});
+	e.group=group;  e.container=container;
+	menu.dispatchEvent(e);
+	const newFocus=menu.querySelector('*[tabindex]');
+	if (newFocus)  {
+		if (newFocus.childElementCount>0)  newFocus.setAttribute('aria-expanded', 'true');
+		newFocus.focus();  }  }
+
+	
+let currentGroup, originalTarget, nextOfKin;
+
+
+FormFieldGenie.prototype.handleEvent=
+FormFieldGenie.prototype.clipMenu_controller=menuController;
+function menuController(event)  {
+	const menu=this.HTML_clipMenu;
+	switch (event.type)  {
+	case 'keydown':  {
+		if (this.handleKeydownInMenu(event))  return;
+		if (this.config.doFocus)  switch (event.opStatus)  {  //other opStatus means the Genie handles focus or user clicked elsewhere
+			case 'noMod':
+				originalTarget?.focus(); 
+			break;
+			case 'removed':  // the Genie will always insure at least one group is left
+				nextOfKin?.scrollIntoView({behavior:'smooth', block:'nearest'});
+				nextOfKin?.focus();  }  
+		const e=new CustomEvent('popDown', {bubbles:true, detail:event});
+		menu.dispatchEvent(e);
+		return;  }
+	case 'click':  {
+		this.onGenieMenuSelect(event);
+		if (event.menuSelectReturnStatus)  {event.stopPropagation();}
+		else  {
+			const e=new CustomEvent('popDown', {bubbles:true, detail:event});
+			menu.dispatchEvent(e);  }
+		return;  }
+	case 'focusout':  {
+		if (menu.contains(event.relatedTarget))  return;
+		menu.parentNode.removeAttribute('aria-controls');
+		menu.parentNode.removeAttribute('aria-expanded');
+		for (const li of menu.querySelectorAll('*[aria-expanded]'))  {li.setAttribute('aria-expanded', 'false');}
+		currentGroup=undefined;
+		const e=new CustomEvent('popDown', {bubbles:true, detail:event});
+		menu.dispatchEvent(e);
+		menu.remove();  }  }  }
+
+	
+SoftMoon.keyPressRepeatTimeoutDelay??=1200;  //milliseconds
+let
+	digitTime=0,
+	digitCollection="",  //user must press multiple digit keys within (1.2)(default) secs of each other
+	enterTime,
+	enterCount=0;  //user must press Enter/Space 3 times within (1.2)(default) secs to delete or clear-clipboard
+	
+// returns true if the menu should stay open, false if the menu should close
+FormFieldGenie.prototype.handleKeydownInMenu=function handleKeydownInMenu(event)  {
+	event.preventDefault();  event.stopPropagation();
+	if (event.key!=='Enter'  &&  event.key!=="Space")  enterTime=enterCount=0;
+	if (SoftMoon.altMenuKey?.sniff(event))  return false;
+	if (event.shiftKey ||  (event.ctrlKey && !"xXcCvV".includes(event.key))  || event.altKey || event.metaKey
+	||  event.getModifierState('AltGraph')  ||  event.getModifierState('OS'))  return true;
+	var newFocus;
+	if (event.key>="0"  &&  event.key<="9")  numberKey: {
+		if (digitTime+SoftMoon.keyPressRepeatTimeoutDelay<event.timeStamp)  digitCollection=event.key;
+		else  digitCollection+=event.key;
+		digitTime=event.timeStamp;  
+		const ul= (event.target.parentNode.tagName==='UL') ? event.target.parentNode : event.target.querySelector('ul');
+		if (ul)  for (const li of ul.children)  {
+			if (li.innerText.endsWith(" "+digitCollection))  {
+				newFocus=li;
+				break numberKey;  }  }
+		return true;  }
+	else  {
+		digitCollection="";
+		switch (event.key)  {
+		case 'Space':
+		case 'Enter':
+			if (!enterTime  
+			||  enterTime+SoftMoon.keyPressRepeatTimeoutDelay<event.timeStamp)  {
+					enterTime=event.timeStamp;
+					enterCount=0;  }  
+			event.enterPress=++enterCount;
+			this.onGenieMenuSelect(event);
+			return event.menuSelectReturnStatus;
+		case 'Escape': event.opStatus='noMod';   
+			return false;
+		case 'ArrowDown':
+			if (newFocus=event.target.nextElementSibling)  {
+				if (newFocus.tagName==='UL')  newFocus=newFocus.firstElementChild;  } 
+			else return true;
+			if (newFocus)  break;
+			else return true;
+		case 'ArrowUp':
+			if (newFocus=event.target.previousElementSibling)  break;
+			newFocus=event.target.parentNode.previousElementSibling;
+			if (newFocus?.tagName==='SPAN')  break;
+			return true;
+		case 'ArrowRight':
+			if (newFocus=event.target.firstElementChild)  {
+				if (newFocus.tagName==='UL')  
+					newFocus=newFocus.firstElementChild;
+				if (newFocus)  break;  }  
+			return true;
+		case 'ArrowLeft':
+			if (event.target.parentNode.tagName==='MENU')  return true;
+			newFocus=event.target.parentNode;
+			while (newFocus.parentNode.tagName!=='MENU')  {
+				newFocus=newFocus.parentNode;  }
+		break;
+		case 'Insert': newFocus=menu.querySelector('.insert');
+		break;
+		case 'Delete': newFocus=menu.querySelector('.delete');
+		break;
+		case 'x':
+		case 'X':  if (!event.ctrlkey)  return true;
+		case 'Cut':    newFocus=menu.querySelector('.cut');
+		break;
+		case 'c':
+		case 'C':  if (!event.ctrlkey)  return true;
+		case 'Copy':   newFocus=menu.querySelector('.copy');
+		break;
+		case 'v':
+		case 'V':  if (!event.ctrlkey)  return true;
+		case 'Paste':  newFocus=menu.querySelector('.paste');
+		break;
+		default: return true;  }  }
+	if (event.target.childElementCount>0  &&  !event.target.contains(newFocus))  event.target.setAttribute('aria-expanded', 'false');
+	if (newFocus.childElementCount>0)  newFocus.setAttribute('aria-expanded', 'true');  
+	newFocus.focus();  
+	return true;  }  
+
+
+FormFieldGenie.prototype.onGenieMenuSelect=function onGenieMenuSelect(event)  {
+	const
+		group=currentGroup,  // private, set by show_clipMenu()
+		text=this.HTML_clipMenu_TEXT;
+	event.menuSelectReturnStatus=false;
+	switch (group  &&  event.target.tagName)  {
+		case 'SPAN':               return this.popNewGroup(group, {doso:"insert"});
+		case 'LI':  if (event.target.parentNode.tagName==='UL')  switch (event.target.parentNode.parentNode.firstChild.data.trim())  {
+			case text.insert:  return this.pasteGroup(group, {doso:"insert", clip:event.target.innerText});
+			case text.copy:    event.opStatus='noMod';  return this.copyGroup(group, {clip:event.target.innerText});
+			case text.cut:     event.opStatus='removed';  return this.cutGroup(group, {clip:event.target.innerText});
+			case text.paste:   return this.pasteGroup(group, {clip:event.target.innerText});  }
+			else
+			if (event.detail===3  ||  event.enterPress===3)  switch (event.target.innerText)  {
+			case text.dlt:     event.opStatus='removed';  return this.deleteGroup(group);
+			case text.clear:   event.opStatus='noMod';  return this.clearClipboard(true);  }  }
+	event.menuSelectReturnStatus=true;  }
+
+
 
 }  //close the NameSpace wrapper for private members/functions
 
 
 
-/* This is the “HTML clip Menu”
+/* This is the “HTML clip Menu” example when you “bind” it to the Genie.
+ * (The Genie will update the Menu contents automatically as appropriate.
+ *  The Genie will handle all click events on the Menu to select a choise,
+ *  and handle keyboard-navigation events and keyboard-choise-select events,
+ *  and shut down the Menu when appropriate.
+ *  It’s up to you to add the Javascript to your web-page to activate the menu,
+ *  then the Genie will handle the rest…)
  * You may copy and paste this snippet of HTML into your page – one copy per Genie instance.
+ * You may not add Elements or change any tagNames or remove any classNames.
+ * You may change/add any id or classNames to this HTML for CSS handles.
+ * The TEXT within this menu may be modified only if you modify or replace the FormFieldGenie’s .HTML_clipMenu_TEXT Object,
+ * with the exception of the <span>’s content — you may modify that without problems.
+ *  For instance, with a list of names, your TEXT may become: “insert name” “copy name” “cut name” “paste name” “delete name” “new name” “all names” etc…,
+ *  and your confirm dialog may become “Do you want to delete this name?”
+ *
+<menu class='myGenie_popUpMenu'>
+	<li class='insert' tabindex="-1" controls='myGenie_popUpMenu_insertA myGenie_popUpMenu_insertB'>insert:
+		<span id='myGenie_popUpMenu_insertA' tabindex="-1">new group</span>
+		<ul id='myGenie_popUpMenu_insertB'>
+			<li standard tabindex="-1">all clips</li>
+		</ul>
+	</li>
+	<li class='copy'  tabindex="-1" controls='myGenie_popUpMenu_copy'>copy to:<ul id='myGenie_popUpMenu_copy'>
+		<li standard tabindex="-1">new clip</li></ul></li>
+	<li class='cut'   tabindex="-1" controls='myGenie_popUpMenu_cut'>cut to:<ul id='myGenie_popUpMenu_cut'>
+		<li standard tabindex="-1">new clip</li></ul></li>
+	<li class='paste' tabindex="-1" controls='myGenie_popUpMenu_paste'>paste from:<ul id='myGenie_popUpMenu_paste'>
+		</ul></li>
+	<li class='delete' title='triple-click' tabindex="-1">delete</li>
+	<li title='triple-click' tabindex="-1">clear clipboard</li>
+</menu>
+ *
+ *the above menu would be used like this:
+<script type='text/javascript'>
+// the Genie will automatically “bind” it:
+myGenie=new SoftMoon.WebWare.FormFieldGenie(opts, document.getElementById('myGenie_popUpMenu'));
+</script>
+ *
+ *or we could use the above menu like this:
+<script type='text/javascript'>
+myGenie=new SoftMoon.WebWare.FormFieldGenie(opts);
+myGenie.bind_clipMenu(document.getElementById('myGenie_popUpMenu'));
+</script>
+ */
+
+
+
+/* This is the “HTML clip Menu” example when you don’t want it “bound” to the Genie.
+ * (The Genie will update the Menu contents automatically as appropriate.
+ *  You must handle all EndUser-Menu-interaction with your own event-handlers - in this example embedded within the HTML)
+ * You may copy and paste this snippet of HTML into your page – one copy per Genie instance.
+ * You may not add Elements or change any tagNames.
  * You may change/add any id or classNames to this HTML for CSS handles.
  * You may simply modify the <li>TEXT</li> in the outer <menu> but not the inner <ul>s.
  *  For instance, with a list of names, your TEXT may become: “insert name” “copy name” “cut name” “paste name” “delete name”,
  *  and your confirm dialog may become “Do you want to delete this name?”
- * The <li>TEXT</li> in the inner <ul>s may be modified only if you modify or replace the FormFieldGenie.TEXT Object.
- * Embedded JavaScript™ event-handler attributes may also be modified and/or expanded as appropriate to your needs;
- *  however, note the FormFieldGenie copies these 'onclick' attributes as it auto-creates new <li> items for each new “clip”
- *  the end-user copies/cuts to.
+ * The <span>’s content may also be modified without problems.
+ * The <li>TEXT</li> in the inner <ul>s may be modified only if you modify or replace the FormFieldGenie’s .HTML_clipMenu_TEXT Object.
+ * Embedded JavaScript™ event-handler attributes may also be modified and/or expanded as appropriate to your needs.
+ * **NOTE this example assumes you are using the  .config.groupClass  property.
+ * **You may need to modify these event-handlers as appropriate to your needs.
  *
 <menu id='myGenie_popUpMenu'>
 	<li>insert:<span onclick='myGenie.popNewGroup(this.closest("."+myGenie.config.groupClass), {doso:"insert"})'>empty field</span>
-							<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteGroup(this.closest("."+myGenie.config.groupClass), {doso:"insert", clip:event.target.innerText})'>
-								<li standard>all clips</li>
-							</ul></li>
+		<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteGroup(this.closest("."+myGenie.config.groupClass), {doso:"insert", clip:event.target.innerText})'>
+			<li standard>all clips</li>
+		</ul></li>
 	<li>copy to:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.copyGroup(this.closest("."+myGenie.config.groupClass), {clip:event.target.innerText})'>
-								<li standard>new clip</li>
-							</ul></li>
+			<li standard>new clip</li>
+		</ul></li>
 	<li>cut to:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.cutGroup(this.closest("."+myGenie.config.groupClass), {clip:event.target.innerText})'>
-								<li standard>new clip</li>
-							</ul></li>
+			<li standard>new clip</li>
+		</ul></li>
 	<li>paste from:<ul onclick='if (event.phase===Event.BUBBLING_PHASE) myGenie.pasteGroup(this.closest("."+myGenie.config.groupClass), {clip:event.target.innerText})'>
-								</ul></li>
+		</ul></li>
 	<li onclick='if (confirm("Do you want to delete this group?")) myGenie.deleteGroup(this.closest("."+myGenie.config.groupClass))'>delete</li>
 	<li onclick='myGenie.clearClipboard();'>clear clipboard</li>
 </menu>
  *
  *the above would be used like this:
 <script type='text/javascript'>
-myGenie=new SoftMoon.WebWare.FormFieldGenie(opts, document.getElementById('myGenie_popUpMenu'));
+// we don’t pass the Menu into the constructor, because we don’t want it “bound”
+myGenie=new SoftMoon.WebWare.FormFieldGenie(opts);
+myGenie.HTML_clipMenu=document.getElementById('myGenie_popUpMenu');
 </script>
  */
 
