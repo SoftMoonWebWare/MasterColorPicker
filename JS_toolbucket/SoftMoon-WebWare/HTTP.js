@@ -1,5 +1,5 @@
 /*  charset="UTF-8"
-	HTTP.js  version 2.2.2  November 15, 2023
+	HTTP.js  version 2.2.3  December 13, 2023
 	Copyright © 2013, 2017, 2018, 2020, 2021, 2022 by Joe Golembieski, SoftMoon-WebWare.
 
 //  character-encoding: UTF-8 UNIX     includes extended character set in comments example:  far-east asian: Chinese and Japanese
@@ -285,9 +285,9 @@ HTTP.redirectList=new Array();
 // for GET:  .open('GET', url+'?'+HTTP.URIEncodeObject(o));
 HTTP.URIEncodeObject=function(o, encodeMethods)  {
 	if (typeof o !== 'object')  return "";
-	var a=new Array, p;
-	for (p in o)  { if (typeof p === 'function'  &&  !encodeMethods)  continue;
-		s=o[p];  if (typeof s !== 'string')  s=s.toString();
+	var a=new Array;
+	for (const p in o)  { if (typeof p === 'function'  &&  !encodeMethods)  continue;
+		let s=o[p];  if (typeof s !== 'string')  s=s.toString();
 		a.push(encodeURIComponent(p).replace('%20', '+') + "=" + encodeURIComponent(s).replace('%20', '+'));  }
 	return a.join("&");  }
 
