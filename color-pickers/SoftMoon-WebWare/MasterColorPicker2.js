@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.5.4~BETA   December 14, 2023   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.5.5~BETA   December 19, 2023   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
 		This program is free software: you can redistribute it and/or modify
@@ -628,12 +628,16 @@ function MyPalette(HTML, PNAME)  {
 		this.style.top= xyPos.y+'px';
 		this.style.left=xyPos.x+'px';  });
 	UniDOM.addEventHandler(this.ColorGenie.HTML_clipMenu, new String('popDown'), function(event)  {
+		if (event.detail.opStatus==='removed')  thisPalette.ColorGenie.config.cull();    
 		switch (event.detail.type)  {
 		case 'keydown':
-			if (document.activeElement!==MasterColorPicker.currentTarget)
-				MasterColorPicker.currentTarget?.focus();
+			event.detail.stopPropagation();
+			if (document.activeElement!==MasterColorPicker.currentInterface)    
+				MasterColorPicker.currentInterface?.focus();  
 		break;
-		case 'focusout': thisPalette.ColorGenie.config.cull();  }  });
+		case 'focusout':
+			event.detail.stopPropagation();
+			thisPalette.ColorGenie.config.cull();  }  });
 	this.SubPaletteGenie=new SoftMoon.WebWare.FormFieldGenie({
 		indxTier:0,
 		groupTag:"TBODY",
