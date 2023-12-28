@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.5.4  December 15, 2023  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6  December 27, 2023  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -53,6 +53,7 @@ body.MCP_we-be-a-cuttin {
 	--border-cold: gray;  /* inactive picker panel */
 	--border-hot: red;    /* active picker panel, etc. */
 	--border-hover: skyBlue;  /* over picker panel */
+	--border-section: DarkBlue;  /* DarkCyan  DeepSkyBlue DarkBlue RGB(207, 114, 0) */
 	--border-fileinput: blue;
 	--border-button-hover: red;
 	--border-kbd: #8080FF;        /* keyboard keys */
@@ -138,6 +139,12 @@ span.MCP_fix_Safari {
     background: lightSteelBlue; }
 /*------*/
 
+#MasterColorPicker input[type="file"] {
+	border: 2px solid var(--border-fileinput);
+	border-top-left-radius: .618em 1em; 
+	border-bottom-left-radius: .618em 1em; }
+
+#MasterColorPicker input::file-selector-button,
 #MasterColorPicker button {
 	color: var(--fore-button);
 	background-color: var(--back-button);
@@ -665,6 +672,14 @@ select#MasterColorPicker_palette_select {
 	border: 1px solid;
 	margin: 0;
 	padding: .382em; }
+#MasterColorPicker_PaletteManager > fieldset,
+#MasterColorPicker_PaletteManager > fieldset > legend {
+	margin-top: 0.162em;
+	border: 3px double var(--border-section);
+	border-radius: .618em / 1em; }
+#MasterColorPicker_PaletteManager > fieldset > legend {
+	font-size: 1.1em;
+	padding: 0.1em 0.618em; }
 #MasterColorPicker_PaletteManager fieldset.disabled {
 	display: none; }
 #MasterColorPicker_PaletteManager fieldset.controls {
@@ -680,6 +695,9 @@ select#MasterColorPicker_palette_select {
 	bottom: auto;
 	left: auto;
 	right: 0; }
+#MasterColorPicker_PaletteManager button[name*="_addSelected"] {
+	position: relative;
+	top: -0.382em; }
 #MasterColorPicker_PaletteManager ul {
 	list-style-type: none;
 	margin: 0;
@@ -691,12 +709,16 @@ select#MasterColorPicker_palette_select {
 	padding: 0; }
 #MasterColorPicker_PaletteManager label {
 	white-space: nowrap; }
-#MasterColorPicker_PaletteManager .dialog  {
-	margin: 0;
-	padding: .618em 0 0 0; }
+#MasterColorPicker_PaletteManager div.dialog {
+	position: sticky;
+	top: -.382em;  /* padding on panel */
+	color: var(--fore-text);
+	background-color: var(--back-text); 
+	margin: 0 -1.162em 0 -0.382em;
+	padding: 0; }
 #MasterColorPicker_PaletteManager .dialog div {
-	margin: 0 0 .618em;
-	padding: 0 .328em;
+	margin: .382em 1em;
+	padding: 0.328em;
 	border: none;
 	border-left: 1px solid;
 	border-radius: .618em / 1em; }
@@ -710,6 +732,9 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_PaletteManager filepath {
 	display: block;
 	margin-left: -0.618em; }
+#MasterColorPicker_PaletteManager legend filepath {
+	display: inline;
+	margin: 0 0 0 1em; }
 #MasterColorPicker_PaletteManager ul label {
 	font-family: monospace;
 	white-space: pre; }
@@ -839,8 +864,6 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_MyPalette .portDialog.export.local .paletteMeta .local,
 #MasterColorPicker_MyPalette .portDialog.import.server .import.server {
 	display: block; }
-#MasterColorPicker_MyPalette .port .local input[type="file"] {
-	border: 2px solid var(--border-fileinput); }
 #MasterColorPicker_MyPalette .paletteMeta	textarea {
 	display:block;
 	max-width: 32em;
