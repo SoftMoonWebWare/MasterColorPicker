@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 {"X11": {
 	"alternatives": "lowercase",
 	"palette": {
@@ -636,4 +636,4 @@ SoftMoon.loaded_palettes.push(
 	"Yellow4": "8B8B00",
 	"YellowGreen": "9ACD32"
 }  }  }
-);
+});

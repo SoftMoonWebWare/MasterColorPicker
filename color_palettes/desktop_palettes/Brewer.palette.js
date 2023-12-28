@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 { "Brewer": {
 	"requireSubindex": "true",
 	"display": "grid",
@@ -2495,4 +2495,4 @@ SoftMoon.loaded_palettes.push(
 	"8": "BD0026",
 	"9": "800026"
 	} } } } }
-);
+});

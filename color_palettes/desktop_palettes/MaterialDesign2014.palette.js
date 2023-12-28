@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 {"Material Design": {
 "header": "color-scheme developed in 2014",
 "footer": "https://material.io/design/color/the-color-system.html#tools-for-picking-colors",
@@ -290,4 +290,4 @@ SoftMoon.loaded_palettes.push(
 "White": "#FFFFFF"
 
 }  }  }
-);
+});

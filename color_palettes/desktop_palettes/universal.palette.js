@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 { "universal": {
 	"footer": ["http://en.wikipedia.org/wiki/List_of_colors", "http://cloford.com/resources/colours/500col.htm", "http://www.color-ize.com/color-list.php"],
 	"alternatives": "lowercase",
@@ -951,4 +951,4 @@ SoftMoon.loaded_palettes.push(
 
 	"Zucchini": "#506022"
 }  }  }
-);
+});

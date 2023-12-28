@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 { "ANSI": {
 	"requireSubindex": false,
 	"useShortChains": true,
@@ -496,4 +496,4 @@ SoftMoon.loaded_palettes.push(
 				"Bright Cyan": "0,255,255",
 				"Bright White": "255,255,255"
 				}  }  }  }  }  }  }
-);
+});

@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 { "OpenOffice": {
 "footer": ["Apache OpenOffice® 4 by The Apache Software Foundation."],
 "requireSubindex": false,
@@ -179,4 +179,4 @@ SoftMoon.loaded_palettes.push(
 "Chart 10": "#ff950e",
 "Chart 11": "#c5000b",
 "Chart 12": "#0084d1"  }  }  }  }  }
-);
+});

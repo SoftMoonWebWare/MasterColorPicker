@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 {"CSS": {
 	"header": ["CSS4 specs for HTML and SVG", "This is a subset of X11 with notable differences."],
 	"alternatives": "UPPERCASE",
@@ -154,4 +154,4 @@ SoftMoon.loaded_palettes.push(
 	"Yellow": "FFFF00",
 	"YellowGreen": "9ACD32"
 }  }  }
-);
+});

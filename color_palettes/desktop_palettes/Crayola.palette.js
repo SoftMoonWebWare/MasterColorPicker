@@ -1,4 +1,4 @@
-SoftMoon.loaded_palettes.push(
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data: 
 { "Crayola": {
 	"requireSubindex": "false",
 	"footer": "http://en.wikipedia.org/wiki/List_of_Crayola_crayon_colors",
@@ -309,4 +309,4 @@ SoftMoon.loaded_palettes.push(
 	"Winter Sky": "FF007C",
 	"Frostbite": "E936A7"
  } } } } }
-);
+});
