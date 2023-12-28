@@ -1,0 +1,17 @@
+Notes on the update from MasterColorPicker2.0 to MasterColorPicker2.1
+Notes on the update from MasterColorPicker2.5.4 to MasterColorPicker2.6
+
+MasterColorPicker 2.1 is a major update including new features for the Palette color-chart tables.  You can now display charts as a “list” or a “grid” or “none” or a combination of them.
+
+Also, the logic used to identify “referenced” colors in these charts has been changed.  In previous versions, you could place a “space” character at the beginning of the color-definition or color-name to signify such, as well as use “referenceMarks” identified with meta-data in the palette file.  As of MasterColorPicker2.1, you can no longer use the “space” character, unless you signify so by defining the “referenceMarks” as such.
+
+What this means to you?
+
+If you used MasterColorPicker’s MyPalette to create your own palette files to load as a standard MasterColorPicker 2.0 color-chart table, they will fail to “pop up” the color-definition for named-colors, because they use the depreciated auto-reference “space” character as a referenceMark.  This problem can be easily fixed by:
+first opening each file in a text-editor and changing the "marks" line to "referenceMarks"
+then importing the files you created back into MyPalette and then re-exporting them.  This should reformat them to work with MasterColorPicker 2.1
+
+
+MasterColorPicker 2.6 is another major update that changes the file-structure of Palette color-chart tables when they are saved as .palette.js (not .json).  These files now save their own name as they load, so the PaletteManager can identify them without error under all conditions.  If you created your own Palette files and saved them as type .palette.js, you will need to modify the opening and closing (first and last) lines in the file.  Copy these lines from a supplied Palette file.
+
+Enjoy and Aloha!
