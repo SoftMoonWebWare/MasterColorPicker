@@ -1,6 +1,7 @@
-SoftMoon.loaded_palettes.push(
-{"common": {
-	"header": "most are web-safe",
+SoftMoon.loaded_palettes.push( {filename: document.currentScript.src, data:
+{"CorelD": {
+	"header": ["colors from CorelDRAW® X3 ℗2005", "most are web-safe"],
+	"footer": ["CorelDRAW® is a registered trademark of Corel Corporation.", "This product is not endorsed by Corel®."],
 	"palette": {
 
 "Black": "000000",
@@ -103,4 +104,4 @@ SoftMoon.loaded_palettes.push(
 "Storm Blue": "330099",
 "Deep Blue": "3300CC"
 } } }
-);
+});
