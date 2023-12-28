@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
-<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2021,2022 Joe Golembieski, SoftMoon-WebWare'>
+<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2021,2022,2023 Joe Golembieski, SoftMoon-WebWare'>
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css'>
@@ -68,7 +68,7 @@ Object.defineProperties(SoftMoon, {
 <script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/+++input_type.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2022.js' defer></script><!--  !! ESSENTIAL !!  -->
-<!-- script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden-colorblind_websafe-table_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline-colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
@@ -120,7 +120,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <!--  ------------ cut here to use the MasterColorPicker HTML (below) in your own page --------------  -->
 
 <script>
-window.addEventListener('mastercolorpicker_ready', function()  {
+window.addEventListener('mastercolorpicker_database_ready', function()  {
 	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);  //see files:  MasterColorPicker2.js → RGB_Calc.js
 	} );
 </script>
@@ -129,7 +129,7 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
-      release 2.5.5  December 19, 2023
+      release 2.6  December 28, 2023
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -278,32 +278,45 @@ or pin it to the window when it is pinned to the page.
 <div id='MasterColorPicker_PaletteManager' class='pickerPanel expanding disabled' role='tabpanel'>
 <h2>MasterColorPicker<footmark>™</footmark> <span>Palette Manager</span></h2>
 <fieldset class='controls'>
-<button type='button' name='MasterColorPicker_PaletteMngr_close'>X</button>
+<button type='button' name='MasterColorPicker_PaletteMngr_close' backtabToTarget>X</button>
 <!--  button type='button' name='MasterColorPicker_PaletteMngr_close'>close</button  -->
-<!-- label>¿<input type='checkbox' name='MasterColorPicker_PaletteMngr_recycle'>force recycle-bin<span
+<!-- label>¿<input type='checkbox' name='MasterColorPicker_PaletteMngr_recycle'>force recycle-bin?<span
 	class='note'>If a “trash” folder already exists, it will be used.</span></label -->
 <input type='filename' size='62' name='MasterColorPicker_PaletteMngr_renamer' keep-focus='false'>
+<button type='button' name='MasterColorPicker_PaletteMngr_deleteCurrentPalette'>Delete the current MasterColorPicker<footmark>™</footmark> Palette Table</button>
 </fieldset>
 <div class='dialog'></div>
-<fieldset><legend>Hard-loaded</legend>
-</fieldset>
 <!-- JavaScript depends on these fieldset.classnames being static: do not change or add -->
+<fieldset class='hardloaded disabled'><legend>Hard-loaded</legend>
+	<fieldset class='autoload_palettes'><legend>Auto-load: </legend>
+		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
+		<ul></ul>
+	</fieldset>
+</fieldset>
+<fieldset class='userloaded'><legend>User-loaded</legend>
+	<label>Choose a palette file to load as a MasterColorPicker<footmark>™</footmark> Palette Table:
+		 <input type='file' accept='.palette.json,.palette.js'></label>
+	<fieldset class='palettes'><legend>Current user: </legend>
+		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
+		<ul></ul>
+	</fieldset>
+</fieldset>
 <fieldset class='browser'><legend>Browser DataBase</legend>
 	<button type='button' name='MasterColorPicker_PaletteMngr_refresh'>refresh</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_load'>load selected</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_delete'>delete selected</button>
-	<fieldset class='autoload_palettes'><legend>Auto-load</legend>
+	<fieldset class='autoload_palettes'><legend>Auto-load: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
 	</fieldset>
-	<fieldset class='palettes'><legend>All users</legend>
+	<fieldset class='palettes'><legend>All users: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
 	</fieldset>
 </fieldset>
-<fieldset class='server disabled' disabled><legend>Server Based:&emsp;</legend>
+<fieldset class='server disabled' disabled><legend>Server Based: <filepath></filepath></legend>
 	<button type='button' name='MasterColorPicker_PaletteMngr_refresh'>refresh</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_load'>load selected</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_delete'>delete selected</button>
@@ -359,7 +372,7 @@ or pin it to the window when it is pinned to the page.
 		</script>
 		<fieldset>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='local'>this computer’s local file system</label>
-		<label class='import local' disabled><input type='file' name='MasterColorPicker_MyPalette_import' disabled>← drag files here</label>
+		<label class='import local' disabled><input type='file' name='MasterColorPicker_MyPalette_import' accept='.palette.json,.palette.js' disabled>← drag files here</label>
 		</fieldset>
 		<label><input type='radio' name='MasterColorPicker_MyPalette_port' value='browser'>this browser’s private storage
 			<note class='warn'><strong>¡Note</strong> the browser may delete it at any time!</note></label>
@@ -1269,7 +1282,13 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	until focus is on the file you want to rename, then
 	you can •double-press <kbd><span>ENTER</span></kbd> or •use <kbd><span>SHIFT</span>+<span>ENTER</span></kbd>
 	or •use <kbd><span>Alt</span>+<span>≡</span></kbd> (the “Alternate Context-Menu” key) when present.</p>
-
+	<p>The PaletteManager (by default) logs everything it does to the browser’s console,
+	where you can see the history of what you did or more details about an error.&nbsp;
+	If this is clogging your console or whatever, you can turn off this logging
+	by typing into the console <kbd>SoftMoon.WebWare.PaletteManager.doLog=false<span>&crarr;Enter</span></kbd>.&nbsp;
+	Note you can open the console usually by pressing the <kbd><span>F12</span></kbd> key
+	or through the “developer tools” option in the browser’s main menu.</p>
+	
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_Gradientor'>Using the Gradientor</h4>
 	<p>MasterColorPicker’s Gradientor can not only help you simply pick your color-of-choice from a gradient of mixed colors,
