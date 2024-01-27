@@ -1,11 +1,34 @@
 /*  charset="UTF-8"
-	HTTP.js  version 2.2.3  December 13, 2023
-	Copyright © 2013, 2017, 2018, 2020, 2021, 2022 by Joe Golembieski, SoftMoon-WebWare.
+	HTTP.js  version 2.2.4  January 26, 2024
+	Copyright © 2013, 2017, 2018, 2020, 2021, 2022, 2024 by Joe Golembieski, SoftMoon-WebWare.
+
+		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
+		For qualified “humane entities”, this program is free software:
+		you can use it, redistribute it, and/or modify it
+		under the terms of the GNU General Public License as published by
+		the Free Software Foundation, either version 3 of the License, or
+		(at your option) any later version, with the following additional requirements
+		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
+		This original copyright and licensing information and requirements must remain intact at the top of the source-code.
+
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
+
+		You should have received a copy of:
+		 • the SoftMoon Humane Use License
+		and
+		 • the GNU General Public License
+		along with this program.  If not, see:
+			https://softmoon-webware.com/humane-use-license/
+			https://www.gnu.org/licenses/
+		*/
 
 //  character-encoding: UTF-8 UNIX     includes extended character set in comments example:  far-east asian: Chinese and Japanese
 //  tab-spacing: 2   word-wrap: no   standard-line-length: 160   full-line-length: 2400
 
-
+/*
 	To Use:
 
 	connector = new HTTP(…)   ← ← see this file just below the HTTP-constructor function for comments on arguments passed in
@@ -287,7 +310,7 @@ HTTP.URIEncodeObject=function(o, encodeMethods)  {
 	if (typeof o !== 'object')  return "";
 	var a=new Array;
 	for (const p in o)  { if (typeof p === 'function'  &&  !encodeMethods)  continue;
-		let s=o[p];  if (typeof s !== 'string')  s=s.toString();
+		let s=o[p];  if (typeof s !== 'string')  s=s?.toString();
 		a.push(encodeURIComponent(p).replace('%20', '+') + "=" + encodeURIComponent(s).replace('%20', '+'));  }
 	return a.join("&");  }
 
