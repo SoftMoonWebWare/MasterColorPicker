@@ -5,19 +5,28 @@
  *
  *  http://softmoon-webware.com/UniDOM_instructions.htm
 
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
+		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
+		For qualified “humane entities”, this program is free software:
+		you can use it, redistribute it, and/or modify it
+		under the terms of the GNU General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
-		The original copyright information must remain intact.
+		(at your option) any later version, with the following additional requirements
+		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
+		This original copyright and licensing information and requirements must remain intact at the top of the source-code.
 
 		This program is distributed in the hope that it will be useful,
 		but WITHOUT ANY WARRANTY; without even the implied warranty of
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 		GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License
-		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
+		You should have received a copy of:
+		 • the SoftMoon Humane Use License
+		and
+		 • the GNU General Public License
+		along with this program.  If not, see:
+			https://softmoon-webware.com/humane-use-license/
+			https://www.gnu.org/licenses/
+		*/
 
 
 /*  required support file:  JS_toolbucket/+++JS/+++.js
@@ -200,7 +209,7 @@ function EventHandler(element, eventType, handler, options, wrapper, userArgs)  
 
 	//private
 	let removing=false;
-	
+
 EventHandler.prototype.remove=function()  {
 	// since EventHandler objects are now frozen/locked (they could not be when UniDOM was created and JavaScript was young)
 	// there should be no way to throw Errors; but just in case…we leave the sanity checks.
@@ -353,7 +362,7 @@ function KeySniffer(key, shift, ctrl, alt, meta, graph, os, capsLock, numLock, s
 		this.scrollLock=scrollLock;  }  }
 // returns true if the event’s key-press matches this KeySniffer’s key-combo-specs; returns false otherwise.
 KeySniffer.prototype.sniff=function sniffKeyEvent(event)  {
-	return (  (this.key instanceof Array  &&  (this.key.includes(event.key)  ||  this.key.includes(event.keyCode)))  
+	return (  (this.key instanceof Array  &&  (this.key.includes(event.key)  ||  this.key.includes(event.keyCode)))
 				 ||	(typeof this.key === 'number' ? event.keyCode : event.key) === this.key  )  &&
 					(this.shift===undefined || event.shiftKey===this.shift)  &&
 					(this.ctrl===undefined  || event.ctrlKey===this.ctrl)  &&
@@ -397,7 +406,8 @@ function getElementOffset(element, scroll)  {
 	while (!fixed  &&  (s=getComputedStyle(element, null))
 			&&  element!==ancestor  &&  element.offsetParent)  {
 		if (s.position==='fixed')  {scrl=false;  fixed=true;}
-//								console.log("<"+element.nodeName+" id="+element.id+">  postion: "+s.position+";  offsetLeft: "+element.offsetLeft+";  offsetTop: "+element.offsetTop);
+//								console.log("<"+element.nodeName+" id='"+element.id+"'>  postion: "+s.position+";  offsetLeft: "+element.offsetLeft+";  offsetTop: "+element.offsetTop);
+//								console.log("<"+element.offsetParent.nodeName+" id='"+element.id+"'>  scrollLeft: "+element.offsetParent.scrollLeft+";  scrollTop: "+element.offsetParent.scrollTop);
 		x+= element.offsetLeft - (scrl? element.offsetParent.scrollLeft : 0);
 		y+= element.offsetTop - (scrl? element.offsetParent.scrollTop : 0);
 		element=element.offsetParent;  }

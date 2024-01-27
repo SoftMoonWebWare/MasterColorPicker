@@ -7,20 +7,28 @@
 			http://www.rigdenage.co.uk/safecolours/
 			http://safecolours.rigdenage.com/
 
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
+		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
+		For qualified “humane entities”, this program is free software:
+		you can use it, redistribute it, and/or modify it
+		under the terms of the GNU General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
-		The original copyright information must remain intact.
+		(at your option) any later version, with the following additional requirements
+		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
+		This original copyright and licensing information and requirements must remain intact at the top of the source-code.
 
 		This program is distributed in the hope that it will be useful,
 		but WITHOUT ANY WARRANTY; without even the implied warranty of
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 		GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License
-		along with this program.  If not, see <http://www.gnu.org/licenses/>
- */
+		You should have received a copy of:
+		 • the SoftMoon Humane Use License
+		and
+		 • the GNU General Public License
+		along with this program.  If not, see:
+			https://softmoon-webware.com/humane-use-license/
+			https://www.gnu.org/licenses/
+		*/
 
 
 // requires  “RGB_Calc.js”  in  JS_toolbucket/SoftMoon-WebWare/

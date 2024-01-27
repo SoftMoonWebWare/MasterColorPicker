@@ -4,19 +4,28 @@
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023 Joe Golembieski, SoftMoon WebWare
 
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
+		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
+		For qualified “humane entities”, this program is free software:
+		you can use it, redistribute it, and/or modify it
+		under the terms of the GNU General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
-		The original copyright information must remain intact.
+		(at your option) any later version, with the following additional requirements
+		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
+		This original copyright and licensing information and requirements must remain intact at the top of the source-code.
 
 		This program is distributed in the hope that it will be useful,
 		but WITHOUT ANY WARRANTY; without even the implied warranty of
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 		GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License
-		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
+		You should have received a copy of:
+		 • the SoftMoon Humane Use License
+		and
+		 • the GNU General Public License
+		along with this program.  If not, see:
+			https://softmoon-webware.com/humane-use-license/
+			https://www.gnu.org/licenses/
+		*/
 
 // requires  “+++.js”  ←in  JS_toolbucket/+++JS/
 // requires  “+++Math.js”  ←in  JS_toolbucket/++JS/
@@ -496,8 +505,8 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 						return matches;  }
 					if (matches=($string.match(RegExp.stdWrappedColor)  ||  $string.match(RegExp.stdPrefixedColor)))  {
 						matches[1]=matches[1].trim().toLowerCase();
-						if (typeof calc.from[matches[1]] === 'function')  
-							return calc.from[matches[1]](matches[2]);  
+						if (typeof calc.from[matches[1]] === 'function')
+							return calc.from[matches[1]](matches[2]);
 						for (const p in SoftMoon.palettes)  {
 							if (p.toLowerCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
 								matches=matches[2].match(RegExp.addOnAlpha);
@@ -520,7 +529,7 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 	if (!$quickCalc)  {
 		const props=Object.getOwnPropertyNames(RGB_Calc.prototype);
 		for (const p of props)  { switch (p)  {
-			case 'luminance':  
+			case 'luminance':
 				Object.defineProperty(calc, p, {value:function(color)  {
 						this.config.stack({RGBA_Factory: {value:Array}});
 						try {return luminance(this.$(color));}
@@ -776,6 +785,7 @@ RGB_Calc.prototype.install= function(cSpace, provider)  {
 
 RGB_Calc.luminance=
 RGB_Calc.prototype.luminance=luminance;
+//  https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
 function luminance(rgba)  {  // rgb from 0-255, a (alpha-opacity) from 0.0-1.0
 	const
 		A= (rgba[3]===undefined) ? 1 : rgba[3],
@@ -788,6 +798,7 @@ function luminance(rgba)  {  // rgb from 0-255, a (alpha-opacity) from 0.0-1.0
 
 RGB_Calc.contrastRatio=
 RGB_Calc.prototype.conrastRatio=contrastRatio;
+//  https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
 function contrastRatio(fore, back)  {
 	const
 		L2=luminance(back),
@@ -795,7 +806,7 @@ function contrastRatio(fore, back)  {
 		L1=luminance(fore)+T*L2;
 	return (L1>L2) ? ((L1+0.05)/(L2+0.05)) : ((L2+0.05)/(L1+0.05));  }
 
-	
+
 
 // This object’s properties are conversion functions.
 // You may add to them………for your convenience

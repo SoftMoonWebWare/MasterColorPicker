@@ -1,21 +1,30 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.2.2   December 19, 2023  by SoftMoon-WebWare.
+// Picker.js  Beta-4.2.3   December 19, 2023  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
 
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
+		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
+		For qualified “humane entities”, this program is free software:
+		you can use it, redistribute it, and/or modify it
+		under the terms of the GNU General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
-		The original copyright information must remain intact.
+		(at your option) any later version, with the following additional requirements
+		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
+		This original copyright and licensing information and requirements must remain intact at the top of the source-code.
 
 		This program is distributed in the hope that it will be useful,
 		but WITHOUT ANY WARRANTY; without even the implied warranty of
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 		GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License
-		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
+		You should have received a copy of:
+		 • the SoftMoon Humane Use License
+		and
+		 • the GNU General Public License
+		along with this program.  If not, see:
+			https://softmoon-webware.com/humane-use-license/
+			https://www.gnu.org/licenses/
+		*/
 
 // requires SoftMoon-WebWare’s +++.js package.
 // requires SoftMoon-WebWare’s UniDOM-2020 package.
@@ -77,6 +86,7 @@ function Picker(mainPanel, opts)  {
 		return (  (dataTarget?.isConnected  &&  dataTarget)
 					 || (this.masterTarget?.isConnected  &&  this.masterTarget)  );  },
 		set: dT=>dataTarget=dT });
+	this.interfaceControl=undefined;
 	this.interfaceTarget=undefined;
 	Object.defineProperty(this, "currentTarget", { enumerable:true,
 		get:function()  {
@@ -152,7 +162,7 @@ function Picker(mainPanel, opts)  {
 //these are default class names.  Changing them changes the values for all future Pickers created.
 //Pass in opts.classNames when creating a Picker for instance-based class names; or modify  yourInstance.classNames
 
-//Content within a pickerPanel including the Pickers themselves should not use scroll-bars;
+//¡old & irrelevant for modern browsers →!  Content within a pickerPanel including the Pickers themselves should not use scroll-bars;
 //  the mainPanel or other panels should scroll if necessary.
 //This is required to keep focus on the targetElement when the scroll-bars are clicked-on without blocking a click on the Picker.
 Picker.CLASSNAMES={
@@ -778,8 +788,8 @@ Picker.prototype.registerInterfacePanel=function(panel, actions)  {
 		if (PickerInstance.currentTarget
 		&&  (!document.hasFocus()
 				||  (  (!PickerInstance.isInterfaceControl(event.target)  ||  !is_UserData_InputType(event.target))
-						&&  !PickerInstance.registeredTargets.includes(document.activeElement))))    
-			UniDOM.generateEvent(PickerInstance.currentTarget, 'tabIn', {bubbles:true});  
+						&&  !PickerInstance.registeredTargets.includes(document.activeElement))))
+			UniDOM.generateEvent(PickerInstance.currentTarget, 'tabIn', {bubbles:true});
 		if (!PickerInstance.interfaceTarget
 		||  !event.target.parentNode  // a previous event-handler may have removed this element from the DOM
 		||  !UniDOM.getAncestorBy$Class(event.target, PickerInstance.classNames.picker))

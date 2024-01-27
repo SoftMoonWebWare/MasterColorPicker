@@ -7,19 +7,28 @@
 
 *=*=*= ¡REQUIRES A MODERN BROWSER!  No longer compatible with early versions of MSIE =*=*=*
 
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
+		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
+		For qualified “humane entities”, this program is free software:
+		you can use it, redistribute it, and/or modify it
+		under the terms of the GNU General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
-		(at your option) any later version.
-		The original copyright information must remain intact.
+		(at your option) any later version, with the following additional requirements
+		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
+		This original copyright and licensing information and requirements must remain intact at the top of the source-code.
 
 		This program is distributed in the hope that it will be useful,
 		but WITHOUT ANY WARRANTY; without even the implied warranty of
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 		GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License
-		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
+		You should have received a copy of:
+		 • the SoftMoon Humane Use License
+		and
+		 • the GNU General Public License
+		along with this program.  If not, see:
+			https://softmoon-webware.com/humane-use-license/
+			https://www.gnu.org/licenses/
+		*/
 
 
 'use strict';
@@ -42,7 +51,7 @@ function FormFieldGenie(opts, HTML_clipMenu, name)  {
 	if (!new.target)  throw new Error("“FormFieldGenie” is a constructor, not a function or method.");
 	this.config=new FormFieldGenie.ConfigStack(this, opts);
 	this.clipboard=new Array;  //new Object; ← the Array acts like a simple Object
-	if (HTML_clipMenu instanceof Element)  this.bind_clipMenu(HTML_clipMenu);  
+	if (HTML_clipMenu instanceof Element)  this.bind_clipMenu(HTML_clipMenu);
 	else if (HTML_clipMenu!==undefined)  throw new Error('The FormFieldGenie “HTML_clipMenu” must be a DOM Element. passed in:',HTML_clipMenu);
 	Object.defineProperty(this, "name",
 		{get: ()=>name,
@@ -575,12 +584,12 @@ function dumpEmpties(elmnt)  {
 				if (typeof fieldName === "string")  return fieldName;  }
 			if (field.hasAttribute('update-value-genie')  &&  valueUpdater(field))  return field.name;
 			if (field.name.endsWith("]"))  return updateTieredName(field);
-			const valIncr=field.name.match(/(.*[^0-9])?([0-9]+)$/); 
+			const valIncr=field.name.match(/(.*[^0-9])?([0-9]+)$/);
 			if (valIncr!==null)
 				return ((typeof valIncr[1] !== "undefined") ? valIncr[1] : "") + (Number(valIncr[2])+indxOffset).toString();
 			else  return field.name;  }
 
-		function valueUpdater(field)  { 
+		function valueUpdater(field)  {
 			const genieNames=field.getAttribute('update-value-genie')?.split(',').map(n=>n.trim());
 			if (genieNames!==null  &&  !genieNames.includes(thisGenie.name))  return false;
 			if (field.tagName==='INPUT'  &&  (field.type==='radio'  ||  field.type==='checkbox')
@@ -594,7 +603,7 @@ function dumpEmpties(elmnt)  {
 			var tier, indxTier;
 			while (tier=tierRegEx.exec(field.name))  {nummedTiers.push({spec:tier[0], pos:tier.index})};
 			getTierIndex: {
-				if (field.hasAttribute('genie-tier-index'))  { // your Genie names:   ↓↓↓           ↓↓↓           ↓↓↓     
+				if (field.hasAttribute('genie-tier-index'))  { // your Genie names:   ↓↓↓           ↓↓↓           ↓↓↓
 					// <input name='foo[1][bar][3][baz][7][bing][]' genie-tier-index='myGenie: 0, otherGenie: 1, etcGenie: -2'>
 					//                                                           updates:  [1] ↑          [3] ↑        [7] ↑↑
 					// remember only numeric indexes in the name are “counted”
@@ -842,16 +851,16 @@ FormFieldGenie.prototype.copyGroup=function(group, opts)  {
 // here you can change the text-content and/or language that the FormFieldGenie recognizes/produces in “HTML_clipMenus”
 FormFieldGenie.prototype.HTML_clipMenu_TEXT={
 	insert: 'insert:',
-	copy:'copy to:',      
-	cut:'cut to:',        
-	paste:'paste from:',    
-	dlt:'delete',         
+	copy:'copy to:',
+	cut:'cut to:',
+	paste:'paste from:',
+	dlt:'delete',
 	clear:'clear clipboard',
 	confirm: "Do you want to clear this Form's Clipboard?",
 	clip: "clip ",
 	allClips: "all clips",
 	newClip: "new clip" };
-	
+
 
 // note that when  ref='clip X'  (where X is a number) clipboard.clips[X-1] is returned
 // but that when  ref=X  (where X is a number) clipboard.clips[X] is returned
@@ -968,7 +977,7 @@ FormFieldGenie.prototype.show_clipMenu=function show_clipMenu(event, group, cont
 	container.setAttribute('aria-controls', menu.id);
 	container.setAttribute('aria-expanded', 'true');
 
-	originalTarget= (event.type==='keydown') ?  event.target : undefined; 
+	originalTarget= (event.type==='keydown') ?  event.target : undefined;
 	nextOfKin=getNextGroup(group)||getPreviousGroup(group);
 	if (nextOfKin)  nextOfKin=getField(nextOfKin);
 
@@ -980,7 +989,7 @@ FormFieldGenie.prototype.show_clipMenu=function show_clipMenu(event, group, cont
 		if (newFocus.childElementCount>0)  newFocus.setAttribute('aria-expanded', 'true');
 		newFocus.focus();  }  }
 
-	
+
 let currentGroup, originalTarget, nextOfKin;
 
 
@@ -999,11 +1008,11 @@ function menuController(event)  {
 		if (this.handleKeydownInMenu(event))  {event.stopPropagation();  return;}
 		if (this.config.doFocus)  switch (event.opStatus)  {  //other opStatus means the Genie handles focus or user clicked elsewhere
 			case 'noMod':
-				originalTarget?.focus(); 
+				originalTarget?.focus();
 			break;
 			case 'removed':  // the Genie will always insure at least one group is left
 				nextOfKin?.scrollIntoView({behavior:'smooth', block:'nearest'});
-				nextOfKin?.focus();  }  
+				nextOfKin?.focus();  }
 		const e=new CustomEvent('popDown', {bubbles:true, detail:event});
 		menu.dispatchEvent(e);
 		if (event.opStatus==='removed')  closeMenu();
@@ -1022,14 +1031,14 @@ function menuController(event)  {
 		menu.dispatchEvent(e);
 		closeMenu();  }  }  }
 
-	
+
 SoftMoon.keyPressRepeatTimeoutDelay??=1200;  //milliseconds
 let
 	digitTime=0,
 	digitCollection="",  //user must press multiple digit keys within (1.2)(default) secs of each other
 	enterTime,
 	enterCount=0;  //user must press Enter/Space 3 times within (1.2)(default) secs to delete or clear-clipboard
-	
+
 // returns true if the menu should stay open, false if the menu should close
 FormFieldGenie.prototype.handleKeydownInMenu=function handleKeydownInMenu(event)  {
 	event.preventDefault();  event.stopPropagation();
@@ -1041,7 +1050,7 @@ FormFieldGenie.prototype.handleKeydownInMenu=function handleKeydownInMenu(event)
 	if (event.key>="0"  &&  event.key<="9")  numberKey: {
 		if (digitTime+SoftMoon.keyPressRepeatTimeoutDelay<event.timeStamp)  digitCollection=event.key;
 		else  digitCollection+=event.key;
-		digitTime=event.timeStamp;  
+		digitTime=event.timeStamp;
 		const ul= (event.target.parentNode.tagName==='UL') ? event.target.parentNode : event.target.querySelector('ul');
 		if (ul)  for (const li of ul.children)  {
 			if (li.innerText.endsWith(" "+digitCollection))  {
@@ -1053,18 +1062,18 @@ FormFieldGenie.prototype.handleKeydownInMenu=function handleKeydownInMenu(event)
 		switch (event.key)  {
 		case 'Space':
 		case 'Enter':
-			if (!enterTime  
+			if (!enterTime
 			||  enterTime+SoftMoon.keyPressRepeatTimeoutDelay<event.timeStamp)  {
 					enterTime=event.timeStamp;
-					enterCount=0;  }  
+					enterCount=0;  }
 			event.enterPress=++enterCount;
 			this.onGenieMenuSelect(event);
 			return event.menuSelectReturnStatus;
-		case 'Escape': event.opStatus='noMod';   
+		case 'Escape': event.opStatus='noMod';
 			return false;
 		case 'ArrowDown':
 			if (newFocus=event.target.nextElementSibling)  {
-				if (newFocus.tagName==='UL')  newFocus=newFocus.firstElementChild;  } 
+				if (newFocus.tagName==='UL')  newFocus=newFocus.firstElementChild;  }
 			else return true;
 			if (newFocus)  break;
 			else return true;
@@ -1075,9 +1084,9 @@ FormFieldGenie.prototype.handleKeydownInMenu=function handleKeydownInMenu(event)
 			return true;
 		case 'ArrowRight':
 			if (newFocus=event.target.firstElementChild)  {
-				if (newFocus.tagName==='UL')  
+				if (newFocus.tagName==='UL')
 					newFocus=newFocus.firstElementChild;
-				if (newFocus)  break;  }  
+				if (newFocus)  break;  }
 			return true;
 		case 'ArrowLeft':
 			if (event.target.parentNode.tagName==='MENU')  return true;
@@ -1103,9 +1112,9 @@ FormFieldGenie.prototype.handleKeydownInMenu=function handleKeydownInMenu(event)
 		break;
 		default: return true;  }  }
 	if (event.target.childElementCount>0  &&  !event.target.contains(newFocus))  event.target.setAttribute('aria-expanded', 'false');
-	if (newFocus.childElementCount>0)  newFocus.setAttribute('aria-expanded', 'true');  
-	newFocus.focus();  
-	return true;  }  
+	if (newFocus.childElementCount>0)  newFocus.setAttribute('aria-expanded', 'true');
+	newFocus.focus();
+	return true;  }
 
 
 FormFieldGenie.prototype.onGenieMenuSelect=function onGenieMenuSelect(event)  {
