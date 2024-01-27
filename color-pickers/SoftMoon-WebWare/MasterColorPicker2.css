@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6  December 27, 2023  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6  January 26, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -30,13 +30,15 @@ body.MCP_we-be-a-cuttin {
 	--back-text-note-warn: maroon;
 	--fore-text-note-refer:  black;
 	--back-text-note-refer: gold;
+	--fore-text-message:  black;
+	--back-text-message: HoneyDew;
 	--fore-text-GenieMenu: black;
 	--back-text-GenieMenu: paleGreen;
-	--fore-text-GenieMenu-focused: white;  
+	--fore-text-GenieMenu-focused: white;
 	--back-text-GenieMenu-focused: DarkGreen;  /*  Indigo;  */
-	--fore-text-GenieMenu-hoveredOver: white;  
+	--fore-text-GenieMenu-hoveredOver: white;
 	--back-text-GenieMenu-hoveredOver: Indigo;  /* ← HCG(274.62deg, 51%, 0%) *//* DarkBlue;  */
-	--fore-text-GenieMenu-hoveredSet: black;  
+	--fore-text-GenieMenu-hoveredSet: black;
 	--back-text-GenieMenu-hoveredSet: #C97DFF;  /* ← HCG(274.62deg, 51%, 100%) *//* LightSkyBlue;  */
 	--fore-text-kbd: white;    /* keyboard keys */
 	--back-text-kbd: #202040;
@@ -141,7 +143,7 @@ span.MCP_fix_Safari {
 
 #MasterColorPicker input[type="file"] {
 	border: 2px solid var(--border-fileinput);
-	border-top-left-radius: .618em 1em; 
+	border-top-left-radius: .618em 1em;
 	border-bottom-left-radius: .618em 1em; }
 
 #MasterColorPicker input::file-selector-button,
@@ -713,7 +715,7 @@ select#MasterColorPicker_palette_select {
 	position: sticky;
 	top: -.382em;  /* padding on panel */
 	color: var(--fore-text);
-	background-color: var(--back-text); 
+	background-color: var(--back-text);
 	margin: 0 -1.162em 0 -0.382em;
 	padding: 0; }
 #MasterColorPicker_PaletteManager .dialog div {
@@ -721,7 +723,9 @@ select#MasterColorPicker_palette_select {
 	padding: 0.328em;
 	border: none;
 	border-left: 1px solid;
-	border-radius: .618em / 1em; }
+	border-radius: .618em / 1em;
+	color: var(--fore-text-message);
+	background-color: var(--back-text-message); }
 #MasterColorPicker_PaletteManager .dialog p,
 #MasterColorPicker_PaletteManager .dialog strong {
 	display: block;
@@ -873,7 +877,7 @@ select#MasterColorPicker_palette_select {
 	margin-right: .382em; }
 #MasterColorPicker_MyPalette .portNotice {
 	display: block;
-	background-color: var(--back-text-hot); 
+	background-color: var(--back-text-hot);
 	width: 30em;
 	white-space: pre-wrap;
 	overflow-wrap: break-word; }
@@ -994,7 +998,7 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 #MasterColorPicker_MyPalette tbody th label:last-child {
 	 }
 #MasterColorPicker_MyPalette tbody th label:first-child,
-#MasterColorPicker_MyPalette tbody th label:nth-child(2), 
+#MasterColorPicker_MyPalette tbody th label:nth-child(2),
 #MasterColorPicker_MyPalette tbody th label:nth-child(3) {
 	display: block;
 	margin: 0; }
@@ -1035,15 +1039,15 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 	top: 100%; }
 #MasterColorPicker_MyPalette .dragHandle[aria-expanded='true'] .MyPalette_ColorGenieMenu,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true'] span,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true'] ul { 
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true'] ul {
 	display: block; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu:hover li[aria-expanded='true']:focus span,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu:hover li[aria-expanded='true']:focus ul { 
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu:hover li[aria-expanded='true']:focus ul {
 	display: none; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover span,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:hover ul,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true']:focus:hover span,
-#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true']:focus:hover ul { 
+#MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li[aria-expanded='true']:focus:hover ul {
 	display: block; }
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu li:focus-within,
 #MasterColorPicker_MyPalette .MyPalette_ColorGenieMenu span:focus,
@@ -1594,7 +1598,7 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	opacity: 38.2%; }
 #MasterColorPicker_Lab aside input[interfaceTarget] {
 	width: inherit; }
-	
+
 #MasterColorPicker_Lab button {
 	position: absolute;
 	right: 1.382em;
