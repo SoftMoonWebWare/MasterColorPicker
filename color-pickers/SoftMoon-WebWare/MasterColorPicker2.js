@@ -1,20 +1,22 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6~BETA   December 27, 2023   by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon WebWare
+// MasterColorPicker2.js   ~release ~2.6.1~BETA   January 26, 2024   by SoftMoon WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
-		This program is free software: you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
+		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
+		For qualified “humane entities”, this program is free software:
+		you can use it, redistribute it, and/or modify it
+		under the terms of the GNU General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
 		(at your option) any later version, with the following additional requirements
 		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
-		This original copyright information must remain intact.
+		This original copyright and licensing information and requirements must remain intact at the top of the source-code.
 		The phrase “MasterColorPicker™ by SoftMoon-WebWare” must be visually presented to the end-user
 			in a commonly readable font at 8pt or greater when this software is actively in use
 			and when this software is integrated into any:
 			• publicly available display (for example, an internet web-page),
 			• software package (for example, another open-source project, whether free or distributed for-profit),
-			• internally used software packages and/or displays within a business extablishment’s operational framework
+			• internally used software packages and/or displays within a business establishment’s operational framework
 				(for examples, an intranet system, or a proprietary software package used exclusively by employees).
 
 		This program is distributed in the hope that it will be useful,
@@ -22,8 +24,14 @@
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 		GNU General Public License for more details.
 
-		You should have received a copy of the GNU General Public License
-		along with this program.  If not, see <http://www.gnu.org/licenses/>   */
+		You should have received a copy of:
+		 • the SoftMoon Humane Use License
+		and
+		 • the GNU General Public License
+		along with this program.  If not, see:
+			https://softmoon-webware.com/humane-use-license/
+			https://www.gnu.org/licenses/
+		 */
 
 
 
@@ -167,7 +175,7 @@ window.addEventListener('load', function settings_restorer()  {
 				case 'select-multiple':
 				case 'UniDOM ElementArray': allSettings[p].setSelected(allValues[p]);
 				break;
-				default:  if (allSettings[p].hasAttribute('value'))  allSettings[p].value=allValues[p];  }  }  }  
+				default:  if (allSettings[p].hasAttribute('value'))  allSettings[p].value=allValues[p];  }  }  }
 		else  console.log('No MasterColorPicker settings found to restore.');  }
 	catch(e) {console.error("Error restoring MasterColorPicker settings upon startup: ",e);}
 	window.addEventListener('unload', function settings_unloader()  {  // pagehide  visualstatechange
@@ -625,17 +633,17 @@ function MyPalette(HTML, PNAME)  {
 	* (block the page scroll while the menu is shown?)
 	* At this time, the CSS file positions the menu absolutely. */
 		thisPalette.ColorGenie.config.stack({doFocus: true});
-		const xyPos=UniDOM.getElementOffset(event.container, true);
+		const xyPos=event.container.getBoundingClientRect();  //UniDOM.getElementOffset(event.container, true);  // ←Chromium based browsers are buggy and do not produce correct results
 		this.style.position= 'fixed';
 		this.style.top= xyPos.y+'px';
 		this.style.left=xyPos.x+'px';  });
 	UniDOM.addEventHandler(this.ColorGenie.HTML_clipMenu, new String('popDown'), function(event)  {
-		if (event.detail.opStatus==='removed')  thisPalette.ColorGenie.config.cull();    
+		if (event.detail.opStatus==='removed')  thisPalette.ColorGenie.config.cull();
 		switch (event.detail.type)  {
 		case 'keydown':
 			event.detail.stopPropagation();
-			if (document.activeElement!==MasterColorPicker.currentInterface)    
-				MasterColorPicker.currentInterface?.focus();  
+			if (document.activeElement!==MasterColorPicker.currentInterface)
+				MasterColorPicker.currentInterface?.focus();
 		break;
 		case 'focusout':
 			event.detail.stopPropagation();
@@ -682,17 +690,17 @@ function MyPalette(HTML, PNAME)  {
 			, 1);  }  }
 
 	showColorBlind();
-	
+
 	UniDOM.addEventHandler(this.options.autoClearClip, 'onchange', alignAutoClearClip);
 	function alignAutoClearClip() {thisPalette.ColorGenie.config.clear_clips_whenRetrieved=this.checked;}
-	
+
 	alignAutoClearClip.call(this.options.autoClearClip);
 
 	UniDOM.addEventHandler(this.options.keepEditorsSticky, 'onchange', keepEditorsSticky);
 	function keepEditorsSticky() {this.closest('.pickerPanel').querySelector('fieldset.editors').classList[this.checked ? 'add' : 'remove']('sticky');}
-	
+
 	keepEditorsSticky.call(this.options.keepEditorsSticky);
-	
+
 	const
 		porterFlag=UniDOM.getElementsBy$Name(HTML, /_port\]?$/ , 1)[0],  //the button that opens/closes the port dialog
 		portHTML=HTML.querySelector(".portDialog"),
@@ -799,7 +807,7 @@ function MyPalette(HTML, PNAME)  {
 		tabDownKey=new UniDOM.KeySniffer('ArrowDown', false, false, false, false, undefined, false),
 		altTabUpKey=new UniDOM.KeySniffer('ArrowUp', false, false, true, false, undefined, false),
 		altTabDownKey=new UniDOM.KeySniffer('ArrowDown', false, false, true, false, undefined, false);
-		
+
 	UniDOM.addEventHandler(this.table, 'onKeyDown', function(event)  {
 		var inpName, inp, neighbor, count=0;
 		const goDeep=UniDOM.alwaysTrue;
@@ -969,7 +977,7 @@ MyPalette.prototype.onDelete=function()  {
 	UniDOM.getElementsBy$Name(this.table, /selectAll/ ).map(function(e) {e.checked=false;});  }
 
 MyPalette.prototype.onPaste=function(tbody)  {
-	this.ColorGenie.pasteGroup(tbody.rows[tbody.rows.length-1], {clip:'all clips', doso:'insert', dumpEmpties:false, doFocus:false});  }  
+	this.ColorGenie.pasteGroup(tbody.rows[tbody.rows.length-1], {clip:'all clips', doso:'insert', dumpEmpties:false, doFocus:false});  }
 
 MyPalette.prototype.moveColor=function(from, to)  {
 		this.ColorGenie.cutGroup(from, {clip:"MCP_system", dumpEmpties:false});
@@ -1109,7 +1117,7 @@ MyPalette.prototype.fromJSON=function($JSON_palette, mergeMode)  {
 	tbodys[0].querySelector("input[name$='addToHere']").checked=true;
 	tbodys[0].scrollIntoView(true);
 	return $JSON_palette;
-	
+
 	function getPalette(JSON_palette)  {
 		return (JSON_palette instanceof SoftMoon.WebWare.Palette) ? Object.getPrototypeOf(JSON_palette.palette) : JSON_palette.palette;  }
 
@@ -1958,8 +1966,8 @@ function updateContrastInd(rgba)  {
 	try  {
 	const back=MasterColorPicker.RGB_calc(settings.LabContrastColor.value);
 	if (back)  ColorSpaceLab.contrastIndicator.innerText=Math.roundTo(1, RGB_Calc.contrastRatio(rgba, back))+':1';  }
-	finally {MasterColorPicker.RGB_calc.config.cull();}  } 
-	
+	finally {MasterColorPicker.RGB_calc.config.cull();}  }
+
 
 ColorSpaceLab.alignColor=function(event)  {
 	// the Picker class controls the Tab key and generates a “tabIn” event that transfers focus to another <input> before the TAB key can be released.
@@ -2079,7 +2087,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 	ColorSpaceLab.HTML=document.getElementById('MasterColorPicker_Lab');
 	settings=UniDOM.getElementsBy$Name(ColorSpaceLab.HTML, "", true,
 																				function(e) {return e.name.match( /^[a-z]+_([a-z_]+)$/i )[1];});
-	ColorSpaceLab.settings=settings;  //for debugging 
+	ColorSpaceLab.settings=settings;  //for debugging
 	for (var i=0; i<settings.length-10; i++)  {  // ignore Alpha, & the last seven inputs are “options” checkboxes
 		UniDOM.addEventHandler(settings[i], ['onChange', 'onKeyUp', 'onTabOut'], ColorSpaceLab.alignColor);
 		if (settings[i].type!=='range')  {
@@ -2131,7 +2139,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 	UniDOM.addEventHandler(settings.LabContrastColor, 'change', function(event)  {
 		const color=MasterColorPicker.RGB_calc(this.value);
 		contrastSwatch.style.backgroundColor= color?.hex||"";  });
-	
+
 	ColorSpaceLab.optionsHTML=ColorSpaceLab.HTML.querySelector('fieldset.options');
 	UniDOM.addEventHandler(ColorSpaceLab.optionsHTML, ['tabIn', 'focusOut'], function(event)  {
 		UniDOM.useClass(this, 'focus-within',
@@ -2142,7 +2150,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		&&  SoftMoon.altMenuKey.sniff(event))  {
 			event.preventDefault();
 			UniDOM.generateEvent(settings.updateLabOnMouseMove, 'tabIn', {bubbles:true});  }  });
-			
+
 	MCP_stylesheet=new UniDOM.StyleSheetShell(['MasterColorPicker_desktop_stylesheet', 'MasterColorPicker_stylesheet']),
 	MCP_stylesheet.hue_range_thumb_Indexes=MCP_stylesheet.getRuleIndexes( /^#MasterColorPicker_Lab tr.hue input\[type="range"\]::.+-thumb$/ );
 	MCP_stylesheet.alpha_range_thumb_Indexes=MCP_stylesheet.getRuleIndexes( /^#MasterColorPicker_Lab fieldset input\[type="range"\]::.+-thumb$/ );
@@ -2158,11 +2166,11 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 	function updateHandle(event, updater)  {
 		if ((event.buttons&1)===0)  {
 			console.log('can not update ColorSpaceLab handle using non-primary mouse button');
-			return;  }  
+			return;  }
 		const
 			slider=event.target,
 			eye=UniDOM.addEventHandler(document, 'onVisibilityStateChange', event=>done(event,'eyeballer')),
-			audit=UniDOM.addEventHandler(document.body, 'onMouseMove', auditor, true),  
+			audit=UniDOM.addEventHandler(document.body, 'onMouseMove', auditor, true),
 			move=UniDOM.addEventHandler(document.body, 'onMouseMove', updater, true),
 //with FireFox (¿others?), the mouseUp event happens even if the mouse moves off the browser window when the button is released, likely because it is a native slider
 			drop=UniDOM.addEventHandler(document.body, 'onMouseUp', done, true);
@@ -3472,17 +3480,17 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 																														// This format inits (& loads) Palettes from all sources
 																													 // (SoftMoon.loaded_palettes, MasterColorPicker’s Database, server)
 																													//  if not already initialized (¡except it WILL double load from the same path!).
-																												 //   Processed SoftMoon.loaded_palettes’ source files are added to the SoftMoon.hardLoaded_palettes array 
+																												 //   Processed SoftMoon.loaded_palettes’ source files are added to the SoftMoon.hardLoaded_palettes array
 										 //   ({IDBDatabase: , storeName: }, $whenLoaded, $whenDone)  // This format only inits SoftMoon.loaded_palettes Palettes
 																																								 //  and Palettes from a custom DB (¡it WILL double load from the same store!).
-																																								//   Processed SoftMoon.loaded_palettes’ source files are added to the SoftMoon.hardLoaded_palettes array 
+																																								//   Processed SoftMoon.loaded_palettes’ source files are added to the SoftMoon.hardLoaded_palettes array
 										 //   ($ArrayOfPalettes, $whenLoaded)  // This format only inits SoftMoon.loaded_palettes Palettes
 																													//  and Palettes in the supplied $ArrayOfPalettes.
-																												 //   Processed palettes’ source files are added to the SoftMoon.hardLoaded_palettes array 
+																												 //   Processed palettes’ source files are added to the SoftMoon.hardLoaded_palettes array
 										 //   (null, $whenLoaded)   // This format only inits SoftMoon.loaded_palettes Palettes.
-																							 //  Processed palettes’ source files are added to the SoftMoon.hardLoaded_palettes array 
+																							 //  Processed palettes’ source files are NOT added to any array
 										 //   ($Event, $whenLoaded)   // This format only inits SoftMoon.loaded_palettes Palettes.
-																								 //  Processed palettes’ source files are added to the SoftMoon.hardLoaded_palettes array 
+																								 //  Processed palettes’ source files are added to the SoftMoon.hardLoaded_palettes array
 										 //   ($Symbol, $whenLoaded)   // This format only inits SoftMoon.loaded_palettes Palettes.
 																									//  Processed palettes’ source files are added to the array
 																								 //   found at SoftMoon[$Symbol]
@@ -3502,8 +3510,8 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 		// ↓ OR it may contain palettes loaded via the PaletteManager by the end-user
 		preLoaded= SoftMoon.loaded_palettes,
 		loaded= new Array,
-		fileCashe= typeof arguments[0] === 'symbol' ? SoftMoon[arguments[0]] : SoftMoon.hardLoaded_palettes,
-		oldLength= fileCashe.length;
+		fileCashe= arguments[0]===null ? undefined : (typeof arguments[0] === 'symbol' ? SoftMoon[arguments[0]] : SoftMoon.hardLoaded_palettes),
+		oldLength= fileCashe?.length;
 	if (arguments[0] instanceof Array)  preLoaded.push(...arguments[0]);
 
 	function preLdErr(palette, e)  {
@@ -3526,12 +3534,12 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 		try  {
 			SoftMoon.WebWare.initLoadedPaletteTable(palette[0], $whenLoaded);
 			palette[1].isProcessed=true;
-			fileCashe.push(palette[1]);  }
+			fileCashe?.push(palette[1]);  }
 		catch(e) {preLdErr(palette, e);}  }
 	/*
 	 *	do note above that the SoftMoon.loaded_palettes Array will be empty upon return from this function.
 	 */
-	if (fileCashe.length!==oldLength)  switch (fileCashe)  {
+	if (fileCashe?.length!==oldLength)  switch (fileCashe)  {
 		case SoftMoon.hardLoaded_palettes:	UniDOM.generateEvent(window, 'mastercolorpicker_palettes_hardloaded');
 		break;
 		default:	UniDOM.generateEvent(window, 'mastercolorpicker_palettes_userloaded');  }
@@ -4080,14 +4088,14 @@ const
 Object.defineProperty(SoftMoon, "userLoaded_palettes", {value:new Array, enumerable: true});
 Object.defineProperty(SoftMoon.userLoaded_palettes, "reference", {value:userLoadedPalettes, enumerable: true});
 Object.defineProperty(SoftMoon, userLoadedPalettes, {value:SoftMoon.userLoaded_palettes});
-	
+
 function markup(text) {return text.replaceAll(SI, '<filepath>').replaceAll(SO, '</filepath>');}
 
-let HTML;  
+let HTML;
 
 // here you can adjust the language of the HTML output to the user
 PaletteManager.NOTICES={
-	NO_HTTP:'<strong>¡Error! :\n Problem with the HTTP connection or server.</strong>',
+	NO_HTTP:'<strong>¡Error! :\n Problem with the <abbr title="hyper-text transfer protocol">HTTP</abbr> connection or server.</strong>',
 	NO_DB:  '<strong>¡Error! :\n The browser’s private storage DataBase is not available.</strong>',
 	DB_LOADED: (filename,store)=>'<p><filepath>'+filename+'</filepath> loaded from the browser’s “<code>'+store+'</code>” DataBase.</p>',
 	DB_LOADING:(filename,store)=>'<p>Loading the <filepath>'+filename+'</filepath> palette from the browser’s “<code>'+store+'</code>” DataBase…</p>',
@@ -4118,6 +4126,7 @@ PaletteManager.NOTICES={
 	IMPROPER_FILETYPE: '¡Improper file type (file extension) to load as palette!&nbsp; Use <filepath>.palette.json</filepath> or <filepath>.palette.js</filepath>',
 	CHOOSE_PALETTE: '¡Please choose a MasterColorPicker<footnote>™</footnote> Palette Table from the palette-select!'
 	};
+const CONSOLE_IMPORT_ERROR='MasterColorPicker PaletteManager import file error:\n';
 
 
 
@@ -4326,10 +4335,10 @@ function addAllSelected(event)  {
 		let cashe=null;
 		switch (cb.port)  {
 		case 'browser':
-			if (trans)  {loadPaletteFromBrowserDB(trans, cb.store, fileName, true);  trans.completed=false;}  //  
+			if (trans)  {loadPaletteFromBrowserDB(trans, cb.store, fileName, true);  trans.completed=false;}  //
 		break;
 		case 'server':
-			if (connector)  {loadPaletteFromServer(connector, SoftMoon.colorPalettes_defaultPath+fileName, true);  connector.completed=false;}  //  
+			if (connector)  {loadPaletteFromServer(connector, SoftMoon.colorPalettes_defaultPath+fileName, true);  connector.completed=false;}  //
 		break;
 		case 'user': cashe=SoftMoon.userLoaded_palettes;
 		case 'document':  cashe??=SoftMoon.hardLoaded_palettes;
@@ -4339,82 +4348,94 @@ function addAllSelected(event)  {
 					break;  }  }  }  }
 	if (trans)  trans.oncomplete=moveFiles;
 	if (connector)  connector.onComplete=moveFiles;
-	const doLog=PaletteManager.doLog;
-	if (SoftMoon.loaded_palettes.length)  moveFiles.call({});  // if hard-loaded palettes are being added to the DB or server 
+	if (SoftMoon.loaded_palettes.length)  moveFiles.call({});  // if hard-loaded palettes are being added to the DB or server
 	function moveFiles()  {
 		this.completed=true;
 		if ((trans && !trans.completed)  ||  (connector && !connector.completed))  return;
-		porter: {  switch (port)  {
-		case 'browser':
-			const trans=openBrowserPaletteDBTransaction(store, 'readwrite');
-			if (!trans)  break porter;
-			while (SoftMoon.loaded_palettes.length)  {
-				const file=SoftMoon.loaded_palettes.shift();
-				if (typeof file !== 'object')  {
-					console.warn('HMMMM….….… how did THAT get in there? →',file);
-					continue;  }
-				const requst=trans.objectStore(store).add({JSON: file.data, filename: file.filename});
-				requst.filename=file.filename;
-				requst.div=notice(PaletteManager.NOTICES.DB_SAVING(file.filename,store), true);
-				requst.onsuccess = function()  {
-					UniDOM.remove$Class(this.div, 'wait');  this.div.wait=false;
-					this.div.innerHTML=PaletteManager.NOTICES.DB_SAVED(this.filename,store);  }
-				requst.onerror=function()  {
-					if (doLog)  console.warn(' ←← Save Palette file '+this.filename+' to browser’s DB error: ',this.error);
-					UniDOM.remove$Class(this.div, 'wait');  this.div.wait=false;
-					if (this.error.name==='ConstraintError')
-						this.div.innerHTML=PaletteManager.NOTICES.DB_EXISTS(this.filename,store);
-					else this.div.innerHTML=PaletteManager.NOTICES.NO_DB;  }  }
-			trans.oncomplete=function() {UniDOM.generateEvent(window, 'MasterColorPicker_BrowserDB_update', undefined, {clearNotices: false});};
+		switch (port)  {
+		case 'browser': PaletteManager.saveFilesToBrowserDB(store);
 		break;
-		case 'server':
-			const
-				connector=getServerConnector(),
-				divNotices=[];
-			if (!connector)  break porter;
-			connector.onComplete=function() {
-				for (const div of divNotices)  {UniDOM.remove$Class(div, 'wait');  div.wait=false;}
-				UniDOM.generateEvent(window, 'MasterColorPicker_ServerDB_update', undefined, {clearNotices: false});  }
-			const
-				path=SoftMoon.colorPalettes_defaultPath,
-				fullpath= ( /^(https?\:|file\:|\/)/ ).test(path) ? path : (document.URL.substring(0, document.URL.lastIndexOf("/")+1)+path),
-				ext=masks.paletteNameExtension;
-			while (SoftMoon.loaded_palettes.length)  {
-				const
-					file=SoftMoon.loaded_palettes.shift();
-				if (!file  ||  typeof file !== 'object')  { 
-					console.warn('HMMMM….….… how did THAT get in there? →',file);
-					continue;  }
-				const
-					connection=HTTP.Connection(path),
-					filename=file.filename+(file.filename.substr(-ext.length)===ext ? "" : ext);
-				if (doLog)  console.log(' ←← Uploading palette file ',filename,' to: ',path);
-				connection.onFileLoad=function()  { if (doLog)  console.log(' ←← Upload response:',this.responseText);
-					//  ASCII code 29 is “group separator” — the response may be followed by the new current index or other data
-					const response=this.responseText.split(GS)[0];
-					if (response.startsWith(ERROR))  this.div.innerHTML= '<strong>' + markup(response) + '</strong>';
-					else  this.div.innerHTML= PaletteManager.NOTICES.UPLOADED(fullpath+response);
-					divNotices.push(this.div);  };
-				connection.loadError=function()  { if (doLog)  console.warn(' ←← Upload: HTTP or server Error.');
-					this.div.innerHTML=PaletteManager.NOTICES.NO_HTTP + " while uploading <filepath>" + this.url.replace('<','&lt;').replace('>','&gt;') + "</filepath>";
-					divNotices.push(this.div);  }
-				connection.requestHeaders={'Content-Type': 'application/x-www-form-urlencoded'};
-				connection.postData=HTTP.URIEncodeObject({
-					filename: filename,
-					palette: JSON.stringify(file.data, file.isProcessed ? stringifyProcessedFile : undefined, "\t"),
-					replace_file: 'false',
-					autoload: (store==='autoload_palettes').toString(),
-					no_index: 'true' });
-				connector.commune(connection);
-				connection.div=notice(PaletteManager.NOTICES.UPLOADING(filename,fullpath), true);  }
-		break;  }  }  }  }
+		case 'server':  PaletteManager.saveFilesToServerDB(store);
+		break;  }  }  }
 
-function stringifyProcessedFile(key,value) { 
+PaletteManager.saveFilesToBrowserDB=saveFilesToBrowserDB;
+function saveFilesToBrowserDB(store)  {
+	const
+		doLog=PaletteManager.doLog,
+		trans=openBrowserPaletteDBTransaction(store, 'readwrite');
+	if (!trans)  return false;
+	while (SoftMoon.loaded_palettes.length)  {
+		const file=SoftMoon.loaded_palettes.shift();
+		if (typeof file !== 'object')  {
+			console.warn('HMMMM….….… how did THAT get in there? →',file);
+			continue;  }
+		if (doLog)  console.log('Saving '+file.filename+' to the browser’s DB.');
+		const requst=trans.objectStore(store).add({JSON: file.data, filename: file.filename});
+		requst.filename=file.filename;
+		requst.div=notice(PaletteManager.NOTICES.DB_SAVING(file.filename,store), true);
+		requst.onsuccess = function()  {
+			UniDOM.remove$Class(this.div, 'wait');  this.div.wait=false;
+			this.div.innerHTML=PaletteManager.NOTICES.DB_SAVED(this.filename,store);  }
+		requst.onerror=function()  {
+			if (doLog)  console.warn(' ←← Save Palette file '+this.filename+' to browser’s DB error: ',this.error);
+			UniDOM.remove$Class(this.div, 'wait');  this.div.wait=false;
+			if (this.error.name==='ConstraintError')
+				this.div.innerHTML=PaletteManager.NOTICES.DB_EXISTS(this.filename,store);
+			else this.div.innerHTML=PaletteManager.NOTICES.NO_DB;  }  }
+	trans.oncomplete=function() {UniDOM.generateEvent(window, 'MasterColorPicker_BrowserDB_update', undefined, {clearNotices: false});};
+	return trans;  }
+
+PaletteManager.saveFilesToServerDB=saveFilesToServerDB;
+function saveFilesToServerDB(store)  {
+	const
+		doLog=PaletteManager.doLog,
+		connector=getServerConnector(),
+		divNotices=[];
+	if (!connector)  return false;
+	connector.onComplete=function() {
+		for (const div of divNotices)  {UniDOM.remove$Class(div, 'wait');  div.wait=false;}
+		UniDOM.generateEvent(window, 'MasterColorPicker_ServerDB_update', undefined, {clearNotices: false});  }
+	const
+		path=SoftMoon.colorPalettes_defaultPath,
+		fullpath= ( /^(https?\:|file\:|\/)/ ).test(path) ? path : (document.URL.substring(0, document.URL.lastIndexOf("/")+1)+path),
+		ext=masks.paletteNameExtension;
+	while (SoftMoon.loaded_palettes.length)  {
+		const
+			file=SoftMoon.loaded_palettes.shift();
+		if (!file  ||  typeof file !== 'object')  {
+			console.warn('HMMMM….….… how did THAT get in there? →',file);
+			continue;  }
+		const
+			connection=HTTP.Connection(path),
+			filename=file.filename+(file.filename.substr(-ext.length)===ext ? "" : ext);
+		if (doLog)  console.log(' ←← Uploading palette file ',filename,' to: ',path);
+		connection.onFileLoad=function()  { if (doLog)  console.log(' ←← Upload response:',this.responseText);
+			//  ASCII code 29 is “group separator” — the response may be followed by the new current index or other data
+			const response=this.responseText.split(GS)[0];
+			if (response.startsWith(ERROR))  this.div.innerHTML= '<strong>' + markup(response) + '</strong>';
+			else  this.div.innerHTML= PaletteManager.NOTICES.UPLOADED(fullpath+response);
+			divNotices.push(this.div);  };
+		connection.loadError=function()  { if (doLog)  console.warn(' ←← Upload: HTTP or server Error.');
+			this.div.innerHTML=PaletteManager.NOTICES.NO_HTTP + " while uploading <filepath>" + this.url.replace('<','&lt;').replace('>','&gt;') + "</filepath>";
+			divNotices.push(this.div);  }
+		connection.requestHeaders={'Content-Type': 'application/x-www-form-urlencoded'};
+		connection.postData=HTTP.URIEncodeObject({
+			filename: filename,
+			palette: JSON.stringify(file.data, file.isProcessed ? stringifyProcessedFile : undefined, "\t"),
+			replace_file: 'false',
+			autoload: (store==='autoload_palettes').toString(),
+			no_index: 'true' });
+		connector.commune(connection);
+		connection.div=notice(PaletteManager.NOTICES.UPLOADING(filename,fullpath), true);  }
+	return connector;  }
+
+function stringifyProcessedFile(key,value) {
 	if (key==='palette' ||  key==='config')  {
 		const nv={}; // ↓ this will capture values in the prototype, while stringify will not otherwise; also, we want the original file value, not the processed value
 		for (const p in value)  {nv[p]=Object.getPrototypeOf(value)[p]||value[p];}
 		return nv;  }
 	return value;}
+
 
 let renamer;  // ← this will be a reusable/movable input box for renaming files, normally hidden.
 
@@ -4582,7 +4603,7 @@ function refreshServerList(clearNotices) {
 					al_plts.push(filename);
 				else  plts.push(filename);  }
 			buildList(al_plts, HTML.querySelector('.server .autoload_palettes ul'));
-			const flag=buildList(plts, HTML.querySelector('.server .palettes ul'));  };
+			buildList(plts, HTML.querySelector('.server .palettes ul'));  };
 		indexConn.loadError= () => {
 			if (PaletteManager.doLog)  console.warn('Problem loading the server’s palette file index when building the MasterColorPicker PaletteManager');
 			DIV.parentNode.removeChild(DIV);
@@ -4596,15 +4617,15 @@ function refreshHardloadedList()  {
 	const hlfs=HTML.querySelector('fieldset.hardloaded');
 	UniDOM.disable(hlfs, false);
 	buildList(SoftMoon.hardLoaded_palettes.map(file=>file.filename), hlfs.querySelector('ul'), 'document');  }
-	
+
 PaletteManager.refreshUserloadedList=
 PaletteManager.onmastercolorpicker_palettes_userloaded=refreshUserloadedList;
 function refreshUserloadedList()  {
 	const ulfs=HTML.querySelector('fieldset.userloaded');
 	buildList(SoftMoon.userLoaded_palettes.map(file=>file.filename), ulfs.querySelector('ul'), 'document');  }
 
-PaletteManager.loadFileToPalettes=loadFileToPalette;
-function loadFileToPalette(PaletteFile)  {
+
+function readfile(PaletteFile, callback)  {
 	if (!( /\.palette\.js(?:on)?$/i ).test(PaletteFile.name))  {
 		notice(PaletteManager.NOTICES.IMPROPER_FILETYPE);
 		return false;  }
@@ -4612,22 +4633,42 @@ function loadFileToPalette(PaletteFile)  {
 	fr.onload=function()  {
 		try {
 			const JSON_palette=fromFileText(fr.result);
-			SoftMoon.WebWare.addPalette(JSON_palette);
-			SoftMoon.WebWare.initLoadedPaletteTable(JSON_palette, undefined, true);
-			SoftMoon.userLoaded_palettes.push({filename: PaletteFile.name, data:JSON_palette, isProcessed:true});
-			UniDOM.generateEvent(window, 'mastercolorpicker_palettes_userLoaded');
-			}
+			callback(JSON_palette);  }
 		catch(e)  {
 			console.error(CONSOLE_IMPORT_ERROR,e,"\n ↓ ↓ ↓\n",fr.result);
-			notice(PaletteManager.NOTICES.MALFORMED);  }  };
+			notice(PaletteManager.NOTICES.MALFORMED(PaletteFile.name));  }  };
 	fr.onerror=function()  {
 		console.error(CONSOLE_IMPORT_ERROR,fr.error);
-		notice(PaletteManager.NOTICES.MALFORMED);  };
+		notice(PaletteManager.NOTICES.MALFORMED(PaletteFile.name));  };
 	fr.readAsText(PaletteFile);
 	return fr;  }
 
+PaletteManager.loadFileToPalettes=loadFileToPalette;
+function loadFileToPalette(PaletteFile)  {
+	return readfile(PaletteFile, function(JSON_palette)  {
+			SoftMoon.WebWare.addPalette(JSON_palette);
+			SoftMoon.WebWare.initLoadedPaletteTable(JSON_palette, undefined, true);
+			SoftMoon.userLoaded_palettes.push({filename: PaletteFile.name, data:JSON_palette, isProcessed:true});
+			UniDOM.generateEvent(window, 'mastercolorpicker_palettes_userLoaded');  });  }
+
+PaletteManager.loadFileToBrowser=loadFileToBrowser;
+function loadFileToBrowser(store, PaletteFile)  {
+	return readfile(PaletteFile, function(JSON_palette)  {
+			const filename=PaletteFile.name.match( /^(?:.+\/)?([^\/]+)\.palette\.js(?:on)?$/i )[1];
+			SoftMoon.loaded_palettes.push({data: JSON_palette, filename: filename})
+			PaletteManager.saveFilesToBrowserDB(store);  });  }
+
+PaletteManager.loadFileToServer=loadFileToServer;
+function loadFileToServer(store, PaletteFile)  {
+	return readfile(PaletteFile, function(JSON_palette)  {
+			const filename=PaletteFile.name.match( /^(?:.+\/)?([^\/]+)\.palette\.js(?:on)?$/i )[1];
+			SoftMoon.loaded_palettes.push({data: JSON_palette, filename: filename})
+			PaletteManager.saveFilesToServerDB(store);  });  }
+
+
 function fromFileText(ft)  {
 	return JSON.parse(ft.trim().replace( /^SoftMoon.loaded_palettes.push\(\s*{\s*filename:[^,]+,\s*data:\s*/ , "").replace( /\s*\}\s*\)\s*;?$/ , ""));  }
+
 
 PaletteManager.deleteCurrentPalette=deleteCurrentPalette;
 function deleteCurrentPalette()  {
@@ -4638,16 +4679,16 @@ function deleteCurrentPalette()  {
 		if (confirm(PaletteManager.NOTICES.CONFIRM_DEL('current MasterColorPicker')))  {
 			delete SoftMoon.palettes[pName];
 			document.getElementById(pName)?.remove();
-			opt.remove();  
+			opt.remove();
 			MasterColorPicker.picker_select.options[0].selected=true;
 			UniDOM.generateEvent(MasterColorPicker.picker_select, 'change', {bubbles:true});  }  }
 	else  {
 		notice(PaletteManager.NOTICES.CHOOSE_PALETTE);
 		UniDOM.generateEvent(MasterColorPicker.picker_select, 'tabIn', {bubbles:true});  }  }
 
-	
+
 UniDOM.addEventHandler(window, 'onload', function PaletteManager_initializer_1()  {
-	HTML=document.getElementById('MasterColorPicker_PaletteManager'); 
+	HTML=document.getElementById('MasterColorPicker_PaletteManager');
 	const hlfs=HTML.querySelector('fieldset.hardloaded');
 	UniDOM.disable(hlfs, hlfs.classList.contains('disabled'));
 	UniDOM.addEventHandler(window, [
@@ -4657,30 +4698,44 @@ UniDOM.addEventHandler(window, 'onload', function PaletteManager_initializer_1()
 			'MasterColorPicker_palettes_userloaded'], PaletteManager);
 	const
 		fileInput=HTML.querySelector('input[type="file"]'),
-		dropzone=HTML.querySelector('fieldset.userloaded'),
+		dropzones=HTML.querySelectorAll('fieldset.userloaded, fieldset.browser, fieldset.server'),
 		killer=HTML.querySelector('button[name*="_deleteCurrentPalette"');
-	UniDOM.addEventHandler(dropzone, ['dragEnter', 'dragOver'], function(e)  {
+	UniDOM.addEventHandler(HTML, ['dragEnter', 'dragOver', 'drop'], function(e)  {
 		e.stopPropagation();
 		e.preventDefault();  });
-	UniDOM.addEventHandler(dropzone, 'drop', function(event)  {
+	UniDOM.addEventHandler(dropzones, 'drop', function manageDroppedFileInPaletteManager(event)  {
 		event.stopPropagation();
 		if (event.target.type==='file')  return;
 		event.preventDefault();
-		PaletteManager.loadFileToPalettes(event.dataTransfer.files[0]);  });
+		const
+			port=event.currentTarget.className,
+			store=event.target.closest('fieldset').className;
+		if (PaletteManager.doLog)  console.log('Dropping file into the “'+port+'” “'+store+'” store.');
+		if (port!=='userloaded'  &&  !store.endsWith('palettes'))  {
+			if (PaletteManager.doLog)  console.warn('the dropped file missed it’s mark in the PaletteManager');
+			return;  }
+		switch (port)  {
+		case 'userloaded': PaletteManager.loadFileToPalettes(event.dataTransfer.files[0]);
+		break;
+		case 'browser':    PaletteManager.loadFileToBrowser(store, event.dataTransfer.files[0]);
+		break;
+		case 'server':     PaletteManager.loadFileToServer(store, event.dataTransfer.files[0]);
+		break;
+		default: console.error('the PaletteManager HTML is malformed or something…');  }  });
 	UniDOM.addEventHandler(fileInput, 'change', function(event)  {
 		PaletteManager.loadFileToPalettes(event.target.files[0]);  });
 	UniDOM.addEventHandler(killer, ['click', 'buttonpress'], deleteCurrentPalette);
 	UniDOM.addEventHandler(HTML.querySelector('div.dialog'), 'click', function(event)  {
 		const oldDivs=event.currentTarget.children;
 		for (var i=oldDivs.length; i>0;)  {
-			if (!oldDivs[--i].wait)  oldDivs[i].remove();  }  });  });	
-	
+			if (!oldDivs[--i].wait)  oldDivs[i].remove();  }  });  });
+
 UniDOM.addEventHandler(window, 'mastercolorpicker_database_ready',
 	function PaletteManager_initializer_2(event)  {
 		renamer=HTML.querySelector('input[name*="renamer"]');
 		renamer.parentNode.removeChild(renamer);
 		const server=( /^https?\:$/ ).test(window.location.protocol)  &&  HTTP;
-		if (server) 
+		if (server)
 			HTML.querySelector('fieldset.server legend filepath').append(SoftMoon.colorPalettes_defaultPath);
 		PaletteManager.supportsServer=server;
 		UniDOM.disable(HTML.querySelector('fieldset.server'), !server);
@@ -4724,7 +4779,7 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_database_ready',
 			refreshServerList();  }  },
 	{once:true});
 
-	
+
 }  // close the private namespace for the PaletteManager
 
 
@@ -5214,8 +5269,8 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 		e.preventDefault();
 		this.tool.loadBG(e.dataTransfer.files[0], this.imageAsCanvas);  });
 	UniDOM.addEventHandler(dropzones, 'change',  function(event)  {
-		if (event.target.type==='file')  {
-			this.tool.loadBG(event.target.files[0], this.imageAsCanvas);  }  });
+		if (event.target.type==='file')
+			this.tool.loadBG(event.target.files[0], this.imageAsCanvas);  });
 	UniDOM.addEventHandler(EyeDropper.screenCtrls, ['click', 'buttonpress'], function(event)  {
 		switch (event.target.title)  {
 			case 'panel': EyeDropper.HTML.classList.remove('fullscreen');
@@ -5378,7 +5433,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 				mYoff=event.clientY-r.top,
 				drag=UniDOM.addEventHandler(document.body, 'onMouseMove', dragger, true),
 				// ↓↓ see “A Note About dragging & dropping” near the end of this file
-				endDrag=UniDOM.addEventHandler(document, ['onMouseUp', 'onPickerStateChange', 'onVisibilityStateChange'], done, true);  
+				endDrag=UniDOM.addEventHandler(document, ['onMouseUp', 'onPickerStateChange', 'onVisibilityStateChange'], done, true);
 			function dragger(event)  {
 				event.stopPropagation();  event.preventDefault();
 				if (event.buttons!==1)  {done();  return;}
@@ -5728,7 +5783,7 @@ UniDOM.addEventHandler(userOptions.palette_select, 'onchange', function()  {
 	document.getElementById('Color_Picker_options').firstChild.firstChild.data = this.options[this.selectedIndex].text + ' mode:';  }  );
 
 UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', function() {UniDOM.generateEvent(userOptions.palette_select, 'change', {bubbles:true})});
-	
+
 var inp;
 if (inp=userOptions.keepPrecision)
 	MasterColorPicker.keepPrecision=inp.checked;
@@ -5947,7 +6002,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 	MasterColorPicker.enhanceKeybrd=enhanceKeybrd;
 	MasterColorPicker.syncLabAndSwatch=syncLabAndSwatch;
 	SoftMoon.altMenuKey??=new UniDOM.KeySniffer('ContextMenu', false, false, true, false, false, false); // ← Alt ContextMenu  a.k.a.  Alt ≡
-	
+
 	MasterColorPicker.registerTargetElement=function(inp)  {
 		UniDOM.addEventHandler(inp, 'onkeydown', enhanceKeybrd);
 		//the final value (true) maps to the 2nd argument, “isTargetInput”, in the handler
