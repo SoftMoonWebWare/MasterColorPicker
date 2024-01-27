@@ -29,6 +29,8 @@ I recently saw display computers at the store that were connected to the interne
 
 Since I first wrote this note, I have installed Ubuntu Linux which includes Firefox.  That whole system seems to fail miserably all the time in many ways.  This becomes apparent when using the MasterColorPicker.  As far as I can tell, the problem for MasterColorPicker is in the “x-window” functioning in either the OS or the Mozilla rendering engine.  I use “Komodo Edit” to write code, and that uses Mozilla’s rendering engine also, and that application also has problems with rendering its data on the screen.
 
+Even more recently, I got to use MS Edge and Google Chrome at the public library.  A bit clunkier, but it worked after I updated the browsers to Jan 2024, except for the positioning of the pop-up menu in the MyPalette interface. I couldn't spend enough time to see if the bug could be fixed, so I used a new technique as an untested workaround.
+
 So here it is folks:  get a real browser if this project seems to not work for you:  FireFox on Windows!
 
 Ditch that user-profiling tool that Google created to find out more about YOU!
