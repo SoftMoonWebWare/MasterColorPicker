@@ -1,6 +1,6 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.5.2  December 13, 2023
- *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
+/*  UniDOM-2022  version 1.6  February 8, 2024
+ *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
  *  http://softmoon-webware.com/UniDOM_instructions.htm
@@ -8,7 +8,7 @@
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
 		For qualified “humane entities”, this program is free software:
 		you can use it, redistribute it, and/or modify it
-		under the terms of the GNU General Public License as published by
+		under the terms of the GNU Affero General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
 		(at your option) any later version, with the following additional requirements
 		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
@@ -17,15 +17,15 @@
 		This program is distributed in the hope that it will be useful,
 		but WITHOUT ANY WARRANTY; without even the implied warranty of
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
+		GNU Affero General Public License for more details.
 
 		You should have received a copy of:
 		 • the SoftMoon Humane Use License
 		and
-		 • the GNU General Public License
+		 • the GNU Affero General Public License
 		along with this program.  If not, see:
 			https://softmoon-webware.com/humane-use-license/
-			https://www.gnu.org/licenses/
+			https://www.gnu.org/licenses/#AGPL
 		*/
 
 
@@ -377,6 +377,53 @@ KeySniffer.prototype.sniff=function sniffKeyEvent(event)  {
 
 
 
+/* ======= DOM-centric functions =======
+ *
+ *
+ */
+UniDOM.getScrollbarWidth=getScrollbarWidth;
+function getScrollbarWidth() {
+	// https://stackoverflow.com/questions/13382516/getting-scroll-bar-width-using-javascript by Vasyl Gutnyk
+	// enhanced by SoftMoon-WebWare
+  let el = document.createElement("div");
+  el.style.cssText = "overflow:scroll; visibility:hidden; position:absolute; border:none; padding:0px;";
+  document.body.appendChild(el);
+  let width = el.offsetWidth - el.clientWidth;
+  el.remove();
+  return UniDOM.scrollbarWidth=width;
+}
+
+/*
+function getScrollbarWidth() {
+	//https://stackoverflow.com/questions/13382516/getting-scroll-bar-width-using-javascript  by lostsource
+	// enhanced by SoftMoon-WebWare
+
+  // Creating invisible container
+  const outer = document.createElement('div');
+	outer.style.padding='0px';
+	outer.style.border='none';
+  outer.style.visibility = 'hidden';
+  outer.style.overflow = 'scroll'; // forcing scrollbar to appear
+  outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
+  document.body.appendChild(outer);
+
+  // Creating inner element and placing it in the container
+  const inner = document.createElement('div');
+	inner.style.padding='0px';
+	inner.style.border='none';
+  outer.appendChild(inner);
+
+  // Calculating difference between container's full width and the child width
+  const scrollbarWidth = (outer.offsetWidth - inner.offsetWidth);
+
+  // Removing temporary elements from the DOM
+  outer.parentNode.removeChild(outer);
+
+  return UniDOM.scrollbarWidth=scrollBarWidth;
+
+}
+*/
+
 UniDOM.getMouseOffset=getMouseOffset;
 function getMouseOffset(element, event)  {  //returns an offset-values object; event object is not modified.
 	element=xElement(element);
@@ -385,34 +432,26 @@ function getMouseOffset(element, event)  {  //returns an offset-values object; e
 	offset.y=event.clientY-offset.y;
 	return offset;  }
 
-
-
-/* ======= DOM-centric functions =======
- *
- *
- */
-
 //  Returns the element offset from the window’s top-left corner if scroll=true;
 //  or if  scroll=false  from the document’s top-left corner.
 //  If the element is − or is nested within − a fixed-position element, it will be noted in the return object…
 UniDOM.getElementOffset=getElementOffset;
 function getElementOffset(element, scroll)  {
 										//  (element, ancestor)  ← alternate, find the offset from the ancestor
-	var x=0, y=0, scrl=false, fixed=false, s, ancestor=null;
+	var x=0, y=0, ancestor=null, fixed=false;  // ,s
 	element=xElement(element);
-	if (typeof scroll === 'boolean')  scrl=scroll;
-	else if (isElement(arguments[1]))  ancestor=arguments[1];
-//	console.log('---');
-	while (!fixed  &&  (s=getComputedStyle(element, null))
-			&&  element!==ancestor  &&  element.offsetParent)  {
-		if (s.position==='fixed')  {scrl=false;  fixed=true;}
-//								console.log("<"+element.nodeName+" id='"+element.id+"'>  postion: "+s.position+";  offsetLeft: "+element.offsetLeft+";  offsetTop: "+element.offsetTop);
-//								console.log("<"+element.offsetParent.nodeName+" id='"+element.id+"'>  scrollLeft: "+element.offsetParent.scrollLeft+";  scrollTop: "+element.offsetParent.scrollTop);
-		x+= element.offsetLeft - (scrl? element.offsetParent.scrollLeft : 0);
-		y+= element.offsetTop - (scrl? element.offsetParent.scrollTop : 0);
-		element=element.offsetParent;  }
-	if (scrl)  {x-=window.pageXOffset;  y-=window.pageYOffset;}  //console.log('pageYOffset: '+window.pageYOffset);
-//	console.log('---');
+	if (arguments[1] instanceof Element)  {ancestor=arguments[1];  scroll=false;}
+					// console.log('---ancestor:',ancestor,'-----');
+	do {
+		fixed= (getComputedStyle(element, null).position==='fixed');  // (s= )
+					// console.log("element: <"+element.nodeName+" id='"+element.id+"'>  postion: "+s.position+";  offsetLeft: "+element.offsetLeft+";  offsetTop: "+element.offsetTop);
+					// console.log("offset: <"+element.offsetParent?.nodeName+" id='"+element.offsetParent?.id+"'>  scrollLeft: "+element.offsetParent?.scrollLeft+";  scrollTop: "+element.offsetParent?.scrollTop);
+		x+= element.offsetLeft;
+		y+= element.offsetTop;  }
+	while (!fixed  &&  (element=element.offsetParent)  &&  element!==ancestor
+		&&  ((x-=element.scrollLeft), (y-=element.scrollTop), true));
+	if (scroll  &&  !fixed)  {x-=window.pageXOffset;  y-=window.pageYOffset;}
+					// console.log('pagexOffset: '+window.pageXOffset,'pageYOffset: '+window.pageYOffset,'\n---');
 	return {x:x, y:y, fixed:fixed};  }
 
 
