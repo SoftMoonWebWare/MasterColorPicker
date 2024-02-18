@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6  January 26, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.2  February 17, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -18,6 +18,9 @@ body.MCP_we-be-a-cuttin {
 	font-family: serif;
 	font-size: 16px; /*lock down the font-size*/
 	background-color: transparent;
+	/* google-foo says the scrollbar widths are generally between 12-20, mostly 15-17, mostly 17; I think the OS has final say, and it may be much larger.
+	 * If the MasterColorPicker HTML is embedded in a container that changes the standard scrollbar width, ↓ JavaScript may not calculate the correct value  */
+	--scrollbar-width: 17px;  /*here we guess…estimate…ASSume the width of a normal scrollbar.  This is calsulated by JavaScript and set as an inline-style */
 	--fore-text: black;
 	--back-text: white;
 	--fore-text-allgood: blue;  /* was “green” - blue is more color-blind friendly */
@@ -32,6 +35,7 @@ body.MCP_we-be-a-cuttin {
 	--back-text-note-refer: gold;
 	--fore-text-message:  black;
 	--back-text-message: HoneyDew;
+	--back-text-message-error: LavenderBlush;
 	--fore-text-GenieMenu: black;
 	--back-text-GenieMenu: paleGreen;
 	--fore-text-GenieMenu-focused: white;
@@ -225,7 +229,8 @@ span.MCP_fix_Safari {
 #MasterColorPicker input.activeInterface,
 #MasterColorPicker select.activeInterface,
 #MasterColorPicker textarea.activeInterface,
-#MasterColorPicker button.activeInterface {
+#MasterColorPicker button.activeInterface,
+#MasterColorPicker legend.activeInterface {
 	outline: var(--border-hot) double medium; }
 
 #MasterColorPicker .pickerPanel {
@@ -254,9 +259,10 @@ span.MCP_fix_Safari {
 /* “expanding” panels have no set max-height based on the dynamically expanding HTML */
 #MasterColorPicker .pickerPanel.expanding  {
 	overflow: auto;
-	max-height: 85.4%;  /*  ≈ Φ - (1-Φ)×Φ  for default position-fixed (floating) */  }
+	scrollbar-gutter: stable;
+	max-height: 85.4%; }   /*  ≈ Φ - (1-Φ)×Φ  for default position-fixed (floating) */
 #MasterColorPicker .pickerPanel.expanding.scrollable {
-	max-height: 1080px;  /* max height of most monitors */ }
+	max-height: 1080px; }  /* max height of most monitors */
 
 
 
@@ -299,7 +305,6 @@ span.MCP_fix_Safari {
 
 
 #MasterColorPicker_Help {
-	margin-top: 2em;
 	margin-top: calc(2em + 2px);
 	top: 0;
 	right: 11.618em;
@@ -357,6 +362,7 @@ span.MCP_fix_Safari {
 	width: 38.2em;
 	height: 38.2em;
 	overflow: auto;
+	scroll-behavior: smooth;
 	margin: 0;
 	padding: 0 .618em .618em .618em;
 	text-align: center;
@@ -394,6 +400,8 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help table th,
 #MasterColorPicker_Help table td {
 	text-align: center !important; }
+#MasterColorPicker_Help code {
+	white-space: normal; }
 #MasterColorPicker_Help code.multiline {
 	display: block;
 	white-space: pre-wrap; }
@@ -623,7 +631,8 @@ select#MasterColorPicker_palette_select {
 	padding: 0;
 	color: var(--fore-text);
 	background-color: var(--back-text); }
-@-moz-document url-prefix() {
+/* @-moz-document url-prefix() { */
+@supports selector(::moz-range-thumb) {  /* only target Mozilla browsers */
 	#MasterColorPicker_options > div div fieldset#Color_Picker_options > label#MasterColorPicker_applyToAll {
 		top: -1.25em;  /* value for Firefox - they need to fix this issue - going on 10+ years! */
 	}
@@ -637,16 +646,13 @@ select#MasterColorPicker_palette_select {
 	line-height: 1.2em;  }
 
 
-
 #MasterColorPicker_PaletteManager.pickerPanel,
 #MasterColorPicker_MyPalette.pickerPanel {
 	margin: 0;
-	top: 2em;
 	top: calc(2em + 2px);
 	bottom: auto;
 	right: 19.618em;
-	left: auto;
-	padding: .382em 1.618em .382em .382em; }
+	left: auto; }
 #MasterColorPicker_PaletteManager h2,
 #MasterColorPicker_MyPalette h2 {
 	margin: 0 0 0 .382em;
@@ -664,6 +670,7 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_PaletteManager h2 span:hover,
 #MasterColorPicker_MyPalette h2 span:hover {
 	outline: 1px solid var(--border-hover); }
+
 #MasterColorPicker_PaletteManager.pickerPanel {
 	padding: .382em 1.618em .382em 1.854em;
 	left: 0;
@@ -688,15 +695,35 @@ select#MasterColorPicker_palette_select {
 	padding: 0;
 	margin: 0;
 	border: none;
-	text-align: center; }
+	text-align: center;
+	position: relative;
+	z-index: 4; }
+#MasterColorPicker_PaletteManager fieldset.controls fieldset { /*options*/
+	position: absolute;
+	padding: 0 0 0 0.382em;
+	color: var(--fore-text);
+	background-color: var(--back-text);
+	text-align: left;
+	left: 0.618em;
+	right: auto;
+	top: 0.2em;
+	bottom: auto;
+	border-top: none; }
+#MasterColorPicker_PaletteManager fieldset.controls :is(fieldset:hover, fieldset.focus-within) { /*options*/
+	padding: 0 0.382em 0.382em 0.382em; }
+#MasterColorPicker_PaletteManager fieldset.controls fieldset label { /*options*/
+	display: none; }
+#MasterColorPicker_PaletteManager fieldset.controls :is(fieldset:hover, fieldset.focus-within) label { /*options*/
+	display: block;
+	white-space: nowrap; }
 #MasterColorPicker_PaletteManager button {
 	margin: 0 .618em; }
 #MasterColorPicker_PaletteManager .controls button:first-child {
 	position: absolute;
-	top: .382em;
+	top: -1.382em;
 	bottom: auto;
 	left: auto;
-	right: 0; }
+	right: -1.382em; }
 #MasterColorPicker_PaletteManager button[name*="_addSelected"] {
 	position: relative;
 	top: -0.382em; }
@@ -726,6 +753,8 @@ select#MasterColorPicker_palette_select {
 	border-radius: .618em / 1em;
 	color: var(--fore-text-message);
 	background-color: var(--back-text-message); }
+#MasterColorPicker_PaletteManager .dialog div.error {
+	background-color: var(--back-text-message-error); }
 #MasterColorPicker_PaletteManager .dialog p,
 #MasterColorPicker_PaletteManager .dialog strong {
 	display: block;
@@ -736,6 +765,9 @@ select#MasterColorPicker_palette_select {
 #MasterColorPicker_PaletteManager filepath {
 	display: block;
 	margin-left: -0.618em; }
+#MasterColorPicker_PaletteManager fieldset.controls fieldset filepath { /*options*/
+	display: inline;
+	margin: 0; }
 #MasterColorPicker_PaletteManager legend filepath {
 	display: inline;
 	margin: 0 0 0 1em; }
@@ -746,7 +778,8 @@ select#MasterColorPicker_palette_select {
 
 #MasterColorPicker_MyPalette > fieldset,
 #MasterColorPicker_MyPalette p {
-	margin-left: 1.618em; }
+	margin-left: 1.618em;
+	margin-right: 0; }
 #MasterColorPicker_MyPalette p+fieldset {
 	position: relative;
 	overflow: hidden; }
@@ -914,8 +947,8 @@ select#MasterColorPicker_palette_select {
 	top: -0.382em;  /* .pickerPanel padding */
 	z-index: 7;
 	background-color: inherit;  /* var(--back-text); */
-	margin: 0 0 0 -0.382em;  /* .pickerPanel padding */
-	width: 100%;
+	margin: 0;
+	width: calc(100% - 0.618em - var(--scrollbar-width));  /* .pickerPanel padding (- 0.764em? ←for some reason, maybe roundoff errors, .618 works better) - if the user’s scrollbars are extra-wide, there may be a problem */
 	border: none; }
 #MasterColorPicker_MyPalette fieldset.editors button:first-child {
 	display: block;
@@ -981,8 +1014,10 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 	padding-right: .382em;
 	font-weight: bold;
 	position: relative; }
-#MasterColorPicker_MyPalette tr:last-child .dragHandle {
+#MasterColorPicker_MyPalette tr:last-child .dragHandle {}
+/*
 	visibility: hidden; }
+	*/
 #MasterColorPicker_MyPalette td {
 	border-color: var(--fore-text) !important;
 	white-space: nowrap; }
@@ -1069,7 +1104,7 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 
 
 
-iframe#MasterColorPicker_MyPalette_local_filesaver {
+iframe#MasterColorPicker_local_filesaver {
 	/* this is not included in the default HTML,
 	   but is injected as the last-child of the body
 	   when saving a palette to the local file-system.
@@ -1194,11 +1229,11 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	background-color: var(--back-palette);
 	color-scheme: dark;
 	/* We don't NEED to style the colors above, unless they actually make the "resize" thingy visible */
-	border-color: var(--fore-palette); }
+	border-color: var(--fore-palette);
+	}
 #MasterColorPicker_EyeDropper.fullscreen playground {
 	resize: none;
-	width: 100%;
-	height: 100%;  }
+	flex-grow: 1; }
 #MasterColorPicker_EyeDropper playground canvas,
 #MasterColorPicker_Blender playground img {
 	position: absolute;
@@ -1210,6 +1245,9 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 #MasterColorPicker_EyeDropper playground canvas {
 	cursor: crosshair; }
 
+#MasterColorPicker_mainPanel #MasterColorPicker_EyeDropper.palette.fullscreen {
+	display: flex;
+	flex-direction: column; }
 #MasterColorPicker_EyeDropper {
 	text-align: center; }
 #MasterColorPicker_EyeDropper fieldset {
@@ -1248,15 +1286,15 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	background: linear-gradient(to right, black, white); }
 #MasterColorPicker_EyeDropper note {
 	display: none; }
-#MasterColorPicker_EyeDropper > label {
+#MasterColorPicker_EyeDropper tools > label {
 	display: block; }
-#MasterColorPicker_EyeDropper > label:last-of-type {
+#MasterColorPicker_EyeDropper tools > label:last-of-type {
 	display: inline; }
-#MasterColorPicker_EyeDropper > button {
+#MasterColorPicker_EyeDropper tools > button {
 	margin-right: .618em; }
-#MasterColorPicker_EyeDropper > button.cutting {
+#MasterColorPicker_EyeDropper tools > button.cutting {
 	background-color: var(--back-button-active); }
-#MasterColorPicker_EyeDropper > button.uncut {
+#MasterColorPicker_EyeDropper tools > button.uncut {
 	text-decoration: line-through;
 	background-color: var(--back-button-toggled); }
 #MasterColorPicker_EyeDropper label:last-of-type {
@@ -1272,7 +1310,7 @@ iframe#MasterColorPicker_MyPalette_local_filesaver {
 	bottom: auto;
 	left: 1em;
 	right: auto;
-	width: 14em;
+	width: 13em;
 	margin: 0;
 	padding: .382em;
 	z-index: 13; }
@@ -1719,6 +1757,8 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	color: transparent;
 	border: 1px solid; }
 
+
+
 #MasterColorPicker_mainPanel.pickerPanel,
 #MasterColorPicker_mainPanel.pickerPanel.activeInterface,
 #MasterColorPicker_mainPanel.pickerPanel.activeInterface.activePickerPanel {
@@ -1739,7 +1779,7 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	background-color: var(--back-palette);  /* anyone for a game of hoops? */
 	background: linear-gradient(var(--back-palette), var(--back-palette)) top left / 1em 100% no-repeat scroll border-box,  /* padding-left, this box */
 	            linear-gradient(var(--back-palette), var(--back-palette)) top left / 100% calc(.618em + 1px) no-repeat scroll border-box,  /* padding-top, this box */
-	            linear-gradient(var(--back-palette), var(--back-palette)) top right / 1.016em 100% no-repeat scroll border-box,  /* padding-right, table.palette when there is no scrollbar.  See more notes below on how this screws up hopes for perfection in transparent backgournd on color_chart “grids” */
+	            linear-gradient(var(--back-palette), var(--back-palette)) top right / var(--scrollbar-width) 100% no-repeat scroll border-box,  /* padding-right, table.palette when there is no scrollbar.  See more notes below on how this screws up hopes for perfection in transparent backgournd on color_chart “grids” */
 	            linear-gradient(var(--back-palette), var(--back-palette)) bottom left / 100% 1.618em no-repeat scroll border-box;  /* margin-bottom on all tables within */
 	background-color: transparent;  /* We want “none” and “unknown” colors in color_charts to show through to the page behind.
 																	 * We fill only the padding/margin area with default palette background-color. */
@@ -1747,6 +1787,7 @@ indicator#MasterColorPicker_LabContrast.disabled {
 
 #MasterColorPicker_mainPanel .palette {
 	background-color: var(--back-palette);
+	/*  var(--scrollbar-width)
 	padding-right: 1.016em;  /* for scroll bar on mainPanel, ¡or it will cover the table!
 													  * With this padding, the scroll-bar will cover the padding and that part of the table-border.
 														* ¡10 years and the table-layout algorithm bug still has not been fixed —
@@ -1758,6 +1799,7 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	}
 
 #MasterColorPicker_mainPanel table.color_chart {
+	/*  var(--scrollbar-width)
 	/* margin-right: 1.016em;  /* For visual presentation, not scroll bar avoidance:
 															* it just looks nicer when the table-border is not against the edge
 															* of the mainPanel when the mainPanel is moved away from the right-side of the window.
@@ -1940,15 +1982,14 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	line-height: 1em; }
 #MasterColorPicker_mainPanel .palette {
 	position: relative; }
-#MasterColorPicker_mainPanel .palette.fullscreen {
-	/* once again we battle an unknown scrollbar that we ASSume is 1em wide………*/
+#MasterColorPicker_mainPanel .palette.fullscreen { /*EyeDropper*/
 	position: fixed;
-	width: calc(100% - 1em);
+/* 	width: 100%;  was  calc(100% - 1em)    calc(100% - var(--scrollbar-width)) but then we added scrollbar-gutter to the mainPanel*/
 	height: 100%;
 	top: 0px;
 	left: 0px;
 	bottom: 0px;
-	right: 1em;
+	right: 0px;
 }
 
 #MasterColorPicker_mainPanel .palette input {
@@ -2136,8 +2177,9 @@ table#BeezEye tr:last-child td {
 
 
 table#RainbowMaestro {
-	margin-right: 0;
-	padding-right: 1.016em; }  /* ←↓ band-aid fix for lame layout engines: Opera, Google Chrome, Firefox */
+	margin-right: 0; /*
+	padding-right: 1.016em;   /* ←↓ band-aid fix for lame layout engines: Opera, Google Chrome, Firefox */
+}
 table#RainbowMaestro.no_colorblind {padding-right: 0;}
 table#RainbowMaestro thead {
 	text-align: center; }
@@ -2257,10 +2299,14 @@ table#Simple² td:nth-child(2) td:nth-child(4) {  /* contains canvases */
 	vertical-align: bottom;
 	line-height: 100%; }
 table#Simple² tr:nth-child(2) td:nth-child(1) {
-	padding: 0 1.382em 0 0.618em; }
+/*with Chromium browsers, padding in this column seems incorrect
+(way too much - inspector says over 6px), but even when set to 0px,
+or something unknown is causing the column to widen.*/
+	padding: 0.382em; }
 table#Simple² tr:nth-child(2) td:nth-child(5),
 table#Simple² tr:nth-child(2) td:nth-child(6) {
-	padding: 0 1.618em 0 0.382em; }
+	min-width: 1.618em; /*for FireFox */
+	padding: 0.382em; }
 table#Simple² tr:nth-child(2) td:nth-child(2) canvas,
 table#Simple² tr:nth-child(2) td:nth-child(3) canvas {
 	margin: 0 2px;
@@ -2327,9 +2373,16 @@ table#Simple² tr:nth-child(2) td:nth-child(6) input[type="text"] {
 	right: auto; }
 
 table#Simple² tr:nth-child(3) td:first-child {  /*for “lock”*/
+/*with Chromium browsers, padding in this column seems incorrect
+(way too much - inspector says over 6px), but even when set to 0px,
+or something unknown is causing the column to widen.*/
+	padding: 0.382;
 	vertical-align: middle; }
 table#Simple² tr:nth-child(3) td:first-child label {  /*for “lock”*/
 	transform: none; }
+table#Simple² tr:nth-child(3) td:first-child input {  /*checkbox for “lock”*/
+	display: block;  /*for Chromium browsers*/
+	margin: 0 auto; }
 table#Simple² tr:nth-child(1) td:nth-child(1),
 table#Simple² tr:nth-child(1) td:nth-child(3),
 table#Simple² tr:nth-child(5) td:nth-child(1) {  /* for indicators */
