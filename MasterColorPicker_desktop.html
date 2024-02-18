@@ -117,6 +117,8 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 </p>
 
 
+
+
 <!--  ------------ cut here to use the MasterColorPicker HTML (below) in your own page --------------  -->
 
 <script>
@@ -129,7 +131,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-      release 2.6.1  January 26, 2024
+      release 2.6.2  February 11, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -223,7 +225,7 @@ but to retain the settings this file may be included inside an existing web <for
 <label>¿<input type='checkbox' name='MasterColorPicker_showThesaurus' id='MasterColorPicker_showThesaurus' value='true'
 		role='tab' aria-controls='MasterColorPicker_Thesaurus' aria-labeledby='MasterColorPicker_Thesaurus_header'
 		onchange='UniDOM.toggleTab(this, this.checked);'
-		checked>show color Thesaurus? <kbd><span>F4</span></kbd></label>
+		checked>show color Thesaurus? <kbd><span>F7</span></kbd></label>
 <p id='MasterColorPicker_returnPanelsOn3'>Drag panels by their handles.&nbsp;
 Triple-click on panel handles (or this message) to return the panel(s) to home position.&nbsp;
 Right-click or Shift-click to: pin a panel to the page when it is pinned to the window,
@@ -278,54 +280,61 @@ or pin it to the window when it is pinned to the page.
 <div id='MasterColorPicker_PaletteManager' class='pickerPanel expanding disabled' role='tabpanel'>
 <h2>MasterColorPicker<footmark>™</footmark> <span>Palette Manager</span></h2>
 <fieldset class='controls'>
-<button type='button' name='MasterColorPicker_PaletteMngr_close' backtabToTarget>X</button>
-<!--  button type='button' name='MasterColorPicker_PaletteMngr_close'>close</button  -->
-<!-- label>¿<input type='checkbox' name='MasterColorPicker_PaletteMngr_recycle'>force recycle-bin?<span
-	class='note'>If a “trash” folder already exists, it will be used.</span></label -->
-<input type='filename' size='62' name='MasterColorPicker_PaletteMngr_renamer' keep-focus='false'>
-<button type='button' name='MasterColorPicker_PaletteMngr_deleteCurrentPalette'>Delete the current MasterColorPicker<footmark>™</footmark> Palette Table</button>
+	<button type='button' name='MasterColorPicker_PaletteMngr_close' backtabToTarget>X</button>
+	<!--  button type='button' name='MasterColorPicker_PaletteMngr_close'>close</button  -->
+	<!-- label>¿<input type='checkbox' name='MasterColorPicker_PaletteMngr_recycle'>force recycle-bin?<span
+		class='note'>If a “trash” folder already exists, it will be used.</span></label -->
+	<input type='filename' size='62' name='MasterColorPicker_PaletteMngr_renamer' keep-focus='false'>
+	<button type='button' name='MasterColorPicker_PaletteMngr_deleteCurrentPalette'>Delete the current MasterColorPicker<footmark>™</footmark> Palette Table</button>
+	<fieldset><legend>Options▼</legend>
+		<label><input type='radio' name='MasterColorPicker_PaletteMngr_saveFileAs' value='.json' checked>Save files locally as type <filepath>.json</filepath></label>
+		<label><input type='radio' name='MasterColorPicker_PaletteMngr_saveFileAs' value='.js'>Save files locally as type <filepath>.js</filepath></label>
+	</fieldset>
 </fieldset>
 <div class='dialog'></div>
-<!-- JavaScript depends on these fieldset.classnames being static: do not change or add -->
-<fieldset class='hardloaded disabled'><legend>Hard-loaded</legend>
-	<fieldset class='autoload_palettes'><legend>Auto-load: </legend>
+<!-- JavaScript depends on these fieldset.classNames being static: do not change or add -->
+<fieldset port class='hardloaded disabled'><legend tabindex='0' tabTo='this.parentNode.nextElementSibling.firstElementChild'>Hard-loaded</legend>
+	<fieldset store class='autoload_palettes'><legend>Auto-load: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
+		<button type='button' name='MasterColorPicker_PaletteMngr_save'>save selected</button>
 		<ul></ul>
 	</fieldset>
 </fieldset>
-<fieldset class='userloaded'><legend>User-loaded</legend>
+<fieldset port class='userloaded'><legend tabindex='0' tabTo='SoftMoon.WebWare.PaletteManager.tabToNextPort(this)'>User-loaded</legend>
 	<label>Choose a palette file to load as a MasterColorPicker<footmark>™</footmark> Palette Table:
 		 <input type='file' accept='.palette.json,.palette.js'></label>
-	<fieldset class='palettes'><legend>Current user: </legend>
+	<fieldset store class='palettes'><legend>Current user: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<ul></ul>
 	</fieldset>
 </fieldset>
-<fieldset class='browser'><legend>Browser DataBase</legend>
+<fieldset port class='browser'><legend tabindex='0' tabTo='SoftMoon.WebWare.PaletteManager.tabToNextPort(this)'>Browser DataBase</legend>
 	<button type='button' name='MasterColorPicker_PaletteMngr_refresh'>refresh</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_load'>load selected</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_delete'>delete selected</button>
-	<fieldset class='autoload_palettes'><legend>Auto-load: </legend>
+	<button type='button' name='MasterColorPicker_PaletteMngr_save'>save selected</button>
+	<fieldset store class='autoload_palettes'><legend>Auto-load: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
 	</fieldset>
-	<fieldset class='palettes'><legend>All users: </legend>
+	<fieldset store class='palettes'><legend>All users: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
 	</fieldset>
 </fieldset>
-<fieldset class='server disabled' disabled><legend>Server Based: <filepath></filepath></legend>
+<fieldset port class='server disabled' disabled><legend tabindex='0' tabTo='SoftMoon.WebWare.PaletteManager.tabToNextPort(this)'>Server Based: <filepath></filepath></legend>
 	<button type='button' name='MasterColorPicker_PaletteMngr_refresh'>refresh</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_load'>load selected</button>
 	<button type='button' name='MasterColorPicker_PaletteMngr_delete'>delete selected</button>
-	<fieldset class='autoload_palettes'><legend>Auto-load: </legend>
+	<button type='button' name='MasterColorPicker_PaletteMngr_save'>save selected</button>
+	<fieldset store class='autoload_palettes'><legend>Auto-load: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
 	</fieldset>
-	<fieldset class='palettes'><legend>All users: </legend>
+	<fieldset store class='palettes'><legend>All users: </legend>
 		<label><input type='checkbox' name='MasterColorPicker_PaletteMngr_selectAll'>select all</label>
 		<button type='button' name='MasterColorPicker_PaletteMngr_addSelected'>add selected</button>
 		<ul></ul>
@@ -1027,7 +1036,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 		<dt><kbd><span>↑</span></kbd> and <kbd><span>↓</span></kbd></dt>
 			<dd>When “keyboard focus” is <em>within the MyPalette interface</em> and associated with a color,
-			these are “vertical tab” keys and will move the keyboard focus up or down in the palette list.</dd>
+			or when “keyboard focus” is <em>within the PaletteManager interface</em> and within a <em>port</em>,
+			these are “vertical tab” keys and will move the keyboard focus up or down in the palette/file list.</dd>
 
 		<dt><kbd><span>ALT</span>+<span>↑</span></kbd></dt>
 		<dt><kbd><span>ALT</span>+<span>↓</span></kbd></dt>
@@ -1175,7 +1185,9 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	however, this is the only option where MasterColorPicker™ does not have direct access
 	to the file (JavaScript in a browser never has direct access to your file system)
 	so it can not be simply autoloaded — you must manually add links to the <abbr>HTML</abbr>
-	file containing MasterColorPicker™ — see below … … …</p>
+	file containing MasterColorPicker™ — see below … … …&nbsp;
+	For best results saving your files locally, you should first go to your browser’s settings
+	and where it asks what to do with downloaded files, select “ask me first”.</p>
 	<h6 id='MasterColorPicker_helpFor_MyPalette_autoload'>Auto-loading your palettes</h6>
 	<p>If you save your palette to your “localhost” server, the server cloud,
 	or in the browser’s private storage (when available),
@@ -1291,6 +1303,9 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	you will not be able to drag &amp; drop files, as the PaletteManager will disappear
 	as the current color input looses keyboard focus when you start dragging.&nbsp;
 	You can still use the “palette-file-loader” button and then move the file to its final destination.</p>
+	<p>As you will see, many actions you take will have results reported to you in pop-up messages.&nbsp;
+	These messages will auto-clear as new messages are reported.&nbsp;
+	However, they may get in the way once you read them; simply click on them to clear them manually.</p>
 	<p>The PaletteManager (by default) logs everything it does to the browser’s console,
 	where you can see the history of what you did or more details about an error.&nbsp;
 	If this is clogging your console or whatever, you can turn off this logging
@@ -1408,8 +1423,9 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<hr>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
-	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 by Joe Golembieski, SoftMoon-WebWare
-		 ( <kbd>https://SoftMoon-WebWare.com/</kbd> ):&nbsp; All rights reserved.</p>
+	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 by Joe Golembieski, SoftMoon-WebWare:&nbsp;
+			All rights reserved.&nbsp;
+			Use subject the SoftMoon Humane Use License (see: <kbd>https://SoftMoon-WebWare.com/</kbd> )</p>
 	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
 		 ( <kbd>https://www.rigdenage.co.uk/design-for-colour-blind/</kbd> ).&nbsp;
 		 The Websafe-Color Interpolator color-blind filter function
@@ -1656,18 +1672,20 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 
 <div class='picker palette' id='MasterColorPicker_EyeDropper'><h6>Eye-Dropper color picker</h6>
-<fieldset><button title='full-screen' backtabTo='MasterColorPicker_palette_select'>╬</button><button title='panel'>□</button></fieldset>
-<label>Choose an image file or drag an image or its file here:
-<input type='file' accept='image/*'></label>
-<label>Sample size<input type='range' name='MasterColorPicker_EyeDropper_size' value='0' min='0' max='7' step='1'></label>
-<button title='cut'>&#9988;</button>
-<fieldset>
-	<label>Zoom: <button title='zoom in'>+</button><button title='no zoom'>&empty;</button><button title='zoom out'>−</button></label>
-	<label><input type='checkbox' checked>smooth zoom</label>
-</fieldset>
-<label>Background: <input type='range' name='MasterColorPicker_EyeDropper_background' value='128' min='0' max='255' tabToTarget>
-<note>The background color will not be eye-dropped; it is only for visual contrast in images with transparency.</note></label>
-<indicator> <swatch></swatch></indicator>
+<tools>
+	<fieldset><button title='full-screen' backtabTo='MasterColorPicker_palette_select'>╬</button><button title='panel'>□</button></fieldset>
+	<label>Choose an image file or drag an image or its file here:
+	<input type='file' accept='image/*'></label>
+	<label>Sample size<input type='range' name='MasterColorPicker_EyeDropper_size' value='0' min='0' max='7' step='1'></label>
+	<button title='cut'>&#9988;</button>
+	<fieldset>
+		<label>Zoom: <button title='zoom in'>+</button><button title='no zoom'>&empty;</button><button title='zoom out'>−</button></label>
+		<label><input type='checkbox' checked>smooth zoom</label>
+	</fieldset>
+	<label>Background: <input type='range' name='MasterColorPicker_EyeDropper_background' value='128' min='0' max='255' tabToTarget>
+	<note>The background color will not be eye-dropped; it is only for visual contrast in images with transparency.</note></label>
+	<indicator> <swatch></swatch></indicator>
+</tools>
 <playground></playground>
 </div>
 
