@@ -1,12 +1,12 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.2.3   December 19, 2023  by SoftMoon-WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023 Joe Golembieski, SoftMoon-WebWare
+// Picker.js  Beta-4.3   February 13, 2024  by SoftMoon-WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
 		For qualified “humane entities”, this program is free software:
 		you can use it, redistribute it, and/or modify it
-		under the terms of the GNU General Public License as published by
+		under the terms of the GNU Affero General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
 		(at your option) any later version, with the following additional requirements
 		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
@@ -23,7 +23,7 @@
 		 • the GNU General Public License
 		along with this program.  If not, see:
 			https://softmoon-webware.com/humane-use-license/
-			https://www.gnu.org/licenses/
+			https://www.gnu.org/licenses/#AGPL
 		*/
 
 // requires SoftMoon-WebWare’s +++.js package.
@@ -465,12 +465,13 @@ function isInput(e)  {
 	return ( e.type!=='hidden'
 				 &&  (e.nodeName==='INPUT' || e.nodeName==='SELECT' || e.nodeName==='TEXTAREA' || e.nodeName==='BUTTON') );  }
 function isTabStop(e)  {
-	var ti,
-			isI=( isInput(e)
-					 &&  !e.disabled
-					 &&  (!(ti=e.getAttribute('tabIndex')) || parseInt(ti)>=0) );
-	if (isI)  goDeep.doContinue=false;
-	return isI;  }
+	if (!(e instanceof Element))  return false;
+	const
+		ti=parseInt(e.getAttribute('tabIndex')),
+		isTS=( ti>=0
+				 || (isInput(e)  &&  !e.disabled  &&  !(ti<0)) );
+	if (isTS)  goDeep.doContinue=false;
+	return isTS;  }
 function goDeep(e)  {
 	return ( //avoids inputs on non-active pickers
 	goDeep.doContinue  // note that UniDOM’s DOM-crawling methods use this property to completely terminate further searching
@@ -679,7 +680,8 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 								break;
 								default: tabTo=null;  }
 							break;
-							default: tabTo=(new Function('event', 'PickerInstance', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions);  }  }
+							default: tabTo=(new Function('event', 'PickerInstance', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions);  }
+							}
 /*
 						tabTo=( event.target.ownerDocument.getElementById(tabTo)
 								 || (new Function('event', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions) );  }
@@ -756,8 +758,9 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 		if (enterKeyed)  {
 			enterKeyed=false;
 			if (Boolean.eval(event.target.getAttribute('keep-focus'), true))  {event.target.focus();  return;}  }
-		//PickerInstance.setActiveInterfaceState(false, event.target);
-		if (isInput(event.target))  PickerInstance.setActiveInterfaceState(false, event.target);
+		//PickerInstance.setActiveInterfaceState(false, event.target);  //hmmm…can't remember WHY we qualify this action below…
+		if (isInput(event.target)  ||  parseInt(event.target.getAttribute('tabindex'))>=0)
+			PickerInstance.setActiveInterfaceState(false, event.target);
 		if (!tabbedOut  //we can only TAB to other related InterfaceControls
 		&&  (!event.relatedTarget  //but we can click anywhere…
 			||  ( event.relatedTarget!==PickerInstance.dataTarget
