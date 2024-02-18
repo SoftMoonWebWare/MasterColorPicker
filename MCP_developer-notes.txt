@@ -31,6 +31,9 @@ Since I first wrote this note, I have installed Ubuntu Linux which includes Fire
 
 Even more recently, I got to use MS Edge and Google Chrome at the public library.  A bit clunkier, but it worked after I updated the browsers to Jan 2024, except for the positioning of the pop-up menu in the MyPalette interface. I couldn't spend enough time to see if the bug could be fixed, so I used a new technique as an untested workaround.
 
+Another even more recent update (Feb 2024): I worked with MS Edge & Google Chrome some more at the library.  The pop-up menu noted above now works fine.  The layout for the Simple² color-picker is not quite right.  I messed with it as best I could, but something is making the first column too wide.  FireFox does not give the vertical text "flow" in the layout, while Chromium does.  This means table-cell padding in one browser will not work the same in the other, so compromises were made.  I need more time with Chromium and maybe I could work out these "bugs" but the layout still works fine in actual use.
+However, while Chromium browsers will allow you to save Palette files through the MyPalette or PaletteManager interfaces, the file-name becomes "lost".  Chromium seems to think you can not be trusted to manage your downloaded file, and creates a randomized name.  I don't remember that being the case in the past.  Both FireFox and Chromium browsers (Edge & Chrome) will allow you to download and save locally multiple files at a time through the PaletteManager.  FireFox handles this perfectly, by retaining the file-name, but with Chromium, you are left wondering which file is which.  So you should likely stick to locally saving only one file at a time when using Chromium.
+
 So here it is folks:  get a real browser if this project seems to not work for you:  FireFox on Windows!
 
 Ditch that user-profiling tool that Google created to find out more about YOU!
