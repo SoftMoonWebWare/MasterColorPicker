@@ -184,9 +184,10 @@ function toColorBlind(rgb, type, anomalize) {
 	z.G += adjust * dG;
 	z.B += adjust * dB;
 	// apply gamma and clamp simulated color...
-	z.R = 255 * (z.R <= 0 ? 0 : z.R >= 1 ? 1 : Math.pow(z.R, 1 / this.config.gammaCorrection));
-	z.G = 255 * (z.G <= 0 ? 0 : z.G >= 1 ? 1 : Math.pow(z.G, 1 / this.config.gammaCorrection));
-	z.B = 255 * (z.B <= 0 ? 0 : z.B >= 1 ? 1 : Math.pow(z.B, 1 / this.config.gammaCorrection));
+	const γCorrection= (!rgb.colorProfile  ||  rgb.colorProfile==='sRGB') ? 2.2 : RGB_Calc.colorProfiles.γCorrection;
+	z.R = 255 * (z.R <= 0 ? 0 : z.R >= 1 ? 1 : Math.pow(z.R, 1 / γCorrection));
+	z.G = 255 * (z.G <= 0 ? 0 : z.G >= 1 ? 1 : Math.pow(z.G, 1 / γCorrection));
+	z.B = 255 * (z.B <= 0 ? 0 : z.B >= 1 ? 1 : Math.pow(z.B, 1 / γCorrection));
 	//
 	if (anomalize) {
 		v = 1.75;
