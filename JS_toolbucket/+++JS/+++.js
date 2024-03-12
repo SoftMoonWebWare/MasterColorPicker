@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 Unix   tab-spacing: 2   word-wrap: no
-//  last updated April 12, 2023
+//  last updated March 10, 2014
 
 if (RegExp.escape)  console.warn("RegExp.escape already exists.");
 else
@@ -59,17 +59,26 @@ else Number.parsePercent=function(s, em)  {
 	return s;  };
 
 
-
-if (Object.lock)  console.warn("Object.lock already exists.");
-else  Object.lock=function(o, deep)  {
+if (Object.deepFreeze)  console.warn("Object.deepFreeze already exists.");
+else  Object.deepFreeze=function deepFreeze(o, deep=true) {
 	// ¡¡¡ this function is NOT INFINATELY-RECURSION PROOF !!!
 	// ¡¡¡ deep objects may not reference shallow objects !!!
 	if (deep  &&  typeof deep !== 'number')  deep=Infinity;
-	const
-		props=Object.getOwnPropertyNames(o),
-		cycled=new Array;
+	if (deep)  {
+		const props = Object.getOwnPropertyNames(o);
+		for (const p of props)  {
+			if (typeof o[p] === "object"  ||  typeof o[p] === "function")  deepFreeze(o[p], deep-1);  }  }
+  return Object.freeze(o);  }
+
+
+if (Object.lock)  console.warn("Object.lock already exists.");
+else  Object.lock=function lock(o, deep)  {
+	// ¡¡¡ this function is NOT INFINATELY-RECURSION PROOF !!!
+	// ¡¡¡ deep objects may not reference shallow objects !!!
+	if (deep  &&  typeof deep !== 'number')  deep=Infinity;
+	const props=Object.getOwnPropertyNames(o);
 	for (const p of props)  {
-		if (deep  &&  typeof o[p] === 'object')  Object.lock(o[p], deep-1);
+		if (deep  &&  (typeof o[p] === 'object'  ||  typeof o[p] === "function"))  lock(o[p], deep-1);
 		const d=Object.getOwnPropertyDescriptor(o, p);
 		if (d.configurable)  {
 			d.configurable=false;
