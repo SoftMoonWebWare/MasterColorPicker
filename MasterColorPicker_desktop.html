@@ -841,7 +841,7 @@ triadic</label>
 					<code>0 ≤ X ≤ 0.950489,&nbsp; 0 ≤ Y ≤ 1,&nbsp; 0 ≤ Z ≤ 1.0883</code> seems to be fair for the <abbr>D65</abbr> illuminant…?</p>
 					<p>The “<var>illuminant</var>” and/or “<var>color-profile</var>” is optional as shown.&nbsp;
 					Currently, only <code>"sRGB"</code> is valid for “<var>color-profile</var>”.&nbsp;
-					There are currently 5 different legal values for “<var>illuminant</var>”
+					There are currently 6 different legal values for “<var>illuminant</var>”
 					(these values are case <strong>sensitive</strong> and don’t miss the underscores _ ).&nbsp;
 					<code>"D65"</code> is the default illuminant as this is the same as used for
 					the <abbr title='standard Red-Green-Blue'>sRGB</abbr> color-space.</p>
@@ -881,7 +881,13 @@ triadic</label>
 							a respected color-theory researcher who’s math is supposedly “more correct”.&nbsp;
 							The “D50” illuminant is the gateway to other <abbr title='Red-Green-Blue'>RGB</abbr> color-spaces
 							like “ProPhoto RGB” or “Wide Gamut RGB”.</dd>
-					</dl
+						<dt><span>D65_Wickline</span></dt>
+						<dd><specs><span>(Observer = 2°, Illuminant = D65)</span></specs>
+							Uses the XYZ→RGB matrix provided by
+							<a target='XYZ' href="http://colorlab.wickline.org/colorblind/colorlab/engine.js">►Matthew Wickline</a>,
+							a respected color-theory researcher who created one of the original
+						  color-blind filter algorithms.&nbsp; He uses this high-precision matrix in his calculations.</dd>
+					</dl>
 				 </li>
 			</ul>
 			<p>Use models by <kbd>wrapping()</kbd> or <kbd>prefixing:</kbd> their given values.&nbsp;
