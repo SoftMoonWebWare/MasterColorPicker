@@ -394,7 +394,7 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 		useAngleUnitSymbol: {value:null}  };
 	if (colorSpecCache[mode]  &&  colorSpecCache[mode].config)  colorSpecCache[mode].config.stack(format);
 	switch (mode)  {
-		case 'HEX':  colorSpecCache.RGB.config.useHexSymbol=this.useHexSymbol;
+		case 'hex':  colorSpecCache.RGB.config.useHexSymbol=this.useHexSymbol;
 								 chosen=colorSpecCache.RGB.hex;
 			break;
 		case 'RGB':  chosen=colorSpecCache.RGB.toString();
@@ -415,7 +415,7 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 				chosen=colorSpecCache[mode].toString();
 				break;  }
 			catch(e) {console.error('MCP pickFilter bummer!  mode='+mode+' error!: ',e);}
-		case 'NATIVE':
+		case 'native':
 		default:
 			if (colorSpecCache[colorSpecCache.model].config)  colorSpecCache[colorSpecCache.model].config.stack(format);
 			chosen=colorSpecCache[colorSpecCache.model].toString();  }
