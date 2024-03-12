@@ -131,7 +131,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-      release 2.6.2  February 11, 2024
+      release 2.6.3  March 12, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -185,6 +185,11 @@ but to retain the settings this file may be included inside an existing web <for
 	<option title='Hue, White, Black'>HWB</option>
 	<option title='Hue, Chroma, Gray'>HCG</option>
 	<option title='Cyan, Magenta, Yellow, Black'>CMYK</option>
+	<option title='Lightness, Chroma, Hue'>LCh</option>
+	<option title='Lightness, a-axis, b-axis'>Lab</option>
+	<option title='OK: Lightness, Chroma, Hue'>OKLCh</option>
+	<option title='OK: Lightness, a-axis, b-axis'>OKLab</option>
+	<option title='X, Y, Z'>XYZ</option>
 	</select></label>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
 		onchange='MasterColorPicker.keepPrecision=this.checked;'>keep precision?
@@ -775,6 +780,8 @@ triadic</label>
 		<button type='button' section='defining-colors' backtabToTarget>defining colors</button>
 		<button type='button' section='Alpha'>using “Alpha” opacity (transparency)</button>
 		<button type='button' section='examples'>example color definitions</button>
+		<button type='button' section='Luminance/Contrast'>Luminance &amp; Contrast</button>
+		<button type='button' section='conversions'>conversions, <abbr>CMYK</abbr>, Chroma, &amp; Hue</button>
 		<button type='button' section='keyboard'>keyboard shortcuts</button>
 		<button type='button' section='MyPalette'>using MyPalette</button>
 			<div>
@@ -800,8 +807,8 @@ triadic</label>
 		 </ul>
 	<h4>Valid values for color inputs are similar to “loose” CSS specifications and include:</h4>
 	<ul>
-		<li>RGB values in 6-digit hexadecimal (<abbr>hex</abbr>) with or without the leading <kbd>#</kbd> symbol.</li>
-		<li>RGB values as:
+		<li><abbr title='Red, Green, Blue'>RGB</abbr> values in 6-digit hexadecimal (<abbr>hex</abbr>) with or without the leading <kbd>#</kbd> symbol.</li>
+		<li><abbr title='Red, Green, Blue'>RGB</abbr> values as:
 			<ul>
 				<li>integer byte values (<kbd>0—255</kbd>)</li>
 				<li>percent ratios (<kbd>0%—100%</kbd> – be sure to use the percent <kbd>%</kbd> symbol)</li>
@@ -815,14 +822,73 @@ triadic</label>
 				<li><abbr title='Cyan, Magenta, Yellow'>CMY</abbr></li>
 				<li><abbr title='Hue, Saturation, Value / Brightness'>HSV / HSB</abbr></li>
 				<li><abbr title='Hue, Saturation, Lightness'>HSL</abbr></li>
-				<li><abbr title='Hue, Chroma, Gray'>HCG</abbr></li>
+				<li><abbr title='Hue, Chroma, Gray'>HCG</abbr> (<strong>¡Not</strong> the Munsell color system!)</li>
 				<li><abbr title='Hue, Whiteness, Blackness'>HWB</abbr></li>
-				<li>Hue ←&nbsp; define only a hue-angle-value and see the full-color (fully chromatic) tone of the hue.</li>
-				<li>XYZ →&nbsp; (Observer = 2°, Illuminant = D65) <kbd>0 ≤ X ≤ 95.047</kbd>, <kbd>0 ≤ Y ≤ 100</kbd>, <kbd>0 ≤ Z ≤ 108.883</kbd></li>
+				<li><pseudo>Hue</pseudo> ←&nbsp; define only a “classic” hue-angle-value and see the full-color (fully chromatic) tone of the hue.</li>
+				<li><abbr title='Lightness, Chroma, Hue'>LCh</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LCh</abbr> color space)</aka>
+							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>0 ≤ C ≤ (230‖154%)</nobr></code> ← where <code>100%=150</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
+				<li><abbr title='Lightness, a-axis, b-axis'>Lab</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color space)</aka>
+							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>(-170‖-136%) ≤ (a,b) ≤ (170‖136%)</nobr></code> ← where <code>100%=125</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
+				<li><abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>0 ≤ C ≤ (0.5‖125%)</nobr></code> ← where <code>100%=0.4</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
+				<li><abbr title='OK: Lightness, a-axis, b-axis'>OKLab</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>(-0.4‖-100%) ≤ (a,b) ≤ (0.4‖100%)</nobr></code></li>
+				<li><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
+					→&nbsp; <code>(X,Y,Z,A) ‖ (<var>illuminant</var>, X,Y,Z,A) ‖ (<var>color-profile</var>, X,Y,Z,A) ‖ (<var>color-profile</var>, <var>illuminant</var>, X,Y,Z,A)</code>
+					<p>I am not sure of the exact limits of the input values, but I <em>think maybe</em> generally
+					<code>0 ≤ X ≤ 0.950489,&nbsp; 0 ≤ Y ≤ 1,&nbsp; 0 ≤ Z ≤ 1.0883</code> seems to be fair for the <abbr>D65</abbr> illuminant…?</p>
+					<p>The “<var>illuminant</var>” and/or “<var>color-profile</var>” is optional as shown.&nbsp;
+					Currently, only <code>"sRGB"</code> is valid for “<var>color-profile</var>”.&nbsp;
+					There are currently 5 different legal values for “<var>illuminant</var>”
+					(these values are case <strong>sensitive</strong> and don’t miss the underscores _ ).&nbsp;
+					<code>"D65"</code> is the default illuminant as this is the same as used for
+					the <abbr title='standard Red-Green-Blue'>sRGB</abbr> color-space.</p>
+					<dl>
+						<dt><span>D65</span></dt>
+						<dd><specs><span>(Observer = 2°, Illuminant = D65)</span></specs>
+							This default value uses the XYZ→RGB matrix provided by the
+							<a target='XYZ' herf="https://www.w3.org/TR/css-color-4/#color-conversion-code">►World-Wide-Web Consortium</a>.</dd>
+						<dt><span>D65_2003</span></dt>
+						<dd><specs><span>(Observer = 2°, Illuminant = D65)</span></specs>
+							Uses the XYZ→RGB matrix <a target='XYZ' href='https://en.wikipedia.org/wiki/SRGB'>►provided by the
+							International Electrotechnical Commission</a>
+							Wikipedia QUOTE: <q>Amendment 1 to IEC 61966-2-1:1999, approved in 2003 … also recommends a higher-precision XYZ to sRGB matrix</q>.&nbsp;
+							If you have <abbr title='X-Y-Z color-space'>XYZ</abbr> color data from back in the day,
+							especially if it was converted <em>from</em> <abbr title='standard Red-Green-Blue color-space'>sRGB</abbr> data,
+							you might want to use this matrix to convert it back <em>to</em> <abbr title='standard Red-Green-Blue color-space'>sRGB</abbr>.</dd>
+						</dd>
+						<dt><span>D65_classic</span></dt>
+						<dd><specs><span>(Observer = 2°, Illuminant = D65)</span></specs>
+							Uses the “old-school” XYZ→RGB matrix that
+							<a target='XYZ' href='https://en.wikipedia.org/wiki/SRGB'>►Wikipedia says</a> has
+							<q>… numerical values [which] match those in the official sRGB specification</q>.&nbsp;
+							The highly referenced site (by others, for many years) <a target='XYZ' href='https://www.easyrgb.com/en/math.php'>►Easy RGB</a>
+							uses this matrix.&nbsp;
+							If you have <abbr title='X-Y-Z color-space'>XYZ</abbr> color data from back in the day,
+							especially if it was converted <em>from</em> <abbr title='standard Red-Green-Blue color-space'>sRGB</abbr> data,
+							you might want to use this matrix to convert it back <em>to</em> <abbr title='standard Red-Green-Blue color-space'>sRGB</abbr>.</dd>
+						<dt><span>D65_Lindbloom</span></dt>
+						<dd><specs><span>(Observer = 2°, Illuminant = D65)</span></specs>
+							Uses the XYZ→RGB matrix provided by
+							<a target='XYZ' href="http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html">►Bruce Lindbloom</a>,
+							a respected color-theory researcher who’s math is supposedly “more correct”.</dd>
+						<dt><span>D50_Lindbloom</span></dt>
+						<dd><specs><span>(Observer = 2°, Illuminant = D50)</span></specs>
+							Uses the XYZ→RGB matrix provided by
+							<a target='XYZ' href="http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html">►Bruce Lindbloom</a>,
+							a respected color-theory researcher who’s math is supposedly “more correct”.&nbsp;
+							The “D50” illuminant is the gateway to other <abbr title='Red-Green-Blue'>RGB</abbr> color-spaces
+							like “ProPhoto RGB” or “Wide Gamut RGB”.</dd>
+					</dl
+				 </li>
 			</ul>
-				<p>Use models by <kbd>wrapping()</kbd> or <kbd>prefixing:</kbd> their given values.&nbsp;
+			<p>Use models by <kbd>wrapping()</kbd> or <kbd>prefixing:</kbd> their given values.&nbsp;
+				Color-space model names are all case-insensitive.&nbsp;
 				Each value may be separated by spaces/commas.&nbsp;
-				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %);
+				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %),
+				except where noted for the individual color-spaces (Lab, LCh, OKLab, OKLCh, XYZ); and
 				except Hue values are given in angular values (starting at 3:00 and going counter-clockwise) using one of the following units:
 				(the default unit used when none is specified is found on the MasterColorPicker “options” panel)</p>
 			<ul>
@@ -832,6 +898,8 @@ triadic</label>
 				<li>in % of a turn (<kbd>0%—100%</kbd> ← postfixed using the <kbd>%</kbd> symbol).</li>
 				<li>of a turn (<kbd>0●—1●</kbd> ← postfixed using the <kbd>●</kbd> symbol or “<kbd>turn</kbd>”).</li>
 			</ul>
+			<p>Note that “hue” values for “classic” color-spaces are the same for the same hues,
+			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr> &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> hues are different from the “classics”.</p>
 			<ul class='keybrd'>
 				<li>The “degrees” <kbd>°</kbd> symbol may be entered by typing <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>5%</span></kbd></li>
 				<li>The “radians” <kbd title='circle'>ᶜ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>C</span></kbd></li>
@@ -841,6 +909,7 @@ triadic</label>
 			</ul></li>
 		<li>Any of the available “named-colors” found in the color-table-palettes.&nbsp;
 				Colors should be <kbd>prefixed:</kbd> or <kbd>wrapped()</kbd> with the appropriate color-table-palette name.&nbsp;
+				Color names and palette names are all case-insensitive.&nbsp;
 				“Named color” palettes may have sub-palettes; you may or may not need to include the sub-palette name
 				in your color-spec, depending on the palette.&nbsp;
 				Generally, if all the colors in the parent palette and its sub-palettes have different names,
@@ -857,8 +926,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<h4 id='MasterColorPicker_helpFor_Alpha'>Alpha (opacity):</h4>
 	<p>You may specify opacity (the opposite of transparency) in any of the color space models
-			(RGB, CMYK, CMY, HSV, HSL, HCG, HWB, Hue)
-			by adding an additional factor (0-1) or percent (0%-100% ← you must use the percent % sign).&nbsp;
+			(RGB, CMYK, CMY, HSV, HSL, HCG, HWB, Hue, Lab, LCh, OKLab, OKLCh, XYZ)
+			by adding an additional factor (0.0—1.0) or percent (0%—100% ← you must use the percent % sign).&nbsp;
 			The color-space model names may or may not end with an additional “A” (for example, RGB vs. RGBA).
 			Per CSS4 specifications, the opacity value may also be separated with a <kbd>/</kbd> symbol
 			that is itself preceded and followed by a space;
@@ -911,12 +980,12 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	</ul>
 
 	<hr>
-	<h4>“Average Perceived Relative Luminance” &amp; “Contrast Ratios”</h4>
+	<h4 id='MasterColorPicker_helpFor_Luminance/Contrast'>“Average Perceived Relative Luminance” &amp; “Contrast Ratios”</h4>
 	<p>Every monitor is different, and has a unique contrast-ratio, color-mix, brightness setting, etc.&nbsp;
 	Every individual is unique and can perceive colors a little differently, especially color-blind folks.&nbsp;
 	The Average Perceived Relative Luminance is based on the “official”
 	<a href='https://www.w3.org/TR/WCAG21/#dfn-relative-luminance' target='W3C'>►luminance formula from the <abbr title='World Wide Web Consortium'>W3C</abbr></a>
-	and is considered relative to “white” <nobr>(<kbd>RGB(255,255,255)</kbd>)</nobr>
+	and is considered relative to “white” <nobr>(<kbd>RGB(100%, 100%, 100%)</kbd>)</nobr>
 	as displayed by the average monitor and viewed by the average user.&nbsp;
 	The Contrast Ratio relates to the luminance of two colors
 	and is based on the “official”
@@ -929,18 +998,42 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	and recursively the colors behind the third if they are partially opaque/transparent,
 	would legitimately influence the contrast ratio of the first two beyond the scope of this app.</p>
 
-	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions, and the <abbr>CMYK<abbr> color spaces</h4>
+	<hr>
+	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions,
+	the <abbr>CMYK<abbr> color spaces, Chroma, &amp; Hue</h4>
+
+	<p>Most color-spaces supported herein are based on an <abbr title='Red, Green, Blue'>RGB</abbr> color-space,
+	and the default <abbr title='Red, Green, Blue'>RGB</abbr> “color-profile” is the
+	<abbr title='standard: Red, Green, Blue'>sRGB</abbr> color-space.&nbsp;
+	When you define “percentage” values for these color-spaces (HSV, HSB, HSL, HCG, HWB, CMYK, CMY),
+	the color you specify is “bound” within the (specific) <abbr title='Red, Green, Blue'>RGB</abbr> color-space.&nbsp;
+	When you convert from one to the other, the <abbr>RGB</abbr> color-space is the intermediary.&nbsp;
+	The <abbr>XYZ</abbr> color-space is the “universal mother” of all other color-spaces,
+	and includes all colors visible to the human eye.&nbsp;
+	An <abbr>RGB</abbr> color-space is typically a small part of the <abbr>XYZ</abbr> color-space.&nbsp;
+	A computer monitor’s hardware is typically based on an <abbr>RGB</abbr> color-space,
+	and the “part” of the <abbr>XYZ color-space that it can display,
+	and that the specific related <abbr>RGB</abbr> color-space defines,
+	is called the “gamut”.&nbsp;
+	The <abbr>Lab</abbr> &amp; <abbr>LCh</abbr> color-spaces
+	are based on the <abbr>XYZ</abbr> color-space, and it is the intermediary between them and the <abbr>RGB</abbr> color-space.&nbsp;
+	The <abbr>OKLab</abbr> &amp; <abbr>OKLCh</abbr> color-spaces
+	are also based on the <abbr>XYZ</abbr> color-space, but there is a direct conversion to/from the <abbr title='standard: Red, Green, Blue'>sRGB</abbr> color-space.&nbsp;
+	These latter four (4) color-spaces have a “gamut” that covers the whole <abbr>XYZ</abbr> color-space,
+	but the gamut of the monitor you are using limits the “valid” values for all five (5) of these color-spaces.</p>
 
 	<p>The <abbr>CMYK<abbr> color space was designed for print-graphics using inks that “mix” on white paper.&nbsp;
 	It is supported herein to help those more familiar with how inks mix in the printing world,
 	although in real-life situations, each printer will have its own “formula” for converting
 	the image on your screen to a mix of inks, and these inks may include more than simply
 	cyan, magenta, yellow, and black.&nbsp;
+	Real-life printers will likely have a different “color-gamut” than the <abbr>RGB</abbr> color-space,
+	so on-screen simulations are <em>very</em> appoximate.&nbsp;
 	The other color-spaces supported herein are designed for screen-graphics using pixels of light;
-	each pixel consists of a red, a green, and a blue light, (thus the standard RGB color space)
+	each pixel consists of a red, a green, and a blue light, (thus the standard <abbr>RGB</abbr> color space)
 	each that illuminate to varying degrees
 	and that “mix” together in our perceptual system to produce the specific color desired.&nbsp;
-	The two processes are very different.&nbsp;
+	The two processes (<abbr>CMYK</abbr> <abbr title='versus'>vs.</abbr> <abbr>RGB</abbr>) are very different.&nbsp;
 	Mixing different colored inks together can make a darker color; so can adding black ink.&nbsp;
 	To make screen-graphics darker, there is no "black" colored light; the pixels of light are dimmed.&nbsp;
 	The formulas to convert <abbr>CMYK<abbr> to/from RGB can yield very different results when converting
@@ -961,9 +1054,42 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_Gradientor').scrollIntoView();">Gradientor</a>
 	and choose to grade through one of these color-spaces
 	when the color you choose is specified in the same color space,
-	and the color-picker output is also specified in the same color-space.
-	</p>
+	and the color-picker output is also specified in the same color-space.</p>
 
+	<h6>Chroma:</h6>
+	<p>Chroma is the measure of how much “pure color” is in a color; or in other words how vibrant the color is.&nbsp;
+	Three (3) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “chroma”,
+	but they use it differently.&nbsp;
+	The <abbr>HCG</abbr> (Hue, Chroma, Gray) color-space used by MasterColorPicker<abbr tm>™</abbr> is based on the <abbr>RGB</abbr> color-space
+	(¡it is <strong>not</strong> the “Munsell color system” which is based on the <abbr>XYZ</abbr> color-space!),
+	and the term “Chroma” defines the maximum <em><strong>digital</strong></em> value for Chroma that the computer can display.&nbsp;
+	Mathematically, this means that in the <abbr>RGB</abbr> color-space,
+	one channel has a maximum value (255 in the <abbr>sRGB</abbr> color-space),
+	one channel has a minimum value (0),
+	and the third channel varies.&nbsp;
+	However, the human eye <em><strong>perceives</strong></em> green light as “brighter” (more chroma)
+	than red light, and red light as “brighter” (more chroma) than blue,
+	so HCG(120°, 100%, 50%) (green or “CSS: lime”) will seem much brighter (have more chroma) than HCG(240°, 100%, 50%) (blue),
+	even though they have the same chroma of 100%.&nbsp;
+	The <abbr>LCh</abbr> (Lightness, Chroma, Hue) &amp; <abbr>OKLCh</abbr> (OK: Lightness, Chroma, Hue) color-spaces,
+	(and the “Munsell color system”) are based on the <abbr>XYZ</abbr> color-space,
+	and the term “Chroma” refers to the <em><strong>perceived</strong></em> chroma of the color.&nbsp;
+	Digitally (mathematically) speaking, the maximum chroma possible is always limited by the <abbr>RGB</abbr> color-space
+	(as defined by Chroma in <abbr>HCG</abbr>),
+	but “green” and “blue” will have very different Chromatic values in <abbr>LCh</abbr> or <abbr>OKLCh</abbr>.</p>
+
+	<h6>Hue:</h6>
+	<p>Hue is the term used to describe the “pure-color” (or full chromacity) of a tint/tone/shade.&nbsp;
+	Seven (7) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “hue”,
+	(HSV, HSB, HSL, HCG, HWB, LCh, OKLCh) but the outcome can be slightly different.&nbsp;
+	Also, Hue <em><strong>values</strong></em> are the same for all <abbr>RGB</abbr>-based color-spaces,
+	but different for <abbr>LCh</abbr>, and differnt still for <abbr>OKLCh</abbr>.&nbsp;
+	For all <abbr>RGB</abbr>-based color-spaces &amp; the <abbr>LCh</abbr> color-space,
+	hue is defined <em><strong>digitally</strong></em>.&nbsp;
+	As the concepts of Chroma and Gray/Lightness are mathematically mixed into the selected hue,
+	the <em><strong>perceived</strong></em> hue (by the human eye) can change (why? see “Chroma” above).&nbsp;
+	The <abbr>OKLCh</abbr> color space is extra special in that it supports the concept
+	of a <em><strong>perceived</strong></em> hue; this makes it the Jedi of color-spaces.</p>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_keyboard'>Keyboard shortcuts:</h4>
@@ -1423,7 +1549,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<hr>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
-	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023 by Joe Golembieski, SoftMoon-WebWare:&nbsp;
+	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 by Joe Golembieski, SoftMoon-WebWare:&nbsp;
 			All rights reserved.&nbsp;
 			Use subject the SoftMoon Humane Use License (see: <kbd>https://SoftMoon-WebWare.com/</kbd> )</p>
 	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
@@ -1436,6 +1562,14 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
      It is used with the permission of Matthew Wickline and <abbr>HCIRN</abbr>,
      and is freely available for non-commercial use.&nbsp; For commercial use, please
      contact the Human-Computer Interaction Resource Network ( <kbd>https://hcirn.com/</kbd> ).</p>
+	<p>☺ Special thanks also to:
+	<a target='XYZ' href='http://www.easyrgb.com/index.php?X=MATH'>►Easy RGB</a>,
+	<a target='thanks' href='https://bottosson.github.io/posts/oklab/'>►Björn Ottosson</a>,
+	<a target='XYZ' href='http://www.brucelindbloom.com/'>►Bruce Lindbloom</a>,
+	<a target='thanks' href='https://github.com/color-js/color.js/tree/main'>►Colors.js</a>,
+	<a target='XYZ' href='https://en.wikipedia.org/wiki/SRGB'>►Wikipedia</a>,
+	<a target='Mozilla' href='https://developer.mozilla.org/en-US/'>►The Mozilla Developer’s Network</a>,
+	and others for being the shoulders for me to stand on. ☻</p>
  </div>
 </div><!--  close  help  -->
 
