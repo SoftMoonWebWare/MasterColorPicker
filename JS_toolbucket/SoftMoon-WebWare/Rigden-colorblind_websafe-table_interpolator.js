@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 120
 
-/*	websafe table interpolator function version 1.1.2  Feb 2, 2019; Feb 27, 2023  by SoftMoon WebWare.
+/*	websafe table interpolator function version 1.1.3  Feb 2, 2019; Feb 27, 2023; Feb 23, 2024  by SoftMoon WebWare.
  *   written by and Copyright © 2019,2022,2023 Joe Golembieski, SoftMoon WebWare
  *  Websafe table colorblind data courtesy of Christine Rigden →
 			https://www.rigdenage.co.uk/design-for-colour-blind/
@@ -10,7 +10,7 @@
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
 		For qualified “humane entities”, this program is free software:
 		you can use it, redistribute it, and/or modify it
-		under the terms of the GNU General Public License as published by
+		under the terms of the GNU Affero General Public License as published by
 		the Free Software Foundation, either version 3 of the License, or
 		(at your option) any later version, with the following additional requirements
 		ADDED BY THE ORIGINAL SOFTWARE CREATOR AND LICENSOR that supersede any possible GNU license definitions:
@@ -19,15 +19,15 @@
 		This program is distributed in the hope that it will be useful,
 		but WITHOUT ANY WARRANTY; without even the implied warranty of
 		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
+		GNU Affero General Public License for more details.
 
 		You should have received a copy of:
 		 • the SoftMoon Humane Use License
 		and
-		 • the GNU General Public License
+		 • the GNU Affero General Public License
 		along with this program.  If not, see:
 			https://softmoon-webware.com/humane-use-license/
-			https://www.gnu.org/licenses/
+			https://www.gnu.org/licenses/#APGL
 		*/
 
 
@@ -68,8 +68,8 @@ SoftMoon.WebWare.RGB_Calc.colorblindProviders.Rigden={
 const rgb_calc=new SoftMoon.WebWare.RGB_Calc({HCGA_Factory: Array, defaultAlpha: undefined}, true, {to:['hcg']});
 
 SoftMoon.WebWare.RGB_Calc.to.colorblind= toColorBlind;
-SoftMoon.WebWare.RGB_Calc.to.definer.quick.colorblind= {value: toColorBlind, writable: true};
-SoftMoon.WebWare.RGB_Calc.to.definer.audit.colorblind= {value: auditToColorBlind, writable: true};
+SoftMoon.WebWare.RGB_Calc.definer.quick.to.colorblind= {value: toColorBlind, writable: true};
+SoftMoon.WebWare.RGB_Calc.definer.audit.to.colorblind= {value: auditToColorBlind, writable: true};
 function auditToColorBlind() {return this.convertColor(arguments, toColorBlind, 'colorblind  «Rigden-websafe interpolated»');}
 function toColorBlind(rgb, type)  {
 	// The color may have an optional alpha (opacity) component as the 4th value (index [3]).
