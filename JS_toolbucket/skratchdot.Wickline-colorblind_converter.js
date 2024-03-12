@@ -1,4 +1,6 @@
-/*  plug-in for SoftMoon.WebWare.RGB_Calc  v1.2 February 17, 2022
+/*  plug-in for SoftMoon.WebWare.RGB_Calc
+ *  v1.2 February 17, 2022
+ *  v1.2.1 March 10, 2024  ←minimal superficial mods for the newest RGB_Calc version
  *  Modified by Joe Golembeiski, SoftMoon-WebWare; with
  *  only superficial modifications from the previous contributors.
  *  FAR more than superficial thanks to the previous contributors!
@@ -54,52 +56,26 @@
 	m = (aev - abv) / (aeu - abu); // slope of color axis
 	yi = blind[t].abv - blind[t].abu * blind[t].m; // "y-intercept" of axis (on the "v" axis at u=0)
 */
+
+
 'use strict';
 
 
-(function() {
-var RGB_Calc = SoftMoon.WebWare.RGB_Calc;  //this is our reference to the RGB_Calc Constructor/StaticClass
+{  //open a private namespace
 
-RGB_Calc.ConfigStack.prototype.XYZFactory = Array; // to be expanded...
-RGB_Calc.ConfigStack.prototype.gammaCorrection = 2.2;  //2.2 was default
+/* note the standardized sRGB → XYZ function that was in integral part of this codebase has been removed
+ * and moved into the RGB_Calc file and enhanced there.  Instead we now create a calculator …
+ */
+// this is the “quick mini” calculator we use internally to convert RGB values to XYZ
+const
+	RGB_Calc = SoftMoon.WebWare.RGB_Calc,
+	rgb_calc = new RGB_Calc(
+		{defaultAlpha: undefined},
+		true,
+		{to:['xyz']} ),
+	xyz_factory=SoftMoon.WebWare.XYZA_Array;
 
-
-// all  RGB_Calc.to  methods take an array of 3 RGB byte-values from 0-255
-RGB_Calc.to.xyz = toXYZ;
-RGB_Calc.to.definer.quick.xyz = {value: toXYZ};
-RGB_Calc.to.definer.audit.xyz = {value: function(color) {return this.convertColor(color, toXYZ, 'xyz');}};
-function toXYZ(rgb) {
-	var M = toXYZ.matrixRgbXyz;
-	var R = rgb[0] / 255;
-	var G = rgb[1] / 255;
-	var B = rgb[2] / 255;
-	if (toXYZ.colorProfile === 'sRGB') {
-		R = (R > 0.04045) ? Math.pow(((R + 0.055) / 1.055), 2.4) : R / 12.92;
-		G = (G > 0.04045) ? Math.pow(((G + 0.055) / 1.055), 2.4) : G / 12.92;
-		B = (B > 0.04045) ? Math.pow(((B + 0.055) / 1.055), 2.4) : B / 12.92;
-	} else {
-		R = Math.pow(R, this.config.gammaCorrection);
-		G = Math.pow(G, this.config.gammaCorrection);
-		B = Math.pow(B, this.config.gammaCorrection);
-	}
-	return new this.config.XYZFactory(
-		R * M[0] + G * M[3] + B * M[6],
-		R * M[1] + G * M[4] + B * M[7],
-		R * M[2] + G * M[5] + B * M[8]
-	);
-};
-toXYZ.colorProfile = 'sRGB';
-toXYZ.matrixRgbXyz = [
-	0.41242371206635076, 0.21265606784927693, 0.019331987577444885,
-	0.3575793401363035, 0.715157818248362, 0.11919267420354762,
-	0.1804662232369621, 0.0721864539171564, 0.9504491124870351
-];
-
-
-
-var RGB_calc_toXYZ = toXYZ.bind({config: {XYZFactory: Array}});  //this is the calculator we use within the colorblind conversion
-
-
+/* this standardized function below was moved to RGB_Calc as a prototyped method of an XYZA_Array
 function to_xyY(xyz) {
 	var n = xyz[0] + xyz[1] + xyz[2];
 	if (n === 0) {
@@ -107,10 +83,29 @@ function to_xyY(xyz) {
 	}
 	return {x: xyz[0] / n, y: xyz[1] / n, Y: xyz[1]};
 };
+ */
 
-if (!SoftMoon.WebWare.RGB_Calc.colorblindProviders)  SoftMoon.WebWare.RGB_Calc.colorblindProviders= new Object;
-SoftMoon.WebWare.RGB_Calc.colorblindProviders.Wickline={
-	title: "Wickline Algorithmic",
+/*  this format below was reorganized and included directly in RGB_Calc
+ *
+toXYZ.matrixRgbXyz = [
+	0.41242371206635076, 0.21265606784927693, 0.019331987577444885,
+	0.3575793401363035, 0.715157818248362, 0.11919267420354762,
+	0.1804662232369621, 0.0721864539171564, 0.9504491124870351
+];
+*/
+/*  this format below was reorganized and included directly in RGB_Calc
+ *  but it is also use directly within this file below */
+const matrixXyzRgb = [
+	3.240712470389558, -0.969259258688888, 0.05563600315398933,
+	-1.5372626602963142, 1.875996969313966, -0.2039948802843549,
+	-0.49857440415943116, 0.041556132211625726, 1.0570636917433989 ];
+Object.freeze(matrixXyzRgb);
+
+
+
+if (!RGB_Calc.colorblindProviders)  RGB_Calc.colorblindProviders= new Object;
+RGB_Calc.colorblindProviders.Wickline={
+	title: "Wickline algorithmic",
 	thanks: "special thanks to:\n Matthew Wickline and the Human-Computer Interaction Resource Network → http://hcirn.com/\n and “scratchdot” → https://github.com/skratchdot/color-blind",
 	to: {
 		quick: toColorBlind,
@@ -119,8 +114,8 @@ SoftMoon.WebWare.RGB_Calc.colorblindProviders.Wickline={
 
 // all  RGB_Calc.to  quick methods take an array of 3 RGB byte-values from 0-255
 RGB_Calc.to.colorblind = toColorBlind;                     // ←↓
-RGB_Calc.to.definer.quick.colorblind = {value: toColorBlind, writable: true};   //  ←↑these may be swapped in/out in real-time by the enduser’s UI to yield different filters on demand.
-RGB_Calc.to.definer.audit.colorblind = {value: auditToColorBlind, writable: true};
+RGB_Calc.definer.quick.to.colorblind = {value: toColorBlind, writable: true};   //  ←↑these may be swapped in/out in real-time by the enduser’s UI to yield different filters on demand.
+RGB_Calc.definer.audit.to.colorblind = {value: auditToColorBlind, writable: true};
 function auditToColorBlind() {return this.convertColor(arguments, toColorBlind, 'colorblind  «Wickline algorithmic»');}
 function toColorBlind(rgb, type, anomalize) {
 	if (type==='tritan'  &&  rgb[0]==0 && rgb[1]==0 && rgb[2]==0)  return this.outputRGB(0,0,0,rgb[3]);  //catch the NaN bug
@@ -145,7 +140,10 @@ function toColorBlind(rgb, type, anomalize) {
 		return this.outputRGB(z.R, z.G, z.B, rgb[3]);
 	}
 	line = toColorBlind.blinder[type];
-	c = to_xyY(RGB_calc_toXYZ(rgb));
+	if (rgb.colorProfile  &&  rgb.colorProfile!=='sRGB')
+		c = rgb_calc.to.xyz(rgb, xyz_factory).to_xyY();
+	else           // ↑ ↓  the original RGB→XYZ function & Wickline matrix and XYZ_to_xyY function is now included in the RGB_Calc file
+		c = rgb_calc.to.xyz(rgb, xyz_factory, 'sRGB', "D65_Wickline").to_xyY();
 	// The confusion line is between the source color and the confusion point
 	slope = (c.y - line.y) / (c.x - line.x);
 	yi = c.y - c.x * slope; // slope, and y-intercept (at x=0)
@@ -164,7 +162,7 @@ function toColorBlind(rgb, type, anomalize) {
 	dX = ngx - z.X;
 	dZ = ngz - z.Z;
 	// find out how much to shift sim color toward neutral to fit in RGB space
-	M = toColorBlind.matrixXyzRgb;
+	M = matrixXyzRgb;
 	dR = dX * M[0] + dY * M[3] + dZ * M[6]; // convert d to linear RGB
 	dG = dX * M[1] + dY * M[4] + dZ * M[7];
 	dB = dX * M[2] + dY * M[5] + dZ * M[8];
@@ -228,11 +226,10 @@ toColorBlind.blinder = {
 		yi: 1.026914
 	}
 };
-toColorBlind.matrixXyzRgb = [
-	3.240712470389558, -0.969259258688888, 0.05563600315398933,
-	-1.5372626602963142, 1.875996969313966, -0.2039948802843549,
-	-0.49857440415943116, 0.041556132211625726, 1.0570636917433989
-];
-toColorBlind.types=['protan', 'deutan', 'tritan', 'custom', 'achroma'];
 
-})();
+// these are strictly for external reference.
+toColorBlind.matrixXyzRgb = matrixXyzRgb;
+toColorBlind.types=['protan', 'deutan', 'tritan', 'custom', 'achroma'];
+Object.freeze(toColorBlind.types);
+
+}  //close the private namespace
