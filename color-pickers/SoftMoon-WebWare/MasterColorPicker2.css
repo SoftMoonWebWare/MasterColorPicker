@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.2  February 17, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.3  March 12, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -33,6 +33,8 @@ body.MCP_we-be-a-cuttin {
 	--back-text-note-warn: maroon;
 	--fore-text-note-refer:  black;
 	--back-text-note-refer: gold;
+	--fore-text-highlight:  black;
+	--back-text-highlight: LemonChiffon;
 	--fore-text-message:  black;
 	--back-text-message: HoneyDew;
 	--back-text-message-error: LavenderBlush;
@@ -260,7 +262,7 @@ span.MCP_fix_Safari {
 #MasterColorPicker .pickerPanel.expanding  {
 	overflow: auto;
 	scrollbar-gutter: stable;
-	max-height: 85.4%; }   /*  ≈ Φ - (1-Φ)×Φ  for default position-fixed (floating) */
+	max-height: 85.4%; }   /*  ≈ Φ + (1-Φ)×Φ  for default position-fixed (floating) */
 #MasterColorPicker .pickerPanel.expanding.scrollable {
 	max-height: 1080px; }  /* max height of most monitors */
 
@@ -389,8 +391,23 @@ span.MCP_fix_Safari {
 	padding: 0; }
 #MasterColorPicker_Help p + p {
 	margin-top: .618em; }
+#MasterColorPicker_Help ul ul p + p {
+	margin-top: 0; }
+#MasterColorPicker_Help ul li > abbr:first-child,
+#MasterColorPicker_Help ul ul li > pseudo,
+#MasterColorPicker_Help dt > span {
+	font-weight: bold;
+	color: var(--fore-text-highlight);
+	background-color: var(--back-text-highlight); }
 #MasterColorPicker_Help dd {
 	margin: 0 1.168em; }
+#MasterColorPicker_Help dd specs {
+	display: block; }
+#MasterColorPicker_Help ul ul li > aka,
+#MasterColorPicker_Help dd specs span {
+	font-size: 85.4%;  /* ≈ Φ + (1-Φ)×Φ */
+	color: var(--fore-text-highlight);
+	background-color: var(--back-text-highlight); }
 #MasterColorPicker_Help li:nth-child(3) ul:first-child li kbd {
 	/* text shows XYZ limits */
 	padding-left: 1.382em; }
