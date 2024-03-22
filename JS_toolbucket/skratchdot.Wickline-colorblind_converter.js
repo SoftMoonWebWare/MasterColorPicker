@@ -1,6 +1,6 @@
 /*  plug-in for SoftMoon.WebWare.RGB_Calc
  *  v1.2 February 17, 2022
- *  v1.2.1 March 10, 2024  ←minimal superficial mods for the newest RGB_Calc version
+ *  v1.2.1.1 March 13, 2024  ←minimal superficial mods for the newest RGB_Calc version
  *  Modified by Joe Golembeiski, SoftMoon-WebWare; with
  *  only superficial modifications from the previous contributors.
  *  FAR more than superficial thanks to the previous contributors!
@@ -63,7 +63,7 @@
 
 {  //open a private namespace
 
-/* note the standardized sRGB → XYZ function that was in integral part of this codebase has been removed
+/* note the standardized RGB → XYZ function that was in integral part of this codebase has been removed
  * and moved into the RGB_Calc file and enhanced there.  Instead we now create a calculator …
  */
 // this is the “quick mini” calculator we use internally to convert RGB values to XYZ
@@ -184,7 +184,7 @@ function toColorBlind(rgb, type, anomalize) {
 	z.G += adjust * dG;
 	z.B += adjust * dB;
 	// apply gamma and clamp simulated color...
-	const γCorrection= (!rgb.colorProfile  ||  rgb.colorProfile==='sRGB') ? 2.2 : RGB_Calc.colorProfiles.γCorrection;
+	const γCorrection= (!rgb.colorProfile  ||  rgb.colorProfile==='sRGB') ? 2.2 : RGB_Calc.colorProfiles[rgb.colorProfile].γCorrection;
 	z.R = 255 * (z.R <= 0 ? 0 : z.R >= 1 ? 1 : Math.pow(z.R, 1 / γCorrection));
 	z.G = 255 * (z.G <= 0 ? 0 : z.G >= 1 ? 1 : Math.pow(z.G, 1 / γCorrection));
 	z.B = 255 * (z.B <= 0 ? 0 : z.B >= 1 ? 1 : Math.pow(z.B, 1 / γCorrection));
@@ -227,10 +227,12 @@ toColorBlind.blinder = {
 		yi: 1.026914
 	}
 };
+Object.deepFreeze(toColorBlind.blinder);
 
 // these are strictly for external reference.
 toColorBlind.matrixXyzRgb = matrixXyzRgb;
 toColorBlind.types=['protan', 'deutan', 'tritan', 'custom', 'achroma'];
 Object.freeze(toColorBlind.types);
+Object.lock(toColorBlind);
 
 }  //close the private namespace
