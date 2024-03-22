@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.3~BETA   March 12, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.4~BETA   March 22, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -411,7 +411,7 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 		case 'OKLab':
 		case 'XYZ':  //these are always wrapped
 			try {
-				if (!colorSpecCache[mode])  (colorSpecCache[mode]=RGB_calc.to[mode.toLowerCase()](colorSpecCache.RGB.rgba)).config.stack(format);
+				if (!colorSpecCache[mode])  (colorSpecCache[mode]=RGB_calc.to[mode.toLowerCase()](colorSpecCache.RGB)).config.stack(format);
 				chosen=colorSpecCache[mode].toString();
 				break;  }
 			catch(e) {console.error('MCP pickFilter bummer!  mode='+mode+' error!: ',e);}
@@ -498,7 +498,7 @@ function ColorFilter(colorSpecCache)  {
 		if (isFiltered)  {
 			if (colorSpecCache.model.toLowerCase() !== 'rgb')  {
 				if (colorSpecCache.model==='text')  colorSpecCache.model='RGB';
-				else  colorSpecCache[colorSpecCache.model]=RGB_calc.to[colorSpecCache.model.toLowerCase()](colorSpecCache.RGB.rgba);  }  }  }
+				else  colorSpecCache[colorSpecCache.model]=RGB_calc.to[colorSpecCache.model.toLowerCase()](colorSpecCache.RGB);  }  }  }
 	finally {rgb_calc.config.cull();}
 	return colorSpecCache;  }
 
@@ -1786,7 +1786,7 @@ Color_Picker.colorSwatch=function colorSwatch(inp, swatch)  {
 			: this.borderColor;
 			swatch.style.borderStyle='solid';  }
 		if (swatch.hasAttribute('colorblind'))
-			c=MasterColorPicker.RGB_calc.to.colorblind(c.rgba, swatch.getAttribute('colorblind'));
+			c=MasterColorPicker.RGB_calc.to.colorblind(c, swatch.getAttribute('colorblind'));
 		swatch.style.backgroundColor=c.useHexSymbol(true).hex;
 		SoftMoon.WebWare.makeTextReadable(swatch, c.rgb);
 		if (swatch.nextElementSibling  &&  swatch.nextElementSibling.hasAttribute('colorblind'))  colorSwatch(inp, swatch.nextElementSibling);
@@ -1925,7 +1925,7 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 		settings.rGb_hex.value=CLR.RGB.hex.substr(3,2);
 		settings.rgB_hex.value=CLR.RGB.hex.substr(5,2);  }
 
-	if (!CLR.HSV)  CLR.HSV=RGB_Calc.to.hsv(CLR.RGB.rgba);
+	if (!CLR.HSV)  CLR.HSV=RGB_Calc.to.hsv(CLR.RGB);
 	else if (typeof alpha === 'number')  CLR.HSV.alpha=alpha;
 
 	if (space!=='hsb' && space!=='hsv' && space!=='hsl' && space!=='hcg')  {
@@ -1943,25 +1943,25 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 		settings.hsV_percent.value= settings.hsV_range.value= Math.roundTo(5, CLR.HSV.value*100);  }
 
 	if (space!=='hsl')  {
-		if (!CLR.HSL)  CLR.HSL=RGB_Calc.to.hsl(CLR.RGB.rgba);
+		if (!CLR.HSL)  CLR.HSL=RGB_Calc.to.hsl(CLR.RGB);
 		else if (typeof alpha === 'number')  CLR.HSL.alpha=alpha;
 		settings.hSl_percent.value= settings.hSl_range.value= Math.roundTo(5, CLR.HSL.saturation*100);
 		settings.hsL_percent.value= settings.hsL_range.value= Math.roundTo(5, CLR.HSL.lightness*100);  }
 
 	if (space!=='hwb')  {
-		if (!CLR.HWB)  CLR.HWB=RGB_Calc.to.hwb(CLR.RGB.rgba);
+		if (!CLR.HWB)  CLR.HWB=RGB_Calc.to.hwb(CLR.RGB);
 		else if (typeof alpha === 'number')  CLR.HWB.alpha=alpha;
 		settings.hWb_percent.value= settings.hWb_range.value= Math.roundTo(5, CLR.HWB.white*100);
 		settings.hwB_percent.value= settings.hwB_range.value= Math.roundTo(5, CLR.HWB.black*100);  }
 
 	if (space!=='hcg')  {
-		if (!CLR.HCG)  CLR.HCG=RGB_Calc.to.hcg(CLR.RGB.rgba);
+		if (!CLR.HCG)  CLR.HCG=RGB_Calc.to.hcg(CLR.RGB);
 		else if (typeof alpha === 'number')  CLR.HCG.alpha=alpha;
 		settings.hCg_percent.value= settings.hCg_range.value= Math.roundTo(5, CLR.HCG.chroma*100);
 		settings.hcG_percent.value= settings.hcG_range.value= Math.roundTo(5, CLR.HCG.gray*100);  }
 
 	if (space!=='cmyk')  {
-		if (!CLR.CMYK)  CLR.CMYK=RGB_Calc.to.cmyk(CLR.RGB.rgba);
+		if (!CLR.CMYK)  CLR.CMYK=RGB_Calc.to.cmyk(CLR.RGB);
 		else if (typeof alpha === 'number')  CLR.CMYK.alpha=alpha;
 		settings.Cmyk_percent.value= settings.Cmyk_range.value= Math.roundTo(5, CLR.CMYK.cyan*100);
 		settings.cMyk_percent.value= settings.cMyk_range.value= Math.roundTo(5, CLR.CMYK.magenta*100);
@@ -1970,8 +1970,8 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 	}
 	finally {RGB_Calc.config.cull();}
 	ColorSpaceLab.update_Hue_rangeHandle();
-	ColorSpaceLab.luminanceIndicator.innerText=Math.roundTo(2, 100*RGB_Calc.luminance(CLR.RGB.rgba))+'%';
-	if (settings.showContrastInLab.checked)  updateContrastInd(CLR.RGB.rgba);
+	ColorSpaceLab.luminanceIndicator.innerText=Math.roundTo(2, 100*RGB_Calc.luminance(CLR.RGB))+'%';
+	if (settings.showContrastInLab.checked)  updateContrastInd(CLR.RGB);
 	ColorSpaceLab.swatch.color(CLR);
 
 	return CLR;  }
@@ -2029,21 +2029,24 @@ ColorSpaceLab.alignColor=function(event)  {
 			hauf=RGB_Calc.hueAngleUnitFactors[hau];
 		switch (format)  {
 		case 'degrees':  {
-			const hue=parseFloat(thisValue)/hauf;
-			settings.Hue_range.value=Math.deg(hue*360);
-			settings.Hue_percent.value=Math.roundTo(5, Math.sawtooth(100, hue*100));
+			let hue=parseFloat(thisValue)/hauf;
+			if (hue<0  ||  hue>1)  hue=Math.turn(hue);
+			settings.Hue_range.value=hue*360;
+			settings.Hue_percent.value=Math.roundTo(5, hue*100);
 			break setLikeInputs;  }
 		case 'range':  {
 			settings.Hue_degrees.value=Math.roundTo(
 				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau],
-				Math.sawtooth(hauf, (thisValue/360)*hauf));
+				//Math.sawtooth(hauf, (thisValue/360)*hauf));
+				(thisValue/360)*hauf);
 			settings.Hue_percent.value=Math.roundTo(5, Math.sawtooth(100, thisValue/3.60));
 			break setLikeInputs;  }
-		case 'percent':  {
+		case 'percent':  {  // this should be limited by:  <input type='numeric' min='0' max='100'>
 			settings.Hue_range.value=Math.deg(thisValue*3.60);
 			settings.Hue_degrees.value=Math.roundTo(
 				SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau],
-				Math.sawtooth(hauf, (thisValue/100)*hauf));
+				//Math.sawtooth(hauf, (thisValue/100)*hauf));
+				(thisValue/100)*hauf);
 			break setLikeInputs;  }  }  }
 	default:  { switch (format)  {
 			case 'range':   settings[model+'_percent'].value=Math.roundTo(5, thisValue);  break;
@@ -2132,7 +2135,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		this.style.color=CLR.RGB.contrast;
 		RGB_Calc.config.stack({RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color}, HCGA_Factory: {value: Array}});
 		try  {
-		CLR.RGB.hcga= CLR.HCG?.hcga || RGB_Calc.to.hcg(CLR.RGB);
+		CLR.RGB.hcga= CLR.HCG || RGB_Calc.to.hcg(CLR.RGB);
 		for (const td of tds)  {
 			try  {
 				const cbc=RGB_Calc.to.colorblind(CLR.RGB, td.getAttribute('title'));
@@ -2336,6 +2339,7 @@ BeezEye.getColor=function(event)  {
 	if (row%2)  x+=space.x/2;
 	BeezEye.calcNativeHSV(x, y, maxSatPoint);  // globals ↓
 	if (saturation>100)  return;
+	if (saturation===0)  hue=360;
 	return new BeezEye.Color_SpecCache(hue, saturation, color_value);  }
 
 BeezEye.Color_SpecCache=function(h, s, v)  { // degrees, percent, percent  → but ¡NO percent% or degrees° marks!
@@ -2350,7 +2354,7 @@ BeezEye.Color_SpecCache=function(h, s, v)  { // degrees, percent, percent  → b
 		if (model==='CMYK')  {
 			SoftMoon.WebWare.HSVA_Color.config.CMYKA_Factory=SoftMoon.WebWare.CMYKA_Color;
 			this.CMYK=SoftMoon.WebWare.HSVA_Color.to_CMYK([h, s, v]);
-			this.RGB=MasterColorPicker.RGB_calc.from.cmyk(this.CMYK.cmyk);
+			this.RGB=MasterColorPicker.RGB_calc.from.cmyk(this.CMYK);
 			}
 		else  {
 			this[model]=SoftMoon.WebWare.ColorWheel_Color.create(h, s, v, undefined, undefined, model);
@@ -2620,7 +2624,7 @@ RainbowMaestro.getColor=function(event)  { mouseColor=null;  targetHue=null;
 
 		const g=1-Math.floor(a*variety/_['360°'])*(1/(variety-1));
 		color=mouseColor=new RainbowMaestro.Color_SpecCache(
-				MasterColorPicker.RGB_calc.from.rgb([g,g,g]),  0, 0, g,  'grays');
+				MasterColorPicker.RGB_calc.from.rgb([g,g,g]),  π2, 0, g,  'grays');
 		break calcColor;  }
 	if (r<w*this.smRainbowRing.inRad)  break calcColor;
 	if (r<w*this.smRainbowRing.outRad)  {
@@ -2692,7 +2696,7 @@ RainbowMaestro.getColor=function(event)  { mouseColor=null;  targetHue=null;
 RainbowMaestro.Color_SpecCache= class extends SoftMoon.WebWare.Color_Picker.Color_SpecCache {
 	constructor(RGB, H, C, G, ring, targetHue)  {
 		if (!new.target)  throw new Error('RainbowMaestro.Color_SpecCache is a constructor, not a function.');
-		super(new SoftMoon.WebWare.HCGA_Color(Math.rad(H)/π2, C, G), 'HCG', RGB);
+		super(new SoftMoon.WebWare.HCGA_Color(H/π2, C, G), 'HCG', RGB);
 		this.ring=ring;
 		this.targetHue=targetHue;  }  }
 RainbowMaestro.Color_SpecCache.prototype.name="RainbowMaestro.Color_SpecCache";
@@ -2719,7 +2723,7 @@ RainbowMaestro.handleMouse=function(event)  {
 	RGB_Calc.config.stack({useHexSymbol: {value: true},  RGBA_Factory: {value: Array},  roundRGB: {value: false}});
 	try {for (var i=0; i<count; i++)  {
 		spsw[i].style.backgroundColor= (mouseColor)  ?   // && mouseColor.ring
-			((i>0) ?  RGB_Calc.to.hex(RGB_Calc.to.colorblind(mouseColor.RGB.rgba, RGB_Calc.to.colorblind.types[i-1]))
+			((i>0) ?  RGB_Calc.to.hex(RGB_Calc.to.colorblind(mouseColor.RGB, RGB_Calc.to.colorblind.types[i-1]))
 						 :  mouseColor.RGB.hex)
 		: "";  }  }
 	finally {RGB_Calc.config.cull();}  };
@@ -4902,107 +4906,151 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_database_ready',
 
 const
 	Gradientor= SoftMoon.WebWare.Gradientor= new SoftMoon.WebWare.Color_Picker('Gradientor'),
-	RGB_calc= new SoftMoon.WebWare.RGB_Calc({
+	rgb_calc= new SoftMoon.WebWare.RGB_Calc({
 		defaultAlpha: undefined,
 		RGBA_Factory:Array,
 		HSLA_Factory:Array,
 		HSBA_Factory:Array,
 		HCGA_Factory:Array,
 		CMYKA_Factory:Array,
-		useHexSymbol:true}, true);
+		OKLabA_Factory:Array,
+		OKLChA_Factory:Array,
+		LabA_Factory:Array,
+		LChA_Factory:Array,
+		useHexSymbol:true}, true),
+	color_factory= new SoftMoon.WebWare.ColorFactory;
+
+Object.defineProperty(color_factory, 'config', {get:()=>MasterColorPicker.RGB_calc.config});
 
 let
 	steps, triads, colorSpace, width, height;
 
+const chromaticError=0.001;  // chromatic error factor (for LCh)  ← RGB-bit-depth === 255  ←greater bit-depth may require a lower error factor
+
 Gradientor.buildTriadicPalette=function buildGradientorTraidicPalette()  {
-	MasterColorPicker.RGB_calc.config.stack({
-		RGBA_Factory:{value:Array},
-		defaultAlpha:{value:1}});
-	try {
-	var
-		c1=MasterColorPicker.RGB_calc(triads[0].value),
-		c2=MasterColorPicker.RGB_calc(triads[1].value),
-		c3=MasterColorPicker.RGB_calc(triads[2].value);
-	} finally {MasterColorPicker.RGB_calc.config.cull();}
-	if (!(c1 && c2 && c3))  return;
+	//our color_factory “borrows” this config stack – it has the config specs for interpreting user input:
+	MasterColorPicker.RGB_calc.config.stack({defaultAlpha:{value:1}});
+	try  {
+		var
+			c1=color_factory.create_A_Color(triads[0].value),
+			c2=color_factory.create_A_Color(triads[1].value),
+			c3=color_factory.create_A_Color(triads[2].value);  }
+	finally {MasterColorPicker.RGB_calc.config.cull();}
+	if (!c1 || !c2 || !c3)  return;
 	const
 		cnvs=document.createElement('canvas'),
-		cSpace=colorSpace.value.toLowerCase(),
 		variety=parseInt(steps.value)-1,
 		spaceX=(width/(variety+1))/2,
 		spaceY=spaceX/Math.cos(_['30°']),
-		radius=spaceY+0.5;
+		radius=spaceY+0.5,
+		cSpace=colorSpace.value,  // it is imperative that the value is case-sensitive for specifying which factory to specify when using color_factory.convert_A_Color
+		cspace=cSpace.toLowerCase();
+	c1=color_factory.convert_A_Color(c1, cSpace, Array);
+	c2=color_factory.convert_A_Color(c2, cSpace, Array);
+	c3=color_factory.convert_A_Color(c3, cSpace, Array);
 	cnvs.width=width;  cnvs.height=(width/2)/Math.tan(_['30°'])+spaceY/2;
 	const
 		context=cnvs.getContext('2d'),
 		hexagon=SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon.bind(null, context, context.lineTo.bind(context), 6);
 	//first we draw the top point color individually, since we can’t divide by 0 in the loops, so we start the loop below @j=1 : the second row
 	//otherwise we test for j===0 for EVERY color drawn and slow the loop
-	context.fillStyle= RGB_calc.to.hex(c1);
+	context.fillStyle= rgb_calc.to.hex(rgb_calc.from[cspace](c1));
 	context.beginPath();
 	hexagon(width/2, spaceY, radius, radius);
 	context.closePath();
 	context.fill();
-	if (cSpace!=='rgb')  {
-		c1=RGB_calc.to[cSpace](c1);
-		c2=RGB_calc.to[cSpace](c2);
-		c3=RGB_calc.to[cSpace](c3);  }
-	for (let j=1; j<=variety; j++)  { for (let c$, k=0; k<=j; k++)  {
-		context.fillStyle= RGB_calc.to.hex(RGB_calc.from[cSpace](mixTriads(c1,c2,c3,j,k,variety,cSpace)));
-		context.beginPath();
-		hexagon(width/2 - spaceX*j + spaceX*k*2,  spaceY*j*1.5 + spaceY,  radius, radius);
-		context.closePath();
-		context.fill();  }  }
+	const
+		H=normalizeTriadicTrueGrayHues(c1,c2,c3, cspace),
+		mixer= cspace.includes('h') ? mixTriadsWithHues : mixTriads;
+	for (let j=1; j<=variety; j++)  { for (let k=0; k<=j; k++)  {
+		const rgb=rgb_calc.from[cspace](mixer(c1,c2,c3,j,k,variety,H));
+		if (rgb)  {
+			context.fillStyle= rgb_calc.to.hex(rgb);
+			context.beginPath();
+			hexagon(width/2 - spaceX*j + spaceX*k*2,  spaceY*j*1.5 + spaceY,  radius, radius);
+			context.closePath();
+			context.fill();  }  }  }
 	Gradientor.HTML.querySelector('canvas').replaceWith(cnvs);  }
 
-Gradientor.mixTriads=mixTriads;
-function mixTriads(c1, c2, c3, j, k, variety, cSpace)  { // j!==0
-	switch (cSpace)  {
-		case 'cmyk':
-		case 'rgb':  return mixColors(c1, mixColors(c2,c3,k/j), j/variety);
-		break;
-		default:  //round color spaces with a polar factor (hue):
 		// if saturation (chroma) === 0, this is a grayscale, no color;
-		// grayscale values use the "red" hue (0° or 360°)
-		// and we don't want to cycle through all the hues between to grade to a grayscale.
-		if (c3[1]===0)  c3[0]= (c2[1]===0) ? c1[0] : c2[0]+(c1[0]-c2[0])*((variety-j)/variety);
-		if (c2[1]===0)  c2[0]= (c3[1]===0) ? c1[0] : c3[0]+(c1[0]-c3[0])*((variety-j)/variety);
-		// take the shortest path around the circle: counterclockwise or clockwise
-		if (c3[0]-c2[0]>0.5)  c2[0]+=1;
-		else
-		if (c2[0]-c3[0]>0.5)  c3[0]+=1;
-		let c$=mixColors(c2, c3, k/j);  c$[0]%=1;
-		if (c1[1]===0)  c1[0]=c$[0];
-		else
-		if (c$[1]===0)  c$[0]=c1[0];
-		if (c1[0]-c$[0]>0.5)  c$[0]+=1;
-		else
-		if (c$[0]-c1[0]>0.5)  c1[0]+=1;
-		c$=mixColors(c1, c$, j/variety);  c$[0]%=1;
-		return c$;  }  }
+		// “true grayscale” values use the “psuedo-red” hue 360° (i.e. ALL the hues!)
+		// and we don't want to cycle through all the hues between to grade to a true grayscale.
+		// “tinted grayscale” colors use any other hue than 360°,
+		//  and their hue is left alone.
+function normalizeTriadicTrueGrayHues(c1,c2,c3, space)  {
+	var H;
+	switch (space)  {
+	case 'hsv':
+	case 'hsb':
+	case 'hsl':
+	case 'hcg':  H=0;  break;
+	case 'lch':
+	case 'oklch':  H=2;  break;
+	default: return;  }
+	const
+		flag1= (c1[1]<chromaticError  &&  c1[H]===1),
+		flag2= (c2[1]<chromaticError  &&  c2[H]===1),
+		flag3= (c3[1]<chromaticError  &&  c3[H]===1);
+	if (flag1 && !(flag2 || flag3))  interpHue(H,c1,c2,c3);
+	else
+	if (flag2 && !(flag1 || flag3))  interpHue(H,c2,c1,c3);
+	else
+	if (flag3 && !(flag1 || flag2))  interpHue(H,c3,c1,c2);
+	else
+	if (flag1 && flag2)  {c1[H]=c3[H];  c2[H]=c3[H];}
+	else
+	if (flag2 && flag3)  {c2[H]=c1[H];  c3[H]=c1[H];}
+	else
+	if (flag1 && flag3)  {c1[H]=c2[H];  c3[H]=c2[H];}
+	return H;  }
+
+function interpHue(H,cG,cC1,cC2)  {
+	if (cC1[H]-cC2[H]>0.5)  cC2[H]+=1
+	else
+	if (cC2[H]-cC1[H]>0.5)  cC1[H]+=1
+	cG[H]=(cC1[H]+(cC2[H]-cC1[H])*0.5)%1;  }
+
+Gradientor.mixTriads=mixTriads;
+Gradientor.mixTriadsWithHues=mixTriadsWithHues;
+function mixTriads(c1, c2, c3, j, k, variety)  { // j!==0
+	return mixBiads(c1, mixBiads(c2,c3,k/j), j/variety);  }
+function mixTriadsWithHues(c1, c2, c3, j, k, variety, H)  { // j!==0
+	//round color spaces with a polar factor (hue):
+	// take the shortest path around the circle: counterclockwise or clockwise
+	if (c3[H]-c2[H]>0.5)  c2[H]+=1;
+	else
+	if (c2[H]-c3[H]>0.5)  c3[H]+=1;
+	let c$=mixBiads(c2, c3, k/j);  c$[H]%=1;
+	if (c1[H]-c$[H]>0.5)  c$[H]+=1;
+	else
+	if (c$[H]-c1[H]>0.5)  c1[H]+=1;
+	c$=mixBiads(c1, c$, j/variety);  c$[H]%=1;
+	return c$;  }
 
 // we round to get rid of floating-point math errors; this level of accuracy is sufficient for the sRGB gamut (255³)
-const rounder=Math.roundTo.bind(Math, 5);  // ← 5 decimal places
-function mixColors(_1, _2, mix) {return _1.map((c,i)=>rounder(c+(_2[i]-c)*mix));}
+const rounder=Math.roundTo.bind(Math, 7);  // ← 7 decimal places
+function mixBiads(_1, _2, mix) {return _1.map((c,i)=>rounder(c+(_2[i]-c)*mix));}
 
 Gradientor.mixBiads=mixBiads;
-function mixBiads(c1, c2, mix, cSpace)  {
-	switch (cSpace)  {
-		case 'cmyk':
-		case 'rgb':  return mixColors(c1,c2,mix);
-		default:  //round color spaces with a polar factor (hue):
-		// if saturation (chroma) === 0, this is a grayscale, no color;
-		// grayscale values use the "red" hue (0° or 360°)
-		// and we don't want to cycle through all the hues between to grade to a grayscale.
-		if (c1[1]===0)  c1[0]= c2[0];
-		else
-		if (c2[1]===0)  c2[0]= c1[0];
-		// take the shortest path around the circle: counterclockwise or clockwise
-		if (c2[0]-c1[0]>0.5)  c1[0]+=1;
-		else
-		if (c1[0]-c2[0]>0.5)  c2[0]+=1;
-		let c$=mixColors(c1, c2, mix);  c$[0]%=1;
-		return c$;  }  }
+Gradientor.mixBiadsWithHues=mixBiadsWithHues;
+function mixBiadsWithHues(c1, c2, mix, cspace)  {
+	var H=0;
+	switch (cspace)  {
+		case 'lch':
+		case 'oklch': H=2;  }
+	//round color spaces with a polar factor (hue):
+	// if saturation (chroma) === 0, this is a grayscale, no color;
+	// grayscale values use the "red" hue (0° or 360°)
+	// and we don't want to cycle through all the hues between to grade to a grayscale.
+	if (c1[1]<chromaticError  &&  c1.hue===1)  c1[H]= c2[H];
+	else
+	if (c2[1]<chromaticError  &&  c2.hue===1)  c2[H]= c1[H];
+	// take the shortest path around the circle: counterclockwise or clockwise
+	if (c2[H]-c1[H]>0.5)  c1[H]+=1;
+	else
+	if (c1[H]-c2[H]>0.5)  c2[H]+=1;
+	let c$=mixBiads(c1, c2, mix);  c$[H]%=1;
+	return c$;  }
 
 
 const
@@ -5012,7 +5060,7 @@ const
 	MSG_OUT_OF_ORDER='stop positions out of order.';
 
 
-Gradientor.gatherLinearStops=function gradientor_gatherStops(sets, map) {
+Gradientor.gatherLinearStops=function gradientor_gatherStops(sets, map)  {
 	// we depend on “input type numeric” and it guaranteeing the proper unit (percents or pixels); we do not check syntax within
 	// we return an array of objects; or null if any colors or stop-points are invalid.
 	// The returned pos (position) values are factors from 0-1.
@@ -5074,7 +5122,7 @@ Gradientor.gatherLinearStops=function gradientor_gatherStops(sets, map) {
 
 //Gradientor.doLog=true;
 
-Gradientor.processLinearColorStops=function processGradientorColorStops(cSpace) {
+Gradientor.processLinearColorStops=function processGradientorColorStops(cSpace)  {
 	const
 		stops=this.gatherLinearStops(  // ←each has 2 inputs: color and stop-point
 			document.querySelectorAll('#MasterColorPicker_Gradientor_linear-colors fieldset'),
@@ -5082,33 +5130,36 @@ Gradientor.processLinearColorStops=function processGradientorColorStops(cSpace) 
 	if (!(stops instanceof Array))  {
 		if (this.doLog)  console.error('MasterColorPicker Gradientor error: ',stops);
 		return;  }
-	MasterColorPicker.RGB_calc.config.stack({
-		RGBA_Factory: {value: Array},
-		HSLA_Factory: {value: Array},
-		HSBA_Factory: {value: Array},
-		HCGA_Factory: {value: Array},
-		CMYKA_Factory: {value: Array},
-		defaultAlpha: {value: 1}
-		});
-	try { for (const stop of stops)  {
+	//our color_factory “borrows” this config stack – it has the config specs for interpreting user input:
+	MasterColorPicker.RGB_calc.config.stack({defaultAlpha: {value: 1}});
+	try  { for (const stop of stops)  {
 		if (stop.color!="")  {
 			const boogar=stop.color;
-			if (null===(stop.color=MasterColorPicker.RGB_calc.to[cSpace](stop.color)))  {
+			if (stop.color=color_factory.create_A_Color(stop.color))  {
+				stop.color=color_factory.convert_A_Color(stop.color, cSpace, Array);  }
+			else  {
 				if (this.doLog)  console.error('MasterColorPicker Gradientor error: unknown color: “'+boogar+'”');
-				return;  }  }  }
-	} finally {MasterColorPicker.RGB_calc.config.cull();}
+				return;  }  }  }  }
+	finally {MasterColorPicker.RGB_calc.config.cull();}
+	const
+		cspace=cSpace.toLowerCase(),
+		isHued= cspace.includes('h'),
+		mixer = isHued ? mixBiadsWithHues : mixBiads,
+		H= cspace.includes('lch') ? 2 : 0;
 	for (let i=0; i<stops.length; i++)  {
 		if (stops[i].color=="")  {
 			if (i===0  ||  (stops[i+1]?.color)=="")  {
 				if (this.doLog)  console.error('MasterColorPicker Gradientor error: can’t interpolate colors over more than one stop or at end of spectrum; i=',i,stops);
 				return;  }
-			stops[i].color= mixBiads(stops[i-1].color, stops[i+1].color, 0.5, cSpace);  }  }
+			stops[i].color= mixer(stops[i-1].color, stops[i+1].color, 0.5, cspace);  }
+			if (isHued)  stops[i].color.hue=stops[i].color[H];  }
 	if (this.doLog)  console.log('MasterColorPicker Gradientor color stops: ',stops);
 	return stops;  }
 
-Gradientor.buildLinearPalette=function buildGradientorLinearPalette() {
+Gradientor.buildLinearPalette=function buildGradientorLinearPalette()  {
 	const
-		cSpace=colorSpace.value.toLowerCase(),
+		cSpace=colorSpace.value,
+		cspace=cSpace.toLowerCase(),
 		stops=this.processLinearColorStops(cSpace);
 	if (!(stops instanceof Array))  return;
 	const
@@ -5119,77 +5170,92 @@ Gradientor.buildLinearPalette=function buildGradientorLinearPalette() {
 	const
 		context=cnvs.getContext('2d');
 	for (let i=0; i<=variety; i++)  {
-		const
-			$=i/variety,
-			color=this.getColorInGradient(stops, $, cSpace);
-		context.fillStyle= RGB_calc.to.hex(RGB_calc.from[cSpace](color));
-		context.fillRect(Math.floor(i*spaceX), 0, Math.ceil(spaceX), height);  }
+		const color=this.getColorInGradient(stops, i/variety, cspace);
+		const RGB=rgb_calc.from[cspace](color);
+		if (RGB)  {
+			context.fillStyle= rgb_calc.to.hex(RGB);
+			context.fillRect(Math.floor(i*spaceX), 0, Math.ceil(spaceX), height);  }  }
 	Gradientor.HTML.querySelector('canvas').replaceWith(cnvs);  }
 
-Gradientor.getColorInGradient=function Gradientor_getColorInGradient(stops, $x, cSpace)  {
+Gradientor.getColorInGradient=function Gradientor_getColorInGradient(stops, $x, cspace)  {
+	const mixer= cspace.includes('h') ? mixBiadsWithHues : mixBiads;
 	let s=1;
 	while (s<stops.length-1  &&  stops[s].pos<$x)  {s++;}
-	return mixBiads(stops[s-1].color,  stops[s].color,  ($x-stops[s-1].pos) / (stops[s].pos-stops[s-1].pos),  cSpace);  }
+	return mixer(stops[s-1].color,  stops[s].color,  ($x-stops[s-1].pos) / (stops[s].pos-stops[s-1].pos),  cspace);  }
 
 Gradientor.getColor=function Gradientor_getColor(event)  {
 	if (event.target.tagName!=='CANVAS'
 	||  event.offsetX<0  ||  event.offsetX>=width)  return null;
+	//our color_factory “borrows” this config stack – it has the config specs for interpreting user input:
 	MasterColorPicker.RGB_calc.config.stack({
-		RGBA_Factory:{value:Array},
-		defaultAlpha:{value:1}});
+		inputAsFactor:{value:false, writable: true},
+		inputAsNumeric:{value:true},
+		defaultAlpha:{value:1} });
 	try {
 	const
-		cSpace=colorSpace.value.toLowerCase(),
+		cSpace=colorSpace.value,
+		cspace=cSpace.toLowerCase(),
 		variety=parseInt(steps.value)-1;
 	switch (Gradientor.HTML.querySelector('input[name*="format"]:checked').value)  {
-	case 'triadic':
-		const
-			c1=MasterColorPicker.RGB_calc(triads[0].value),
-			c2=MasterColorPicker.RGB_calc(triads[1].value),
-			c3=MasterColorPicker.RGB_calc(triads[2].value);
-		if (!(c1 && c2 && c3))  return;
+	case 'triadic':  {
 		const
 			spaceX=(width/(variety+1))/2,
-			spaceY=spaceX/Math.cos(_['30°']);
-		const j=Math.round((event.offsetY-spaceY)/(spaceY*1.5));
+			spaceY=spaceX/Math.cos(_['30°']),
+			j=Math.round((event.offsetY-spaceY)/(spaceY*1.5));
 		if (j<0  ||  j>variety)  return null;
 		const k=Math.round((event.offsetX-width/2+spaceX*j)/(spaceX*2));
 		if (k<0  ||  k>j)  return null;
-		let c=RGB_calc.to[cSpace](c1);
-		if (j!==0)  c=mixTriads(c, RGB_calc.to[cSpace](c2), RGB_calc.to[cSpace](c3), j,k,variety,cSpace);
-		return new Gradientor.Color_SpecCache(c, cSpace);
-	case 'linear':
-		const
-			stops=Gradientor.processLinearColorStops(cSpace);
+		var
+			c1=color_factory.create_A_Color(triads[0].value),
+			c2=color_factory.create_A_Color(triads[1].value),
+			c3=color_factory.create_A_Color(triads[2].value);
+		if (!(c1 && c2 && c3))  return;
+		let c=color_factory.convert_A_Color(c1, cSpace, Array);
+		if (j!==0)  {
+			c2=color_factory.convert_A_Color(c2, cSpace, Array);
+			c3=color_factory.convert_A_Color(c3, cSpace, Array);
+			const H=normalizeTriadicTrueGrayHues(c,c2,c3, cspace);
+			c=mixTriads(c,c2,c3,j,k,variety,H,cspace );  }
+		MasterColorPicker.RGB_calc.config.inputAsFactor=true;
+		const RGB=MasterColorPicker.RGB_calc.from[cspace](c);
+		return RGB ? new Gradientor.Color_SpecCache(c, RGB, cSpace) : null;  }
+	case 'linear':  {
+		const stops=Gradientor.processLinearColorStops(cSpace);
 		if (!(stops instanceof Array))  return null;
-		return new Gradientor.Color_SpecCache(this.getColorInGradient(stops, Math.floor(event.offsetX/(width/(variety+1)))/(variety), cSpace), cSpace);
+		MasterColorPicker.RGB_calc.config.inputAsFactor=true;
+		const
+			color=this.getColorInGradient(stops, Math.floor(event.offsetX/(width/(variety+1)))/(variety), cspace),
+			RGB=MasterColorPicker.RGB_calc.from[cspace](color);
+		return RGB ?  new Gradientor.Color_SpecCache(color, RGB, cSpace)  :  null;  }
 	default: return null  }
 	} finally {MasterColorPicker.RGB_calc.config.cull();}  }
 
-Gradientor.Color_SpecCache=function(c, space)  {
-		if (!new.target)  throw new Error('“Gradientor.Color_SpecCache” is a constructor, not a function.');
-		space=space.toUpperCase();
-		this.model=space;
-		if (space!=='RGB')  {
-			MasterColorPicker.RGB_calc.config.stack({
-				inputAsFactor: {value: true},
-				RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color}  });
-			try {this.RGB=MasterColorPicker.RGB_calc.from[space.toLowerCase()](c);}
-			finally {MasterColorPicker.RGB_calc.config.cull();}
-			switch (space)  {
-			case 'HSL':  this.HSL=new SoftMoon.WebWare.HSLA_Color(...c);
-			break;
-			case 'HSB':
-			case 'HSV':  this.HSB=new SoftMoon.WebWare.HSBA_Color(...c);
-			break;
-			case 'HCG':  this.HCG=new SoftMoon.WebWare.HCGA_Color(...c);
-			break;
-			case 'CMYK':  this.CMYK=new SoftMoon.WebWare.CMYKA_Color(...c);  }  }
-		else  this.RGB=new SoftMoon.WebWare.RGBA_Color(...c);  }
+Gradientor.Color_SpecCache=function(c, RGB, space)  {
+	if (!new.target)  throw new Error('“Gradientor.Color_SpecCache” is a constructor, not a function.');
+	this.RGB=RGB;
+	this.model=space;
+	if (space!=='RGB')  {
+		switch (space)  {
+		case 'HSL':  this.HSL=new SoftMoon.WebWare.HSLA_Color(...c);
+		break;
+		case 'HSB':
+		case 'HSV':  this.HSB=new SoftMoon.WebWare.HSBA_Color(...c);
+		break;
+		case 'HCG':  this.HCG=new SoftMoon.WebWare.HCGA_Color(...c);
+		break;
+		case 'CMYK':  this.CMYK=new SoftMoon.WebWare.CMYKA_Color(...c);
+		break;
+		case 'LCh':  this.LCh=new SoftMoon.WebWare.LChA_Color(...c);
+		break;
+		case 'Lab':  this.Lab=new SoftMoon.WebWare.LabA_Color(...c);
+		break;
+		case 'OKLCh':  this.OKLCh=new SoftMoon.WebWare.OKLChA_Color(...c);
+		break;
+		case 'OKLab':  this.OKLab=new SoftMoon.WebWare.OKLabA_Color(...c);  }  }  }
 Gradientor.Color_SpecCache.prototype=Object.create(
 			SoftMoon.WebWare.Color_Picker.Color_SpecCache.prototype,
 			{name: {value:'SoftMoon.WebWare.Gradientor.Color_SpecCache'},
-			 constructor: {value: Gradientor.Color_SpecCache}});
+			 constructor: {value: Gradientor.Color_SpecCache}} );
 
 
 
@@ -5750,7 +5816,7 @@ MasterColorPicker=new SoftMoon.WebWare.Picker(  //if you want to debug, you must
 							// chores before MasterColorPicker.pick() adds the text
 							// to the active MasterColorPicker.dataTarget.value
 
-var calcOpts={
+var calcOpts={  // note we ¡¡ RELY !! on the RGB_Calc default values for factories
 	RGBA_Factory: function(r,g,b,a) {return new SoftMoon.WebWare.RGBA_Color(r,g,b,a,{useHexSymbol: true})},
 	useHexSymbol: true  };
 if ("hueAngleUnit" in user) calcOpts.hueAngleUnit=user.hueAngleUnit;  // per SoftMoon.WebWare.RGB_Calc:   'deg' ‖ "°" ‖ 'rad' ‖ "ᴿ" ‖ 'grad' ‖ "%" ‖ 'turn' ‖ "●"
