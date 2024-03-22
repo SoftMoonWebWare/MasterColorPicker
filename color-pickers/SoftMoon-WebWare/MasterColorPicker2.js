@@ -5216,13 +5216,13 @@ Gradientor.getColor=function Gradientor_getColor(event)  {
 			c3=color_factory.convert_A_Color(c3, cSpace, Array);
 			const H=normalizeTriadicTrueGrayHues(c,c2,c3, cspace);
 			c=mixTriads(c,c2,c3,j,k,variety,H,cspace );  }
-		MasterColorPicker.RGB_calc.config.inputAsFactor=true;
+		MasterColorPicker.RGB_calc.config.inputAsFactor=(cspace!=='rgb');
 		const RGB=MasterColorPicker.RGB_calc.from[cspace](c);
 		return RGB ? new Gradientor.Color_SpecCache(c, RGB, cSpace) : null;  }
 	case 'linear':  {
 		const stops=Gradientor.processLinearColorStops(cSpace);
 		if (!(stops instanceof Array))  return null;
-		MasterColorPicker.RGB_calc.config.inputAsFactor=true;
+		MasterColorPicker.RGB_calc.config.inputAsFactor=(cspace!=='rgb');
 		const
 			color=this.getColorInGradient(stops, Math.floor(event.offsetX/(width/(variety+1)))/(variety), cspace),
 			RGB=MasterColorPicker.RGB_calc.from[cspace](color);
