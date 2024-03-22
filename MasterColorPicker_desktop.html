@@ -131,7 +131,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-      release 2.6.3  March 12, 2024
+      release 2.6.4  March 22, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -556,7 +556,7 @@ or pin it to the window when it is pinned to the page.
 
 <div id='MasterColorPicker_Lab' class='pickerPanel' role='tabpanel'>
 <h2 id='MasterColorPicker_Lab_header'>MasterColorPicker<footmark>™</footmark> <span title="press F3 for shortcut">Color-Space Lab</span></h2>
-<table class='primaries'><caption><abbr>RGB</abbr></caption>
+<table class='primaries'><caption><abbr title='standard Red Green Blue'>sRGB</abbr> (8-bit)</caption>
 <tr><th>primary</th><th>byte value</th><th>#hex</th><th>percent%</th><td></td></tr>
 <tr class='red'><th><label for='MasterColorPicker_Rgb_byte' style="color:red">Red:</label></th>
 		<td><input type='numeric' name='MasterColorPicker_Rgb_byte' min='0' max='255' value='0' backtabToTarget='true'></td>
@@ -715,9 +715,13 @@ triadic</label>
 <label>Grade through color-space:<select name='MasterColorPicker_Gradientor_colorSpace'>
 	<option>RGB</option>
 	<option>HSL</option>
-	<option value='hsb'>HSB/HSV</option>
+	<option value='HSB'>HSB/HSV</option>
 	<option>HCG</option>
 	<option>CMYK</option>
+	<option>LCh</option>
+	<option>Lab</option>
+	<option>OKLCh</option>
+	<option>OKLab</option>
 </select></label>
 <fieldset id='MasterColorPicker_Gradientor_linear-colors'><legend>Enter gradient <em>colors</em> and <em>offsets</em> below</legend>
  <p>You may use <code>pixels</code> or percents <code>%</code> or a mix as units for the offsets.&nbsp;
@@ -777,24 +781,25 @@ triadic</label>
  <h2 id='MasterColorPicker_Help_header'>MasterColorPicker<footmark>™</footmark><span title="press F1 for shortcut">☺Help☺</span></h2>
  <div class='scrollbox'>
 	<nav>
-		<button type='button' section='defining-colors' backtabToTarget>defining colors</button>
-		<button type='button' section='Alpha'>using “Alpha” opacity (transparency)</button>
-		<button type='button' section='examples'>example color definitions</button>
-		<button type='button' section='Luminance/Contrast'>Luminance &amp; Contrast</button>
-		<button type='button' section='conversions'>conversions, <abbr>CMYK</abbr>, Chroma, &amp; Hue</button>
-		<button type='button' section='keyboard'>keyboard shortcuts</button>
-		<button type='button' section='MyPalette'>using MyPalette</button>
+		<h6>Contents:</h6>
+		<button type='button' section='defining-colors' backtabToTarget>§ defining colors</button>
+		<button type='button' section='Alpha'>§ using “Alpha” opacity (transparency)</button>
+		<button type='button' section='examples'>§ example color definitions</button>
+		<button type='button' section='Luminance/Contrast'>§ Luminance &amp; Contrast</button>
+		<button type='button' section='conversions'>§ conversions, <abbr>CMYK</abbr>, Chroma, Hue, &amp; gray-scale tones</button>
+		<button type='button' section='keyboard'>§ keyboard shortcuts</button>
+		<button type='button' section='MyPalette'>§ using MyPalette</button>
 			<div>
-			<button type='button' section='MyPalette_alternatives'>alternative color names</button>
-			<button type='button' section='MyPalette_DB'>saving/exporting your palette files</button>
-			<button type='button' section='MyPalette_browserDB'>using the browser’s private storage database</button>
-			<button type='button' section='MyPalette_serverDB'>saving files to a server</button>
-			<button type='button' section='MyPalette_local-file'>saving files to your personal filesystem</button>
-			<button type='button' section='MyPalette_autoload'>auto-loading your palettes when MasterColorPicker<footmark>™</footmark> starts</button>
-			<button type='button' section='MyPalette_CSS-files'>exporting to a CSS file</button>
+			<button type='button' section='MyPalette_alternatives'>§ alternative color names</button>
+			<button type='button' section='MyPalette_DB'>§ saving/exporting your palette files</button>
+			<button type='button' section='MyPalette_browserDB'>§ using the browser’s private storage database</button>
+			<button type='button' section='MyPalette_serverDB'>§ saving files to a server</button>
+			<button type='button' section='MyPalette_local-file'>§ saving files to your personal filesystem</button>
+			<button type='button' section='MyPalette_autoload'>§ auto-loading your palettes when MasterColorPicker<footmark>™</footmark> starts</button>
+			<button type='button' section='MyPalette_CSS-files'>§ exporting to a CSS file</button>
 			</div>
-		<button type='button' section='PltMngr'>using the Palette Manager</button>
-		<button type='button' section='Gradientor' tabToTarget>using the Gradientor</button>
+		<button type='button' section='PltMngr'>§ using the Palette Manager</button>
+		<button type='button' section='Gradientor' tabToTarget>§ using the Gradientor</button>
 	</nav>
 	<h4 id='MasterColorPicker_helpFor_defining-colors'>Colors with MasterColorPicker</h4>
 	<p>MasterColorPicker uses a color-specification based loosely on the CSS4 specs.
@@ -904,8 +909,11 @@ triadic</label>
 				<li>in % of a turn (<kbd>0%—100%</kbd> ← postfixed using the <kbd>%</kbd> symbol).</li>
 				<li>of a turn (<kbd>0●—1●</kbd> ← postfixed using the <kbd>●</kbd> symbol or “<kbd>turn</kbd>”).</li>
 			</ul>
-			<p>Note that “hue” values for “classic” color-spaces are the same for the same hues,
-			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr> &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> hues are different from the “classics”.</p>
+			<p>Remember, hues are “circular” in nature, so <code>360°=0°=720°</code> and </code>10°=370°=−350°</code>.&nbsp;
+			MasterColorPicker “normalizes” whatever hue value you give it, no problems, no limits.&nbsp;
+			Note that “hue” values for “classic” color-spaces are the same for the same hues,
+			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr> &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr>
+			hues are different from the “classics”.</p>
 			<ul class='keybrd'>
 				<li>The “degrees” <kbd>°</kbd> symbol may be entered by typing <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>5%</span></kbd></li>
 				<li>The “radians” <kbd title='circle'>ᶜ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>C</span></kbd></li>
@@ -1006,7 +1014,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions,
-	the <abbr>CMYK<abbr> color spaces, Chroma, &amp; Hue</h4>
+	the <abbr>CMYK<abbr> color spaces, Chroma, Hue, &amp; gray-scale tones</h4>
 
 	<p>Most color-spaces supported herein are based on an <abbr title='Red, Green, Blue'>RGB</abbr> color-space,
 	and the default <abbr title='Red, Green, Blue'>RGB</abbr> “color-profile” is the
@@ -1055,12 +1063,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	Note these reasons are in addition to “round-off” differences noted in the “Options” panel
 	for the “keep precision” option (hover your mouse over it to read the note).&nbsp;
 	You may notice all these differences (including the note on CMYK above)
-	if you use the Color-Space Lab and type in values manually.&nbsp;
-	You may also notice these differences if you use the
-	<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_Gradientor').scrollIntoView();">Gradientor</a>
-	and choose to grade through one of these color-spaces
-	when the color you choose is specified in the same color space,
-	and the color-picker output is also specified in the same color-space.</p>
+	if you use the Color-Space Lab and type in values manually.</p>
 
 	<h6>Chroma:</h6>
 	<p>Chroma is the measure of how much “pure color” is in a color; or in other words how vibrant the color is.&nbsp;
@@ -1096,6 +1099,22 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	the <em><strong>perceived</strong></em> hue (by the human eye) can change (why? see “Chroma” above).&nbsp;
 	The <abbr>OKLCh</abbr> color space is extra special in that it supports the concept
 	of a <em><strong>perceived</strong></em> hue; this makes it the Jedi of color-spaces.</p>
+
+	<h6>gray-scale tones:</h6>
+	<p>In color-space models that use the Hue-dimension, gray tones are described with a Saturation or Chroma value of 0%.&nbsp;
+	In these cases, the Hue value typically (and by general specifications) does not matter.&nbsp;
+	Usually, you see a Hue-value of 0° — i.e. red in <abbr>HSL</abbr>.&nbsp;
+	However, MasterColorPicker specifically distinguishes between “True Gray” tones and “Hued Gray”.&nbsp;
+	<topic>“True Gray”</topic> tones have a Hue value of <strong>360°</strong> or equivalent (i.e. 1 turn, or <em>all the hues at once</em>).&nbsp;
+	In this way, the Hue generally converts to the Hue of 0° in other libraries that for some reason rely on this fact.&nbsp;
+	<topic>“Hued Gray”</topic> tones have a Hue value of anything except 360°.&nbsp;
+	All color-conversions always return “True Gray” tones.&nbsp;
+	Most color-pickers return “True Gray” tones either natively (RainbowMaestro, BeezEye)
+	or by conversion.&nbsp;
+	The Simple² and YinYang NíHóng color-pickers return “Hued Gray” tones natively
+	based on the Hue you are focused on within these color-pickers.&nbsp;
+	This makes a difference when using the
+	<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_Gradientor').scrollIntoView();">Gradientor</a>.</p>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_keyboard'>Keyboard shortcuts:</h4>
@@ -1456,6 +1475,26 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	A good old friend of mine, an old-school digital-graphics designer from the 1990s,
 	and a fine-art oil-paint master who’s favorite style is pointalism,
 	saw this and was quite intrigued about the <em>lower</em> number of interval steps…</p>
+
+	<p><topic>Gray-scale</topic> “tones” are very special to the Gradientor.&nbsp;
+	As <a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_conversions').scrollIntoView();">mentioned above</a>,
+	gray-scale can be either “True Gray” (hue=360°) or “Hued Gray” (hue= anything except 360°).&nbsp;
+	If you grade through a color-space that has a hue-dimension, <strong>and</strong>
+	you define a gray-scale tone <em>in the same color space</em>,
+	it can be a “Hued Gray,” and the gradient will pass through the hues from the corresponding color-stop(s)
+	to the hue defined in the “Hued Gray”, while also grading to the gray itself.&nbsp;
+	If you use a “True Gray” tone, the corresponding color-stop(s) will grade to the gray itself without passing through other hues.&nbsp;
+	Remember, all color-conversions for gray-tones create “True Gray” equivalents,
+	so if you define a “Hued Gray” in <abbr>HSB</abbr> but you grade through <abbr>HSL</abbr>,
+	the “Hued Gray” becomes a “True Gray”.</p>
+
+	<p>When grading through the <abbr>XYZ</abbr>-based color-spaces
+	(<abbr>Lab</abbr>, <abbr>LCh</abbr>, <abbr>OKLab</abbr>, <abbr>OKLCh</abbr>)
+	note that you can define stop-colors that are valid, but that create gaps in the gradient.&nbsp;
+	In the worst case, no gradient at all!&nbsp;
+	This happens when the gradient-line through the color-space leaves the <abbr title='standard Red Green Blue'>sRGB</abbr> color-space.&nbsp;
+	In general, the more Chroma in your color-stops, the more chance that you leave the <abbr>sRGB</abbr> color-space.&nbsp;
+	This is normal; in the future, “clamped” colors and wider display gamuts (beyond <abbr>sRGB</abbr>) will be supported.</p>
 
 	<p>For <topic>triadic gradients</topic>, you can mix three (3) colors together.&nbsp;  Just choose the colors you want.&nbsp;
 	If you choose to mix them in a Hue-based color-space, keep in mind that the Hue-dimension is circular
