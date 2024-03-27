@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.10  March 22, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.10.1  March 25, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
@@ -1742,8 +1742,8 @@ Object.defineProperty(ColorWheel_Color, 'create', {enumerable: true,
 		case 'HSV': return new HSVA_Color(...arguments);
 		case 'HCG': return new HCGA_Color(...arguments);
 		case 'HWB': return new HWBA_Color(...arguments);
-		case 'LCH': return new LChA_Color(...arguments);  // ←this only borrows from the ColorWheelColor prototype
-		case 'OKLCH': return new OKLChA_Color(...arguments);
+		case 'LCH': return new LChA_Color($_2, $_1, $_0, $A, $config, $model);  // ←this only borrows from the ColorWheelColor prototype
+		case 'OKLCH': return new OKLChA_Color($_2, $_1, $_0, $A, $config, $model);
 		default: throw new Error('Unknown ColorWheel_Color model:',$model);  }  }});
 
 
@@ -2787,7 +2787,7 @@ RGB_Calc.from.oklcha=oklch_to_linear_srgb;
 function oklch_to_linear_srgb($lch, _c_isFactor=false)  { // l,c,h → 0.0—1.0   except (not _c_isFactor) c → 0.0—0.4
 	const
 		_c= _c_isFactor ? $lch[1]*0.4 : $lch[1],
-		_h=$lch[2]*2*π;
+		_h=$lch[2]*π2;
 	return oklab_to_linear_srgb.call(this, [$lch[0], _c*Math.cos(_h), _c*Math.sin(_h), $lch[3]]);  }
 
 
@@ -2941,7 +2941,7 @@ function fromLab(lab)  {  // 0 ≤ l ≤ 100   --170 ≤ (a,b) ≤ 170+  (100%=1
 	return      LabA_Array.prototype.to_XYZ.call(lab, XYZA_Array).to_RGB(this.config.RGBA_Factory);  }
 
 RGB_Calc.from.lch=
-RGB_Calc.from.lcha=fromLab;
+RGB_Calc.from.lcha=fromLCh;
 RGB_Calc.definer.quick.from.lch=
 RGB_Calc.definer.quick.from.lcha={enumerable:true, value:fromLCh};
 RGB_Calc.definer.audit.from.lch=
