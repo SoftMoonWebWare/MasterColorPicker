@@ -131,7 +131,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-      release 2.6.4  March 22, 2024
+      release 2.6.5  March 27, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -909,11 +909,8 @@ triadic</label>
 				<li>in % of a turn (<kbd>0%—100%</kbd> ← postfixed using the <kbd>%</kbd> symbol).</li>
 				<li>of a turn (<kbd>0●—1●</kbd> ← postfixed using the <kbd>●</kbd> symbol or “<kbd>turn</kbd>”).</li>
 			</ul>
-			<p>Remember, hues are “circular” in nature, so <code>360°=0°=720°</code> and </code>10°=370°=−350°</code>.&nbsp;
-			MasterColorPicker “normalizes” whatever hue value you give it, no problems, no limits.&nbsp;
-			Note that “hue” values for “classic” color-spaces are the same for the same hues,
-			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr> &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr>
-			hues are different from the “classics”.</p>
+			<p>Note that “hue” values for “classic” color-spaces are the same for the same hues,
+			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr> &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> hues are different from the “classics”.</p>
 			<ul class='keybrd'>
 				<li>The “degrees” <kbd>°</kbd> symbol may be entered by typing <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>5%</span></kbd></li>
 				<li>The “radians” <kbd title='circle'>ᶜ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>C</span></kbd></li>
@@ -1580,9 +1577,9 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 				Processed gradient data is also presented, with stop-positions all converted to factors from 0–1 (i.e. 0%–100%),
 				and colors presented as Arrays of values in the chosen color-space.&nbsp;
 				(click on the Arrays to expand them and see all the values within)&nbsp;
-				Keep in mind that colors are interpreted and converted to <abbr>RGB</abbr>,
-				then to your chosen color-space; and if you defined a color in the same color-space,
-				the back-and-forth conversion to/from <abbr>RGB</abbr> may seem to alter the values you choose —
+				Keep in mind that as colors are interpreted, if a color is not defined in the color-space that you are grading through,
+				it is (typically) converted to <abbr>RGB</abbr> (or perhaps to <abbr>XYZ</abbr>), then to your chosen color-space;
+				the conversion to/from <abbr>RGB</abbr> may seem to alter some of the values you choose —
 				<a onclick="event.preventDefault(); document.getElementById('MasterColorPicker_helpFor_conversions').scrollIntoView();">this is normal</a>.&nbsp;
 				You may need to dock the console to the bottom of the browser’s window,
 				or better yet, keep it in its own window and move it to another screen (if you have 2).</li>
@@ -1629,7 +1626,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 <thead><tr><td colspan='100'><table>
 <tr>
-	<td colspan='6'><label>hue variety: <input type='range' name='hue_variety' value='30' max='100' min='10' step='1' backtabTo='MasterColorPicker_palette_select'></label>
+	<td colspan='6'><label>hue variety: <input type='range' name='hue_variety' value='30' max='100' min='10' step='1' backtabTo='#MasterColorPicker_palette_select'></label>
 									<label>mix variety: <input type='range' name='mix_variety' value='7' max='20' min='5' step='1'></label><br>
 									<label>x-shift: <input type='range' name='x_shift' value='0' max='6.28' min='0' step='0.01'></label>
 									<label>y-shift: <input type='range' name='y_shift' value='0' max='1' min='0' step='0.01'></label>
@@ -1681,8 +1678,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <caption><h6>BeezEye Color Picker™</h6>click to choose</caption>
 <tbody>
 <tr><!-- ROW 1 -->
-	<td><label>Twist<input type='range' name='BeezEye_twist_value'
-		value='50' min='0' max='100' backtabTo='MasterColorPicker_palette_select'></label></td>
+	<td><label>¿<input type='checkbox' name='BeezEye_twist' value='twist' backtabTo='#MasterColorPicker_palette_select'>Twist?
+		<input type='range' name='BeezEye_twist_value' value='50' min='0' max='100'></label></td>
 	<td><fieldset><legend>color space</legend>
 		<dl>
 			<dt>CMYK</dt>
@@ -1693,28 +1690,31 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 				<dd>Hue, Saturation, Lightness</dd>
 			<dt>HCG</dt>
 				<dd>Hue, Chroma, Gray</dd>
+			<dt>LCh</dt>
+				<dd>Lightness, Chroma, hue</dd>
+			<dt>OKLCh</dt>
+				<dd>OK: Lightness, Chroma, hue</dd>
 			<dt>Curve</dt>
-				<dd>modulates the saturation rate</dd>
+				<dd>modulates the saturation/chromatic rate</dd>
 			<dt>Twist</dt>
 				<dd>twists the color-disk at its center to make it easier to find progressive color-series</dd>
 		</dl>
-		<label><input type='radio' name='BeezEye_model' value='cmyk'
-			backtabTo="document.getElementById('BeezEye_twist').checked ? undefined : MasterColorPicker.picker_select">CMYK</label>
-		<label><input type='radio' name='BeezEye_model' value='hsv'>HSV / HSB</label>
-		<label><input type='radio' name='BeezEye_model' value='hsl' checked>HSL</label>
-		<label><input type='radio' name='BeezEye_model' value='hcg'>HCG</label>
-		<label>¿<input type='checkbox' name='BeezEye_curve' value='curve'>curve?</label>
-		<label>¿<input type='checkbox' name='BeezEye_twist' id='BeezEye_twist' value='twist'>twist?</label>
+		<label><input type='radio' name='BeezEye_model' value='CMYK'>CMYK</label>
+		<label><input type='radio' name='BeezEye_model' value='HSV'>HSV / HSB</label>
+		<label><input type='radio' name='BeezEye_model' value='HSL' checked>HSL</label>
+		<label><input type='radio' name='BeezEye_model' value='HCG'>HCG</label>
+		<label><input type='radio' name='BeezEye_model' value='LCh'>LCh</label>
+		<label><input type='radio' name='BeezEye_model' value='OKLCh'>OKLCh</label>
 		</fieldset>
 	</td>
 </tr>
 <tr><!-- ROW 2 -->
 	<td rowspan='2'><canvas width='360' height='360'></canvas></td>
-	<td><label>Brightness <span>Value</span><input type='numeric-slider' name='BeezEye_value' value='50' min='0' max='100'></label></td>
+	<td><label>Brightness <span>Value</span><input type='numeric-slider' name='BeezEye_value' value='50' min='0' max='100' step='any' bump='0.5'></label></td>
 </tr>
 <tr><!-- ROW 3 -->
 	<td><fieldset>
-		<label>Curve<input type='range' name='BeezEye_curve_value' value='50' min='1' max='100'></label>
+		<label>¿<input type='checkbox' name='BeezEye_curve' value='curve'>Curve?<input type='range' name='BeezEye_curve_value' value='50' min='1' max='100'></label>
 		<label><input type='checkbox' name='BeezEye_curve_midring' value='midring'> Mid–Ring</label>
 		</fieldset>
 	</td>
@@ -1732,7 +1732,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <table class='picker palette' id='RainbowMaestro'><caption><h6>RainbowMaestro Harmonic Color Picker™</h6>click to choose</caption>
 <thead>
 	<tr><td colspan='2'>
-	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked backtabTo='MasterColorPicker_palette_select'>websafe</label>
+	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked backtabTo='#MasterColorPicker_palette_select'>websafe</label>
 	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true' onfocus="this.parentNode.className='focusWithin'" onblur="this.parentNode.className=''">split-compliments<note> and analogous</note></label>
 	<label><input type='checkbox' name='RainbowMaestro_colorblind' value='true' checked>colorblind assist<footmark>‡</footmark></label>
 	<label><input type='checkbox' name='RainbowMaestro_lock' value='true'>lock focal hue</label>
@@ -1771,7 +1771,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <td colspan='2'   style='border: 1px solid; border-bottom: none'
 		>Chroma<br><span class='begin'>«0→</span>←‖1‖→<span class='end'>←0»</span></td>
 <td colspan='2' onmouseup='UniDOM.generateEvent(this.querySelector("input"), "tabIn", {bubbles:true})'><indicator id='Simple²hue'>359.999°</indicator>
-	<label id='Simple²_hueIndicator'>Focal hue:<input type='numeric' name='Simple²_focalHue' value='180' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' backtabTo='MasterColorPicker_palette_select'>
+	<label id='Simple²_hueIndicator'>Focal hue:<input type='numeric' name='Simple²_focalHue' value='180' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' backtabTo='#MasterColorPicker_palette_select'>
 		<span class='hueIndicator'>&nbsp;</span><dfn>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.</dfn></label>
 </td>
 </tr>
@@ -1828,7 +1828,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <table class='picker palette' id='YinYangNíHóng'><caption><h6>YinYang NíHóng<span>the Tao of Color Pickers™</span></h6>click to choose</caption>
 <thead>
 <tr>
-	<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='MasterColorPicker_palette_select'>HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
+	<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='#MasterColorPicker_palette_select'>HSB / HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
 	<td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked>HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
 	<td><label><input type='radio' name='YinYang NíHóng' value='HCG'>HCG<dfn>Hue, Chroma, Gray</dfn></label></td>
 </tr>
@@ -1852,7 +1852,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 <div class='picker palette' id='MasterColorPicker_EyeDropper'><h6>Eye-Dropper color picker</h6>
 <tools>
-	<fieldset><button title='full-screen' backtabTo='MasterColorPicker_palette_select'>╬</button><button title='panel'>□</button></fieldset>
+	<fieldset><button title='full-screen' backtabTo='#MasterColorPicker_palette_select'>╬</button><button title='panel'>□</button></fieldset>
 	<label>Choose an image file or drag an image or its file here:
 	<input type='file' accept='image/*'></label>
 	<label>Sample size<input type='range' name='MasterColorPicker_EyeDropper_size' value='0' min='0' max='7' step='1'></label>
