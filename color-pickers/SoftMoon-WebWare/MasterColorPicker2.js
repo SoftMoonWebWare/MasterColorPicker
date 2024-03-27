@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.4~BETA   March 22, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.5~BETA   March 27, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -2261,13 +2261,22 @@ BeezEye.buildPalette=function()  {
 	replacement.style.width=w+'px';    //  w ↔ size    / does not
 	replacement.style.height=h+'px';   //  h ↔ size    \ take effect (at least not within a fixed-position table…)
 
-	color_value=settings.value.value;
-
 	RGB_Calc.config.stack({
 		RGBA_Factory: {value: Array},
 		useHexSymbol: {value: true}  });
 
 	SoftMoon.WebWare.HSVA_Color.config.CMYKA_Factory=Array;
+
+	var model;
+	for (i=0; i<settings.model.length; i++)  {
+		if (settings.model[i].checked)  {model=settings.model[i].value.toLowerCase();  break;}  }
+
+	if (model.includes('lch'))  {
+		canvas.strokeStyle="#FFFFFF";
+		canvas.beginPath();
+		canvas.arc(center.x, center.y, w/2, 0, π2);
+		canvas.stroke();
+		canvas.closePath();  }
 
 	for (let rows=0, flag=false;  rows<h/2;  rows+=space.y, flag=!flag)  {  // h ↔ size
 		for (let cells= flag ? (space.x/2) : 0;  cells<w/2;  cells+=space.x)  {   // w ↔ size
@@ -2277,33 +2286,37 @@ BeezEye.buildPalette=function()  {
 
 	function drawHex(cell, row)  {
 		BeezEye.calcNativeHSV(cell, row, maxSatPoint);  //→↓ globals ↓
-		if (saturation>100)  return;
-		canvas.fillStyle=RGB_Calc.to.hex(BeezEye.nativeToRGB(hue, saturation, color_value));
-		canvas.beginPath();
-		hexagon(center.x+cell, center.y-row, radius, radius);
-		canvas.closePath();
-		canvas.fill();  }  }
+		if (saturation>1)  return;
+		const RGB=BeezEye.nativeToRGB(hue, saturation, color_value, model);
+		if (RGB)  {
+			canvas.fillStyle=RGB_Calc.to.hex(RGB);
+			canvas.beginPath();
+			hexagon(center.x+cell, center.y-row, radius, radius);
+			canvas.closePath();
+			canvas.fill();  }  }  }
 
 
-BeezEye.nativeToRGB=function(h,s,v)  {
-	var i, model;
-	for (i=0; i<settings.model.length; i++)  {
-		if (settings.model[i].checked)  {model=settings.model[i].value.toLowerCase();  break;}  }
+BeezEye.nativeToRGB=function(h,s,v,model)  {
+	var i, cPer;
 	switch (model)  {
 	case 'cmyk':
-		return RGB_Calc.from.cmyk(SoftMoon.WebWare.HSVA_Color.to_CMYK([h/360, s/100, v/100]));
+		return RGB_Calc.from.cmyk(SoftMoon.WebWare.HSVA_Color.to_CMYK([h, s, v]));
+	// ↓ maximum chroma in the sRGB gamut
+	case 'lch':   cPer=133.8084163491125;
+	case 'oklch': cPer??=0.32249096477516437;
+		return RGB_Calc.from[model]([v, s*cPer, h]);
 	default:
-		return RGB_Calc.from[model]([h/360, s/100, v/100]);  }  }
+		return RGB_Calc.from[model]([h, s, v]);  }  }
 
 
 BeezEye.calcNativeHSV=function(x, y, maxRadius)  {  // {x,y} are Cartesian co-ordinates
-	hue=(Math.Trig.getAngle(x,y)/π)*180;
+	hue=Math.Trig.getAngle(x,y)/π2;
 	saturation=Math.sqrt(x*x+y*y)/maxRadius;
 	var twist,
 			curve= settings.curve.checked ?  settings.curve_value.value : false;   //  0 < curve <= 100
 	if (settings.twist.checked  &&  saturation<1)  {
 		twist=settings.twist_value.value-50;    //  0 <= twist <= 100
-		hue=Math.deg(hue+360*(twist/50)*(1-saturation));  }
+		hue=Math.turn(hue+(twist/50)*(1-saturation));  }
 	if (curve  &&  saturation>0  &&  saturation<1)  {
 		if (settings.curve_midring.checked)  {
 			if (curve<=50)  curve=1-((51-curve)/50);  //  curve becomes:  0 < curve <= 1
@@ -2313,10 +2326,10 @@ BeezEye.calcNativeHSV=function(x, y, maxRadius)  {  // {x,y} are Cartesian co-or
 			if (curve<=50)  curve=1-((51-curve)/50);  //  curve becomes:  0 < curve <= 1
 			else            curve=((curve-50)/25)+1;  //  curve becomes:  1 < curve <= 3
 			saturation=Math.sin(Math.atan( Math.tan( saturation * π_2 ) / curve ) + π*1.5) + 1;  }  }
-	color_value=parseInt(color_value  ||  settings.value.value);
+	color_value=parseFloat(settings.value.value)/100;
 	//  the return value variables are global to BeezEye.buildPalette and BeezEye.getColor, and the return value is therein ignored.
 	// hue format is degrees; others are as percents (0-100) although saturation may be greater than 100 meaning the color is invalid: {x,y} is out of the BeezEye
-	return [hue, saturation*=100, color_value];  }
+	return [hue, saturation, color_value];  }
 
 
 BeezEye.getColor=function(event)  {
@@ -2338,49 +2351,92 @@ BeezEye.getColor=function(event)  {
 	y=row*space.y;
 	if (row%2)  x+=space.x/2;
 	BeezEye.calcNativeHSV(x, y, maxSatPoint);  // globals ↓
-	if (saturation>100)  return;
-	if (saturation===0)  hue=360;
-	return new BeezEye.Color_SpecCache(hue, saturation, color_value);  }
+	if (saturation>1)  return;
+	if (saturation===0)  hue=1;
+	var i, model;
+	for (i=0; i<settings.model.length; i++)  {
+		if (settings.model[i].checked)  {model=settings.model[i].value;  break;}  }
+	MasterColorPicker.RGB_calc.config.stack({inputAsFactor: {value: true}, inputAsNumeric: {value: true}, preserveInputArrays: {value: true}});
+	try {
+	if (model==='CMYK')  {
+		SoftMoon.WebWare.HSVA_Color.config.CMYKA_Factory=SoftMoon.WebWare.CMYKA_Color;
+		const
+			CMYK=SoftMoon.WebWare.HSVA_Color.to_CMYK([hue, saturation, color_value]),
+			RGB=MasterColorPicker.RGB_calc.from.cmyk(CMYK);
+		return new BeezEye.Color_SpecCache(RGB, CMYK, model);  }
+	else  {
+		let cPer=1;
+		switch (model)  {  // ↓ maximum chroma in the sRGB gamut
+			case 'LCh':   cPer=133.8084163491125;
+			break;
+			case 'OKLCh': cPer=0.32249096477516437;  }
+		const
+			RGB= (model.includes('LCh')) ?
+					MasterColorPicker.RGB_calc.from[model.toLowerCase()]([color_value, saturation*cPer, hue])
+				: MasterColorPicker.RGB_calc.from[model.toLowerCase()]([hue, saturation, color_value]);
+		if (RGB)
+			return new BeezEye.Color_SpecCache(RGB, SoftMoon.WebWare.ColorWheel_Color.create(hue, saturation*cPer, color_value, undefined, undefined, model), model);  }  }
+	finally {MasterColorPicker.RGB_calc.config.cull();}  }
 
-BeezEye.Color_SpecCache=function(h, s, v)  { // degrees, percent, percent  → but ¡NO percent% or degrees° marks!
+BeezEye.Color_SpecCache=function(RGB, color, model)  {
 		if (!new.target)  throw new Error('SoftMoon.WebWare.BeezEye.Color_SpecCache is a constructor, not a function.');
-		var i, model;
-		for (i=0; i<settings.model.length; i++)  {
-			if (settings.model[i].checked)  {model=settings.model[i].value.toUpperCase();  break;}  }
+		this.RGB=RGB;
 		this.model=model;
-		h/=360; s/=100;  v/=100;
-		MasterColorPicker.RGB_calc.config.stack({inputAsFactor: {value: true}, preserveInputArrays: {value: true}});
-		try {
-		if (model==='CMYK')  {
-			SoftMoon.WebWare.HSVA_Color.config.CMYKA_Factory=SoftMoon.WebWare.CMYKA_Color;
-			this.CMYK=SoftMoon.WebWare.HSVA_Color.to_CMYK([h, s, v]);
-			this.RGB=MasterColorPicker.RGB_calc.from.cmyk(this.CMYK);
-			}
-		else  {
-			this[model]=SoftMoon.WebWare.ColorWheel_Color.create(h, s, v, undefined, undefined, model);
-			this.RGB=MasterColorPicker.RGB_calc.from[model.toLowerCase()]([h, s, v]);
-			}  }
-		finally {MasterColorPicker.RGB_calc.config.cull();}  }
+		this[model]=color;  }
 BeezEye.Color_SpecCache.prototype=Object.create(
 			SoftMoon.WebWare.Color_Picker.Color_SpecCache,
 			{name: {value: "BeezEye.Color_SpecCache"},
 			 constructor: {value: BeezEye.Color_SpecCache}});
 
+/*
+for (var cMax=0, OKcMax=0, b=0;  b<256;  b++)  {
+	let chromatic=RGB_Calc.to.lch([255,0,b]);
+	cMax=Math.max(cMax, chromatic[1]);
+	chromatic=RGB_Calc.to.lch([0,255,b]);
+	cMax=Math.max(cMax, chromatic[1]);
+	chromatic=RGB_Calc.to.lch([255,b,0]);
+	cMax=Math.max(cMax, chromatic[1]);
+	chromatic=RGB_Calc.to.lch([0,b,255]);
+	cMax=Math.max(cMax, chromatic[1]);
+	chromatic=RGB_Calc.to.lch([b,255,0]);
+	cMax=Math.max(cMax, chromatic[1]);
+	chromatic=RGB_Calc.to.lch([b,0,255]);
+	cMax=Math.max(cMax, chromatic[1]);
+
+	chromatic=RGB_Calc.to.oklch([255,0,b]);
+	OKcMax=Math.max(OKcMax, chromatic[1]);
+	chromatic=RGB_Calc.to.oklch([0,255,b]);
+	OKcMax=Math.max(OKcMax, chromatic[1]);
+	chromatic=RGB_Calc.to.oklch([255,b,0]);
+	OKcMax=Math.max(OKcMax, chromatic[1]);
+	chromatic=RGB_Calc.to.oklch([0,b,255]);
+	OKcMax=Math.max(OKcMax, chromatic[1]);
+	chromatic=RGB_Calc.to.oklch([b,255,0]);
+	OKcMax=Math.max(OKcMax, chromatic[1]);
+	chromatic=RGB_Calc.to.oklch([b,0,255]);
+	OKcMax=Math.max(OKcMax, chromatic[1]);
+}
+console.log('maximum chroma for LCh in sRGB:',cMax,'\nmaximum chroma for OKLCh in sRGB:',OKcMax);  // 133.8084163491125   0.32249096477516437
+ */
+
+
 
 UniDOM.addEventHandler(window, 'onload', function()  {
 		//first we set the private global members                                        ↓  this defines property names (of the array-object: settings)
 		settings=UniDOM.getElementsBy$Name(document.getElementById('BeezEye'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <input>s) into an array, with corresponding properties
-		const
-			lbl=settings.value.parentNode,
-			crv=settings.curve_value,
-			twt=settings.twist_value;
+		const lbl=settings.value.parentNode;
 		for (let i=0; i<settings.model.length; i++)  {
 			UniDOM.addEventHandler(settings.model[i], 'onchange', setColorSpace);
 			if (settings.model[i].checked)  setColorSpace.call(settings.model[i], false);  }
-		UniDOM.addEventHandler(settings.curve, 'onchange', setColorSpace);
-		setColorSpace.call(settings.curve, false);
-		UniDOM.addEventHandler(settings.twist, 'onchange', setColorSpace);
-		setColorSpace.call(settings.twist, false);
+		UniDOM.addEventHandler(settings.curve, 'onchange', function toggleExtras(event)  {
+			this.closest('fieldset').querySelector('input[type="range"]').disabled=!this.checked;
+			UniDOM.disable(this.closest('label').nextElementSibling, !this.checked);
+			if (event.isTrusted)  BeezEye.buildPalette();  });
+		UniDOM.generateEvent(settings.curve, 'change', {bubbles:false})
+		UniDOM.addEventHandler(settings.twist, 'onchange', function toggleExtras(event)  {
+			this.closest('label').querySelector('input[type="range"]').disabled=!this.checked;
+			if (event.isTrusted)  BeezEye.buildPalette();  });
+		UniDOM.generateEvent(settings.twist, 'change', {bubbles:false})
 		UniDOM.addEventHandler(settings.value, 'onchange', BeezEye.buildPalette);
 		UniDOM.addEventHandler(settings.variety, 'onchange', BeezEye.buildPalette);
 		UniDOM.addEventHandler(settings.curve_value, 'onchange', BeezEye.buildPalette);
@@ -2397,10 +2453,10 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			case 'cmyk': lbl.firstChild.data='Black';  lbl.childNodes[1].firstChild.data='(K)';  break;
 			case 'hsv':
 			case 'hsb': lbl.firstChild.data='Brightness';  lbl.childNodes[1].firstChild.data='Value';  break;
+			case 'lch':
+			case 'oklch':
 			case 'hsl': lbl.firstChild.data='Lightness';  lbl.childNodes[1].firstChild.data='';  break;
-			case 'hcg': lbl.firstChild.data='Gray';  lbl.childNodes[1].firstChild.data='';  break;
-			case 'curve': UniDOM.disable(crv.parentNode.parentNode, !this.checked);  break;
-			case 'twist': UniDOM.disable(twt.parentNode, !this.checked);  break;  }
+			case 'hcg': lbl.firstChild.data='Gray';  lbl.childNodes[1].firstChild.data='';  break;  }
 			if (flag)  BeezEye.buildPalette();  }
 		});  // close window onload
 

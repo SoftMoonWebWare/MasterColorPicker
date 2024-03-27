@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.3  March 12, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.5  March 27, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -2067,8 +2067,7 @@ table#BeezEye {
 	overflow: hidden; /*fix Opera*/
 	 }
 table#BeezEye caption {
-	width: 360px;
-	width: 100%;
+	width: calc(100% - 1.618em); /* make space for the “twist” input-range */
 	padding-bottom: 1em; }
 table#BeezEye canvas {
 	width: 360px;
@@ -2082,16 +2081,11 @@ table#BeezEye label {
 	margin: 0;
 	padding: 0;
 	display: inline-block;  }
-table#BeezEye fieldset label input {
+table#BeezEye fieldset input[type="checkbox"],
+table#BeezEye fieldset input[type="radio"] {
 	display: inline; }
-table#BeezEye input[name='BeezEye_twist_value'],
-table#BeezEye fieldset label input[name='BeezEye_curve_value'],
-table#BeezEye input[name='BeezEye_value'],
-table#BeezEye tr:first-child td:first-child span.MCP_fix_Safari,
-table#BeezEye tr:nth-child(3) fieldset label:first-child span.MCP_fix_Safari {
+table#BeezEye input[type="range"] {
 	display: block; }
-table#BeezEye tr:first-child td:first-child span.MCP_fix_Safari input[name='BeezEye_twist_value'],
-table#BeezEye tr:nth-child(3) fieldset label:first-child span.MCP_fix_Safari input[name='BeezEye_curve_value'],
 table#BeezEye input[name='BeezEye_variety'] {
 	display: inline; }
 table#BeezEye input[name='BeezEye_value'] {
@@ -2127,7 +2121,8 @@ table#BeezEye fieldset:hover dl {
 table#BeezEye fieldset label {
 	display: block; }
 
-table#BeezEye .disabled {
+table#BeezEye .disabled,
+table#BeezEye :disabled {
 	visibility: hidden; }
 
 table#BeezEye tr:first-child td:first-child label {
@@ -2152,6 +2147,7 @@ table#BeezEye tr:nth-child(2) label span {
 	padding-left: 1.618em;  }
 
 table#BeezEye tr:nth-child(2) label input[type="text"] {
+	display: block;
 	color: black;
 	background-color: white;
 	transform: rotate(-270deg);
@@ -2176,10 +2172,10 @@ table#BeezEye tr:nth-child(3) fieldset label:first-child {
 	text-align: center;
 	transform: rotate(315deg);
 	z-index: 2; }
-
 table#BeezEye tr:nth-child(3) fieldset label:last-child {
 	margin: .382em;
 	white-space: nowrap; }
+
 table#BeezEye tr:nth-child(4) td:last-child {
 	color: black;
 	border: 1px solid;
