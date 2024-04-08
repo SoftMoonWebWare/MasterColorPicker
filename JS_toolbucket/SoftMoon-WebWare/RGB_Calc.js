@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.10.1  March 25, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.10.2  April 6, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
@@ -29,6 +29,7 @@
 
 // requires  “+++.js”  ←in  JS_toolbucket/+++JS/
 // requires  “+++Math.js”  ←in  JS_toolbucket/++JS/
+// requires  “Björn_Ottosson.OK_color_space_models.js”  ←in  JS_toolbucket/
 // requires  “HTTP.js”  ←in  JS_toolbucket/SoftMoon-WebWare/    ← only when downloading color-palette tables from the web via ajax.  They may be included in other ways.
 //  ↑ ↑ ↑ This codebase does not initiate HTTP connections on its own.
 //  ↑ ↑ ↑ Your host environment code must handle that and you must understand how to do that and what that process does.
@@ -415,6 +416,28 @@ const hueAngleUnitFactors=Math.Trig.angleUnitFactors;
  */
 
 
+// http://www.brucelindbloom.com/index.html?WorkingSpaceInfo.html#Specifications
+const colorProfiles={
+												// gamma values     we only have a “standard” matrix for D65 right now… but D50_Lindbloom is our D50 standard stand-in
+	"Adobe RGB (1998)": {γCorrection: 2.2, illuminant: 'D65'},
+	"Apple RGB":        {γCorrection: 1.8, illuminant: 'D65'},
+	"Best RGB":         {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
+	"Beta RGB":         {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
+	"Bruce RGB":        {γCorrection: 2.2, illuminant: 'D65'},
+	"CIE RGB":          {γCorrection: 2.2, illuminant: 'E'  },
+	"ColorMatch RGB":   {γCorrection: 1.8, illuminant: 'D50'},  // D50_Lindbloom
+	"Don RGB 4":        {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
+	"Ekta Space PS5":   {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
+	"NTSC RGB":         {γCorrection: 2.2, illuminant: 'C'  },
+	"PAL/SECAM RGB":    {γCorrection: 2.2, illuminant: 'D65'},  // γCorrection=2.8 ← https://en.wikipedia.org/wiki/Gamma_correction
+	"ProPhoto RGB":     {γCorrection: 1.8, illuminant: 'D50'},  // D50_Lindbloom
+	"SMPTE-C RGB":      {γCorrection: 2.2, illuminant: 'D65'},
+	"Wide Gamut RGB":   {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom  //wikipedia says γCorrection=563/256, or 2.19921875
+	"sRGB":             {γCorrection: "≈2.2", illuminant: 'D65'}  //←gamma-correction is done using another method for sRGB
+};
+Object.deepFreeze(colorProfiles);
+
+
 
 //===============================================================
 //  These functions are shared by the Color objects and RGB_Calc
@@ -442,6 +465,7 @@ function getByteValue(v)  {
 function getHueFactor(h)  {
 	var m, unit=this.config.hueAngleUnit;
 	if (typeof h === 'string')  {
+		if (h==='none')  return 1;
 		if (m=h.match( RegExp.Hue ))  {h=parseFloat(m[1]);  unit= (m=m[2]) || unit;}
 		else {console.error('bad hue:'+h+'  unit: '+unit);  return false;  }  }
 	else if (h instanceof Number  &&  (h.unit in hueAngleUnitFactors))
@@ -506,6 +530,41 @@ function applyAlpha(c_o, a, source)  {
 		else  c_o.alpha=a;
 		return c_o;  }
 	return this.config.onError('Can not apply add-on alpha to unknown Color object. ', source);  }
+
+
+function γCorrect_linear_RGB(r,g,b,a, profile)  {
+	//gamma correction
+	const
+		bits=this.config.RGB_bitDepth;  //sRGB=255
+	if (profile === 'sRGB')  {
+		    // ¿ 0.00304 ?
+		r = (r > 0.0031308) ?  1.055 * Math.pow(r, 1/2.4) - 0.055  :  12.92 * r;
+		g = (g > 0.0031308) ?  1.055 * Math.pow(g, 1/2.4) - 0.055  :  12.92 * g;
+		b = (b > 0.0031308) ?  1.055 * Math.pow(b, 1/2.4) - 0.055  :  12.92 * b;  }
+	else {
+		const γ=1/colorProfiles[profile].γCorrection;
+		r = Math.pow(r, γ);
+		g = Math.pow(g, γ);
+		b = Math.pow(b, γ);  }
+	return this.outputClampedRGB(r*bits, g*bits, b*bits, a);  }
+
+function linearize_γCorrected_RGB(rgb, profile)  {
+	const
+		bits=this.config.RGB_bitDepth;  //sRGB=255
+	var
+		R = rgb[0] / bits,
+		G = rgb[1] / bits,
+		B = rgb[2] / bits;
+	if (profile === 'sRGB')  {
+		R = (R > 0.04045) ? Math.pow(((R + 0.055) / 1.055), 2.4) : R / 12.92;
+		G = (G > 0.04045) ? Math.pow(((G + 0.055) / 1.055), 2.4) : G / 12.92;
+		B = (B > 0.04045) ? Math.pow(((B + 0.055) / 1.055), 2.4) : B / 12.92;  }
+	else  {
+		const γ=colorProfiles[profile].γCorrection;
+		R = Math.pow(R, γ);
+		G = Math.pow(G, γ);
+		B = Math.pow(B, γ);  }
+	return [R,G,B,rgb[3]];  }
 
 
 const round=Math.round;
@@ -663,27 +722,6 @@ Object.defineProperties( ConfigStack.prototype, {
 			while (!this.owner.config.hasOwnProperty("owner"))  {
 				this.owner.config=Object.getPrototypeOf(this.owner.config);  }
 			return this.owner.config;  }  }  } );
-
-// http://www.brucelindbloom.com/index.html?WorkingSpaceInfo.html#Specifications
-const colorProfiles={
-												// gamma values     we only have a “standard” matrix for D65 right now… but D50_Lindbloom is our D50 standard stand-in
-	"Adobe RGB (1998)": {γCorrection: 2.2, illuminant: 'D65'},
-	"Apple RGB":        {γCorrection: 1.8, illuminant: 'D65'},
-	"Best RGB":         {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
-	"Beta RGB":         {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
-	"Bruce RGB":        {γCorrection: 2.2, illuminant: 'D65'},
-	"CIE RGB":          {γCorrection: 2.2, illuminant: 'E'  },
-	"ColorMatch RGB":   {γCorrection: 1.8, illuminant: 'D50'},  // D50_Lindbloom
-	"Don RGB 4":        {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
-	"Ekta Space PS5":   {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
-	"NTSC RGB":         {γCorrection: 2.2, illuminant: 'C'  },
-	"PAL/SECAM RGB":    {γCorrection: 2.2, illuminant: 'D65'},  // γCorrection=2.8 ← https://en.wikipedia.org/wiki/Gamma_correction
-	"ProPhoto RGB":     {γCorrection: 1.8, illuminant: 'D50'},  // D50_Lindbloom
-	"SMPTE-C RGB":      {γCorrection: 2.2, illuminant: 'D65'},
-	"Wide Gamut RGB":   {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom  //wikipedia says γCorrection=563/256, or 2.19921875
-	"sRGB":             {γCorrection: "≈2.2", illuminant: 'D65'}  //←gamma-correction is done using another method for sRGB
-};
-Object.deepFreeze(colorProfiles);
 
 
 
@@ -1314,7 +1352,7 @@ class OKLChA_Color extends ColorWheel_Color  {
 			alpha:     def[3],
 			opacity:   def[3],
 			to: {value: Object.defineProperty(new Object,
-				'rgb',  {get:  oklch_to_linear_srgb.bind(this, this),  enumerable: true})}  });  }  }
+				'rgb',  {get:  Björn_Ottosson.oklch_to_srgb.bind(this, this),  enumerable: true})}  });  }  }
 
 Object.defineProperties(OKLChA_Color.prototype, {
 	model: {value: "OKLCh"},
@@ -1362,7 +1400,7 @@ class OKLabA_Color extends Array  {   // 0 ≤ [$L] ≤ 1     0 ≤ [$A,$B] ≤ 
 			alpha:     def[3],
 			opacity:   def[3],
 			to: {value: Object.defineProperty(new Object,
-				'rgb',  {get:  oklab_to_linear_srgb.bind(this, this),  enumerable: true})}  });  };
+				'rgb',  {get:  Björn_Ottosson.oklab_to_srgb.bind(this, this),  enumerable: true})}  });  };
 
 	toString(format)  {
 		if (typeof format != 'string')  format="";
@@ -1403,7 +1441,7 @@ Object.defineProperties(OKLabA_Color.prototype, {
 	abPer: {value: 0.4},
 	abMax: {value: 0.5},
 	getAlpha: {value: getAlphaFactor},
-	outputRGB: {value: outputRGB},
+	γCorrect_linear_RGB: {value: γCorrect_linear_RGB},
 	outputClampedRGB: {value: outputClampedRGB} });
 
 SoftMoon.WebWare.OKLabA_Color=OKLabA_Color;
@@ -1633,6 +1671,7 @@ class XYZA_Array extends Array  {
 
 Object.defineProperties(XYZA_Array.prototype, {
 	model: {value: 'XYZ'},
+	γCorrect_linear_RGB: {value: γCorrect_linear_RGB},
 	outputRGB: {value: outputRGB},
 	outputClampedRGB: {value: outputClampedRGB},
 	config: {writable:true, value: new ConfigStack(XYZA_Array.prototype, {roundRGB:false, defaultAlpha:undefined, colorProfile:'sRGB', RGB_bitDepth:255, RGBA_Factory: Array, LabA_Factory: LabA_Array})} });
@@ -1872,14 +1911,16 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 //===============================================================
 
 const
-	defProps1={  // these are worker methods of a calculator & a ColorFactory
+	defProps1={  // these are worker methods of a Calculator & a ColorFactory
 		getByte:     {value: getByteValue},
 		getFactor:   {value: getFactorValue},
 		getAB_value: {value: getAB_value},  // for OKLab & OKLCh & Lab & LCh
 		getHueFactor:{value: getHueFactor},
 		getAlpha:    {value: getAlphaFactor},
 		factorize:   {value: factorize},
-		applyAlpha:  {value: applyAlpha} },
+		applyAlpha:  {value: applyAlpha},
+		γCorrect_linear_RGB:      {value: γCorrect_linear_RGB},
+		linearize_γCorrected_RGB: {value: linearize_γCorrected_RGB} },
 	defProps2={  // these are worker methods of a calculator
 		multiplyAddOnAlpha: {value: multiplyAddOnAlpha},
 		convertColor:{value: convertColor}  /*for plug-ins*/
@@ -2293,39 +2334,25 @@ RGB_Calc.definer.audit.to.oklab={value: function() {return convertColor.call(thi
 function toOKLab(srgb, factory)  { //RGB from 0 to 255
 	factory??=this.config.OKLabA_Factory;
 	const
-		lab=linear_srgb_to_oklab(srgb),
+		lab=Björn_Ottosson.srgb_to_oklab.call(this, srgb),
 		A= (typeof srgb[3] === undefined) ? this.config.defaultAlpha : srgb[3];
 	if (A===undefined)  return new factory(...lab);
 	else  return new factory(...lab,A);  }
 
-// derived from public domain: https://bottosson.github.io/posts/oklab/
-// posted (¿written?) by Björn Ottosson (he created the color-space, after all)
-//  ↑ referred by: https://drafts.csswg.org/css-color/#ok-lab
-function linear_srgb_to_oklab(rgb)  {
-  const
-		r=rgb[0]/255,
-		g=rgb[1]/255,
-		b=rgb[2]/255,
-		l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b),
-		m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b),
-		s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
-  return [
-        0.2104542553*l + 0.7936177850*m - 0.0040720468*s,
-        1.9779984951*l - 2.4285922050*m + 0.4505937099*s,
-        0.0259040371*l + 0.7827717662*m - 0.8086757660*s];  }
-
 RGB_Calc.to.oklch=toOKLCh;
 RGB_Calc.definer.quick.to.oklch={value:toOKLCh};
 RGB_Calc.definer.audit.to.oklch={value: function() {return convertColor.call(this, arguments, toOKLCh, 'oklch');}};
+// derived from public domain: https://bottosson.github.io/posts/oklab/
 function toOKLCh(srgb, factory)  { //RGB from 0 to 255
 	factory??=this.config.OKLChA_Factory;
 	const
-		lab=linear_srgb_to_oklab(srgb),
+		lab=Björn_Ottosson.srgb_to_oklab.call(this, srgb),
 		c=Math.sqrt(lab[1]**2 + lab[2]**2),
 		h= (c<0.0001) ? 1 : Math.rad(Math.atan2(lab[2], lab[1]))/2/π,
 		A= (typeof srgb[3] === undefined) ? this.config.defaultAlpha : srgb[3];
 	if (A===undefined)  return new factory(lab[0],c,h);
 	else  return new factory(lab[0],c,h,A);  }
+
 
 /*  https://github.com/color-js/color.js/blob/main/src/spaces/prophoto-linear.js
 // convert an array of  prophoto-rgb values to CIE XYZ
@@ -2438,24 +2465,11 @@ function toXYZ(rgb, factory, profile, illuminant)  {
 	profile=rgb.profile||profile||this.config.colorProfile;
 	illuminant??= colorProfiles[profile].illuminant;
 	const
-		bits=this.config.RGB_bitDepth,  //sRGB=255
-		M = toXYZ_matrix[profile][illuminant];
-	var R = rgb[0] / bits;
-	var G = rgb[1] / bits;
-	var B = rgb[2] / bits;
-	if (profile === 'sRGB')  {  //eats memory, but runs faster than a function…
-		R = (R > 0.04045) ? Math.pow(((R + 0.055) / 1.055), 2.4) : R / 12.92;
-		G = (G > 0.04045) ? Math.pow(((G + 0.055) / 1.055), 2.4) : G / 12.92;
-		B = (B > 0.04045) ? Math.pow(((B + 0.055) / 1.055), 2.4) : B / 12.92;  }
-	else  {  // and speed is everything here
-		const γ=colorProfiles[profile].γCorrection;
-		R = Math.pow(R, γ);
-		G = Math.pow(G, γ);
-		B = Math.pow(B, γ);  }
-	const
-		X=R * M[0][0] + G * M[0][1] + B * M[0][2],
-		Y=R * M[1][0] + G * M[1][1] + B * M[1][2],
-		Z=R * M[2][0] + G * M[2][1] + B * M[2][2];
+		[R,G,B] = this.linearize_γCorrected_RGB(rgb, profile),
+		M = toXYZ_matrix[profile][illuminant],
+		X=	R * M[0][0] + G * M[0][1] + B * M[0][2],
+		Y=	R * M[1][0] + G * M[1][1] + B * M[1][2],
+		Z=	R * M[2][0] + G * M[2][1] + B * M[2][2];
 	// note the exception to the rule here: toXYZ does NOT return 3-member arrays if A===undefined
 	return new factory(X,Y,Z,rgb[3], illuminant, M.observer);  };
 
@@ -2725,11 +2739,10 @@ function fromCMYK(cmyk)  {
 	cmyk[4] );  }
 
 
-
 RGB_Calc.definer.quick.from.oklab=
-RGB_Calc.definer.quick.from.oklaba={enumerable:true, value:oklab_to_linear_srgb};
+RGB_Calc.definer.quick.from.oklaba={enumerable:true, value:Björn_Ottosson.oklab_to_srgb};
 RGB_Calc.definer.audit.from.oklab=
-RGB_Calc.definer.audit.from.oklaba={enumerable:true, value:function($lab) {return auditLab.call(this, {factors:RegExp.oklab_factors_A, vals:RegExp.oklab_a}, 'OKLab', 0.4, 0.5, oklab_to_linear_srgb, $lab);}};
+RGB_Calc.definer.audit.from.oklaba={enumerable:true, value:function($lab) {return auditLab.call(this, {factors:RegExp.oklab_factors_A, vals:RegExp.oklab_a}, 'OKLab', 0.4, 0.5, Björn_Ottosson.oklab_to_srgb, $lab);}};
 
 function auditLab(RE, space, abPer, abMax, callback, $lab)  {
 	var matches;
@@ -2746,26 +2759,12 @@ function auditLab(RE, space, abPer, abMax, callback, $lab)  {
 	return callback.call(this, $lab);  };
 
 RGB_Calc.from.oklab=
-RGB_Calc.from.oklaba=oklab_to_linear_srgb;
-
-// derived from public domain: https://bottosson.github.io/posts/oklab/
-// posted (¿written?) by Björn Ottosson
-//  ↑ referred by: https://drafts.csswg.org/css-color/#ok-lab
-function oklab_to_linear_srgb(lab)  {  // ¿¿  l → 0.0—1.0     a,b → -0.5—0.5  ??  ← ¡seems to be correct!
-  const
-		l = (lab[0] + 0.3963377774 * lab[1] + 0.2158037573 * lab[2])**3,
-    m = (lab[0] - 0.1055613458 * lab[1] - 0.0638541728 * lab[2])**3,
-    s = (lab[0] - 0.0894841775 * lab[1] - 1.2914855480 * lab[2])**3;
-  return this.outputClampedRGB(
-		255* (+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
-		255* (-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
-		255* (-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s),
-		lab[3] );  }
+RGB_Calc.from.oklaba=Björn_Ottosson.oklab_to_srgb;
 
 RGB_Calc.definer.quick.from.oklch=
-RGB_Calc.definer.quick.from.oklcha={enumerable:true, value:oklch_to_linear_srgb};
+RGB_Calc.definer.quick.from.oklcha={enumerable:true, value:Björn_Ottosson.oklch_to_srgb};
 RGB_Calc.definer.audit.from.oklch=
-RGB_Calc.definer.audit.from.oklcha={enumerable:true, value:function($lch) {return auditLCh.call(this, {factors:RegExp.oklch_factors_A, vals:RegExp.oklch_a}, 'OKLCh', 0.4, 0.5, oklch_to_linear_srgb, $lch);}};
+RGB_Calc.definer.audit.from.oklcha={enumerable:true, value:function($lch) {return auditLCh.call(this, {factors:RegExp.oklch_factors_A, vals:RegExp.oklch_a}, 'OKLCh', 0.4, 0.5, Björn_Ottosson.oklch_to_srgb, $lch);}};
 
 function auditLCh(RE, space, CPer, CMax, callback, $lch)  {
 	var matches;
@@ -2782,13 +2781,7 @@ function auditLCh(RE, space, CPer, CMax, callback, $lch)  {
 	return callback.call(this, $lch, false);  };
 
 RGB_Calc.from.oklch=
-RGB_Calc.from.oklcha=oklch_to_linear_srgb;
-
-function oklch_to_linear_srgb($lch, _c_isFactor=false)  { // l,c,h → 0.0—1.0   except (not _c_isFactor) c → 0.0—0.4
-	const
-		_c= _c_isFactor ? $lch[1]*0.4 : $lch[1],
-		_h=$lch[2]*π2;
-	return oklab_to_linear_srgb.call(this, [$lch[0], _c*Math.cos(_h), _c*Math.sin(_h), $lch[3]]);  }
+RGB_Calc.from.oklcha=Björn_Ottosson.oklch_to_srgb;
 
 
 RGB_Calc.definer.quick.from.xyz=
@@ -2904,25 +2897,13 @@ function fromXYZ(xyz, profile, illuminant)   {  // ←illuminant = 'D65' ‖ 'D6
 	illuminant=xyz.illuminant||illuminant||colorProfiles[profile].illuminant;
 	const
 		X=xyz[0],  Y=xyz[1],  Z=xyz[2],
-		M=fromXYZ_matrix[profile][illuminant],
-		P=0.0031308,  // ¿ 0.00304 ?
-		e=1/2.4,
-		bits=this.config.RGB_bitDepth;
+		M=fromXYZ_matrix[profile][illuminant];
 	var
 		r = X * M[0][0]  + Y * M[0][1] + Z * M[0][2],
 		g = X * M[1][0]  + Y * M[1][1] + Z * M[1][2],
 		b = X * M[2][0]  + Y * M[2][1] + Z * M[2][2];
-	//gamma correction
-	if (profile === 'sRGB')  {
-		r = (r > P) ?  1.055 * Math.pow(r, e) - 0.055  :  12.92 * r;
-		g = (g > P) ?  1.055 * Math.pow(g, e) - 0.055  :  12.92 * g;
-		b = (b > P) ?  1.055 * Math.pow(b, e) - 0.055  :  12.92 * b;  }
-	else {
-		const γ=colorProfiles[profile].γCorrection;
-		r = Math.pow(r, 1/γ);
-		g = Math.pow(g, 1/γ);
-		b = Math.pow(b, 1/γ);  }
-	return this.outputClampedRGB(r*bits, g*bits, b*bits, xyz[3]);  }
+	return this.γCorrect_linear_RGB(r, g, b, xyz[3], profile);  }
+
 
 //Object.defineProperty(fromXYZ, 'inputRanges', {value:fromXYZ_inputRanges});  //←here you can add additional inputs-ranges for different illuminant matrixes
 
