@@ -1,6 +1,6 @@
 // charset=UTF-8
 //  +++Math.js
-//	March 10, 2024
+//  April 7, 2024
 
 
 Math['+++angleDefiners']={
@@ -151,7 +151,7 @@ Math.Trig.rotate_around=function($p, $angle, $center)  {
 	$p.y=$center.y - ($p.y*cos($angle)+$p.x*sin($angle));
 	$p.x=x;  }
 
-Math.Trig.rotate_box=function ($box, $rotation)  {
+Math.Trig.rotate_box=function($box, $rotation)  {
 	$rotation=Math.rad($rotation);
 	var x,y,x1,y1,x2,y2,p;
 	y=( -( y1=y2=$box.height/2 ) );
@@ -161,3 +161,14 @@ Math.Trig.rotate_box=function ($box, $rotation)  {
 	Math.Trig.rotate(p={x:x, y:y1}, $rotation);  y1=p.y;
 	$box.width= Math.round(Math.max(Math.abs(x1), Math.abs(x2))*2)+1;
 	$box.height=Math.round(Math.max(Math.abs(y1), Math.abs(y2))*2)+1;  }
+
+
+Math.invert_3_3_matrix=function(M)  {
+	// https://byjus.com/maths/inverse-of-3-by-3-matrix/
+	// https://byjus.com/maths/determinant-of-a-3x3-matrix/
+	const determinant= M[0][0]*(M[1][1]*M[2][2] - M[1][2]*M[2][1])  -  M[0][1]*(M[1][0]*M[2][2] - M[1][2]*M[2][0])  +  M[0][2]*(M[1][0]*M[2][1] - M[1][1]*M[2][0]);
+	if (determinant===0)  return false;
+	return [
+		[  M[1][1] * M[2][2] - M[1][2] * M[2][1],   -(M[0][1] * M[2][2] - M[0][2] * M[2][1]),    M[0][1] * M[1][2] - M[0][2] * M[1][1] ].map(x=>x/determinant),
+		[-(M[1][0] * M[2][2] - M[1][2] * M[2][0]),    M[0][0] * M[2][2] - M[0][2] * M[2][0],   -(M[0][0] * M[1][2] - M[0][2] * M[1][0])].map(x=>x/determinant),
+		[  M[1][0] * M[2][1] - M[1][1] * M[2][0],   -(M[0][0] * M[2][1] - M[0][1] * M[2][0]),    M[0][0] * M[1][1] - M[0][1] * M[1][0] ].map(x=>x/determinant) ];  }
