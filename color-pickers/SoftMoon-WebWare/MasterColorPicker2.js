@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.5~BETA   March 27, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.6~BETA   April 7, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -2267,8 +2267,7 @@ BeezEye.buildPalette=function()  {
 
 	SoftMoon.WebWare.HSVA_Color.config.CMYKA_Factory=Array;
 
-	var model;
-	for (i=0; i<settings.model.length; i++)  {
+	for (var model, i=0; i<settings.model.length; i++)  {
 		if (settings.model[i].checked)  {model=settings.model[i].value.toLowerCase();  break;}  }
 
 	if (model.includes('lch'))  {
@@ -2340,16 +2339,15 @@ BeezEye.getColor=function(event)  {
 			h=parseInt(pStylz.height),
 			center={x: Math.round(w/2), y: Math.round(h/2)},
 			variety=settings.variety.value,
-			space={x: w/variety};
-			space.y=Math.sin(_['60°'])*space.x;
-	const
+			space={x: w/variety},
 			maxSatPoint=w/2-space.x/2;
+	space.y=Math.sin(_['60°'])*space.x;
 	var x=Math.round((event.offsetX-center.x)/space.x)*space.x,
 			y=center.y-event.offsetY;
 	const
 			row=Math.round(y/space.y);
 	y=row*space.y;
-	if (row%2)  x+=space.x/2;
+	if (row%2)  x+=space.x/2;  // ¿what is the problem?  ¿why odd row calculations are improperly offset?  ¿and why did it take me 13 years to notice?  ¿did something change somehow?
 	BeezEye.calcNativeHSV(x, y, maxSatPoint);  // globals ↓
 	if (saturation>1)  return;
 	if (saturation===0)  hue=1;
