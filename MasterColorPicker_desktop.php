@@ -47,6 +47,7 @@ Object.defineProperties(SoftMoon, {
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/+++input_type.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
+<script type='text/javascript' src='JS_toolbucket/Björn_Ottosson.OK_color_space_models.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
