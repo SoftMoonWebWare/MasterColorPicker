@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.5  March 27, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.7  April 17, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -26,6 +26,7 @@ body.MCP_we-be-a-cuttin {
 	--fore-text-allgood: blue;  /* was “green” - blue is more color-blind friendly */
 	--fore-text-caution: orange;
 	--fore-text-warn: red;
+	--fore-text-standout: red;
 	--back-text-cold: lightBlue;   /* inactive picker panel */
 	--back-text-hot: lightYellow;  /* active picker panel */
 	--fore-text-note: white;
@@ -394,11 +395,23 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help ul ul p + p {
 	margin-top: 0; }
 #MasterColorPicker_Help ul li > abbr:first-child,
+#MasterColorPicker_Help ul li > beyond + abbr,
 #MasterColorPicker_Help ul ul li > pseudo,
 #MasterColorPicker_Help dt > span {
 	font-weight: bold;
 	color: var(--fore-text-highlight);
 	background-color: var(--back-text-highlight); }
+#MasterColorPicker_Help beyond {
+	font-size: 128%;
+	color: var(--fore-text-standout); }
+#MasterColorPicker_Help ul li.beyond {
+	position: relative; }
+#MasterColorPicker_Help ul li.beyond beyond {
+	position: absolute;
+	right: calc(100% + 0.618em);
+	left: auto;
+	top: 0;
+	bottom: auto; }
 #MasterColorPicker_Help dd {
 	margin: 0 1.168em; }
 #MasterColorPicker_Help dd specs {
@@ -2067,8 +2080,9 @@ table#BeezEye {
 	overflow: hidden; /*fix Opera*/
 	 }
 table#BeezEye caption {
-	width: calc(100% - 1.618em); /* make space for the “twist” input-range */
-	padding-bottom: 1em; }
+/* 	width: calc(100% - 7.618em); make space for the “twist” input-range */
+	margin-right: 3.618em;
+	padding-bottom: 1.618em; }
 table#BeezEye canvas {
 	width: 360px;
 	height: 360px;
@@ -2081,6 +2095,10 @@ table#BeezEye label {
 	margin: 0;
 	padding: 0;
 	display: inline-block;  }
+table#BeezEye tr:first-child fieldset {
+	padding-top: .382em;
+	padding-bottom: .382em;
+  border-bottom-left-radius: 1em 1.618em; }
 table#BeezEye fieldset input[type="checkbox"],
 table#BeezEye fieldset input[type="radio"] {
 	display: inline; }
