@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
-<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2021,2022,2023 Joe Golembieski, SoftMoon-WebWare'>
+<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2021,2022,2023,2024 Joe Golembieski, SoftMoon-WebWare'>
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css'>
@@ -132,7 +132,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-      release 2.6.5  March 27, 2024
+      release 2.6.7  April 17, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -190,6 +190,8 @@ but to retain the settings this file may be included inside an existing web <for
 	<option title='Lightness, a-axis, b-axis'>Lab</option>
 	<option title='OK: Lightness, Chroma, Hue'>OKLCh</option>
 	<option title='OK: Lightness, a-axis, b-axis'>OKLab</option>
+	<option title='OK: Hue, Saturation, Lightness'>OKHSL</option>
+	<option title='OK: Hue, Saturation, Value'>OKHSV</option>
 	<option title='X, Y, Z'>XYZ</option>
 	</select></label>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
@@ -717,6 +719,8 @@ triadic</label>
 	<option>RGB</option>
 	<option>HSL</option>
 	<option value='HSB'>HSB/HSV</option>
+	<option>OKHSL</option>
+	<option>OKHSV</option>
 	<option>HCG</option>
 	<option>CMYK</option>
 	<option>LCh</option>
@@ -822,30 +826,33 @@ triadic</label>
 				<p>Each value may be separated by spaces/commas.&nbsp;
 				You may mix byte and percent values in the same spec.&nbsp;
 				You may wrap() or prefix: the values with <kbd>rgb( )</kbd> or <kbd>rgb:</kbd> but that is not necessary.</p></li>
-		<li>various different color-space models including:
+		<li>various different color-space models including these below:
+			(items marked with <beyond>&hArr;</beyond> can take you beyond the <abbr title='red, green, blue'>RGB</abbr> color-space profile you are using)
 			<ul>
 				<li><abbr title='Cyan, Magenta, Yellow, Black'>CMYK</abbr></li>
 				<li><abbr title='Cyan, Magenta, Yellow'>CMY</abbr></li>
 				<li><abbr title='Hue, Saturation, Value / Brightness'>HSV / HSB</abbr></li>
 				<li><abbr title='Hue, Saturation, Lightness'>HSL</abbr></li>
+				<li><abbr title='OK: Hue, Saturation, Value (Brightness)'>OKHSV</abbr></li>
+				<li><abbr title='OK: Hue, Saturation, Lightness'>OKHSL</abbr></li>
 				<li><abbr title='Hue, Chroma, Gray'>HCG</abbr> (<strong>¡Not</strong> the Munsell color system!)</li>
 				<li><abbr title='Hue, Whiteness, Blackness'>HWB</abbr></li>
 				<li><pseudo>Hue</pseudo> ←&nbsp; define only a “classic” hue-angle-value and see the full-color (fully chromatic) tone of the hue.</li>
-				<li><abbr title='Lightness, Chroma, Hue'>LCh</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LCh</abbr> color space)</aka>
+				<li class='beyond'><beyond>&hArr;</beyond><abbr title='Lightness, Chroma, Hue'>LCh</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LCh</abbr> color space)</aka>
 							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>0 ≤ C ≤ (230‖154%)</nobr></code> ← where <code>100%=150</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
-				<li><abbr title='Lightness, a-axis, b-axis'>Lab</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color space)</aka>
+				<li class='beyond'><beyond>&hArr;</beyond><abbr title='Lightness, a-axis, b-axis'>Lab</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color space)</aka>
 							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>(-170‖-136%) ≤ (a,b) ≤ (170‖136%)</nobr></code> ← where <code>100%=125</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
-				<li><abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+				<li class='beyond'><beyond>&hArr;</beyond><abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>0 ≤ C ≤ (0.5‖125%)</nobr></code> ← where <code>100%=0.4</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
-				<li><abbr title='OK: Lightness, a-axis, b-axis'>OKLab</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+				<li class='beyond'><beyond>&hArr;</beyond><abbr title='OK: Lightness, a-axis, b-axis'>OKLab</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>(-0.4‖-100%) ≤ (a,b) ≤ (0.4‖100%)</nobr></code></li>
-				<li><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
-					→&nbsp; <code>(X,Y,Z,A) ‖ (<var>illuminant</var>, X,Y,Z,A) ‖ (<var>color-profile</var>, X,Y,Z,A) ‖ (<var>color-profile</var>, <var>illuminant</var>, X,Y,Z,A)</code>
+				<li class='beyond'><beyond>&hArr;</beyond><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
+					→&nbsp; <code>(X,Y,Z,α) ‖ (<var>illuminant</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, <var>illuminant</var>, X,Y,Z,α)</code>
 					<p>I am not sure of the exact limits of the input values, but I <em>think maybe</em> generally
 					<code>0 ≤ X ≤ 0.950489,&nbsp; 0 ≤ Y ≤ 1,&nbsp; 0 ≤ Z ≤ 1.0883</code> seems to be fair for the <abbr>D65</abbr> illuminant…?</p>
-					<p>The “<var>illuminant</var>” and/or “<var>color-profile</var>” is optional as shown.&nbsp;
+					<p>The “<var>illuminant</var>” and/or “<var>color-profile</var>” is optional as shown; so is the alpha (opacity) value (α) as it always is.&nbsp;
 					Currently, only <code>"sRGB"</code> is valid for “<var>color-profile</var>”.&nbsp;
 					There are currently 6 different legal values for “<var>illuminant</var>”
 					(these values are case <strong>sensitive</strong> and don’t miss the underscores _ ).&nbsp;
@@ -901,7 +908,7 @@ triadic</label>
 				Each value may be separated by spaces/commas.&nbsp;
 				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %),
 				except where noted for the individual color-spaces (Lab, LCh, OKLab, OKLCh, XYZ); and
-				except Hue values are given in angular values (starting at 3:00 and going counter-clockwise) using one of the following units:
+				except Hue values are given in angular values using one of the following units:
 				(the default unit used when none is specified is found on the MasterColorPicker “options” panel)</p>
 			<ul>
 				<li>in degrees (<kbd>0°—360°</kbd> ← postfixed using the <kbd>°</kbd> symbol or “<kbd>deg</kbd>”).</li>
@@ -1681,7 +1688,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <tr><!-- ROW 1 -->
 	<td><label>¿<input type='checkbox' name='BeezEye_twist' value='twist' backtabTo='#MasterColorPicker_palette_select'>Twist?
 		<input type='range' name='BeezEye_twist_value' value='50' min='0' max='100'></label></td>
-	<td><fieldset><legend>color space</legend>
+	<td><fieldset><legend>color space model</legend>
 		<dl>
 			<dt>CMYK</dt>
 				<dd>Cyan, Magenta, Yellow, Black</dd>
@@ -1693,8 +1700,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 				<dd>Hue, Chroma, Gray</dd>
 			<dt>LCh</dt>
 				<dd>Lightness, Chroma, hue</dd>
-			<dt>OKLCh</dt>
-				<dd>OK: Lightness, Chroma, hue</dd>
+			<dt>¡OK!</dt>
+				<dd>Ottosson Krafted color space models</dd>
 			<dt>Curve</dt>
 				<dd>modulates the saturation/chromatic rate</dd>
 			<dt>Twist</dt>
@@ -1705,7 +1712,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 		<label><input type='radio' name='BeezEye_model' value='HSL' checked>HSL</label>
 		<label><input type='radio' name='BeezEye_model' value='HCG'>HCG</label>
 		<label><input type='radio' name='BeezEye_model' value='LCh'>LCh</label>
-		<label><input type='radio' name='BeezEye_model' value='OKLCh'>OKLCh</label>
+		<label>¡<input type='checkbox' name='BeezEye_model_OK' value='OK'>make it <abbr title='Ottosson Krafted'>OK</abbr>!</label>
 		</fieldset>
 	</td>
 </tr>
