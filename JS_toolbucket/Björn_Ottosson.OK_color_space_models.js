@@ -1,4 +1,5 @@
-/*  OK color models  (last updated April 7, 2024)
+// charset: UTF-8    tab-spacing: 2
+/*  “OK” (“Ottosson Krafted”) color models  (this file was last updated April 16, 2024)
  * Copyright (c) 2021 Björn Ottosson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -19,71 +20,167 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * https://bottosson.github.io/posts/colorpicker/
  * https://bottosson.github.io/posts/oklab/
+ * https://bottosson.github.io/posts/colorpicker/
+ * https://github.com/bottosson/bottosson.github.io/blob/master/misc/colorpicker/colorconversion.js
  *
  * Minor superficial modifications by SoftMoon-WebWare for:
  *  • inclusion into the RGB_Calc package,
- *  • optimal execusion speed.
+ *  • optimal execution speed by JavaScript compilers,
+ *  • reduced whitespace for web-transfer, while keeping a readable format (and I'm not “A.D.D.”: I like to see more of the forest through the trees on the screen at once).
  */
 //   referred by: https://drafts.csswg.org/css-color/#ok-lab
 
 
+// requires  +++.js       ← ← ←  JS_toolbucket/+++JS/+++.js      by SoftMoon-WebWare
+// requires  +++Math.js   ← ← ←  JS_toolbucket/+++JS/+++Math.js  by SoftMoon-WebWare
+
+'use strict';
+
 const Björn_Ottosson={};
 
-{ //open a private namespace
+{ //open a private namespace (till end-of-file)
 
 const
-	cubeRoot=Math.cbrt;
+				sine=Math.sin,
+			cosine=Math.cos,
+ arcTangent2=Math.atan2,
+			radian=Math.rad,
+	squareRoot=Math.sqrt,
+		cubeRoot=Math.cbrt,
+		 minimum=Math.min,
+		 maximum=Math.max;
 
-// OKLab and OKLCh are also released under pubilc domain
-Björn_Ottosson.oklab_to_srgb=oklab_to_srgb;
-function oklab_to_srgb(lab)  {  // ¿¿  l → 0.0—1.0     a,b → -0.5—0.5  ??  ← ¡seems to be correct!
-  const
-		l = (lab[0] + 0.3963377774 * lab[1] + 0.2158037573 * lab[2])**3,
-    m = (lab[0] - 0.1055613458 * lab[1] - 0.0638541728 * lab[2])**3,
-    s = (lab[0] - 0.0894841775 * lab[1] - 1.2914855480 * lab[2])**3;
-  return this.γCorrect_linear_RGB(
-		+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-		-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-		-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
-		lab[3],
-		'sRGB');  }
 
-Björn_Ottosson.oklch_to_srgb=
-function oklch_to_srgb($lch)  { // l,h → 0.0—1.0   c → 0.0—0.5
-	const h=$lch[2]*π2;
-	return oklab_to_srgb.call(this, [$lch[0], $lch[1]*Math.cos(h), $lch[1]*Math.sin(h), $lch[3]]);  }
+const SI=String.fromCharCode(15), SO=String.fromCharCode(14);
+//          ASCII “shift-in” ↑         ASCII “shift-out” ↑   ← these often don’t output to the screen, but can be easily replaced with HTML tags as you wish: <abbr></abbr>  etc…
 
-Björn_Ottosson.srgb_to_oklab=
-function srgb_to_oklab(rgb)  {
-	rgb=this.linearize_γCorrected_RGB(rgb, 'sRGB');
+Björn_Ottosson["©"] = "“"+SI+"OK"+SO+"”-color-spaces algorithms and software copyright © 2021 by Björn Ottosson; released under public domain and " +
+	SI+"MIT"+SO+" license.";
+
+// These have modified input-parameters (by SoftMoon-WebWare) for use with RGB_Calc (Arrays instead of individual values).
+// These input Arrays may also have alpha-channel (α) values, which are simply passed along.
+// In addition, functions that return values other than RGB values take a  factory  parameter as the second argument.
+// The factory can be  Array  or any class constructor you wish; e.g.  srgb_to_oklch(rgba, Array)  or  srgb_to_oklch(rgba, MyColorClass)
+//  or a factory-function that takes the values and custom-constructs the object(s) you desire;
+//  or simply a callback-function that takes the values and processes them as it likes; — your choice can make an impact on the performance of your software!
+// If an alpha-channel is “undefined”, then it will not be passed to the factory (including the RGB factory that RGB_Calc uses).
+// In this way, you can use  Array  as a factory, but it will not have an additional unused value, thus making it friendlier to Array methods, for (…of…), etc.
+// The exception to the above rule is for XYZ values: they have meta-data (illuminant & observer) that is also included with the XYZ and alpha values themselves.
+// All these functions expect to be methods (members) of an RGB_Calc class to use “this” within the functions themselves.
+// In other words, the keyword “this” is NOT intended to refer to the Björn_Ottosson “namespace”.
+// You could, however, provide the required methods and config-stack directly to the  Björn_Ottosson  namespace and it would become a “static-calculator” class.
+Björn_Ottosson.oklab_to_srgb  =  oklab_to_srgb;
+Björn_Ottosson.oklch_to_srgb  =  oklch_to_srgb;
+Björn_Ottosson.srgb_to_oklab  =  srgb_to_oklab;
+Björn_Ottosson.srgb_to_oklch  =  srgb_to_oklch;
+Björn_Ottosson.xyz_to_oklab   =  xyz_to_oklab;
+Björn_Ottosson.oklab_to_xyz   =  oklab_to_xyz;
+Björn_Ottosson.okhsl_to_srgb  =  okhsl_to_srgb;
+Björn_Ottosson.srgb_to_okhsl  =  srgb_to_okhsl;
+Björn_Ottosson.okhsv_to_srgb  =  okhsv_to_srgb;
+Björn_Ottosson.srgb_to_okhsv  =  srgb_to_okhsv;
+Björn_Ottosson.okhsl_to_oklab  =  okhsl_to_srgb;  // ← you MUST supply a factory as a second argument…
+Björn_Ottosson.okhsv_to_oklab  =  okhsv_to_srgb;  // ←  …or the result will be sRGB!
+Björn_Ottosson.oklab_to_okhsl  =  srgb_to_okhsl;  // ← the array you pass in must have a “model” property:
+Björn_Ottosson.oklab_to_okhsv  =  srgb_to_okhsv;  // ←  arr.model==="OKLab"  …or it will be considered sRGB!
+Björn_Ottosson.oklab_to_oklch  =  srgb_to_oklch;  // ←  ↑ ↑
+
+/* to use without RGB_Calc:
+Björn_Ottosson.config= {defaultAlpha:1, OKLabA_Factory:Array, OKLChA_Factory:Array, OKHSVA_Factory:Array, OKHSLA_Factory:Array, XYZA_Factory:Array}  //customized to your liking
+Björn_Ottosson.γCorrect_linear_RGB= function(r,g,b,α) {… … …}       // ←he calls it a “transfer” function  ←↓ these should mul/div by 255 also
+Björn_Ottosson.linearize_γCorrected_RGB= function(rgbα) {… … …}    // ←he calls it an “inverse-transfer” function
+Björn_Ottosson.outputRGB= function(r,g,b,α) {… … …}  //customized to your liking
+*/
+
+// ↓ In the SoftMoon-WebWare world, gray-scale tones have the exact‡ hue 360°, i.e. ALL the hues mixed! ‡(not 720°, etc.)
+// Gray-scale tones are defined within as having less Chroma than:
+const minimumChroma=0.0001;
+
+Björn_Ottosson.minimumChroma=minimumChroma;
+
+// for:  compute_max_saturation()  and  find_gamut_intersection()  below…
+let accuracyLevel=1;
+
+Object.defineProperty(Björn_Ottosson, 'accuracy', {get: ()=>accuracyLevel, set: (x)=>{
+	accuacyLevel= minimum(1, maximum(3, Math.round(x)));  }});
+
+
+// OKLab and OKLCh are also released under public domain
+function oklab_to_srgb(Labα, γCorrect=true)  {  // ¿¿  l → 0.0—1.0     a,b → -0.5—0.5  ??  ← ¡seems to be correct!
 	const
-		l = cubeRoot(0.4122214708 * rgb[0] + 0.5363325363 * rgb[1] + 0.0514459929 * rgb[2]),
-		m = cubeRoot(0.2119034982 * rgb[0] + 0.6806995451 * rgb[1] + 0.1073969566 * rgb[2]),
-		s = cubeRoot(0.0883024619 * rgb[0] + 0.2817188376 * rgb[1] + 0.6299787005 * rgb[2]);
-	return [
-			0.2104542553*l + 0.7936177850*m - 0.0040720468*s,
-			1.9779984951*l - 2.4285922050*m + 0.4505937099*s,
-			0.0259040371*l + 0.7827717662*m - 0.8086757660*s];  }
+		l = (Labα[0] + 0.3963377774 * Labα[1] + 0.2158037573 * Labα[2])**3,
+		m = (Labα[0] - 0.1055613458 * Labα[1] - 0.0638541728 * Labα[2])**3,
+		s = (Labα[0] - 0.0894841775 * Labα[1] - 1.2914855480 * Labα[2])**3,
+		r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+		g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+		b = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+	if (γCorrect)  return this.γCorrect_linear_RGB(r,g,b,Labα[3],'sRGB');
+	// this function is also a worker for OKHSL & OKHSV below…
+	else  return [r,g,b,Labα[3]];  }
 
+function oklch_to_srgb(LChα)  { // l,h → 0.0—1.0   c → 0.0—0.5
+	const h=LChα[2]*π2;
+	return oklab_to_srgb.call(this, [LChα[0], LChα[1]*cosine(h), LChα[1]*sine(h), LChα[3]]);  }
 
-Björn_Ottosson.xyz_to_oklab=xyz_to_oklab;
-function xyz_to_oklab(xyz, factory)  {
+function srgb_to_oklab(rgbα, factory)  {  //RGB from 0 to 255
+	// this function is also a worker for OKHSL & OKHSV below…
+	factory??=this.config.OKLabA_Factory;
+	rgbα=this.linearize_γCorrected_RGB(rgbα, 'sRGB');
+	const
+		l = cubeRoot(0.4122214708 * rgbα[0] + 0.5363325363 * rgbα[1] + 0.0514459929 * rgbα[2]),
+		m = cubeRoot(0.2119034982 * rgbα[0] + 0.6806995451 * rgbα[1] + 0.1073969566 * rgbα[2]),
+		s = cubeRoot(0.0883024619 * rgbα[0] + 0.2817188376 * rgbα[1] + 0.6299787005 * rgbα[2]),
+		L = 0.2104542553*l + 0.7936177850*m - 0.0040720468*s,
+		a = 1.9779984951*l - 2.4285922050*m + 0.4505937099*s,
+		b = 0.0259040371*l + 0.7827717662*m - 0.8086757660*s,
+		α = (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
+	return (α===undefined) ? new factory(L,a,b) : new factory(L,a,b,α);  }
+
+//       oklab_to_oklch
+function srgb_to_oklch(rgbα, factory)  { //RGB from 0 to 255
+	factory??=this.config.OKLChA_Factory;
+	const
+		lab= arguments[0].model==='OKLab' ? arguments[0] : srgb_to_oklab.call(this, rgbα, Array),
+		C=squareRoot(lab[1]*lab[1] + lab[2]*lab[2]),
+		// ↓ in the SoftMoon-WebWare world, gray-scale tones have the hue 360°, i.e. ALL the hues mixed!
+		h= (C<minimumChroma) ? 1 : (radian(arcTangent2(lab[2], lab[1]))/π2),
+		α= (rgbα[3] === undefined) ? this.config.defaultAlpha : rgbα[3];
+	return (α===undefined) ? new factory(lab[0],C,h) : new factory(lab[0],C,h,α);  }
+
+function xyz_to_oklab(xyzα, factory)  {
+	factory??=this.config.OKLabA_Factory;
+	// algorithm & matrices provided by Björn Ottosson
 	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
 	// working according to the test table at https://bottosson.github.io/posts/oklab/
+	if ((xyzα.illuminant  &&  !xyzα.illuminant.startsWith("D65"))
+	||  (xyzα.observer  &&  xyzα.observer!=="2°"))  {
+		// ¿perhaps adaption should be outside this function for faster performance?
+		// or left for convenience …
+		if (xyzα instanceof SoftMoon.WebWare.XYZA_Array)
+			xyzα=xyzα.adapt_illuminant("D65", "2°");
+		else  {
+			xyzα.illuminant??="D65";  xyzα.observer??="2°";
+			xyzα=SoftMoon.WebWare.XYZA_Array.prototype.adapt_illuminant.call(xyzα, "D65", "2°");  }  }
 	const
 		M1=xyz_to_oklab.M1,
 		M2=xyz_to_oklab.M2,
-	  l= cubeRoot(M1[0][0] * xyz[0] + M1[0][1] * xyz[1] + M1[0][2] * xyz[2]),
-		m= cubeRoot(M1[1][0] * xyz[0] + M1[1][1] * xyz[1] + M1[1][2] * xyz[2]),
-		s= cubeRoot(M1[2][0] * xyz[0] + M1[2][1] * xyz[1] + M1[2][2] * xyz[2]);
-	return [
-		M2[0][0] * l + M2[0][1] * m + M2[0][2] * s,
-		M2[1][0] * l + M2[1][1] * m + M2[1][2] * s,
-		M2[2][0] * l + M2[2][1] * m + M2[2][2] * s ];  }
+		l= cubeRoot(M1[0][0] * xyzα[0] + M1[0][1] * xyzα[1] + M1[0][2] * xyzα[2]),
+		m= cubeRoot(M1[1][0] * xyzα[0] + M1[1][1] * xyzα[1] + M1[1][2] * xyzα[2]),
+		s= cubeRoot(M1[2][0] * xyzα[0] + M1[2][1] * xyzα[1] + M1[2][2] * xyzα[2]),
+		L= M2[0][0] * l + M2[0][1] * m + M2[0][2] * s,
+		a= M2[1][0] * l + M2[1][1] * m + M2[1][2] * s,
+		b= M2[2][0] * l + M2[2][1] * m + M2[2][2] * s,
+		α= (xyzα[3]===undefined) ? this.config.defaultAlpha : xyzα[3];
+	return (α===undefined) ?  new factory(L,a,b) : new factory(L,a,b,α);  }
+
+// For some browsers, it may be faster to hard-code these matrices, and the calculated inverses below, into the functions;
+// I chose to show my work here.  Firefox, if I understand it correctly, will automatically “hard code” these values
+// into the compiled OP-code on the first iteration of calling each of these functions, especially since they are frozen (see below).
+// Testing with Firefox & Chromium with other software certainly shows this difference in performance:
+// JS apps on Firefox have nearly native-app performance, while they are clunky and slow using Chromium.
 xyz_to_oklab.M1=[
-	  [0.8189330101, 0.3618667424, -0.1288597137],
+		[0.8189330101, 0.3618667424, -0.1288597137],
 		[0.0329845436, 0.9293118715,  0.0361456387],
 		[0.0482003018, 0.2643662691,  0.6338517070] ];
 xyz_to_oklab.M2=[
@@ -91,22 +188,449 @@ xyz_to_oklab.M2=[
 		[1.9779984951, -2.4285922050,  0.4505937099],
 		[0.0259040371,  0.7827717662, -0.8086757660] ];
 
-Björn_Ottosson.oklab_to_xyz=oklab_to_xyz;
-function oklab_to_xyz(lab)  {
+function oklab_to_xyz(Labα, factory)  {
+	factory??=this.config.XYZA_Factory;
+	// algorithm provided by Björn Ottosson
+	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
+	// working according to the test table at https://bottosson.github.io/posts/oklab/
 	const
 		M1=oklab_to_xyz.M1,
 		M2=oklab_to_xyz.M2,
-		l= (M2[0][0] * lab[0] + M2[0][1] * lab[1] + M2[0][2] * lab[2]) ** 3,
-		m= (M2[1][0] * lab[0] + M2[1][1] * lab[1] + M2[1][2] * lab[2]) ** 3,
-		s= (M2[2][0] * lab[0] + M2[2][1] * lab[1] + M2[2][2] * lab[2]) ** 3;
-	return [
+		l= (M2[0][0] * Labα[0] + M2[0][1] * Labα[1] + M2[0][2] * Labα[2]) ** 3,
+		m= (M2[1][0] * Labα[0] + M2[1][1] * Labα[1] + M2[1][2] * Labα[2]) ** 3,
+		s= (M2[2][0] * Labα[0] + M2[2][1] * Labα[1] + M2[2][2] * Labα[2]) ** 3;
+	return new factory(  // SoftMoon.WebWare.XYZA_Array is the preferred factory; it auto-handles the alpha-channel and meta-data
 		M1[0][0] * l + M1[0][1] * m + M1[0][2] * s,
 		M1[1][0] * l + M1[1][1] * m + M1[1][2] * s,
-		M1[2][0] * l + M1[2][1] * m + M1[2][2] * s ];  }
+		M1[2][0] * l + M1[2][1] * m + M1[2][2] * s,
+		Labα[3],  // XYZ is the only color-space that will return an undefined alpha-channel
+		"D65", "2°");  }
 oklab_to_xyz.M1=Math.invert_3_3_matrix(xyz_to_oklab.M1);
 oklab_to_xyz.M2=Math.invert_3_3_matrix(xyz_to_oklab.M2);
 
+
+
+//the rest below is copied and overhauled for RGB_Calc & JavaScript compilers (seems it was quick-ported from C) from:
+//  https://github.com/bottosson/bottosson.github.io/blob/master/misc/colorpicker/colorconversion.js
+
+function toe(x)  {
+	const
+		k_1 = 0.206,
+		k_2 = 0.03,
+		k_3 = (1+k_1)/(1+k_2);
+	return 0.5*(k_3*x - k_1 + squareRoot((k_3*x - k_1)*(k_3*x - k_1) + 4*k_2*k_3*x));  }
+
+function toe_inv(x)  {
+	const
+		k_1 = 0.206,
+		k_2 = 0.03,
+		k_3 = (1+k_1)/(1+k_2);
+	return (x*x + k_1*x)/(k_3*(x+k_2));  }
+
+
+// Finds the maximum saturation possible for a given hue that fits in sRGB
+// Saturation here is defined as S = C/L
+// a and b must be normalized so a^2 + b^2 == 1
+function compute_max_saturation(a, b)  {
+	// Max saturation will be when one of r, g or b goes below zero.
+
+	// Select different coefficients depending on which component goes below zero first
+	var k0, k1, k2, k3, k4, wl, wm, ws;
+
+	if (-1.88170328 * a - 0.80936493 * b > 1)  {
+		// Red component
+		k0 = +1.19086277; k1 = +1.76576728; k2 = +0.59662641; k3 = +0.75515197; k4 = +0.56771245;
+		wl = +4.0767416621; wm = -3.3077115913; ws = +0.2309699292;  }
+	else if (1.81444104 * a - 1.19445276 * b > 1)  {
+		// Green component
+		k0 = +0.73956515; k1 = -0.45954404; k2 = +0.08285427; k3 = +0.12541070; k4 = +0.14503204;
+		wl = -1.2684380046; wm = +2.6097574011; ws = -0.3413193965;  }
+	else  {
+		// Blue component
+		k0 = +1.35733652; k1 = -0.00915799; k2 = -1.15130210; k3 = -0.50559606; k4 = +0.00692167;
+		wl = -0.0041960863; wm = -0.7034186147; ws = +1.7076147010;  }
+
+	// Approximate max saturation using a polynomial:
+	var S = k0 + k1 * a + k2 * b + k3 * a * a + k4 * a * b,
+		accLev=accuracyLevel;  // see “private” variable above
+
+		// Do one step Halley's method to get closer
+		// this gives an error less than 10e6, except for some blue hues where the dS/dh is close to infinite
+		// this should be sufficient for most applications, otherwise do two/three steps
+	const
+		k_l = +0.3963377774 * a + 0.2158037573 * b,
+		k_m = -0.1055613458 * a - 0.0638541728 * b,
+		k_s = -0.0894841775 * a - 1.2914855480 * b;
+
+	while (accLev--)  {
+		const
+			l_ = 1 + S * k_l,
+			m_ = 1 + S * k_m,
+			s_ = 1 + S * k_s,
+
+			l = l_ * l_ * l_,
+			m = m_ * m_ * m_,
+			s = s_ * s_ * s_,
+
+			l_dS = 3 * k_l * l_ * l_,
+			m_dS = 3 * k_m * m_ * m_,
+			s_dS = 3 * k_s * s_ * s_,
+
+			l_dS2 = 6 * k_l * k_l * l_,
+			m_dS2 = 6 * k_m * k_m * m_,
+			s_dS2 = 6 * k_s * k_s * s_,
+
+			f  = wl * l     + wm * m     + ws * s,
+			f1 = wl * l_dS  + wm * m_dS  + ws * s_dS,
+			f2 = wl * l_dS2 + wm * m_dS2 + ws * s_dS2;
+
+		S = S - f * f1 / (f1*f1 - 0.5 * f * f2);  }
+
+	return S;  }
+
+
+function find_cusp(a, b)  {
+	const
+		// First, find the maximum saturation (saturation S = C/L)
+		S_cusp = compute_max_saturation(a, b),
+
+		// Convert to linear sRGB to find the first point where at least one of r,g or b >= 1:
+		rgb_at_max = oklab_to_srgb([1, S_cusp * a, S_cusp * b], false),  // RGB values remain linear
+		L_cusp = cubeRoot(1 / maximum(rgb_at_max[0], rgb_at_max[1], rgb_at_max[2])),
+		C_cusp = L_cusp * S_cusp;
+
+	return [ L_cusp , C_cusp ];  }
+
+
+// Finds intersection of the line defined by
+// L = L0 * (1 - t) + t * L1;
+// C = t * C1;
+// a and b must be normalized so a^2 + b^2 == 1
+function find_gamut_intersection(a, b, L1, C1, L0, cusp=null)  {
+	cusp??= find_cusp(a, b);  // Find the cusp of the gamut triangle
+
+	var t,
+		accLev=accuracyLevel;  // see “private” variable above
+
+	// Find the intersection for upper and lower half separately
+	if (((L1 - L0) * cusp[1] - (cusp[0] - L0) * C1) <= 0)
+		// Lower half
+		t = cusp[1] * L0 / (C1 * cusp[0] + cusp[1] * (L0 - L1));
+	else  {
+		// Upper half
+
+		// First intersect with triangle
+		t = cusp[1] * (L0 - 1) / (C1 * (cusp[0] - 1) + cusp[1] * (L0 - L1));
+
+		// Then one step Halley's method
+		const
+			dL = L1 - L0,
+			dC = C1,
+
+			k_l = +0.3963377774 * a + 0.2158037573 * b,
+			k_m = -0.1055613458 * a - 0.0638541728 * b,
+			k_s = -0.0894841775 * a - 1.2914855480 * b,
+
+			l_dt = dL + dC * k_l,
+			m_dt = dL + dC * k_m,
+			s_dt = dL + dC * k_s;
+
+
+		// If higher accuracy is required, 2 or 3 iterations of the following block can be used:
+		while (accLev--)  {
+			const  // a slight reordering and refactoring of operations below was done for performance
+				L = L0 * (1 - t) + t * L1,
+				C = t * C1,
+
+				l_ = L + C * k_l,
+				m_ = L + C * k_m,
+				s_ = L + C * k_s,
+
+				l = l_ * l_ * l_,
+				m = m_ * m_ * m_,
+				s = s_ * s_ * s_,
+
+				ldt = 3 * l_dt * l_ * l_,
+				mdt = 3 * m_dt * m_ * m_,
+				sdt = 3 * s_dt * s_ * s_,
+
+				ldt2 = 6 * l_dt * l_dt * l_,
+				mdt2 = 6 * m_dt * m_dt * m_,
+				sdt2 = 6 * s_dt * s_dt * s_,
+
+				r = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s - 1,
+				r1 = 4.0767416621 * ldt - 3.3077115913 * mdt + 0.2309699292 * sdt,
+				r2 = 4.0767416621 * ldt2 - 3.3077115913 * mdt2 + 0.2309699292 * sdt2,
+
+				g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s - 1,
+				g1 = -1.2684380046 * ldt + 2.6097574011 * mdt - 0.3413193965 * sdt,
+				g2 = -1.2684380046 * ldt2 + 2.6097574011 * mdt2 - 0.3413193965 * sdt2,
+
+				b = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s - 1,
+				b1 = -0.0041960863 * ldt - 0.7034186147 * mdt + 1.7076147010 * sdt,
+				b2 = -0.0041960863 * ldt2 - 0.7034186147 * mdt2 + 1.7076147010  * sdt2,
+
+				u_r = r1 / (r1 * r1 - 0.5 * r * r2),
+				u_g = g1 / (g1 * g1 - 0.5 * g * g2),
+				u_b = b1 / (b1 * b1 - 0.5 * b * b2),
+
+				t_r = u_r >= 0 ? (-r * u_r) : 10e5,
+				t_g = u_g >= 0 ? (-g * u_g) : 10e5,
+				t_b = u_b >= 0 ? (-b * u_b) : 10e5;
+
+			t += minimum(t_r, t_g, t_b);  }  }
+
+	return t;  }
+
+
+function get_ST_max(a_,b_, cusp=null)  {
+	cusp??= find_cusp(a_, b_);
+	const
+		L = cusp[0],
+		C = cusp[1];
+	return [C/L, C/(1-L)];  }
+
+
+function get_ST_mid(a_,b_)  {
+	const
+		S = 0.11516993 + 1/(
+				+ 7.44778970 + 4.15901240*b_
+				+ a_*(- 2.19557347 + 1.75198401*b_
+				+ a_*(- 2.13704948 -10.02301043*b_
+				+ a_*(- 4.24894561 + 5.38770819*b_ + 4.69891013*a_ ))) ),
+		T = 0.11239642 + 1/(
+				+ 1.61320320 - 0.68124379*b_
+				+ a_*(+ 0.40370612 + 0.90148123*b_
+				+ a_*(- 0.27087943 + 0.61223990*b_
+				+ a_*(+ 0.00299215 - 0.45399568*b_ - 0.14661872*a_ ))) );
+	return [S, T];  }
+
+
+function get_Cs(L, a_, b_)  {
+	const
+		cusp = find_cusp(a_, b_),
+
+		C_max = find_gamut_intersection(a_,b_,L,1,L,cusp),
+		ST_max = get_ST_max(a_, b_, cusp),
+
+		S_mid = 0.11516993 + 1/(
+				+ 7.44778970 + 4.15901240*b_
+				+ a_*(- 2.19557347 + 1.75198401*b_
+				+ a_*(- 2.13704948 -10.02301043*b_
+				+ a_*(- 4.24894561 + 5.38770819*b_ + 4.69891013*a_ ))) ),
+
+		T_mid = 0.11239642 + 1/(
+				+ 1.61320320 - 0.68124379*b_
+				+ a_*(+ 0.40370612 + 0.90148123*b_
+				+ a_*(- 0.27087943 + 0.61223990*b_
+				+ a_*(+ 0.00299215 - 0.45399568*b_ - 0.14661872*a_ ))) ),
+
+		k = C_max/minimum((L*ST_max[0]), (1-L)*ST_max[1]);
+
+	var C_mid;
+	{
+		const
+			C_a = L*S_mid,
+			C_b = (1-L)*T_mid;
+
+		C_mid = 0.9*k*squareRoot(squareRoot(1/(1/(C_a*C_a*C_a*C_a) + 1/(C_b*C_b*C_b*C_b))));
+	}
+
+	var C_0;
+	{
+		const
+			C_a = L*0.4,
+			C_b = (1-L)*0.8;
+
+		C_0 = squareRoot(1/(1/(C_a*C_a) + 1/(C_b*C_b)));
+	}
+
+	return [C_0, C_mid, C_max];  }
+
+//       okhsl_to_oklab
+function okhsl_to_srgb(hslα, factory)  {
+	const [h,s,l,α] = hslα;
+	function oklab(L,a,b)  {
+		if (α===undefined)  α=this.config.defaultAlpha;
+		return (α===undefined) ? new factory(L,a,b) : new factory(L,a,b,α);  }
+
+	if (l === 1)  {
+		if (factory)  return oklab(1,0,0);
+		this.outputRGB(255,255,255,α);  }
+	else if (l === 0)  {
+		if (factory)  return oklab(0,0,0);
+		this.outputRGB(0,0,0,α);  }
+
+	const
+		a_ = cosine(π2*h),
+		b_ = sine(π2*h),
+		L = toe_inv(l),
+
+		Cs = get_Cs(L, a_, b_),
+		C_0 = Cs[0],
+		C_mid = Cs[1],
+		C_max = Cs[2];
+
+	var t, k_0, k_1, k_2;
+	if (s < 0.8)  {
+		t = 1.25*s;
+		k_0 = 0;
+		k_1 = 0.8*C_0;
+		k_2 = (1-k_1/C_mid);  }
+	else  {
+		t = 5*(s-0.8);
+		k_0 = C_mid;
+		k_1 = 0.2*C_mid*C_mid*1.25*1.25/C_0;
+		k_2 = (1 - (k_1)/(C_max - C_mid));  }
+	const
+		C = k_0 + t*k_1/(1-k_2*t),
+		// If we would only use one of the Cs:
+		//C = s*C_0;
+		//C = s*1.25*C_mid;
+		//C = s*C_max;
+		a = C*a_,
+		b = C*b_;
+
+	return (factory) ? oklab(L,a,b) : oklab_to_srgb.call(this, [L,a,b,α]);  }
+
+
+//       oklab_to_okhsl
+function srgb_to_okhsl(rgbα, factory)  {
+	factory??=this.config.OKHSLA_Factory;
+	const
+		lab = arguments[0].model==='OKLab' ? arguments[0] : srgb_to_oklab.call(this, rgbα, Array),
+
+		C = squareRoot(lab[1]*lab[1] +lab[2]*lab[2]),
+		a_ = lab[1]/C,
+		b_ = lab[2]/C,
+
+		L = lab[0],
+
+		Cs = get_Cs(L, a_, b_),
+		C_0 = Cs[0],
+		C_mid = Cs[1],
+		C_max = Cs[2],
+
+		// ↓ in the SoftMoon-WebWare world, gray-scale tones have the hue 360°, i.e. ALL the hues mixed!
+		h = (C<minimumChroma) ? 1 : (0.5 + 0.5*arcTangent2(-lab[2], -lab[1])/π),
+		α = (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
+
+	var s;
+
+	if (C < C_mid)  {
+		const
+			k_0 = 0,
+			k_1 = 0.8*C_0,
+			k_2 = (1-k_1/C_mid),
+
+			t = (C - k_0)/(k_1 + k_2*(C - k_0));
+		s = t*0.8;  }
+	else  {
+		const
+			k_0 = C_mid,
+			k_1 = 0.2*C_mid*C_mid*1.25*1.25/C_0,
+			k_2 = (1 - (k_1)/(C_max - C_mid)),
+
+			t = (C - k_0)/(k_1 + k_2*(C - k_0));
+		s = 0.8 + 0.2*t;  }
+
+	return (α===undefined) ? new factory(h,s,toe(L)) : new factory(h,s,toe(L),α);  }
+
+//if you pass is a factory below, this will only covert to OKLab and return those values through the factory
+//       okhsv_to_oklab
+function okhsv_to_srgb(hsvα, factory)  {
+	const
+		[h,s,v,α] = hsvα,
+		a_ = cosine(π2*h),
+		b_ = sine(π2*h),
+
+		ST_max = get_ST_max(a_,b_),
+		S_max = ST_max[0],
+		S_0 = 0.5,
+		T  = ST_max[1],
+		k = 1 - S_0/S_max,
+
+		L_v = 1 - s*S_0/(S_0+T - T*k*s),
+		C_v = s*T*S_0/(S_0+T-T*k*s);
+	var
+		L = v*L_v,
+		C = v*C_v;
+
+		// to present steps along the way
+		//L = v;
+		//C = v*s*S_max;
+		//L = v*(1 - s*S_max/(S_max+T));
+		//C = v*s*S_max*T/(S_max+T);
+	const
+		L_vt = toe_inv(L_v),
+		C_vt = C_v * L_vt/L_v,
+
+		L_new =  toe_inv(L); // * L_v/L_vt;
+
+	C = C * L_new/L;
+	L = L_new;
+
+	const
+		rgb_scale = oklab_to_srgb([L_vt, a_*C_vt, b_*C_vt], false),  // RGB values remain linear
+		scale_L = cubeRoot(1/(maximum(rgb_scale[0], rgb_scale[1], rgb_scale[2], 0)));
+
+	// remove to see effect without rescaling
+	L = L*scale_L;
+	C = C*scale_L;
+
+	const a=C*a_, b=C*b_;
+
+	if (factory)  {
+		if (α===undefined)  α=this.config.defaultAlpha;
+		return (α===undefined) ? new factory(L,a,b) : new factory(L,a,b,α);  }
+	return oklab_to_srgb.call(this, [L,a,b,α]);  }
+
+
+function srgb_to_okhsv(rgbα, factory)  {
+	factory??=this.config.OKHSVA_Factory;
+	const
+		lab = arguments[0].model==='OKLab' ? arguments[0] : srgb_to_oklab.call(this, rgbα, Array);
+	var
+		C = squareRoot(lab[1]*lab[1] + lab[2]*lab[2]),
+		L = lab[0];
+	const
+		a_ = lab[1]/C,
+		b_ = lab[2]/C,
+
+		// ↓ in the SoftMoon-WebWare world, gray-scale tones have the hue 360°, i.e. ALL the hues mixed!
+		h = (C<minimumChroma) ? 1 : (0.5 + 0.5*arcTangent2(-lab[2], -lab[1])/π),
+
+		ST_max = get_ST_max(a_, b_),
+		S_max = ST_max[0],
+		S_0 = 0.5,
+		T = ST_max[1],
+		k = 1 - S_0/S_max,
+
+		t = T/(C+L*T),
+		L_v = t*L,
+		C_v = t*C,
+
+		L_vt = toe_inv(L_v),
+		C_vt = C_v * L_vt/L_v,
+
+		rgb_scale = oklab_to_srgb([L_vt, a_*C_vt, b_*C_vt], false),  // RGB values remain linear
+		scale_L = cubeRoot(1/(maximum(rgb_scale[0], rgb_scale[1], rgb_scale[2], 0)));
+
+	L = L/scale_L;
+	C = C/scale_L;
+
+	C = C * toe(L)/L;
+	L = toe(L);
+
+	const
+		v = L/L_v,
+		s = (S_0+T)*C_v/((T*S_0) + T*k*C_v),
+		α= (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
+
+	return (α===undefined) ? new factory(h,s,v) : new factory(h,s,v,α);  }
+
+
 }  // close the private namespace
 
-//Object.lock(Björn_Ottosson, true);
-Object.deepFreeze(Björn_Ottosson);
+//Object.lock(Björn_Ottosson, true);   //if for some reason you need to add to something within
+Object.deepFreeze(Björn_Ottosson);     //tell the JS compiler (SpiderMonkey in particular) that all is constant so it can optimize
