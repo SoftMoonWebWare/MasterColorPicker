@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.6~BETA   April 7, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.7~BETA   April 17, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -378,6 +378,8 @@ const RGB_calc=new SoftMoon.WebWare.RGB_Calc({
 	CMYKA_Factory: SoftMoon.WebWare.CMYKA_Color,
 	OKLabA_Factory: SoftMoon.WebWare.OKLabA_Color,
 	OKLChA_Factory: SoftMoon.WebWare.OKLChA_Color,
+	OKHSVA_Factory: SoftMoon.WebWare.OKHSVA_Color,
+	OKHSLA_Factory: SoftMoon.WebWare.OKHSLA_Color,
 	LabA_Factory: SoftMoon.WebWare.LabA_Color,
 	LChA_Factory: SoftMoon.WebWare.LChA_Color,
 	XYZA_Factory: SoftMoon.WebWare.XYZA_Color }, true);
@@ -409,6 +411,8 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 		case 'Lab':
 		case 'OKLCh':
 		case 'OKLab':
+		case 'OKHSV':
+		case 'OKHSL':
 		case 'XYZ':  //these are always wrapped
 			try {
 				if (!colorSpecCache[mode])  (colorSpecCache[mode]=RGB_calc.to[mode.toLowerCase()](colorSpecCache.RGB)).config.stack(format);
@@ -2216,7 +2220,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 	UniDOM.addEventHandler(settings.applyOpacity, 'onChange', function() {settings.opacity_percent.value=settings.opacity_range.value=100;});
 });
 
-UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', function()  {
+UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_ready', function()  {
 		SoftMoon.WebWare.Color_Picker.colorSwatch(settings.LabContrastColor);
 		UniDOM.generateEvent(settings.showContrastInLab, 'change', {bubbles:true});  },
 	{once:true});
@@ -2333,21 +2337,23 @@ BeezEye.calcNativeHSV=function(x, y, maxRadius)  {  // {x,y} are Cartesian co-or
 
 BeezEye.getColor=function(event)  {
 	const
-			palette=document.querySelector("#MasterColorPicker #BeezEye canvas"),
-			pStylz=getComputedStyle(palette),
-			w=parseInt(pStylz.width),
-			h=parseInt(pStylz.height),
-			center={x: Math.round(w/2), y: Math.round(h/2)},
-			variety=settings.variety.value,
-			space={x: w/variety},
-			maxSatPoint=w/2-space.x/2;
+		palette=document.querySelector("#MasterColorPicker #BeezEye canvas"),
+		pStylz=getComputedStyle(palette),
+		w=parseInt(pStylz.width),
+		h=parseInt(pStylz.height),
+		center={x: Math.round(w/2), y: Math.round(h/2)},
+		variety=settings.variety.value,
+		space={x: w/variety},
+		maxSatPoint=w/2-space.x/2;
 	space.y=Math.sin(_['60°'])*space.x;
-	var x=Math.round((event.offsetX-center.x)/space.x)*space.x,
-			y=center.y-event.offsetY;
-	const
-			row=Math.round(y/space.y);
+	var y=center.y-event.offsetY;
+	const row=Math.round(y/space.y);
 	y=row*space.y;
-	if (row%2)  x+=space.x/2;  // ¿what is the problem?  ¿why odd row calculations are improperly offset?  ¿and why did it take me 13 years to notice?  ¿did something change somehow?
+	const
+		x=(row%2) ?
+				(event.offsetX<center.x ? Math.ceil((event.offsetX-center.x)/space.x)*space.x - space.x/2
+															  : Math.floor((event.offsetX-center.x)/space.x)*space.x + space.x/2)
+			: Math.round((event.offsetX-center.x)/space.x)*space.x ;
 	BeezEye.calcNativeHSV(x, y, maxSatPoint);  // globals ↓
 	if (saturation>1)  return;
 	if (saturation===0)  hue=1;
@@ -2423,6 +2429,8 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		//first we set the private global members                                        ↓  this defines property names (of the array-object: settings)
 		settings=UniDOM.getElementsBy$Name(document.getElementById('BeezEye'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <input>s) into an array, with corresponding properties
 		const lbl=settings.value.parentNode;
+		UniDOM.addEventHandler(settings.model_OK, 'onchange', OKifyColorModels);
+		if (settings.model_OK.checked)  OKifyColorModels.call(settings.model_OK, false);
 		for (let i=0; i<settings.model.length; i++)  {
 			UniDOM.addEventHandler(settings.model[i], 'onchange', setColorSpace);
 			if (settings.model[i].checked)  setColorSpace.call(settings.model[i], false);  }
@@ -2430,11 +2438,11 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			this.closest('fieldset').querySelector('input[type="range"]').disabled=!this.checked;
 			UniDOM.disable(this.closest('label').nextElementSibling, !this.checked);
 			if (event.isTrusted)  BeezEye.buildPalette();  });
-		UniDOM.generateEvent(settings.curve, 'change', {bubbles:false})
+		UniDOM.generateEvent(settings.curve, 'change', {bubbles:false});
 		UniDOM.addEventHandler(settings.twist, 'onchange', function toggleExtras(event)  {
 			this.closest('label').querySelector('input[type="range"]').disabled=!this.checked;
 			if (event.isTrusted)  BeezEye.buildPalette();  });
-		UniDOM.generateEvent(settings.twist, 'change', {bubbles:false})
+		UniDOM.generateEvent(settings.twist, 'change', {bubbles:false});
 		UniDOM.addEventHandler(settings.value, 'onchange', BeezEye.buildPalette);
 		UniDOM.addEventHandler(settings.variety, 'onchange', BeezEye.buildPalette);
 		UniDOM.addEventHandler(settings.curve_value, 'onchange', BeezEye.buildPalette);
@@ -2446,13 +2454,25 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut', 'onclick'], BeezEye);
 		BeezEye.buildPalette();
 
+		function OKifyColorModels(flag)  { // flag is false upon start-up and ==true (it’s an “onchange” Event Object) otherwise
+			for (let i=1 /*skip CMYK*/; i<settings.model.length; i++)  {
+				if (this.checked  &&  !settings.model[i].value.startsWith('OK')  &&  settings.model[i].value!=='HCG')  {
+					settings.model[i].value="OK"+settings.model[i].value;
+					settings.model[i].nextSibling.data="OK"+settings.model[i].nextSibling.data;  }
+				else if (!this.checked  &&  settings.model[i].value.startsWith('OK'))  {
+					settings.model[i].value=settings.model[i].value.slice(2);
+					settings.model[i].nextSibling.data=settings.model[i].nextSibling.data.slice(2);  }  }
+			if (flag)  BeezEye.buildPalette();  }
+
 		function setColorSpace(flag)  { // flag is false upon start-up and ==true (it’s an “onchange” Event Object) otherwise
 			switch (this.value.toLowerCase())  {
 			case 'cmyk': lbl.firstChild.data='Black';  lbl.childNodes[1].firstChild.data='(K)';  break;
 			case 'hsv':
+			case 'okhsv':
 			case 'hsb': lbl.firstChild.data='Brightness';  lbl.childNodes[1].firstChild.data='Value';  break;
 			case 'lch':
 			case 'oklch':
+			case 'okhsl':
 			case 'hsl': lbl.firstChild.data='Lightness';  lbl.childNodes[1].firstChild.data='';  break;
 			case 'hcg': lbl.firstChild.data='Gray';  lbl.childNodes[1].firstChild.data='';  break;  }
 			if (flag)  BeezEye.buildPalette();  }
@@ -3625,6 +3645,7 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 	||  typeof arguments[0] === 'symbol'
 	||  arguments[0]===null)  {
 		UniDOM.addClass(alertBox, 'disabled');
+		UniDOM.generateEvent(window, 'mastercolorpicker_palettes_ready');
 		return;  }
 
 	var dbFiles, files, database=MasterColorPicker.db, store="autoload_palettes";
@@ -3674,6 +3695,7 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 
 	if (dbFiles===undefined  &&  files===undefined)  {
 		UniDOM.addClass(alertBox, 'disabled');
+		UniDOM.generateEvent(window, 'mastercolorpicker_palettes_ready');
 		return;  }
 
 	const
@@ -3752,6 +3774,7 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 			allFiles.serverFiles=files;
 			if (allFiles.length===0)  {
 				if (typeof $whenDone === 'function')  {try{$whenDone(allFiles);} catch(e){console.error(errMsg,e);}}
+				UniDOM.generateEvent(window, 'mastercolorpicker_palettes_ready');
 				UniDOM.remove$Class(document.body, 'MCP_init');
 				return;  }
 			i=0;
@@ -3770,6 +3793,7 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 							catch(e) {console.error(errMsg,e);}  }
 						UniDOM.remove$Class(document.body, 'MCP_init');
 						UniDOM.generateEvent(window, 'mastercolorpicker_palettes_loaded');
+						UniDOM.generateEvent(window, 'mastercolorpicker_palettes_ready');
 						}  },
 				7);  },
 		100 );
@@ -4969,6 +4993,8 @@ const
 		CMYKA_Factory:Array,
 		OKLabA_Factory:Array,
 		OKLChA_Factory:Array,
+		OKHSLA_Factory:Array,
+		OKHSVA_Factory:Array,
 		LabA_Factory:Array,
 		LChA_Factory:Array,
 		useHexSymbol:true}, true),
@@ -5037,6 +5063,8 @@ function normalizeTriadicTrueGrayHues(c1,c2,c3, space)  {
 	case 'hsv':
 	case 'hsb':
 	case 'hsl':
+	case 'okhsv':
+	case 'okhsl':
 	case 'hcg':  H=0;  break;
 	case 'lch':
 	case 'oklch':  H=2;  break;
@@ -5245,7 +5273,7 @@ Gradientor.getColor=function Gradientor_getColor(event)  {
 		inputAsFactor:{value:false, writable: true},
 		inputAsNumeric:{value:true},
 		defaultAlpha:{value:1} });
-	try {
+	try  {
 	const
 		cSpace=colorSpace.value,
 		cspace=cSpace.toLowerCase(),
@@ -5268,8 +5296,10 @@ Gradientor.getColor=function Gradientor_getColor(event)  {
 		if (j!==0)  {
 			c2=color_factory.convert_A_Color(c2, cSpace, Array);
 			c3=color_factory.convert_A_Color(c3, cSpace, Array);
-			const H=normalizeTriadicTrueGrayHues(c,c2,c3, cspace);
-			c=mixTriads(c,c2,c3,j,k,variety,H,cspace );  }
+			const
+				H=normalizeTriadicTrueGrayHues(c,c2,c3, cspace),
+				mixer= cspace.includes('h') ? mixTriadsWithHues : mixTriads;
+			c=mixer(c,c2,c3,j,k,variety,H);  }
 		MasterColorPicker.RGB_calc.config.inputAsFactor=(cspace!=='rgb');
 		const RGB=MasterColorPicker.RGB_calc.from[cspace](c);
 		return RGB ? new Gradientor.Color_SpecCache(c, RGB, cSpace) : null;  }
@@ -5282,30 +5312,13 @@ Gradientor.getColor=function Gradientor_getColor(event)  {
 			RGB=MasterColorPicker.RGB_calc.from[cspace](color);
 		return RGB ?  new Gradientor.Color_SpecCache(color, RGB, cSpace)  :  null;  }
 	default: return null  }
-	} finally {MasterColorPicker.RGB_calc.config.cull();}  }
+	}  finally {MasterColorPicker.RGB_calc.config.cull();}  }
 
 Gradientor.Color_SpecCache=function(c, RGB, space)  {
 	if (!new.target)  throw new Error('“Gradientor.Color_SpecCache” is a constructor, not a function.');
 	this.RGB=RGB;
 	this.model=space;
-	if (space!=='RGB')  {
-		switch (space)  {
-		case 'HSL':  this.HSL=new SoftMoon.WebWare.HSLA_Color(...c);
-		break;
-		case 'HSB':
-		case 'HSV':  this.HSB=new SoftMoon.WebWare.HSBA_Color(...c);
-		break;
-		case 'HCG':  this.HCG=new SoftMoon.WebWare.HCGA_Color(...c);
-		break;
-		case 'CMYK':  this.CMYK=new SoftMoon.WebWare.CMYKA_Color(...c);
-		break;
-		case 'LCh':  this.LCh=new SoftMoon.WebWare.LChA_Color(...c);
-		break;
-		case 'Lab':  this.Lab=new SoftMoon.WebWare.LabA_Color(...c);
-		break;
-		case 'OKLCh':  this.OKLCh=new SoftMoon.WebWare.OKLChA_Color(...c);
-		break;
-		case 'OKLab':  this.OKLab=new SoftMoon.WebWare.OKLabA_Color(...c);  }  }  }
+	if (space!=='RGB')  this[space]=color_factory.copy_A_Color(c, space);  }
 Gradientor.Color_SpecCache.prototype=Object.create(
 			SoftMoon.WebWare.Color_Picker.Color_SpecCache.prototype,
 			{name: {value:'SoftMoon.WebWare.Gradientor.Color_SpecCache'},
@@ -5348,7 +5361,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 		UniDOM.generateEvent(MasterColorPicker.userOptions.showHelp, 'change');
 		MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
 		document.getElementById(event.currentTarget.getAttribute('referto')).scrollIntoView();  });
-	const init=UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', buildGradientorPalette, {once:true});
+	const init=UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_ready', buildGradientorPalette, {once:true});
 	function buildGradientorPalette()  {
 		const format=Gradientor.HTML.querySelector('input[name*="format"]:checked');
 		UniDOM.swapOut$Class(Gradientor.HTML, ["linear", "triadic"], format.value);
@@ -5817,7 +5830,7 @@ ColorThesaurus.compare=function compareColors(c1, c2)  {
 					Math.abs(c1.chroma-c2.chroma)
 				 )/2;  }
 
-UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', function()  {
+UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_ready', function()  {
 		//SoftMoon.WebWare.ColorThesaurus.refreshPaletteList();
 		UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Thesaurus button.refresh'),
 			['click', 'buttonpress'], ColorThesaurus.refreshPaletteList);
@@ -6012,7 +6025,7 @@ try{UniDOM.generateEvent(document.getElementsByName('MasterColorPicker_Gradiento
 UniDOM.addEventHandler(userOptions.palette_select, 'onchange', function()  {
 	document.getElementById('Color_Picker_options').firstChild.firstChild.data = this.options[this.selectedIndex].text + ' mode:';  }  );
 
-UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_loaded', function() {UniDOM.generateEvent(userOptions.palette_select, 'change', {bubbles:true})});
+UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_ready', function() {UniDOM.generateEvent(userOptions.palette_select, 'change', {bubbles:true})});
 
 UniDOM.addEventHandler(MasterColorPicker.HTML, 'beforeToggle', function(event)  {
 	if (event.newState==='closed'  &&  event.target.contains(document.activeElement))
