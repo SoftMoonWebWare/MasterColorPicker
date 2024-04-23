@@ -1,6 +1,7 @@
 // charset: UTF-8    tab-spacing: 2
-/*  “OK” (“Ottosson Krafted”) color models  (this file was last updated April 16, 2024)
+/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated April 20, 2024)
  * Copyright (c) 2021 Björn Ottosson
+ * & Copyright © 2024 Joe Golembieski, SoftMoon-WebWare
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,10 +25,35 @@
  * https://bottosson.github.io/posts/colorpicker/
  * https://github.com/bottosson/bottosson.github.io/blob/master/misc/colorpicker/colorconversion.js
  *
+ * SoftMoon-WebWare added in an “accuracyLevel” parameter,
+ * supporting the concept noted by Ottosson that was not included with the actual code.
+ *
+ * SoftMoon-WebWare added in a “minumumChroma” parameter, to support  hue=360°  when the result is a gray-scale tone (black—to—white);
+ * this also supports a fix for the “weird S value for white”.
+ *
+ * Minor bug fixes by SoftMoon-WebWare, one that seems might be ¿exclusive to JavaScript?
+ *  • NaN (Not a Number) bugs from dividing by 0
+ *  • weird S value for “white” in OKHSL
+ *  • two fixes for: out-of-bounds conversions for some colors in OKHSL:
+ *     ▪ clamped S →  0 ≥ S ≥ 1  but this is now commented out; we instead use the other fix:
+ *     ▪ increased the accuracyLevel from 1 to 2
+ *
+ * Known bug: with accuracyLevel=1, OKHSV_to_RGB is not properly converting “red” (sRGB [255,0,0]) from:  OKHSV(29.23deg 100% 100%)
+ * a little experimentation shows a few limits:    26.926° — 29.233° (pure red),  @ S=100%, V>99.9%
+ * I looked quick, but didn’t find a reasonable way to clamp a value (in the end, we get RGB [255,-1,0] for “red”)
+ * Jumping to accuracyLevel=2 fixes the problem.
+ *
+ * Known bug: OKHSV_to_RGB is not properly converting “blueish” hues with near 100% chroma
+ * The bug seems to lie more in OKLab_to_RGB.  We are getting sRGB channel values of (-1) and (-2).
+ * No known fix at this time; however, the “clapmRGB” method in RGB_Calc may address this in the future.
+ * It does no clamping, only rejections at this time.
+ *
  * Minor superficial modifications by SoftMoon-WebWare for:
- *  • inclusion into the RGB_Calc package,
+ *  • inclusion into the RGB_Calc package (values input as Arrays, alpha (α, opacity) channel support, etc),
  *  • optimal execution speed by JavaScript compilers,
  *  • reduced whitespace for web-transfer, while keeping a readable format (and I'm not “A.D.D.”: I like to see more of the forest through the trees on the screen at once).
+ *
+ * Additional color space model (OKHCG) provided by SoftMoon-WebWare
  */
 //   referred by: https://drafts.csswg.org/css-color/#ok-lab
 
@@ -80,11 +106,24 @@ Björn_Ottosson.okhsl_to_srgb  =  okhsl_to_srgb;
 Björn_Ottosson.srgb_to_okhsl  =  srgb_to_okhsl;
 Björn_Ottosson.okhsv_to_srgb  =  okhsv_to_srgb;
 Björn_Ottosson.srgb_to_okhsv  =  srgb_to_okhsv;
+
+Björn_Ottosson.okhwb_to_srgb  =  okhwb_to_srgb;
+Björn_Ottosson.srgb_to_okhwb  =  srgb_to_okhwb;
+
+Björn_Ottosson.okhcg_to_srgb  =  okhcg_to_srgb;
+Björn_Ottosson.srgb_to_okhcg  =  srgb_to_okhcg;
+
 Björn_Ottosson.okhsl_to_oklab  =  okhsl_to_srgb;  // ← you MUST supply a factory as a second argument…
 Björn_Ottosson.okhsv_to_oklab  =  okhsv_to_srgb;  // ←  …or the result will be sRGB!
+Björn_Ottosson.okhwb_to_oklab  =  okhwb_to_srgb;  // ←  …or the result will be sRGB!
+Björn_Ottosson.okhcg_to_oklab  =  okhcg_to_srgb;  // ←  …or the result will be sRGB!
+
 Björn_Ottosson.oklab_to_okhsl  =  srgb_to_okhsl;  // ← the array you pass in must have a “model” property:
 Björn_Ottosson.oklab_to_okhsv  =  srgb_to_okhsv;  // ←  arr.model==="OKLab"  …or it will be considered sRGB!
 Björn_Ottosson.oklab_to_oklch  =  srgb_to_oklch;  // ←  ↑ ↑
+
+Björn_Ottosson.okhsv_to_okhwb  =  srgb_to_okhwb;  // ← the array you pass in must have a “model” property: arr.model==="OKHSV"  …or it will be considered sRGB!
+Björn_Ottosson.okhsv_to_okhcg  =  srgb_to_okhcg;  // ← the array you pass in must have a “model” property: arr.model==="OKHSV"  …or it will be considered sRGB!
 
 /* to use without RGB_Calc:
 Björn_Ottosson.config= {defaultAlpha:1, OKLabA_Factory:Array, OKLChA_Factory:Array, OKHSVA_Factory:Array, OKHSLA_Factory:Array, XYZA_Factory:Array}  //customized to your liking
@@ -94,34 +133,36 @@ Björn_Ottosson.outputRGB= function(r,g,b,α) {… … …}  //customized to you
 */
 
 // ↓ In the SoftMoon-WebWare world, gray-scale tones have the exact‡ hue 360°, i.e. ALL the hues mixed! ‡(not 720°, etc.)
-// Gray-scale tones are defined within as having less Chroma than:
+// Gray-scale tones (in OKLCh, OKHSV, OKHSL, OKHWB, & OKHCG) are defined within as having less Chroma than:
 const minimumChroma=0.0001;
+// ↑ for RGB profiles (when using OKLCh) that have a bit-depth greater than 255 per channel, this value may need to be decreased.
 
 Björn_Ottosson.minimumChroma=minimumChroma;
 
 // for:  compute_max_saturation()  and  find_gamut_intersection()  below…
-let accuracyLevel=1;
+let accuracyLevel=2;
 
 Object.defineProperty(Björn_Ottosson, 'accuracy', {get: ()=>accuracyLevel, set: (x)=>{
-	accuacyLevel= minimum(1, maximum(3, Math.round(x)));  }});
+	accuracyLevel= minimum(3, maximum(1, Math.round(x)));  }});
 
 
 // OKLab and OKLCh are also released under public domain
-function oklab_to_srgb(Labα, γCorrect=true)  {  // ¿¿  l → 0.0—1.0     a,b → -0.5—0.5  ??  ← ¡seems to be correct!
+function oklab_to_srgb(Labα, γCorrect=true)  {  // l → 0.0—1.0     ¿¿  a,b → -0.5—0.5  ??  ← ¡seems to be correct!
+const [L,a,b]=Labα;
 	const
 		l = (Labα[0] + 0.3963377774 * Labα[1] + 0.2158037573 * Labα[2])**3,
 		m = (Labα[0] - 0.1055613458 * Labα[1] - 0.0638541728 * Labα[2])**3,
 		s = (Labα[0] - 0.0894841775 * Labα[1] - 1.2914855480 * Labα[2])**3,
-		r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-		g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-		b = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
-	if (γCorrect)  return this.γCorrect_linear_RGB(r,g,b,Labα[3],'sRGB');
+		R = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+		G = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+		B = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+	if (γCorrect)  return this.γCorrect_linear_RGB(R,G,B,Labα[3],'sRGB');
 	// this function is also a worker for OKHSL & OKHSV below…
-	else  return [r,g,b,Labα[3]];  }
+	else  return [R,G,B,Labα[3]];  }
 
-function oklch_to_srgb(LChα)  { // l,h → 0.0—1.0   c → 0.0—0.5
+function oklch_to_srgb(LChα, γCorrect=true)  { // l,h → 0.0—1.0   c → 0.0—0.5
 	const h=LChα[2]*π2;
-	return oklab_to_srgb.call(this, [LChα[0], LChα[1]*cosine(h), LChα[1]*sine(h), LChα[3]]);  }
+	return oklab_to_srgb.call(this, [LChα[0], LChα[1]*cosine(h), LChα[1]*sine(h), LChα[3]], γCorrect);  }
 
 function srgb_to_oklab(rgbα, factory)  {  //RGB from 0 to 255
 	// this function is also a worker for OKHSL & OKHSV below…
@@ -454,12 +495,12 @@ function okhsl_to_srgb(hslα, factory)  {
 		if (α===undefined)  α=this.config.defaultAlpha;
 		return (α===undefined) ? new factory(L,a,b) : new factory(L,a,b,α);  }
 
-	if (l === 1)  {
+	if (l >= 1)  {
 		if (factory)  return oklab(1,0,0);
-		this.outputRGB(255,255,255,α);  }
-	else if (l === 0)  {
+		return this.outputRGB(255,255,255,α);  }
+	else if (l <= 0)  {
 		if (factory)  return oklab(0,0,0);
-		this.outputRGB(0,0,0,α);  }
+		return this.outputRGB(0,0,0,α);  }
 
 	const
 		a_ = cosine(π2*h),
@@ -513,18 +554,20 @@ function srgb_to_okhsl(rgbα, factory)  {
 
 		// ↓ in the SoftMoon-WebWare world, gray-scale tones have the hue 360°, i.e. ALL the hues mixed!
 		h = (C<minimumChroma) ? 1 : (0.5 + 0.5*arcTangent2(-lab[2], -lab[1])/π),
+		l = toe(L),
 		α = (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
 
 	var s;
 
-	if (C < C_mid)  {
+	if (C<minimumChroma)  s=0;  // added by SoftMoon-WebWare: we were getting an s value of 55% or 55.8% for white.
+	else  if (C < C_mid)  {
 		const
 			k_0 = 0,
 			k_1 = 0.8*C_0,
 			k_2 = (1-k_1/C_mid),
 
 			t = (C - k_0)/(k_1 + k_2*(C - k_0));
-		s = t*0.8;  }
+		s = t*0.8 || 0; /*NaN bug*/  }
 	else  {
 		const
 			k_0 = C_mid,
@@ -532,15 +575,23 @@ function srgb_to_okhsl(rgbα, factory)  {
 			k_2 = (1 - (k_1)/(C_max - C_mid)),
 
 			t = (C - k_0)/(k_1 + k_2*(C - k_0));
-		s = 0.8 + 0.2*t;  }
+		s = (0.8 + 0.2*t) || 0; /*NaN bug*/  }
 
-	return (α===undefined) ? new factory(h,s,toe(L)) : new factory(h,s,toe(L),α);  }
+	// this problem noted below only happens when the accuracyLevel=1
+	//s=minimum(1, maximum(0, s));  // added by SoftMoon-WebWare: we were getting as s value of 100.1% for #330033, #660066, #990099.
 
-//if you pass is a factory below, this will only covert to OKLab and return those values through the factory
+	return (α===undefined) ? new factory(h,s,l) : new factory(h,s,l,α);  }
+
+//if you pass in a factory below, this will only covert to OKLab and return those values through the factory
 //       okhsv_to_oklab
-function okhsv_to_srgb(hsvα, factory)  {
+function okhsv_to_srgb(hsvα, factory)  {  // problems: h= 26.926° — 29.233° (pure red),  @ s=100%, v>99.9%
+
 	const
-		[h,s,v,α] = hsvα,
+		[h,s,v,α] = hsvα;
+	if (v===0)  return factory ?
+		  ((α===undefined  &  this.config.defaultAlpha===undefined) ? factory(0,0,0) : factory(0,0,0, a===undefined ? this.config.defaultAlpha : α))
+		: this.outputRGB(0,0,0);
+	const
 		a_ = cosine(π2*h),
 		b_ = sine(π2*h),
 
@@ -567,7 +618,7 @@ function okhsv_to_srgb(hsvα, factory)  {
 
 		L_new =  toe_inv(L); // * L_v/L_vt;
 
-	C = C * L_new/L;
+	C = (C * L_new/L)||0;  //NaN bug
 	L = L_new;
 
 	const
@@ -623,12 +674,76 @@ function srgb_to_okhsv(rgbα, factory)  {
 	L = toe(L);
 
 	const
-		v = L/L_v,
-		s = (S_0+T)*C_v/((T*S_0) + T*k*C_v),
+		v = L/L_v || 0,  //NaN bug
+		s = (S_0+T)*C_v/((T*S_0) + T*k*C_v)  || 0,  //NaN bug
 		α= (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
 
 	return (α===undefined) ? new factory(h,s,v) : new factory(h,s,v,α);  }
 
+
+//if you pass in a factory below, this will only covert to OKLab and return those values through the factory
+//       okhwb_to_oklab
+function okhwb_to_srgb(hwbα, factory)  {
+	// algorithm provided by Björn Ottosson
+	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
+	const
+		g=hwbα[1]+hwbα[2];
+	if (g>=1)  {const G=hwbα[1]/g;  return this.outputRGB(G,G,G,hwbα[3]);}
+	return okhsv_to_srgb.call(this, [hwbα[0], 1-(hwbα[1]/(1-hwbα[2])), 1-hwbα[2], hwbα[3]], factory);  }
+
+//       okhsv_to_okhwb
+function srgb_to_okhwb(rgbα, factory)  {
+	// algorithm provided by Björn Ottosson
+	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
+	factory??=this.config.OKHWBA_Factory;
+	const
+		hsv = arguments[0].model==='OKHSV' ? arguments[0] : srgb_to_okhsv.call(this, rgbα, Array),
+		w=(1-hsv[1])*hsv[2],
+		b=1-hsv[2],
+		α= (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
+	return (α===undefined) ? new factory(hsv[0],w,b) : new factory(hsv[0],w,b,α);  }
+
+
+
+/*  HCG & OKHCG  → → → Hue, Chroma, Gray
+ *  These are color space models based on an RGB (e.g. sRGB) color space,
+ *  similar to HSL & HSV (HSB), or OKHSL & OKHSV.
+ *  Hue is the same as the corresponding hue in the similar color spaces.
+ *  Chroma (C) is defined in this color space model as being “mathematical Chroma”,
+ *  relative to the maximum C that the RGB color space can accommodate for any given hue,
+ *  similar to saturation, being a percentage from 0%-100%, with all values producing an in-gamut color.
+ *  For sRGB, maximum C is when one channel [R,G,B] =255, one channel =0, and the third varies.
+ *  This is NOT perceived Chroma, as other color models such as LCh or OKLCh attempt to quantitize.
+ *  Gray is essentially ≡ lightness or value/brightness, with the term chosen to distinguish these color spaces.
+ *  For HCG, the color is a simple mathematical interpolation of corresponding channels between
+ *  a fully-chromatic hue (as defined above) and a gray-tone (all RGB channels have the same value),
+ *  with C being the interpolation factor.
+ *  For OKHCG, the color is defined & derived by OKLab’s (& OKHSV’s) mapping to the sRGB color space.
+ *
+ *  HCG is very useful in mathematically analyzing and working with colors.
+ *  HCG & OKHCG are very useful for color-picker sliders, I (Joe) believe more so than HSL, HSV/HSB, or HWB.
+ *  The old-school color-picker with the rainbow-ring
+ *  and the gradient-triangle with colored-black-white tips is displaying the HCG space.
+ *  I coined this term circa 2011 based on what Wikipedia taught me, before I knew about LCh and “perceived Chroma”…
+ *  but I still don’t know of a better term.
+ */
+//if you pass in a factory below, this will only covert to OKLab and return those values through the factory
+//       okhcg_to_oklab
+function okhcg_to_srgb(hcgα, factory)  {
+	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
+	const V=  hcgα[1] + (1-hcgα[1])*hcgα[2];
+if (V<0 || V>1)  console.log('this formula ain’t workin');
+	return okhsv_to_srgb.call(this, [hcgα[0], hcgα[1], V, hcgα[3]], factory);  }
+
+//       okhsv_to_okhcg
+function srgb_to_okhcg(rgbα, factory)  {
+	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
+	factory??=this.config.OKHCGA_Factory;
+	const
+		[H,S,V] = arguments[0].model==='OKHSV' ? arguments[0] : srgb_to_okhsv.call(this, rgbα, Array),
+		C= 1 - (((1-S)*V) + (1-V)),
+		α= (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
+	return (α===undefined) ? new factory(H,C,V) : new factory(H,C,V,α);  }
 
 }  // close the private namespace
 
