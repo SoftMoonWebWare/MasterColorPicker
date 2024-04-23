@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.10.2  April 16, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.11  April 20, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
@@ -702,7 +702,7 @@ const CS_props={
 //  and none is found to be  numeric  a default value of 100% is used.
 	defaultAlpha: undefined,
 
-//  You may want to create your own Class constructor for any of these 14 Factories below
+//  You may want to create your own Class constructor for any of these 16 Factories below
 //   or use any of the  …A_Color  Objects defined below.
 //  The RGB_Calc.ConfigStack child-class redefines these for auditing calculators,
 //   and so do all the  …A_Color  Objects and  …A_Array  Objects  for their conversion properties,
@@ -720,11 +720,13 @@ const CS_props={
 	OKLChA_Factory: Array,
 	OKHSLA_Factory: Array,
 	OKHSVA_Factory: Array,
+	OKHWBA_Factory: Array,
+	OKHCGA_Factory: Array,
 	XYZA_Factory: Array,
 	LabA_Factory: Array,
 	LChA_Factory: Array,
 /*
- *The 14 factory pointers (above) control the output of the “quick” RGB_Calc–functions and its instances;
+ *The 16 factory pointers (above) control the output of the “quick” RGB_Calc–functions and its instances;
  * these are by default superseded by …A_Array Objects for conversion functions in …A_Array Object instances, &
  * these are by default superseded by …A_Color Objects for Auditing Calculators and conversion functions in …A_Color Object instances.
  *
@@ -778,10 +780,10 @@ class RGBA_Array extends Array {
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
 	get opacity() {return this[3]}  set opacity($) {this[3]=$}
 	get red() {return this[0]}  set red($) {this[0]=$}
-	get blu() {return this[1]}  set blu($) {this[1]=$}
-	get grn() {return this[2]}  set grn($) {this[2]=$}
-	get blue()  {return this[1]}  set blue($)  {this[1]=$}
-	get green() {return this[2]}  set green($) {this[2]=$}
+	get grn() {return this[1]}  set grn($) {this[1]=$}
+	get blu() {return this[2]}  set blu($) {this[2]=$}
+	get green() {return this[1]}  set green($) {this[1]=$}
+	get blue()  {return this[2]}  set blue($)  {this[2]=$}
 	get hex()  {  return (this.config.useHexSymbol ? '#':"") + Math._2hex(this[0])+Math._2hex(this[1])+Math._2hex(this[2]) +
 								((typeof this[3] === 'number')  ?  Math._2hex(this[3]*255) : "");  }
 	set hex($)  {  if ($=$.match(RegExp.hex_a))  {
@@ -899,12 +901,15 @@ class RGBA_Color extends RGBA_Array {
 				hsb:  {get:  toHSB.bind(this, this),  enumerable: true},
 				hsl:  {get:  toHSL.bind(this, this),  enumerable: true},
 				hcg:  {get:  toHCG.bind(this, this),  enumerable: true},
+				hwb:  {get:  toHWB.bind(this, this),  enumerable: true},
 				cmyk: {get: toCMYK.bind(this, this),  enumerable: true},
 				xyz:  {get:  toXYZ.bind(this, this),  enumerable: true},
 				lab:  {get:  toLab.bind(this, this),  enumerable: true},
 				lch:  {get:  toLCh.bind(this, this),  enumerable: true},
 				oklab:{get:Björn_Ottosson.srgb_to_oklab.bind(this, this),  enumerable: true},
 				oklch:{get:Björn_Ottosson.srgb_to_oklch.bind(this, this),  enumerable: true},
+				okhwb:{get:Björn_Ottosson.srgb_to_okhwb.bind(this, this),  enumerable: true},
+				okhcg:{get:Björn_Ottosson.srgb_to_okhcg.bind(this, this),  enumerable: true},
 				okhsv:{get:Björn_Ottosson.srgb_to_okhsv.bind(this, this),  enumerable: true},
 				okhsl:{get:Björn_Ottosson.srgb_to_okhsl.bind(this, this),  enumerable: true} })} });  }
 
@@ -1071,7 +1076,7 @@ class ColorWheel_Array extends Array {
 		if (outAs==='html')  outAs='css5';
 		const
 			model=this.model,
-			isNewModel=['HWB', 'OKLCh', 'OKHSL', 'OKHSV', 'LCh'].includes(model),
+			isNewModel=['HWB', 'OKLCh', 'OKHSL', 'OKHSV', 'OKHWB', 'OKHCG', 'LCh'].includes(model),
 			isNewStndrd=outAs==='css5'  ||  (isNewModel  &&  outAs==='css'),
 			arr=this,
 			hasCom=format.match(/cvs|commas/i),
@@ -1133,7 +1138,10 @@ class ColorWheel_Array extends Array {
 		default:  return model+'A_Color: ('+s+')';  }  }  }
 
 
-
+const ColorWheel_Color=Object.defineProperties({}, {
+	hueUnitPrecision: {enumerable: true, value:hueUnitPrecision},
+	ConfigStack: {enumerable: true, value: class extends ConfigStack {}} });
+/*
 class ColorWheel_Color extends ColorWheel_Array  {
 	static hueUnitPrecision=hueUnitPrecision;  //for external references
 
@@ -1148,12 +1156,14 @@ Object.defineProperties(ColorWheel_Color.prototype, {
 		getAlpha: {value: getAlphaFactor},
 		outputRGB: {value: outputRGB} });
 
-SoftMoon.WebWare.ColorWheel_Array=ColorWheel_Array;
-SoftMoon.WebWare.ColorWheel_Color=ColorWheel_Color;
-
 ColorWheel_Color.ConfigStack=class extends ConfigStack {}
+*/
+
 ColorWheel_Color.ConfigStack.prototype.name='ColorWheel_Color.ConfigStack';
 // see more additions to this prototype below…
+
+SoftMoon.WebWare.ColorWheel_Array=ColorWheel_Array;
+SoftMoon.WebWare.ColorWheel_Color=ColorWheel_Color;
 
 
 class HSVA_Array extends ColorWheel_Array  {
@@ -1250,7 +1260,10 @@ SoftMoon.WebWare.HSBA_Color=HSBA_Color;
 class OKHSVA_Array extends HSVA_Array  {
 	to_OKLab(factory)  {
 		factory??=this.config.OKLabA_Factory;
-		return Björn_Ottosson.okhsv_to_oklab.call(this, this, factory);  }  }
+		return Björn_Ottosson.okhsv_to_oklab.call(this, this, factory);  }
+	to_OKHWB(factory)  {
+		factory??=this.config.OKHWBA_Factory;
+		return Björn_Ottosson.okhsv_to_okhwb.call(this, this, factory);  }  }
 
 Object.defineProperty(OKHSVA_Array.prototype, "model", {value:"OKHSV"});
 // ↑ we add config to the prototype below…
@@ -1332,7 +1345,10 @@ SoftMoon.WebWare.HSLA_Color=HSLA_Color;
 class OKHSLA_Array extends HSLA_Array {
 	to_OKLab(factory)  {
 		factory??=this.config.OKLabA_Factory;
-		return Björn_Ottosson.okhsl_to_oklab.call(this, this, factory);  }  }
+		return Björn_Ottosson.okhsl_to_oklab.call(this, this, factory);  }
+	to_OKHCG(factory)  {
+		factory??=this.config.OKHCGA_Factory;
+		return Björn_Ottosson.okhsl_to_okhcg.call(this, this, factory);  }  }
 
 Object.defineProperty(OKHSLA_Array.prototype, "model", {value:"OKHSL"});
 // ↑ we add config to the prototype below…
@@ -1367,23 +1383,7 @@ SoftMoon.WebWare.OKHSLA_Array=OKHSLA_Array;
 SoftMoon.WebWare.OKHSLA_Color=OKHSLA_Color;
 
 
-class HCGA_Color extends ColorWheel_Color  {
-	constructor($H,$C,$G,$α, $config)  {
-		super($config);
-		const
-			thisClr=this;
-		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $C=thisClr.getFactor($arr[1]);  $G=thisClr.getFactor($arr[2]);
-			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
-			else  $α=thisClr.config.defaultAlpha;  }
-		Object.defineProperties(this, {
-			0: {get: ()=>$H,  set: ($)=>$H=thisClr.getHue($),  enumerable: true},
-			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getFactor($),  enumerable: true},
-			2: {get: ()=>$G,  set: ($)=>$G=thisClr.getFactor($),  enumerable: true},
-			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
-			hcga: {get: ()=>[$H,$C,$G,$α],  set: readArr},
-			to: {value: Object.defineProperty(new Object,
-				'rgb',  {get:  fromHCG.bind(this, this),  enumerable: true})}  });  }
-
+class HCGA_Array extends ColorWheel_Array  {
 	get h() {return this[0]}        set h($) {this[0]=$}
 	get c() {return this[1]}        set c($) {this[1]=$}
 	get g() {return this[2]}        set g($) {this[2]=$}
@@ -1397,28 +1397,69 @@ class HCGA_Color extends ColorWheel_Color  {
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
 	get opacity() {return this[3]}  set opacity($) {this[3]=$}  }
 
-Object.defineProperty(HCGA_Color.prototype, "model", {value:"HCG"});
+Object.defineProperty(HCGA_Array.prototype, "model", {value:"HCG"});
 
-SoftMoon.WebWare.HCGA_Color=HCGA_Color;
-
-
-class HWBA_Color extends ColorWheel_Color  {
-	constructor($H,$W,$B,$α, $config)  {
+class HCGA_Color extends HCGA_Array  {
+	constructor($H,$C,$G,$α, $config)  {
 		super($config);
+		this.config= new ColorWheel_Color.ConfigStack(this, $config);
 		const
 			thisClr=this;
-		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $W=thisClr.getFactor($arr[1]);  $B=thisClr.getFactor($arr[2]);
+		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $C=thisClr.getFactor($arr[1]);  $G=thisClr.getFactor($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$H,  set: ($)=>$H=thisClr.getHue($),  enumerable: true},
-			1: {get: ()=>$W,  set: ($)=>$W=thisClr.getFactor($),  enumerable: true},
-			2: {get: ()=>$B,  set: ($)=>$B=thisClr.getFactor($),  enumerable: true},
+			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getFactor($),  enumerable: true},
+			2: {get: ()=>$G,  set: ($)=>$G=thisClr.getFactor($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
-			hwba: {get: ()=>[$H,$W,$B,$α],  set: readArr},
+			hcga: {get: ()=>[$H,$C,$G,$α],  set: readArr},
 			to: {value: Object.defineProperty(new Object,
-				'rgb',  {get:  fromHWB.bind(this, this),  enumerable: true})}  });  }
+				'rgb',  {get:  fromHCG.bind(this, this),  enumerable: true})}  });  }  }
 
+Object.defineProperties(HCGA_Color.prototype, {
+		getHue: {value: getHueFactor},
+		getFactor: {value: getFactorValue},
+		getAlpha: {value: getAlphaFactor},
+		outputRGB: {value: outputRGB} });
+
+SoftMoon.WebWare.HCGA_Array=HCGA_Array;
+SoftMoon.WebWare.HCGA_Color=HCGA_Color;
+
+
+class OKHCGA_Array extends HCGA_Array  {
+	to_OKLab(factory)  {
+		factory??=this.config.OKHCGA_Factory;
+		return Björn_Ottosson.okhcg_to_oklab.call(this, this, factory);  }  }
+
+Object.defineProperty(OKHCGA_Array.prototype, "model", {value:"OKHCG"});
+
+class OKHCGA_Color extends OKHCGA_Array  {
+	constructor($H,$C,$G,$α, $config)  {
+		super($config);
+		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		const
+			thisClr=this;
+		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $C=thisClr.getFactor($arr[1]);  $G=thisClr.getFactor($arr[2]);
+			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
+			else  $α=thisClr.config.defaultAlpha;  }
+		Object.defineProperties(this, {
+			0: {get: ()=>$H,  set: ($)=>$H=thisClr.getHue($),  enumerable: true},
+			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getFactor($),  enumerable: true},
+			2: {get: ()=>$G,  set: ($)=>$G=thisClr.getFactor($),  enumerable: true},
+			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
+			okhcga: {get: ()=>[$H,$C,$G,$α],  set: readArr}  });  }  }
+
+Object.defineProperties(OKHCGA_Color.prototype, {
+		getHue: {value: getHueFactor},
+		getFactor: {value: getFactorValue},
+		getAlpha: {value: getAlphaFactor} });
+
+SoftMoon.WebWare.OKHCGA_Array=OKHCGA_Array;
+SoftMoon.WebWare.OKHCGA_Color=OKHCGA_Color;
+
+
+class HWBA_Array extends ColorWheel_Array {
 	get h() {return this[0]}        set h($) {this[0]=$}
 	get w() {return this[1]}        set w($) {this[1]=$}
 	get b() {return this[2]}        set b($) {this[2]=$}
@@ -1432,9 +1473,64 @@ class HWBA_Color extends ColorWheel_Color  {
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
 	get opacity() {return this[3]}  set opacity($) {this[3]=$}  }
 
-Object.defineProperty(HWBA_Color.prototype, "model", {value:"HWB"});
+Object.defineProperty(HWBA_Array.prototype, "model", {value:"HWB"});
 
+class HWBA_Color extends HWBA_Array  {
+	constructor($H,$W,$B,$α, $config)  {
+		super($config);
+		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		const
+			thisClr=this;
+		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $W=thisClr.getFactor($arr[1]);  $B=thisClr.getFactor($arr[2]);
+			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
+			else  $α=thisClr.config.defaultAlpha;  }
+		Object.defineProperties(this, {
+			0: {get: ()=>$H,  set: ($)=>$H=thisClr.getHue($),  enumerable: true},
+			1: {get: ()=>$W,  set: ($)=>$W=thisClr.getFactor($),  enumerable: true},
+			2: {get: ()=>$B,  set: ($)=>$B=thisClr.getFactor($),  enumerable: true},
+			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
+			hwba: {get: ()=>[$H,$W,$B,$α],  set: readArr},
+			to: {value: Object.defineProperty(new Object,
+				'rgb',  {get:  fromHWB.bind(this, this),  enumerable: true})}  });  }  }
+
+Object.defineProperties(HWBA_Color.prototype, {
+		getHue: {value: getHueFactor},
+		getFactor: {value: getFactorValue},
+		getAlpha: {value: getAlphaFactor},
+		outputRGB: {value: outputRGB} });
+
+SoftMoon.WebWare.HWBA_Array=HWBA_Array;
 SoftMoon.WebWare.HWBA_Color=HWBA_Color;
+
+class OKHWBA_Array extends HWBA_Array  {
+	to_OKLab(factory)  {
+		factory??=this.config.OKHWBA_Factory;
+		return Björn_Ottosson.okhwb_to_oklab.call(this, this, factory);  }  }
+Object.defineProperty(OKHWBA_Array.prototype, "model", {value:"OKHWB"});
+
+class OKHWBA_Color extends OKHWBA_Array  {
+	constructor($H,$W,$B,$α, $config)  {
+		super($config);
+		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		const
+			thisClr=this;
+		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $W=thisClr.getFactor($arr[1]);  $B=thisClr.getFactor($arr[2]);
+			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
+			else  $α=thisClr.config.defaultAlpha;  }
+		Object.defineProperties(this, {
+			0: {get: ()=>$H,  set: ($)=>$H=thisClr.getHue($),  enumerable: true},
+			1: {get: ()=>$W,  set: ($)=>$W=thisClr.getFactor($),  enumerable: true},
+			2: {get: ()=>$B,  set: ($)=>$B=thisClr.getFactor($),  enumerable: true},
+			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
+			OKhwba: {get: ()=>[$H,$W,$B,$α],  set: readArr}  });  }  }
+
+Object.defineProperties(OKHWBA_Color.prototype, {
+		getHue: {value: getHueFactor},
+		getFactor: {value: getFactorValue},
+		getAlpha: {value: getAlphaFactor} });
+
+SoftMoon.WebWare.OKHWBA_Array=OKHWBA_Array;
+SoftMoon.WebWare.OKHWBA_Color=OKHWBA_Color;
 
 
 class OKLChA_Array extends ColorWheel_Array  {
@@ -1955,19 +2051,25 @@ Object.defineProperties(OKLChA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(OKLChA_Array.prototype, {OKLabA_Factory: OKLabA_Array})} });
 
 Object.defineProperties(OKHSLA_Array.prototype, {
-	config: {writable:true, value: new ConfigStack(OKHSLA_Array.prototype, {OKLabA_Factory: OKLabA_Array})} });
+	config: {writable:true, value: new ConfigStack(OKHSLA_Array.prototype, {OKLabA_Factory: OKLabA_Array, OKHCGA_Factory: OKHCGA_Array})} });
 
 Object.defineProperties(OKHSVA_Array.prototype, {
-	config: {writable:true, value: new ConfigStack(OKHSVA_Array.prototype, {OKLabA_Factory: OKLabA_Array})} });
+	config: {writable:true, value: new ConfigStack(OKHSVA_Array.prototype, {OKLabA_Factory: OKLabA_Array, OKHWBA_Factory: OKHWBA_Array})} });
+
+Object.defineProperties(OKHWBA_Array.prototype, {
+	config: {writable:true, value: new ConfigStack(OKHWBA_Array.prototype, {OKLabA_Factory: OKLabA_Array})} });
+
+Object.defineProperties(OKHCGA_Array.prototype, {
+	config: {writable:true, value: new ConfigStack(OKHCGA_Array.prototype, {OKLabA_Factory: OKLabA_Array})} });
 
 ColorWheel_Color.ConfigStack.prototype.RGBA_Factory=RGBA_Color;
 ColorWheel_Color.ConfigStack.prototype.CMYKA_Factory=CMYKA_Color;  // for HSV to CMYK
-ColorWheel_Color.ConfigStack.prototype.OKLabA_Factory=OKLabA_Color;  // for OKHSV & OKHSL & OKLCh
+ColorWheel_Color.ConfigStack.prototype.OKLabA_Factory=OKLabA_Color;  // for OKHSV & OKHSL & OKHWB & OKHCG & OKLCh
 
 Object.defineProperties(RGBA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(RGBA_Array.prototype, {XYZA_Factory:XYZA_Array, OKLabA_Factory: OKLabA_Array})} });
 
-//  You may want to use  Array  or create your own Class constructor for any of these 13 Factories below
+//  You may want to use  Array  or create your own Class constructor for any of these 15 Factories below
 // The …A_Color-classes below have simple (and thus quicker to construct) Array-based superclasses with the conversion functions prototyped in
 //  and you may want to use any of those for the factories below:
 RGBA_Color.ConfigStack.prototype.HSLA_Factory= HSLA_Color;
@@ -1982,9 +2084,11 @@ RGBA_Color.ConfigStack.prototype.OKLabA_Factory= OKLabA_Color;
 RGBA_Color.ConfigStack.prototype.OKLChA_Factory= OKLChA_Color;
 RGBA_Color.ConfigStack.prototype.OKHSLA_Factory= OKHSLA_Color;
 RGBA_Color.ConfigStack.prototype.OKHSVA_Factory= OKHSVA_Color;
+RGBA_Color.ConfigStack.prototype.OKHWBA_Factory= OKHWBA_Color;
+RGBA_Color.ConfigStack.prototype.OKHCGA_Factory= OKHCGA_Color;
 RGBA_Color.ConfigStack.prototype.XYZA_Factory=   XYZA_Color;
 /*
- *The 13 factory pointers (above) control the output of the RGBA_Color instance conversion functions.
+ *The 15 factory pointers (above) control the output of the RGBA_Color instance conversion functions.
  */
 
 
@@ -1993,7 +2097,8 @@ RGBA_Color.ConfigStack.prototype.XYZA_Factory=   XYZA_Color;
 // when we moved to “classes” to extend the Array interface.
 // Ideally, this would be declared a “static” function in the ColorWheel_Color class, but it references the child-classes that reference the parent…
 Object.defineProperty(ColorWheel_Color, 'create', {enumerable: true,
-	value: function($_0, $_1, $_2, $α, $config, $model)  { //this way is called by external code; it releases the names of the individual …A_Color objects
+	value: function($_0, $_1, $_2, $α, $config, $model)  {
+		//this called by external code; it releases the names of the individual …A_Color objects & the order of arguments
 		switch ($model.toUpperCase())  {
 		case 'HSL': return new HSLA_Color(...arguments);
 		case 'HSB': return new HSBA_Color(...arguments);
@@ -2004,6 +2109,8 @@ Object.defineProperty(ColorWheel_Color, 'create', {enumerable: true,
 		case 'OKLCH': return new OKLChA_Color($_2, $_1, $_0, $α, $config);
 		case 'OKHSV': return new OKHSVA_Color(...arguments);
 		case 'OKHSL': return new OKHSLA_Color(...arguments);
+		case 'OKHWB': return new OKHWBA_Color(...arguments);
+		case 'OKHCG': return new OKHCGA_Color(...arguments);
 		default: throw new Error('Unknown ColorWheel_Color model:',$model);  }  }});
 
 
@@ -2252,7 +2359,7 @@ const ACS_props={
  */
 	forbidAddOnAlpha: false,
 
-//  You may want to use  Array  or any of the  …A_Array  Classes above or create your own Class constructor for any of these 14 Factories below
+//  You may want to use  Array  or any of the  …A_Array  Classes above or create your own Class constructor for any of these 16 Factories below
 	RGBA_Factory: RGBA_Color,
 	HSLA_Factory: HSLA_Color,
 	HSBA_Factory: HSBA_Color,
@@ -2260,15 +2367,17 @@ const ACS_props={
 	HWBA_Factory: HWBA_Color,
 	HCGA_Factory: HCGA_Color,
 	CMYKA_Factory: CMYKA_Color,
+	OKLabA_Factory: OKLabA_Color,
 	OKLChA_Factory: OKLChA_Color,
 	OKHSLA_Factory: OKHSLA_Color,
 	OKHSVA_Factory: OKHSVA_Color,
-	OKLabA_Factory: OKLabA_Color,
+	OKHWBA_Factory: OKHWBA_Color,
+	OKHCGA_Factory: OKHCGA_Color,
 	XYZA_Factory: XYZA_Color,
 	LabA_Factory: LabA_Color,
 	LChA_Factory: LChA_Color,
 /*
- *The 14 factory pointers (above) control the output of the “auditing” RGB_Calc–functions and its instances.
+ *The 16 factory pointers (above) control the output of the “auditing” RGB_Calc–functions and its instances.
  *
  * //this example provides an auditing calculator that returns RGB output as a simple array of values, instead of the default RGBA_Color object instance:
  * myCalc=new SoftMoon.WebWare.RGB_Calc({RGBA_Factory:Array});
@@ -2570,6 +2679,14 @@ RGB_Calc.definer.audit.to.okhsl={value: function() {return convertColor.call(thi
 RGB_Calc.to.okhsv=Björn_Ottosson.srgb_to_okhsv;
 RGB_Calc.definer.quick.to.okhsv={value:Björn_Ottosson.srgb_to_okhsv};
 RGB_Calc.definer.audit.to.okhsv={value: function() {return convertColor.call(this, arguments, Björn_Ottosson.srgb_to_okhsv, 'okhsv');}};
+
+RGB_Calc.to.okhwb=Björn_Ottosson.srgb_to_okhwb;
+RGB_Calc.definer.quick.to.okhwb={value:Björn_Ottosson.srgb_to_okhwb};
+RGB_Calc.definer.audit.to.okhwb={value: function() {return convertColor.call(this, arguments, Björn_Ottosson.srgb_to_okhwb, 'okhwb');}};
+
+RGB_Calc.to.okhcg=Björn_Ottosson.srgb_to_okhcg;
+RGB_Calc.definer.quick.to.okhcg={value:Björn_Ottosson.srgb_to_okhcg};
+RGB_Calc.definer.audit.to.okhcg={value: function() {return convertColor.call(this, arguments, Björn_Ottosson.srgb_to_okhcg, 'okhcg');}};
 
 
 /*  https://github.com/color-js/color.js/blob/main/src/spaces/prophoto-linear.js
@@ -3013,6 +3130,20 @@ RGB_Calc.definer.audit.from.okhsva={enumerable:true, value:function(hsv) {return
 RGB_Calc.from.okhsv=
 RGB_Calc.from.okhsva=Björn_Ottosson.okhsv_to_srgb;
 
+RGB_Calc.definer.quick.from.okhwb=
+RGB_Calc.definer.quick.from.okhwba={enumerable:true, value:Björn_Ottosson.okhwb_to_srgb};
+RGB_Calc.definer.audit.from.okhwb=
+RGB_Calc.definer.audit.from.okhwba={enumerable:true, value:function(hwb) {return (hwb=parseColorWheelColor.call(this, hwb, 'OKHWB'))  &&  Björn_Ottosson.okhwb_to_srgb.call(this, hwb)}};
+RGB_Calc.from.okhwb=
+RGB_Calc.from.okhwba=Björn_Ottosson.okhwb_to_srgb;
+
+RGB_Calc.definer.quick.from.okhcg=
+RGB_Calc.definer.quick.from.okhcga={enumerable:true, value:Björn_Ottosson.okhcg_to_srgb};
+RGB_Calc.definer.audit.from.okhcg=
+RGB_Calc.definer.audit.from.okhcga={enumerable:true, value:function(hcg) {return (hcg=parseColorWheelColor.call(this, hcg, 'OKHCG'))  &&  Björn_Ottosson.okhcg_to_srgb.call(this, hcg)}};
+RGB_Calc.from.okhcg=
+RGB_Calc.from.okhcga=Björn_Ottosson.okhcg_to_srgb;
+
 
 RGB_Calc.definer.quick.from.xyz=
 RGB_Calc.definer.quick.from.xyza={enumerable:true, value:fromXYZ};
@@ -3228,6 +3359,8 @@ class ColorFactory  {
 			case 'HSV':
 			case 'OKHSL':
 			case 'OKHSV':
+			case 'OKHWB':
+			case 'OKHCG':
 			case 'HCG':
 			case 'HWB':  {
 				const vals=parseColorWheelColor.call(this, matches[2], matches[1]);
@@ -3305,13 +3438,15 @@ class ColorFactory  {
 		case 'HSV':
 		case 'HCG':
 		case 'HWB':
-		case 'LCH':
-		case 'OKLCH':  return ColorWheel_Color.create(...cData, $config, $model);
+		case 'OKHSV':
+		case 'OKHSL':
+		case 'OKHWB':
+		case 'OKHCG':  return ColorWheel_Color.create(...cData, $config, $model);
+		case 'LCH':    return new LChA_Color(...cData, $config);
+		case 'OKLCH':  return new OKLChA_Color(...cData, $config);
 		case 'CMYK':   return new CMYKA_Color(...cData, $config);
 		case 'LAB':    return new LabA_Color(...cData, $config);
 		case 'OKLAB':  return new OKLabA_Color(...cData, $config);
-		case 'OKHSV':  return new OKHSVA_Color(...cData, $config);
-		case 'OKHSL':  return new OKHSLA_Color(...cData, $config);
 		case 'XYZ':    return new XYZA_Color(...cData, $color.illuminant, $color.observer, $config);
 		default: throw new TypeError("Unknown input color-model type for “ColorFactory.copy_A_Color()”.");  }  }
 
@@ -3333,16 +3468,38 @@ class ColorFactory  {
 				case 'Lab': $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
 				case 'OKLCh':
+				case 'OKHWB':
+				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': return $c[convert]($factory||this.config[$space+"A_Factory"]);  }
 				break;
+			case 'OKHCG':
+				switch($c.model)  {
+				case 'LCh': $c=$c.to_Lab(LabA_Array);
+				case 'Lab': $c=$c.to_XYZ(XYZA_Array);
+				case 'XYZ':
+				case 'OKHSV':
+				case 'OKHWB': $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKLab': $c=$c.to_OKHSL(OKHSLA_Array);
+				case 'OKHSL': return $c.to_OKHCG($factory||this.config.OKHCGA_Factory);  }
+			case 'OKHWB':
+				switch($c.model)  {
+				case 'LCh': $c=$c.to_Lab(LabA_Array);
+				case 'Lab': $c=$c.to_XYZ(XYZA_Array);
+				case 'XYZ':
+				case 'OKHSL':
+				case 'OKHCG': $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKLab': $c=$c.to_OKHSV(OKHSVA_Array);
+				case 'OKHSV': return $c.to_OKHWB($factory||this.config.OKHWBA_Factory);  }
 			case 'OKLab':
 				switch ($c.model)  {
 				case 'LCh': $c=$c.to_Lab(LabA_Array);
 				case 'Lab': $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
 				case 'OKLCh':
+				case 'OKHWB':
+				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': return $c.to_OKLab($factory||this.config.OKLabA_Factory);  }
 				break;
@@ -3350,6 +3507,8 @@ class ColorFactory  {
 				switch($c.model)  {
 				case 'Lab': return $c.to_LCh($factory||this.config.LChA_Factory);
 				case 'OKLCh':
+				case 'OKHWB':
+				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': $c=$c.to_XYZ(XYZA_Array);
@@ -3358,6 +3517,8 @@ class ColorFactory  {
 			case 'Lab':
 				switch ($c.model)  {
 				case 'OKLCh':
+				case 'OKHWB':
+				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': $c=$c.to_XYZ(XYZA_Array);
@@ -3368,6 +3529,8 @@ class ColorFactory  {
 				switch ($c.model)  {
 				case 'LCh': return $c.to_Lab(LabA_Array).to_XYZ($factory||this.config.XYZA_Factory);
 				case 'OKLCh':
+				case 'OKHWB':
+				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'Lab':
