@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.7  April 17, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.8  April 22, 2024 — ☻Earth Day☻  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -2240,6 +2240,14 @@ table#RainbowMaestro thead label:focus-within note {
 table#RainbowMaestro tbody th {
 	border-top: 1px solid;
 	border-left: 1px solid; }
+table#RainbowMaestro tbody tr:first-child th:first-child {
+	position: relative; }
+table#RainbowMaestro tbody th label {  /* ¡OK! */
+	position: absolute;
+	top: 0;
+	left: auto;
+	right: 0;
+	bottom: auto; }
 #MasterColorPicker_mainPanel table#RainbowMaestro > tbody td {
 	border-left: 1px solid;
 	text-align: center;
@@ -2304,6 +2312,10 @@ table#RainbowMaestro div.subpalette_swatch {
 	border-top: none; }
 #RainbowMaestro_hueIndicator note span.hueAngleUnit {
 	font-weight: bold; }
+#RainbowMaestro_hueIndicator note span[referto] {
+	font-style: normal !important;
+	color: var(--fore-text-note-refer);
+	background-color: var(--back-text-note-refer); }
 td#RainbowMaestro_swatch  {
 	text-align: center;
 	height: 2em;  }
@@ -2323,9 +2335,17 @@ table#Simple² {
 	text-align: center; }
 table#Simple² .begin {float: left;}
 table#Simple² .end {float: right;}
-table#Simple² td:nth-child(2) td:nth-child(2),
-table#Simple² td:nth-child(2) td:nth-child(3),
-table#Simple² td:nth-child(2) td:nth-child(4) {  /* contains canvases */
+table#Simple² tr:first-child td:nth-child(2) {
+	position: relative; }
+table#Simple² tr:first-child td:nth-child(2) label {
+	position: absolute;
+	top: 0;
+	left: auto;
+	right: 0;
+	bottom: auto; }
+table#Simple² tr:nth-child(2) td:nth-child(2),
+table#Simple² tr:nth-child(2) td:nth-child(3),
+table#Simple² tr:nth-child(2) td:nth-child(4) {  /* contains canvases */
 	padding: 0;
 	vertical-align: bottom;
 	line-height: 100%; }
@@ -2368,8 +2388,11 @@ label#Simple²_hueIndicator.focusWithin {
 	border: 3px double var(--fore-text);
 	font-weight: normal;
 	writing-mode: revert;
+	transform: none; }
+table#Simple² tr:first-child td:nth-child(2) label {
+	writing-mode: revert;
 	transform: none;
-	}
+	white-space: nowrap; }
 label#Simple²_hueIndicator .hueAngleUnit {
  font-weight: bold; }
 table#Simple² tr:nth-child(2) div,
@@ -2459,9 +2482,12 @@ table#YinYangNíHóng thead tr:first-child td {
 	width: 33.3% }
 table#YinYangNíHóng label {
 	display: inline-block; }
-table#YinYangNíHóng thead tr:nth-child(2) label {
+table#YinYangNíHóng thead tr:nth-child(2) label:first-child {
+	float: left; }
+table#YinYangNíHóng thead tr:nth-child(2) label:last-child {
+	float: right;
 	position: relative; }
-table#YinYangNíHóng thead tr:nth-child(2) input {
+table#YinYangNíHóng thead tr:nth-child(2) label:last-child input {
 	width: 7em;
 	margin: 0; }
 table#YinYangNíHóng label .hueIndicator {
@@ -2497,6 +2523,10 @@ table#YinYangNíHóng td:nth-child(2) label dfn {
 table#YinYangNíHóng td:last-child label dfn {
 	left: auto !important;
 	right: .618em !important; }
+table#YinYangNíHóng dfn span[referto] {
+	font-style: normal !important;
+	color: var(--fore-text-note-refer);
+	background-color: var(--back-text-note-refer); }
 table#YinYangNíHóng .hueAngleUnit {
 	font-weight: bold; }
 table#YinYangNíHóng tbody td {
