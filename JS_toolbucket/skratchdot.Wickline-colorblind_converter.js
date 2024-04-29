@@ -1,6 +1,6 @@
 /*  plug-in for SoftMoon.WebWare.RGB_Calc
  *  v1.2 February 17, 2022
- *  v1.2.1.1 March 13, 2024  ←minimal superficial mods for the newest RGB_Calc version
+ *  v1.2.1.2 April 29, 2024  ←minimal superficial mods for the newest RGB_Calc version
  *  Modified by Joe Golembeiski, SoftMoon-WebWare; with
  *  only superficial modifications from the previous contributors.
  *  FAR more than superficial thanks to the previous contributors!
@@ -118,7 +118,7 @@ RGB_Calc.definer.quick.to.colorblind = {value: toColorBlind, writable: true};   
 RGB_Calc.definer.audit.to.colorblind = {value: auditToColorBlind, writable: true};
 function auditToColorBlind() {return this.convertColor(arguments, toColorBlind, 'colorblind  «Wickline algorithmic»');}
 function toColorBlind(rgb, type, anomalize) {
-	if (type==='tritan'  &&  rgb[0]==0 && rgb[1]==0 && rgb[2]==0)  return this.outputRGB(0,0,0,rgb[3]);  //catch the NaN bug
+	if (type==='tritan'  &&  rgb[0]==0 && rgb[1]==0 && rgb[2]==0)  return this.output_RGB(0,0,0,rgb[3]);  //catch the NaN bug
 	var z, v, n,
 		line, c, slope,
 		yi, dx, dy,
@@ -130,14 +130,14 @@ function toColorBlind(rgb, type, anomalize) {
 	if (type === "achroma") { // D65 in sRGB
 		z = rgb[0] * 0.212656 + rgb[1] * 0.715158 + rgb[2] * 0.072186;
 		z = {R: z, G: z, B: z};
-		if (anomalize) {
+		if (anomalize)  {
 			v = 1.75;
 			n = v + 1;
 			z.R = (v * z.R + rgb[0]) / n;
 			z.G = (v * z.G + rgb[1]) / n;
 			z.B = (v * z.B + rgb[2]) / n;
 		}
-		return this.outputRGB(z.R, z.G, z.B, rgb[3]);
+		return this.output_sRGB(z.R, z.G, z.B, rgb[3]);
 	}
 	line = toColorBlind.blinder[type];
 	if (rgb.colorProfile  &&  rgb.colorProfile!=='sRGB')
@@ -196,8 +196,8 @@ function toColorBlind(rgb, type, anomalize) {
 		z.G = (v * z.G + rgb[1]) / n;
 		z.B = (v * z.B + rgb[2]) / n;
 	}
-	//
-	return this.outputRGB(z.R, z.G, z.B, rgb[3]);
+	//                 RGB  ←once we enable more RGB color spaces beyond sRGB
+	return this.output_sRGB(z.R, z.G, z.B, rgb[3]);
 };
 
 // xy: coordinates, m: slope, yi: y-intercept
