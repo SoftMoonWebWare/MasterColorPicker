@@ -59,8 +59,7 @@ p img {
 </style>
 
 <script>
-const SoftMoon={};
-Object.defineProperties(SoftMoon, {
+const SoftMoon=Object.defineProperties({}, {
 	WebWare: {value: {}, enumerable: true},
 	loaded_palettes: {value: [], enumeralble: true}});
 </script>
@@ -70,6 +69,7 @@ Object.defineProperties(SoftMoon, {
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2022.js' defer></script><!--  !! ESSENTIAL !!  -->
 <!-- script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
 <script type='text/javascript' src='JS_toolbucket/Björn_Ottosson.OK_color_space_models.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/Alexei_Boronine.HSLᵤᵥ_color_space_model.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden-colorblind_websafe-table_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
 <script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline-colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
@@ -132,7 +132,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-      release 2.6.8  April 22, 2024 — ☻Earth Day☻
+      release 2.6.9  April 28, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -180,20 +180,23 @@ but to retain the settings this file may be included inside an existing web <for
 	<option title='hexadecimal Red, Green, Blue' selected>hex</option>
 	<option title='Red, Green, Blue'>RGB</option>
 	<option title='the color-picker’s native format'>native</option>
-	<option title='Hue, Saturation, Value; (a.k.a. HSB)'>HSV</option>
-	<option title='Hue, Saturation, Brightness; (a.k.a. HSV)'>HSB</option>
 	<option title='Hue, Saturation, Lightness'>HSL</option>
+	<option title='Hue, Saturation, Brightness; (a.k.a. HSV)'>HSB</option>
+	<option title='Hue, Saturation, Value; (a.k.a. HSB)'>HSV</option>
 	<option title='Hue, White, Black'>HWB</option>
-	<option title='Hue, Chroma, Gray'>HCG</option>
+	<option title='Hue, Chroma∝, Gray'>HCG</option>
 	<option title='Cyan, Magenta, Yellow, Black'>CMYK</option>
-	<option title='Lightness, Chroma, Hue'>LCh</option>
 	<option title='Lightness, a-axis, b-axis'>Lab</option>
-	<option title='OK: Lightness, Chroma, Hue'>OKLCh</option>
+	<option title='Lightness, Chroma, Hue'>LCh</option>
+	<option title='Lightness, u-axis, v-axis'>Luv</option>
+	<option title='Lightness, Chromaᵤᵥ, Hueᵤᵥ'>LChᵤᵥ</option>
+	<option title='Hueᵤᵥ, Saturation, Lightness'>HSLᵤᵥ</option>
 	<option title='OK: Lightness, a-axis, b-axis'>OKLab</option>
+	<option title='OK: Lightness, Chroma, Hue'>OKLCh</option>
 	<option title='OK: Hue, Saturation, Lightness'>OKHSL</option>
 	<option title='OK: Hue, Saturation, Value'>OKHSV</option>
 	<option title='OK: Hue, White, Black'>OKHWB</option>
-	<option title='OK: Hue, Chroma, Gray'>OKHCG</option>
+	<option title='OK: Hue, Chroma∝, Gray'>OKHCG</option>
 	<option title='X, Y, Z'>XYZ</option>
 	</select></label>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
@@ -290,7 +293,7 @@ or pin it to the window when it is pinned to the page.
 <div id='MasterColorPicker_PaletteManager' class='pickerPanel expanding disabled' role='tabpanel'>
 <h2>MasterColorPicker<footmark>™</footmark> <span>Palette Manager</span></h2>
 <fieldset class='controls'>
-	<button type='button' name='MasterColorPicker_PaletteMngr_close' backtabToTarget>X</button>
+	<button type='button' name='MasterColorPicker_PaletteMngr_close' backtabToTarget>☒</button>
 	<!--  button type='button' name='MasterColorPicker_PaletteMngr_close'>close</button  -->
 	<!-- label>¿<input type='checkbox' name='MasterColorPicker_PaletteMngr_recycle'>force recycle-bin?<span
 		class='note'>If a “trash” folder already exists, it will be used.</span></label -->
@@ -561,7 +564,7 @@ or pin it to the window when it is pinned to the page.
 
 <div id='MasterColorPicker_Lab' class='pickerPanel' role='tabpanel'>
 <h2 id='MasterColorPicker_Lab_header'>MasterColorPicker<footmark>™</footmark> <span title="press F3 for shortcut">Color-Space Lab</span></h2>
-<table class='primaries'><caption><abbr title='standard Red Green Blue'>sRGB</abbr> (8-bit)</caption>
+<table class='primaries'><caption><abbr title='standard Red Green Blue'>sRGB</abbr> (8-bits/channel)</caption>
 <tr><th>primary</th><th>byte value</th><th>#hex</th><th>percent%</th><td></td></tr>
 <tr class='red'><th><label for='MasterColorPicker_Rgb_byte' style="color:red">Red:</label></th>
 		<td><input type='numeric' name='MasterColorPicker_Rgb_byte' min='0' max='255' value='0' backtabToTarget='true'></td>
@@ -619,7 +622,7 @@ or pin it to the window when it is pinned to the page.
 </tr>
 
 <tr class='even'>
-		<th><label for='MasterColorPicker_hCg_percent'>Chroma:</label></th>
+		<th><label for='MasterColorPicker_hCg_percent'>Chroma∝:</label></th>
 		<td></td>
 		<td><input type='numeric' name='MasterColorPicker_hCg_percent' min='0' max='100' step='any' value='0'></td>
 		<td><input type='range' name='MasterColorPicker_hCg_range' min='0' max='100' value='0' tabindex='-1'></td>
@@ -726,10 +729,13 @@ triadic</label>
 	<option>OKHSV</option>
 	<option>OKHCG</option>
 	<option>CMYK</option>
-	<option>LCh</option>
 	<option>Lab</option>
-	<option>OKLCh</option>
+	<option>LCh</option>
+	<option>Luv</option>
+	<option>LChᵤᵥ</option>
+	<option>HSLᵤᵥ</option>
 	<option>OKLab</option>
+	<option>OKLCh</option>
 </select></label>
 <fieldset id='MasterColorPicker_Gradientor_linear-colors'><legend>Enter gradient <em>colors</em> and <em>offsets</em> below</legend>
  <p>You may use <code>pixels</code> or percents <code>%</code> or a mix as units for the offsets.&nbsp;
@@ -794,7 +800,7 @@ triadic</label>
 		<button type='button' section='Alpha'>§ using “Alpha” opacity (transparency)</button>
 		<button type='button' section='examples'>§ example color definitions</button>
 		<button type='button' section='Luminance/Contrast'>§ Luminance &amp; Contrast</button>
-		<button type='button' section='conversions'>§ conversions, <abbr>CMYK</abbr>, Chroma, Hue, &amp; gray-scale tones</button>
+		<button type='button' section='conversions'>§ conversions, <abbr>CMYK</abbr>, Chroma, Chroma∝, Hue, &amp; gray-scale tones</button>
 		<button type='button' section='keyboard'>§ keyboard shortcuts</button>
 		<button type='button' section='MyPalette'>§ using MyPalette</button>
 			<div>
@@ -830,30 +836,42 @@ triadic</label>
 				You may mix byte and percent values in the same spec.&nbsp;
 				You may wrap() or prefix: the values with <kbd>rgb( )</kbd> or <kbd>rgb:</kbd> but that is not necessary.</p></li>
 		<li>various different color-space models including these below:
-			(items marked with <beyond>&hArr;</beyond> can take you beyond the <abbr title='red, green, blue'>RGB</abbr> color-space profile you are using)
-			<ul>
-				<li><abbr title='Cyan, Magenta, Yellow, Black'>CMYK</abbr></li>
-				<li><abbr title='Cyan, Magenta, Yellow'>CMY</abbr></li>
-				<li><abbr title='Hue, Saturation, Value / Brightness'>HSV / HSB</abbr></li>
-				<li><abbr title='Hue, Saturation, Lightness'>HSL</abbr></li>
-				<li><abbr title='Hue, Whiteness, Blackness'>HWB</abbr></li>
-				<li><abbr title='Hue, Chroma, Gray'>HCG</abbr> (<strong>¡Not</strong> the Munsell color system!)</li>
-				<li><abbr title='OK: Hue, Saturation, Value (Brightness)'>OKHSV</abbr></li>
-				<li><abbr title='OK: Hue, Saturation, Lightness'>OKHSL</abbr></li>
-				<li><abbr title='OK: Hue, White, Black'>OKHWB</abbr></li>
-				<li><abbr title='OK: Hue, Chroma, Gray'>OKHCG</abbr></li>
-				<li><pseudo>Hue</pseudo> ←&nbsp; define only a “classic” hue-angle-value and see the full-color (fully chromatic) tone of the hue.</li>
-				<li class='beyond'><beyond>&hArr;</beyond><abbr title='Lightness, Chroma, Hue'>LCh</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LCh</abbr> color space)</aka>
-							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
-							<nobr>0 ≤ C ≤ (230‖154%)</nobr></code> ← where <code>100%=150</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
-				<li class='beyond'><beyond>&hArr;</beyond><abbr title='Lightness, a-axis, b-axis'>Lab</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color space)</aka>
+			(items marked with <range>✢</range> adapt to the <abbr title='Red, Green, Blue'>RGB</abbr> color-space profile you are using)
+			(items marked with <range>✓</range> are limited to the <abbr title='standard Red, Green, Blue'>sRGB</abbr> color-space)
+			(items marked with <range>❇</range> can take you beyond the <abbr title='Red, Green, Blue'>RGB</abbr> color-space profile you are using)
+			<ul class='range'>
+				<li><range>✣</range><abbr title='Cyan, Magenta, Yellow, Black'>CMYK</abbr></li>
+				<li><range>✣</range><abbr title='Cyan, Magenta, Yellow'>CMY</abbr></li>
+				<li><range>✣</range><abbr title='Hue, Saturation, Value / Brightness'>HSV / HSB</abbr></li>
+				<li><range>✣</range><abbr title='Hue, Saturation, Lightness'>HSL</abbr></li>
+				<li><range>✣</range><abbr title='Hue, Whiteness, Blackness'>HWB</abbr></li>
+				<li><range>✣</range><abbr title='Hue, Chroma∝, Gray'>HCG</abbr> (<strong>¡Not</strong> the Munsell color system!)</li>
+				<li><range>✣</range><pseudo>Hue</pseudo> ←&nbsp; define only a “classic” hue-angle-value and see the full-color (fully chromatic) tone of the hue.</li>
+				<li><range>✓</range><abbr title='Hueᵤᵥ, Saturation, Lightness'>HSLᵤᵥ</abbr> (use the <kbd><span>Alt</span></kbd> key for subscript ᵤᵥ or use <aka>HSLuv</aka>)</li>
+				<li><range>✓</range><abbr title='OK: Hue, Saturation, Value (Brightness)'>OKHSV</abbr></li>
+				<li><range>✓</range><abbr title='OK: Hue, Saturation, Lightness'>OKHSL</abbr></li>
+				<li><range>✓</range><abbr title='OK: Hue, White, Black'>OKHWB</abbr></li>
+				<li><range>✓</range><abbr title='OK: Hue, Chroma∝, Gray'>OKHCG</abbr></li>
+				<li><range>❇</range><abbr title='Lightness, a-axis, b-axis'>Lab</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color space)</aka>
 							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>(-170‖-136%) ≤ (a,b) ≤ (170‖136%)</nobr></code> ← where <code>100%=125</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
-				<li class='beyond'><beyond>&hArr;</beyond><abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+				<li><range>❇</range><abbr title='Lightness, Chroma, Hue'>LCh</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LCh</abbr> color space)</aka>
+							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>0 ≤ C ≤ (230‖154%)</nobr></code> ← where <code>100%=150</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
+				<li><range>❇</range><abbr title='Lightness, u-axis, v-axis'>Luv</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*u*v*</abbr> color space)</aka>
+							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>(-215‖-100%) ≤ (u,v) ≤ (215‖100%)</nobr></code>
+							<p>Color space models based on <abbr>Luv</abbr> have the “ᵤᵥ” or “uv” suffix and are referred to herein as “<abbr title="Luv-ly">♥ly</abbr>”.</p></li>
+				<li><range>❇</range><abbr title='Lightness, Chromaᵤᵥ, Hueᵤᵥ'>LChᵤᵥ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LChᵤᵥ</abbr> color space)</aka>
+				   (use the <kbd><span>Alt</span></kbd> key for subscript ᵤᵥ or use <aka>LChuv</aka>)
+							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>0 ≤ C ≤ (304‖100%)</nobr></code></li>
+				<li><range>❇</range><abbr title='OK: Lightness, a-axis, b-axis'>OKLab</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							<nobr>(-0.4‖-100%) ≤ (a,b) ≤ (0.4‖100%)</nobr></code>
+							<p>All the “<abbr ok>OK</abbr>” color spaces are based on <abbr>OKLab</abbr></p></li>
+				<li><range>❇</range><abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>0 ≤ C ≤ (0.5‖125%)</nobr></code> ← where <code>100%=0.4</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
-				<li class='beyond'><beyond>&hArr;</beyond><abbr title='OK: Lightness, a-axis, b-axis'>OKLab</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
-							<nobr>(-0.4‖-100%) ≤ (a,b) ≤ (0.4‖100%)</nobr></code></li>
-				<li class='beyond'><beyond>&hArr;</beyond><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
+				<li><range>❇</range><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
 					→&nbsp; <code>(X,Y,Z,α) ‖ (<var>illuminant</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, <var>illuminant</var>, X,Y,Z,α)</code>
 					<p>I am not sure of the exact limits of the input values, but I <em>think maybe</em> generally
 					<code>0 ≤ X ≤ 0.950489,&nbsp; 0 ≤ Y ≤ 1,&nbsp; 0 ≤ Z ≤ 1.0883</code> seems to be fair for the <abbr>D65</abbr> illuminant…?</p>
@@ -912,7 +930,7 @@ triadic</label>
 				Color-space model names are all case-insensitive.&nbsp;
 				Each value may be separated by spaces/commas.&nbsp;
 				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %),
-				except where noted for the individual color-spaces (Lab, LCh, OKLab, OKLCh, XYZ); and
+				except where noted for the individual color-spaces (Lab, LCh, Luv, LChᵤᵥ, OKLab, OKLCh, XYZ); and
 				except Hue values are given in angular values using one of the following units:
 				(the default unit used when none is specified is found on the MasterColorPicker “options” panel)</p>
 			<ul>
@@ -923,7 +941,7 @@ triadic</label>
 				<li>of a turn (<kbd>0●—1●</kbd> ← postfixed using the <kbd>●</kbd> symbol or “<kbd>turn</kbd>”).</li>
 			</ul>
 			<p>Note that “hue” values for “classic” color-spaces are the same for the same hues,
-			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr> &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> hues are different from the “classics”.</p>
+			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr>, <abbr title='Lightness, Chromaᵤᵥ, Hueᵤᵥ'></abbr>LChᵤᵥ</abbr>, &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> hues are different from the “classics”.</p>
 			<ul class='keybrd'>
 				<li>The “degrees” <kbd>°</kbd> symbol may be entered by typing <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>5%</span></kbd></li>
 				<li>The “radians” <kbd title='circle'>ᶜ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>C</span></kbd></li>
@@ -950,7 +968,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<h4 id='MasterColorPicker_helpFor_Alpha'>Alpha (opacity):</h4>
 	<p>You may specify opacity (the opposite of transparency) in any of the color space models
-			(RGB, CMYK, CMY, HSV, HSL, HCG, HWB, Hue, Lab, LCh, OKLab, OKLCh, XYZ)
+			(RGB, CMYK, CMY, HSV, HSL, HCG, HWB, Hue, Lab, LCh, Luv, LChᵤᵥ, HSLᵤᵥ, OKLab, OKLCh, OKHSL, OKHSV, OKHWB, OKHCG, XYZ)
 			by adding an additional factor (0.0—1.0) or percent (0%—100% ← you must use the percent % sign).&nbsp;
 			The color-space model names may or may not end with an additional “A” (for example, RGB vs. RGBA).
 			Per CSS4 specifications, the opacity value may also be separated with a <kbd>/</kbd> symbol
@@ -1024,12 +1042,12 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<hr>
 	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions,
-	the <abbr>CMYK<abbr> color spaces, Chroma, Hue, &amp; gray-scale tones</h4>
+	the <abbr>CMYK<abbr> color spaces, Chroma, Chroma∝, Hue, &amp; gray-scale tones</h4>
 
 	<p>Most color-spaces supported herein are based on an <abbr title='Red, Green, Blue'>RGB</abbr> color-space,
 	and the default <abbr title='Red, Green, Blue'>RGB</abbr> “color-profile” is the
 	<abbr title='standard: Red, Green, Blue'>sRGB</abbr> color-space.&nbsp;
-	When you define “percentage” values for these color-spaces (HSV, HSB, HSL, HCG, HWB, OKHSV, OKHSL, OKHCG, OKHWB, CMYK, CMY),
+	When you define “percentage” values for these color-spaces (HSV, HSB, HSL, HCG, HWB, HSLᵤᵥ, OKHSV, OKHSL, OKHCG, OKHWB, CMYK, CMY),
 	the color you specify is “bound” within the (specific) <abbr title='Red, Green, Blue'>RGB</abbr> color-space.&nbsp;
 	When you convert from one to the other, the <abbr>RGB</abbr> color-space is the typically the intermediary.&nbsp;
 	The <abbr>XYZ</abbr> color-space is the “universal mother” of all other color-spaces,
@@ -1037,14 +1055,13 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	An <abbr>RGB</abbr> color-space is typically a small part of the <abbr>XYZ</abbr> color-space.&nbsp;
 	A computer monitor’s hardware is typically based on an <abbr>RGB</abbr> color-space,
 	and the “part” of the <abbr>XYZ color-space that it can display,
-	and that the specific related <abbr>RGB</abbr> color-space defines,
-	is called the “gamut”.&nbsp;
-	The <abbr>Lab</abbr> &amp; <abbr>LCh</abbr> color-spaces
+	and the part that specific related <abbr>RGB</abbr> color-space defines is called the “gamut”.&nbsp;
+	The <abbr>Lab</abbr>, <abbr>LCh</abbr>, <abbr>Luv</abbr>, &amp; <abbr>LChᵤᵥ</abbr> color-spaces
 	are based on the <abbr>XYZ</abbr> color-space, and it is the intermediary between them and the <abbr>RGB</abbr> color-space.&nbsp;
 	The <abbr>OKLab</abbr> &amp; <abbr>OKLCh</abbr> color-spaces
 	are also based on the <abbr>XYZ</abbr> color-space, but there is a direct conversion to/from the <abbr title='standard: Red, Green, Blue'>sRGB</abbr> color-space.&nbsp;
 	These latter four (4) color-spaces have a “gamut” that covers the whole <abbr>XYZ</abbr> color-space,
-	but the gamut of the monitor you are using limits the “valid” values for all five (5) of these color-spaces.</p>
+	but the gamut of the monitor you are using limits the “valid” values for all seven (7) of these color-spaces.</p>
 
 	<p>The <abbr>CMYK<abbr> color space was designed for print-graphics using inks that “mix” on white paper.&nbsp;
 	It is supported herein to help those more familiar with how inks mix in the printing world,
@@ -1064,7 +1081,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	CMYK to RGB and then back to CMYK, when the <abbr>CMYK<abbr> inks would produce a darker visual result.&nbsp;
 	Less “color” and more black will be the resulting <abbr>CMYK<abbr> specification; this is normal.</p>
 
-	<p>The so-called “cylindrical” color-spaces (<abbr>HSL</abbr>, <abbr>HSB</abbr>, <abbr>HCG</abbr>, <abbr>HWB</abbr>, &amp; thier “OK” versions)
+	<p>The so-called “cylindrical” color-spaces (<abbr>HSL</abbr>, <abbr>HSB</abbr>, <abbr>HCG</abbr>, <abbr>HWB</abbr>,
+	and thier “<abbr ok>OK</abbr>” &amp; “<abbr title="Luv-ly">♥ly</abbr>”  versions)
 	may also yield different results when converting to <abbr>RGB</abbr> and then back.&nbsp;
 	The reason for these differences is based on the geometry of the color-spaces,
 	and how the same actual color is found at multiple “places” in the given space
@@ -1075,14 +1093,14 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	You may notice all these differences (including the note on CMYK above)
 	if you use the Color-Space Lab and type in values manually.</p>
 
-	<h6>Chroma:</h6>
+	<h6>Chroma &amp; Chroma∝:</h6>
 	<p>Chroma is the measure of how much “pure color” is in a color; or in other words how vibrant the color is.&nbsp;
-	Three (4) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “chroma”,
+	Five (5) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “chroma”,
 	but they use it differently.&nbsp;
-	The <abbr>HCG</abbr> (Hue, Chroma, Gray) &amp; <abbr>OKHCG</abbr> color-spaces used by MasterColorPicker<abbr tm>™</abbr>
+	The <abbr>HCG</abbr> (Hue, Chroma∝, Gray) &amp; <abbr>OKHCG</abbr> color-spaces used by MasterColorPicker<abbr tm>™</abbr>
 	are based on the <abbr>RGB</abbr> color-space
 	(¡it is <strong>not</strong> the “Munsell color system” which is based on the <abbr>XYZ</abbr> color-space!),
-	and the term “Chroma” defines the maximum <em><strong>mathematical</strong></em> value for Chroma that the computer can display.&nbsp;
+	and the term “Chroma∝” is proportional to the maximum <em><strong>mathematical</strong></em> value for Chroma that the computer can display.&nbsp;
 	Mathematically, this means that in the <abbr>RGB</abbr> color-space,
 	one channel has a maximum value (255 in the <abbr>sRGB</abbr> color-space),
 	one channel has a minimum value (0),
@@ -1090,27 +1108,27 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	However, the human eye <em><strong>perceives</strong></em> green light as “brighter” (more chroma)
 	than red light, and red light as “brighter” (more chroma) than blue,
 	so HCG(120°, 100%, 50%) (green or “CSS: lime”) will seem much brighter (have more chroma) than HCG(240°, 100%, 50%) (blue),
-	even though they have the same chroma of 100%.&nbsp;
-	The <abbr>LCh</abbr> (Lightness, Chroma, Hue) &amp; <abbr>OKLCh</abbr> (OK: Lightness, Chroma, Hue) color-spaces,
+	even though they have the same Chroma∝ of 100%.&nbsp;
+	The <abbr>LCh</abbr> (Lightness, Chroma, Hue), <abbr>LChᵤᵥ</abbr> (Lightness, Chromaᵤᵥ, Hueᵤᵥ), &amp; <abbr>OKLCh</abbr> (OK: Lightness, Chroma, Hue) color-spaces,
 	(and the “Munsell color system”) are based on the <abbr>XYZ</abbr> color-space,
 	and the term “Chroma” refers to the <em><strong>perceived</strong></em> chroma of the color.&nbsp;
 	Mathematically speaking, the maximum chroma possible is always limited by the <abbr>RGB</abbr> color-space
-	(as defined by Chroma in <abbr>HCG</abbr>),
-	but “green” and “blue” will have very different Chromatic values in <abbr>LCh</abbr> or <abbr>OKLCh</abbr>.</p>
+	(as defined by Chroma∝ in <abbr>HCG</abbr>),
+	but “green” and “blue” will have very different Chromatic values in <abbr>LCh</abbr>, <abbr>LChᵤᵥ</abbr>, or <abbr>OKLCh</abbr>.</p>
 
 	<h6 id='MasterColorPicker_helpFor_Hue'>Hue:</h6>
 	<p>Hue is the term used to describe the “pure-color” (or full chromacity) of a tint/tone/shade.&nbsp;
-	Eleven (11) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “hue”,
-	(HSV, HSB, HSL, HCG, HWB, OKHSV, OKHSL, OKHCG, OKHWB, LCh, OKLCh) but the outcome can be slightly different.&nbsp;
+	Thirteen (13) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “hue”,
+	(HSV, HSB, HSL, HCG, HWB, OKHSV, OKHSL, OKHCG, OKHWB, LCh, LChᵤᵥ, HSLᵤᵥ, OKLCh) but the outcome can be slightly different.&nbsp;
 	Also, Hue <em><strong>values</strong></em> are the same for all the traditional <abbr>RGB</abbr>-based color-spaces (an “RGB-standard hue”),
-	but different for <abbr>LCh</abbr>, and differnt still for the “<abbr>OK</abbr>” color-spaces.&nbsp;
+	but all different for <abbr>LCh</abbr>, the “<abbr title="Luv-ly">♥ly</abbr>” color-spaces, and the “<abbr ok>OK</abbr>” color-spaces.&nbsp;
 	An “RGB-standard hue” is based on an RGB color-space, with the Red, Green, &amp; Blue channels evenly spaced at 0°, 120°, &amp; 240°,
 	mixing into Yellow at 60°, Cyan at 180°, &amp; Magenta at 300°.&nbsp;
-	For all <abbr>RGB</abbr>-based color-spaces &amp; the <abbr>LCh</abbr> color-space,
+	For all <abbr>RGB</abbr>-based color-spaces, the “<abbr title="Luv-ly">♥ly</abbr>” color spaces, &amp; the <abbr>LCh</abbr> color-space,
 	hue is defined <em><strong>digitally</strong></em>.&nbsp;
 	As the concepts of Chroma and Gray/Lightness are mathematically mixed into the selected hue,
 	the <em><strong>perceived</strong></em> hue (by the human eye) can change (why? see “Chroma” above).&nbsp;
-	The “<abbr>OK</abbr>” color spaces are extra special in that they support the concept
+	The “<abbr ok>OK</abbr>” color spaces are extra special in that they support the concept
 	of a <em><strong>perceived</strong></em> hue.</p>
 
 	<h6>gray-scale tones:</h6>
@@ -1213,7 +1231,9 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	<tr><th>key</th> <th><kbd><span>CTRL</span></kbd></th> <th><kbd><span>CTRL</span>+<span>SHIFT</span></kbd></th></tr>
 	<tr><td><kbd><span>1!</span></kbd></td> <td><code>●</code></td> <td><code>¡</code></td></tr>
 	<tr><td><kbd><span>2@</span></kbd></td> <td><code>©</code></td> <td><code>®</code></td></tr>
-	<tr><td><kbd><span>5%</span></kbd></td> <td></td> <td><code>°</code></td></tr>
+	<tr><td><kbd><span>3#</span></kbd></td> <td>♠</td> <td><code></code></td></tr>
+	<tr><td><kbd><span>4$</span></kbd></td> <td>♥</td> <td><code>♦</code></td></tr>
+	<tr><td><kbd><span>5%</span></kbd></td> <td>♣</td> <td><code>°</code></td></tr>
 	<tr><td><kbd><span>6^</span></kbd></td> <td><code>☺</code></td> <td><code>☻</code></td></tr>
 	<tr><td><kbd><span>7&amp;</span></kbd></td> <td><code>♪</code></td> <td><code>♫</code></td></tr>
 	<tr><td><kbd><span>8*</span></kbd></td> <td><code>×</code></td> <td><code>☼</code></td></tr>
@@ -1226,6 +1246,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	<tr><td><kbd><span>C</span></kbd></td> <td><code>ᶜ</code></td> <td></td></tr>
 	<tr><td><kbd><span>G</span></kbd></td> <td><code>ᵍ</code></td> <td></td></tr>
 	<tr><td><kbd><span>R</span></kbd></td> <td><code>ᴿ</code></td> <td></td></tr>
+	<tr><td><kbd><span>U</span></kbd></td> <td><code>ᵤ</code></td> <td></td></tr>
+	<tr><td><kbd><span>V</span></kbd></td> <td><code>ᵥ</code></td> <td></td></tr>
 	</table>
 
 	<p>Some specific “input-sliders” may be temporarily changed to text-based numeric inputs
@@ -1620,7 +1642,10 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
      It is used with the permission of Matthew Wickline and <abbr>HCIRN</abbr>,
      and is freely available for non-commercial use.&nbsp; For commercial use, please
      contact the Human-Computer Interaction Resource Network ( <kbd>https://hcirn.com/</kbd> ).</p>
-	<p>The “OK” color-spaces were created by Björn Ottosson;
+	<p>The “<abbr>HSLᵤᵥ</abbr>” color-space was created by Alexei Boronine;
+		 and the software and algorithms are Copyright © 2012-2022 by Alexei Boronine;
+		 and released under the <abbr>MIT</abbr> license.</p>
+	<p>The “<abbr>OK</abbr>” color-spaces were created by Björn Ottosson;
 		 and the software and algorithms are Copyright © 2021 by Björn Ottosson &amp; Copyright © 2024 Joe Golembieski, SoftMoon WebWare;
 		 and released under the <abbr>MIT</abbr> license.</p>
 	<p>☺ Special thanks also to:
@@ -1630,6 +1655,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	<a target='thanks' href='https://github.com/color-js/color.js/tree/main'>►Colors.js</a>,
 	<a target='XYZ' href='https://en.wikipedia.org/wiki/SRGB'>►Wikipedia</a>,
 	<a target='Mozilla' href='https://developer.mozilla.org/en-US/'>►The Mozilla Developer’s Network</a>,
+	<a target='XYZ' href='https://www.activestate.com/products/komodo-edit/'>►Active State’s Komodo Edit</a>
 	and others for being the shoulders for me to stand on. ☻</p>
  </div>
 </div><!--  close  help  -->
@@ -1708,11 +1734,13 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 			<dt>HSL</dt>
 				<dd>Hue, Saturation, Lightness</dd>
 			<dt>HCG</dt>
-				<dd>Hue, Chroma, Gray</dd>
+				<dd>Hue, Chroma∝, Gray</dd>
 			<dt>LCh</dt>
 				<dd>Lightness, Chroma, hue</dd>
 			<dt>¡OK!</dt>
 				<dd>Ottosson Krafted color space models</dd>
+			<dt>¡♥ly!</dt>
+				<dd>models based on the <abbr>CIE L*u*v*</abbr> color space</dd>
 			<dt>Curve</dt>
 				<dd>modulates the saturation/chromatic rate</dd>
 			<dt>Twist</dt>
@@ -1723,7 +1751,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 		<label><input type='radio' name='BeezEye_model' value='HSL' checked>HSL</label>
 		<label><input type='radio' name='BeezEye_model' value='HCG'>HCG</label>
 		<label><input type='radio' name='BeezEye_model' value='LCh'>LCh</label>
-		<label>¡<input type='checkbox' name='BeezEye_model_OK' value='OK'>make it <abbr title='Ottosson Krafted'>OK</abbr>!</label>
+		<label>¡<input type='checkbox' name='BeezEye_model_OK' value='OK'><abbr title='Ottosson Krafted'>OK</abbr>!</label>
+		<label>¡<input type='checkbox' name='BeezEye_model_Luvly' value='♥ly'><abbr title='Luv-ly'>♥ly</abbr>!</label>
 		</fieldset>
 	</td>
 </tr>
@@ -1790,7 +1819,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <tr><!--  ROW 1  -->
 <td colspan='3'><indicator id='Simple²saturation'>99.99%</indicator></td>
 <td colspan='2' style='border: 1px solid; border-bottom: none'
-		>Chroma<label title='Ottosson Krafted Colours'>¡<input type='checkbox' name='Simple²_OK' value='OK'>make it OK!</label><br><span class='begin'>«0%→</span>←‖100%‖→<span class='end'>←0%»</span></td>
+		>Chroma∝<label title='Ottosson Krafted Colours'>¡<input type='checkbox' name='Simple²_OK' value='OK'>make it OK!</label><br><span class='begin'>«0%→</span>←‖100%‖→<span class='end'>←0%»</span></td>
 <td colspan='2' onmouseup='UniDOM.generateEvent(this.querySelector("input"), "tabIn", {bubbles:true})'><indicator id='Simple²hue'>359.999°</indicator>
 	<label id='Simple²_hueIndicator'>Focal hue:<input type='numeric' name='Simple²_focalHue' value='180' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' backtabTo='#MasterColorPicker_palette_select'>
 		<span class='hueIndicator'>&nbsp;</span><dfn>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.</dfn></label>
@@ -1851,7 +1880,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <tr>
 	<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='#MasterColorPicker_palette_select'>HSB / <ok>&ZeroWidthSpace;</ok>HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
 	<td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked><ok>&ZeroWidthSpace;</ok>HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
-	<td><label><input type='radio' name='YinYang NíHóng' value='HCG'><ok>&ZeroWidthSpace;</ok>HCG<dfn>Hue, Chroma, Gray</dfn></label></td>
+	<td><label><input type='radio' name='YinYang NíHóng' value='HCG'><ok>&ZeroWidthSpace;</ok>HCG<dfn>Hue, Chroma∝, Gray</dfn></label></td>
 </tr>
 <tr>
 	<td colspan='3'>
@@ -1878,7 +1907,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 <div class='picker palette' id='MasterColorPicker_EyeDropper'><h6>Eye-Dropper color picker</h6>
 <tools>
-	<fieldset><button title='full-screen' backtabTo='#MasterColorPicker_palette_select'>╬</button><button title='panel'>□</button></fieldset>
+	<fieldset><button title='full-screen' backtabTo='#MasterColorPicker_palette_select'>☩</button><button title='panel'>□</button></fieldset><!-- ╬ -->
 	<label>Choose an image file or drag an image or its file here:
 	<input type='file' accept='image/*'></label>
 	<label>Sample size<input type='range' name='MasterColorPicker_EyeDropper_size' value='0' min='0' max='7' step='1'></label>
