@@ -1,5 +1,5 @@
 // charset: UTF-8    tab-spacing: 2
-/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated April 20, 2024)
+/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated April 28, 2024)
  * Copyright (c) 2021 Björn Ottosson
  * & Copyright © 2024 Joe Golembieski, SoftMoon-WebWare
  *
@@ -129,7 +129,7 @@ Björn_Ottosson.okhsv_to_okhcg  =  srgb_to_okhcg;  // ← the array you pass in 
 Björn_Ottosson.config= {defaultAlpha:1, OKLabA_Factory:Array, OKLChA_Factory:Array, OKHSVA_Factory:Array, OKHSLA_Factory:Array, XYZA_Factory:Array}  //customized to your liking
 Björn_Ottosson.γCorrect_linear_RGB= function(r,g,b,α) {… … …}       // ←he calls it a “transfer” function  ←↓ these should mul/div by 255 also
 Björn_Ottosson.linearize_γCorrected_RGB= function(rgbα) {… … …}    // ←he calls it an “inverse-transfer” function
-Björn_Ottosson.outputRGB= function(r,g,b,α) {… … …}  //customized to your liking
+Björn_Ottosson.output_sRGB= function(r,g,b,α) {… … …}  //customized to your liking
 */
 
 // ↓ In the SoftMoon-WebWare world, gray-scale tones have the exact‡ hue 360°, i.e. ALL the hues mixed! ‡(not 720°, etc.)
@@ -239,12 +239,13 @@ function oklab_to_xyz(Labα, factory)  {
 		M2=oklab_to_xyz.M2,
 		l= (M2[0][0] * Labα[0] + M2[0][1] * Labα[1] + M2[0][2] * Labα[2]) ** 3,
 		m= (M2[1][0] * Labα[0] + M2[1][1] * Labα[1] + M2[1][2] * Labα[2]) ** 3,
-		s= (M2[2][0] * Labα[0] + M2[2][1] * Labα[1] + M2[2][2] * Labα[2]) ** 3;
+		s= (M2[2][0] * Labα[0] + M2[2][1] * Labα[1] + M2[2][2] * Labα[2]) ** 3,
+		α= (Labα[3]===undefined) ? this.config.defaultAlpha : Labα[3];
 	return new factory(  // SoftMoon.WebWare.XYZA_Array is the preferred factory; it auto-handles the alpha-channel and meta-data
 		M1[0][0] * l + M1[0][1] * m + M1[0][2] * s,
 		M1[1][0] * l + M1[1][1] * m + M1[1][2] * s,
 		M1[2][0] * l + M1[2][1] * m + M1[2][2] * s,
-		Labα[3],  // XYZ is the only color-space that will return an undefined alpha-channel
+		α,  // XYZ is the only color-space that will return an undefined alpha-channel
 		"D65", "2°");  }
 oklab_to_xyz.M1=Math.invert_3_3_matrix(xyz_to_oklab.M1);
 oklab_to_xyz.M2=Math.invert_3_3_matrix(xyz_to_oklab.M2);
@@ -497,10 +498,10 @@ function okhsl_to_srgb(hslα, factory)  {
 
 	if (l >= 1)  {
 		if (factory)  return oklab(1,0,0);
-		return this.outputRGB(255,255,255,α);  }
+		return this.output_sRGB(255,255,255,α);  }
 	else if (l <= 0)  {
 		if (factory)  return oklab(0,0,0);
-		return this.outputRGB(0,0,0,α);  }
+		return this.output_sRGB(0,0,0,α);  }
 
 	const
 		a_ = cosine(π2*h),
@@ -590,7 +591,7 @@ function okhsv_to_srgb(hsvα, factory)  {  // problems: h= 26.926° — 29.233°
 		[h,s,v,α] = hsvα;
 	if (v===0)  return factory ?
 		  ((α===undefined  &  this.config.defaultAlpha===undefined) ? factory(0,0,0) : factory(0,0,0, a===undefined ? this.config.defaultAlpha : α))
-		: this.outputRGB(0,0,0);
+		: this.output_sRGB(0,0,0);
 	const
 		a_ = cosine(π2*h),
 		b_ = sine(π2*h),
@@ -688,7 +689,7 @@ function okhwb_to_srgb(hwbα, factory)  {
 	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
 	const
 		g=hwbα[1]+hwbα[2];
-	if (g>=1)  {const G=hwbα[1]/g;  return this.outputRGB(G,G,G,hwbα[3]);}
+	if (g>=1)  {const G=hwbα[1]/g*255;  return this.output_sRGB(G,G,G,hwbα[3]);}
 	return okhsv_to_srgb.call(this, [hwbα[0], 1-(hwbα[1]/(1-hwbα[2])), 1-hwbα[2], hwbα[3]], factory);  }
 
 //       okhsv_to_okhwb
