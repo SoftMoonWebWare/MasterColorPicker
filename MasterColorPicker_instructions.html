@@ -5,8 +5,8 @@
 <meta name='description' content='MasterColorPicker: a JavaScript color-picker delivering all the color you can handle.'>
 <meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker'>
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
-<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2023 Joe Golembieski, SoftMoon-WebWare'>
-<meta name='page_last-udate' content='March 12, 2024'>
+<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare'>
+<meta name='page_last-udate' content='April 29, 2024'>
 <title>MasterColorPicker Instructions from SoftMoon-WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <style type="text/css">
@@ -232,15 +232,20 @@ Your chosen colors can be returned in the most popular color-space models includ
 <abbr title='red, green, blue'>RGB</abbr>,
 <abbr title='hue, saturation, lightness'>HSL</abbr>,
 <abbr title='hue, saturation, brightness; also known as HSV: hue, saturation, value'>HSB/HSV</abbr>,
-<abbr title='hue, chroma, gray'>HCG</abbr>,
+<abbr title='hue, chroma∝, gray'>HCG</abbr>,
 <abbr title='hue, whiteness, blackness'>HWB</abbr>,
 <abbr title='cyan, magenta, yellow, black;  used when printing with inks'>CMYK</abbr>,
 <abbr title='CIE L*a*b* : Lightness, a-axis, b-axis'>Lab</abbr>,
 <abbr title='CIE LCh : Lightness, Chroma, Hue'>LCh</abbr>,
+<abbr title='CIE L*u*v* : Lightness, u-axis, v-axis'>Luv</abbr>,
+<abbr title='CIE LChᵤᵥ : Lightness, Chromaᵤᵥ, Hueᵤᵥ'>LChᵤᵥ</abbr>,
+<abbr title='Hueᵤᵥ, Saturation, Lightnessᵤᵥ : based on CIE L*u*v*'>HSLᵤᵥ</abbr>,
 <abbr title='OK : Lightness, a-axis, b-axis'>OKLab</abbr>,
 <abbr title='OK : Lightness, Chroma, Hue'>OKLCh</abbr>,
 <abbr title='OK : Lightness, Chroma, Hue'>OKHSV</abbr>,
-<abbr title='OK : Lightness, Chroma, Hue'>OKHSL</abbr>, or
+<abbr title='OK : Lightness, Chroma, Hue'>OKHSL</abbr>,
+<abbr title='OK : Lightness, White, Black'>OKHWB</abbr>,
+<abbr title='OK : Lightness, Chroma∝, Gray'>OKHCG</abbr>, or
 <abbr title='CIE XYZ'>XYZ</abbr>,
 or when using named-colors their names can also be returned.&nbsp;
 The different graphical color-pickers each look at the different available color-spaces in a different way,
@@ -258,14 +263,16 @@ The five interactive graphical color-pickers included are:</p>
 		<dd>Shows the progression of colors in steps based on the <abbr>RGB</abbr> color-space.&nbsp;
 				Works with browsers as far back as Internet Exploder 6.</dd>
 	<dt>BeezEye Color Picker<abbr tm>™</abbr></dt>
-		<dd>Classic color-wheel shows <abbr>HSL</abbr>, <abbr>HSB-HSV</abbr>, <abbr>HCG</abbr>, <abbr>LCh</abbr>, <abbr>OKHSL</abbr>, <abbr>OKHSV</abbr>, <abbr>OKLCh</abbr>,
+		<dd>Classic color-wheel shows <abbr>HSL</abbr>, <abbr>HSB-HSV</abbr>, <abbr>HCG</abbr>, <abbr>LCh</abbr>,
+				<abbr>OKHSL</abbr>, <abbr>OKHSV</abbr>, <abbr>OKHCG</abbr>, <abbr>OKLCh</abbr>,
+				<abbr>HSLᵤᵥ</abbr>, <abbr>LChᵤᵥ</abbr>,
 				and <abbr>CMYK</abbr> color-spaces (one at a time) with user-controlled Lightness/Brightness-Value/Gray/Black.</dd>
 	<dt>Simple² Color Picker<abbr tm>™</abbr></dt>
-		<dd>Works with the <abbr>HSL</abbr> and <abbr>HSB-HSV</abbr> color-spaces (both at once) to bring you
+		<dd>Works with the <abbr>HSL</abbr> &amp; <abbr>HSB-HSV</abbr> or <abbr>OKHSL</abbr> &amp; <abbr>OKHSV</abbr> color-spaces (both at once) to bring you
 				simple access to the tints/tones/shades of any color (hue) from the “pure” (fully chromatic) color to →black, →white, and →gray.</dd>
 	<dt>YinYang NíHóng Color Picker<abbr tm>™</abbr></dt>
 		<dd>Another classic style, delivers all of the 11,777,216 colors your 24-bit monitor can show within two easy clicks
-				using either the <abbr>HSL</abbr>, <abbr>HSB-HSV</abbr> or <abbr>HCG</abbr> color-spaces.</dd>
+				using either the <abbr>HSL</abbr>, <abbr>HSB-HSV</abbr>, <abbr>HCG</abbr> <abbr>OKHSL</abbr>, <abbr>OKHSV</abbr> or <abbr>OKHCG</abbr> color-spaces.</dd>
 </dl>
 <p>All these graphical color pickers, except for the YinYang NíHóng color picker, are designed to
 show colors in definite “steps” of progression, allowing you to easily work with gradients (see our Rainbow-Maker projects)
