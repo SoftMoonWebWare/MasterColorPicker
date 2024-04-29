@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.8  April 22, 2024 — ☻Earth Day☻  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.9  April 27, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -51,6 +51,10 @@ body.MCP_we-be-a-cuttin {
 	--back-text-kbd: #202040;
 	--fore-text-lab: var(--fore-text);
 	--back-text-lab: var(--back-text);
+	--fore-text-luvly: var(--fore-text);
+	--back-text-luvly: pink;
+	--fore-text-ok: var(--fore-text);
+	--back-text-ok: SpringGreen;
 	--fore-text-disabled: LightGray;
 	--fore-palette: white;
 	--back-palette: black;
@@ -72,7 +76,7 @@ body.MCP_we-be-a-cuttin {
 #MasterColorPicker input,
 #MasterColorPicker select,
 #MasterColorPicker button {
-	border-size: 1px;
+	border-width: 1px;
 	font-family: monospace;
 	font-size: 13px; }  /*lock down the font-size.  Help keep MSIE10’s range-bar in line with others*/
 #MasterColorPicker select,
@@ -360,6 +364,12 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help dt causion {
 	font-size: 1.382em;
 	line-height: inherit; }
+#MasterColorPicker_Help abbr[title='Luv-ly'] {
+	color: var(--fore-text-luvly);
+	background-color: var(--back-text-luvly); }
+#MasterColorPicker_Help abbr[ok] {
+	color: var(--fore-text-ok);
+	background-color: var(--back-text-ok); }
 
 #MasterColorPicker_Help > div.scrollbox {
 	width: 38.2em;
@@ -395,22 +405,23 @@ span.MCP_fix_Safari {
 #MasterColorPicker_Help ul ul p + p {
 	margin-top: 0; }
 #MasterColorPicker_Help ul li > abbr:first-child,
-#MasterColorPicker_Help ul li > beyond + abbr,
+#MasterColorPicker_Help ul li > range + abbr,
 #MasterColorPicker_Help ul ul li > pseudo,
 #MasterColorPicker_Help dt > span {
 	font-weight: bold;
 	color: var(--fore-text-highlight);
 	background-color: var(--back-text-highlight); }
-#MasterColorPicker_Help beyond {
+#MasterColorPicker_Help range {
 	font-size: 128%;
+	line-height: 78.125%;
 	color: var(--fore-text-standout); }
-#MasterColorPicker_Help ul li.beyond {
+#MasterColorPicker_Help ul.range li {
 	position: relative; }
-#MasterColorPicker_Help ul li.beyond beyond {
+#MasterColorPicker_Help ul.range range {
 	position: absolute;
 	right: calc(100% + 0.618em);
 	left: auto;
-	top: 0;
+	top: 0.162em;
 	bottom: auto; }
 #MasterColorPicker_Help dd {
 	margin: 0 1.168em; }
@@ -1253,7 +1264,7 @@ iframe#MasterColorPicker_local_filesaver {
 	overflow: auto;
 	z-index: 1; }
 #MasterColorPicker_EyeDropper playground {
-	margin: 0, auto;
+	margin: 0 auto;
 	/* how to make the "resize" thingy in the corner visible? (native-black on styled-black background now) */
 	color: var(--fore-palette);
 	background-color: var(--back-palette);
@@ -1611,7 +1622,7 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_Lab indicator {
 	display: inline-block;
 	text-align: left;
-	white-space: no-wrap;
+	white-space: nowrap;
 	margin: 0;
 	padding: 0; }
 #MasterColorPicker_Lab indicator span {
@@ -2148,7 +2159,11 @@ table#BeezEye tr:first-child td:first-child label {
 	top: 3em;
 	left: 5px;
 	transform: rotate(330deg); }
-
+table#BeezEye tr:first-child td:last-child label:nth-last-child(1),
+table#BeezEye tr:first-child td:last-child label:last-child,
+table#BeezEye tr:first-child label:has(input[type='checkbox']) {
+	display: inline;
+	padding-left: .382em; }
 
 table#BeezEye tr:nth-child(2) label {
 	position: absolute;
@@ -2430,7 +2445,7 @@ table#Simple² tr:nth-child(3) td:first-child {  /*for “lock”*/
 /*with Chromium browsers, padding in this column seems incorrect
 (way too much - inspector says over 6px), but even when set to 0px,
 or something unknown is causing the column to widen.*/
-	padding: 0.382;
+	padding: 0.382em;
 	vertical-align: middle; }
 table#Simple² tr:nth-child(3) td:first-child label {  /*for “lock”*/
 	transform: none; }
@@ -2642,4 +2657,4 @@ div#paletteLoadingAlert button.first-child {
 
 
 nobr {
-	white-space: no-wrap; }
+	white-space: nowrap; }
