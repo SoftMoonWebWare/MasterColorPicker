@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 120
 
-/*	websafe table interpolator function version 1.1.3  Feb 2, 2019; Feb 27, 2023; Feb 23, 2024  by SoftMoon WebWare.
+/*	websafe table interpolator function version 1.1.4  Feb 2, 2019; Feb 27, 2023; Feb 23, 2024; April 29, 2024  by SoftMoon WebWare.
  *   written by and Copyright © 2019,2022,2023 Joe Golembieski, SoftMoon WebWare
  *  Websafe table colorblind data courtesy of Christine Rigden →
 			https://www.rigdenage.co.uk/design-for-colour-blind/
@@ -86,7 +86,7 @@ function toColorBlind(rgb, type)  {
 	type=toColorBlind.types.indexOf(type);
 
 	if (tbl[H]  &&  tbl[H][C]  &&  (rgb=tbl[H][C][G]))   // rgb now becomes 3 sets of 3-value-rgb-arrays
-		return type<0 ?  rgb  :  this.outputRGB(...rgb[type], hcga[3]);
+		return type<0 ?  rgb  :  this.output_sRGB(...rgb[type], hcga[3]);
 
 	function setParams()  {
 		if (_C_===0) {Hlow=0; DperH=0;} //pure grayscale (white to black)-(when chroma=0) is found at Hue=0
@@ -122,9 +122,9 @@ function toColorBlind(rgb, type)  {
 	// we calculate 16,777,216 colors from 216 websafe colors: data is sparse
 	// we interpolate from 2 to 8 data points, based on “location” in the HCG color-space
 	// the more-sparse the data in the “vicinity,” the more data-points are used
-	if (C===_C_)  return this.outputRGB(...((H===Hlow) ? interp_G_() : interp_C_()), hcga[3]);
+	if (C===_C_)  return this.output_sRGB(...((H===Hlow) ? interp_G_() : interp_C_()), hcga[3]);
 
-	return this.outputRGB(...(interp(
+	return this.output_sRGB(...(interp(
 		(_C_===0) ? interp_G_() : interp_C_(),
 		(
 			_C_+=2,
