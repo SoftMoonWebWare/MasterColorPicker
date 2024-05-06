@@ -1158,7 +1158,7 @@ class ColorWheel_Array extends ColorA_Array {
 				s+=Math.roundTo(3, arr[1]) + sep + Math.roundTo(3, arr[2]) + (alpha && aSep+Math.roundTo(3, this.alpha));
 			else
 				s+=Math.roundTo(1, arr[1]*100) + '%' + sep + Math.roundTo(1, arr[2]*100) + '%' + (alpha && aSep+Math.roundTo(1, this.alpha*100)+'%');  }
-		if (isNewModel || outAs='css5')  alpha="";  // ¡curses to the folks who de-standardized this specification!  Tolerance ≡ ☺good☻   Strict totalitarian control ≡ ˅bad˅
+		if (isNewModel || outAs==='css5')  alpha="";  // ¡curses to the folks who de-standardized this specification!  Tolerance ≡ ☺good☻   Strict totalitarian control ≡ ˅bad˅
 		switch (outAs)  {
 		case 'css5':
 		case 'css':
