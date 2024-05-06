@@ -1264,7 +1264,7 @@ iframe#MasterColorPicker_local_filesaver {
 	overflow: auto;
 	z-index: 1; }
 #MasterColorPicker_EyeDropper playground {
-	margin: 0 auto;
+	margin: 0;
 	/* how to make the "resize" thingy in the corner visible? (native-black on styled-black background now) */
 	color: var(--fore-palette);
 	background-color: var(--back-palette);
