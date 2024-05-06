@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.11  April 28, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.11.2  May 6, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
@@ -30,7 +30,7 @@
 // requires  “+++.js”  ←in  JS_toolbucket/+++JS/
 // requires  “+++Math.js”  ←in  JS_toolbucket/++JS/
 // requires  “Björn_Ottosson.OK_color_space_models.js”  ←in  JS_toolbucket/
-// requires  “Alexei Boronine.HSLᵤᵥ_color_space_model.js”  ←in  JS_toolbucket/
+// requires  “Alexei_Boronine.HSLᵤᵥ_color_space_model.js”  ←in  JS_toolbucket/
 // requires  “HTTP.js”  ←in  JS_toolbucket/SoftMoon-WebWare/    ← only when downloading color-palette tables from the web via ajax.  They may be included in other ways.
 //  ↑ ↑ ↑ This codebase does not initiate HTTP connections on its own.
 //  ↑ ↑ ↑ Your host environment code must handle that and you must understand how to do that and what that process does.
@@ -505,7 +505,7 @@ function getFactorValue(v)  {
 		parseFloat(v)  :  (parseFloat(v)/100);
 	return (v<0 || v>1) ? false : v;  }
 
-function getAxis_value(v, axisPer, axisMax)  {  //for OKLab & OKLCh & Lab & LCh & Luv & LChᵤᵥ
+function getAxisValue(v, axisPer, axisMax)  {  //for OKLab & OKLCh & Lab & LCh & Luv & LChᵤᵥ
 	if (this.config.inputAsFactor  &&  !this.config.inputAsNumeric
 		&&  (typeof v !== 'string'  ||  !v.endsWith("%"))
 		&&  (!(v instanceof Number)  ||  v.unit!=='%'))    // this experimental property name is subject to change
@@ -792,7 +792,7 @@ class RGBA_Array extends ColorA_Array {
 		if (arguments.length===0)  super(4);
 		else if (α===undefined)  super(R,G,B);
 		else super(R,G,B,α);
-		if (profile)  this.profile=profile;  }
+		if (profile) this.profile=profile;  }
 	get R() {return this[0]}  set R($) {this[0]=$}
 	get r() {return this[0]}  set r($) {this[0]=$}
 	get G() {return this[1]}  set G($) {this[1]=$}
@@ -814,6 +814,7 @@ class RGBA_Array extends ColorA_Array {
 	set hex($)  {  if ($=$.match(RegExp.hex_a))  {
 		this[0]=parseInt($[3], 16);  this[1]=parseInt($[4], 16);  this[2]=parseInt($[5], 16);
 		if ($[6])  this[3]=parseInt($[6], 16)/255;  }  }
+	get rgba()  {return this.slice(0,4);}
 
 	to_XYZ(factory) {return toXYZ.call(this, this, factory);}
 	to_Lab(factory) {return toLab.call(this, this, factory);}
@@ -891,6 +892,7 @@ class RGBA_Color extends RGBA_Array {
 	constructor($r, $g, $b, $α, $config, $profile='sRGB')  {
 		super();
 		this.config= new RGBA_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this,
 			rgb=new Array(3),
@@ -976,6 +978,7 @@ class CMYKA_Array extends ColorA_Array {
 	get	black()   {return this[3]}  set	black($)   {this[3]=$}
 	get	alpha()   {return this[4]}  set	alpha($)   {this[4]=$}
 	get	opacity() {return this[4]}  set	opacity($) {this[4]=$}
+	get cmyka() {return this.slice(0,5);}
 
 	toString(format) {
 		if (typeof format != 'string')  format="";
@@ -1023,6 +1026,7 @@ class CMYKA_Color extends CMYKA_Array  {
 	constructor($C, $M, $Y, $K, $α, $config)  {
 		super();
 		this.config= new CMYKA_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
 		function readArr($arr)  { $C=thisClr.getFactor($arr[0]);  $M=thisClr.getFactor($arr[1]);  $Y=thisClr.getFactor($arr[2]);  $K=thisClr.getFactor($arr[3]);
@@ -1154,10 +1158,10 @@ class ColorWheel_Array extends ColorA_Array {
 				s+=Math.roundTo(3, arr[1]) + sep + Math.roundTo(3, arr[2]) + (alpha && aSep+Math.roundTo(3, this.alpha));
 			else
 				s+=Math.roundTo(1, arr[1]*100) + '%' + sep + Math.roundTo(1, arr[2]*100) + '%' + (alpha && aSep+Math.roundTo(1, this.alpha*100)+'%');  }
-		if (isNewModel)  alpha="";  // ¡curses to the folks who de-standardized this specification!  Tolerance ≡ ☺good☻   Strict totalitarian control ≡ ˅bad˅
+		if (isNewModel || outAs='css5')  alpha="";  // ¡curses to the folks who de-standardized this specification!  Tolerance ≡ ☺good☻   Strict totalitarian control ≡ ˅bad˅
 		switch (outAs)  {
-		case 'css':
 		case 'css5':
+		case 'css':
 		case 'wrap':
 		case 'function':  return model+alpha+'('+s+')';;
 		case 'prefix':    return model+alpha+': '+s
@@ -1215,7 +1219,9 @@ class HSVA_Array extends ColorWheel_Array  {
 	get value()      {return this[2]}  set value($)      {this[2]=$}
 	get brightness() {return this[2]}  set brightness($) {this[2]=$}
 	get alpha()   {return this[3]}     set alpha($)   {this[3]=$}
-	get opacity() {return this[3]}     set opacity($) {this[3]=$}  }
+	get opacity() {return this[3]}     set opacity($) {this[3]=$}
+	get hsba() {return this.slice(0,4);}
+	get hsva() {return this.slice(0,4);}  }
 
 Object.defineProperty(HSVA_Array.prototype, "model", {value:"HSV"});
 
@@ -1223,6 +1229,7 @@ class HSVA_Color extends HSVA_Array  {
 	constructor($H,$S,$V,$α, $config)  {
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this,
 			defHSVA={get: ()=>[$H,$S,$V,$α],  set: readArr};
@@ -1309,6 +1316,7 @@ class OKHSVA_Color extends OKHSVA_Array  {
 	constructor($H,$S,$V,$α, $config)  {
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this,
 			defHSVA={get: ()=>[$H,$S,$V,$α],  set: readArr};
@@ -1347,7 +1355,8 @@ class HSLA_Array extends ColorWheel_Array  {
 	get saturation() {return this[1]}  set saturation($) {this[1]=$}
 	get lightness()  {return this[2]}  set lightness($)  {this[2]=$}
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
-	get opacity() {return this[3]}  set opacity($) {this[3]=$}  }
+	get opacity() {return this[3]}  set opacity($) {this[3]=$}
+	get hsla() {return this.slice(0,4);}  }
 
 Object.defineProperty(HSLA_Array.prototype, "model", {value:"HSL"});
 
@@ -1355,6 +1364,7 @@ class HSLA_Color extends HSLA_Array  {
 	constructor($H,$S,$L,$α, $config)  {
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
 		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $S=thisClr.getFactor($arr[1]);  $L=thisClr.getFactor($arr[2]);
@@ -1391,6 +1401,7 @@ class OKHSLA_Color extends OKHSLA_Array {
 	constructor($H,$S,$L,$α, $config)  {
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this,
 			defHSLA={get: ()=>[$H,$S,$L,$α],  set: readArr};
@@ -1429,14 +1440,16 @@ class HCGA_Array extends ColorWheel_Array  {
 	get chroma() {return this[1]}   set chroma($) {this[1]=$}
 	get gray()   {return this[2]}   set gray($)   {this[2]=$}
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
-	get opacity() {return this[3]}  set opacity($) {this[3]=$}  }
+	get opacity() {return this[3]}  set opacity($) {this[3]=$}
+	get hcga() {return this.slice(0,4);}  }
 
 Object.defineProperty(HCGA_Array.prototype, "model", {value:"HCG"});
 
 class HCGA_Color extends HCGA_Array  {
 	constructor($H,$C,$G,$α, $config)  {
-		super($config);
+		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
 		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $C=thisClr.getFactor($arr[1]);  $G=thisClr.getFactor($arr[2]);
@@ -1470,8 +1483,9 @@ Object.defineProperty(OKHCGA_Array.prototype, "model", {value:"OKHCG"});
 
 class OKHCGA_Color extends OKHCGA_Array  {
 	constructor($H,$C,$G,$α, $config)  {
-		super($config);
+		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
 		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $C=thisClr.getFactor($arr[1]);  $G=thisClr.getFactor($arr[2]);
@@ -1505,14 +1519,16 @@ class HWBA_Array extends ColorWheel_Array {
 	get white()  {return this[1]}   set white($)  {this[1]=$}
 	get black()  {return this[2]}   set black($)  {this[2]=$}
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
-	get opacity() {return this[3]}  set opacity($) {this[3]=$}  }
+	get opacity() {return this[3]}  set opacity($) {this[3]=$}
+	get hwba() {return this.slice(0,4);}  }
 
 Object.defineProperty(HWBA_Array.prototype, "model", {value:"HWB"});
 
 class HWBA_Color extends HWBA_Array  {
 	constructor($H,$W,$B,$α, $config)  {
-		super($config);
+		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
 		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $W=thisClr.getFactor($arr[1]);  $B=thisClr.getFactor($arr[2]);
@@ -1544,8 +1560,9 @@ Object.defineProperty(OKHWBA_Array.prototype, "model", {value:"OKHWB"});
 
 class OKHWBA_Color extends OKHWBA_Array  {
 	constructor($H,$W,$B,$α, $config)  {
-		super($config);
+		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
 		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $W=thisClr.getFactor($arr[1]);  $B=thisClr.getFactor($arr[2]);
@@ -1579,6 +1596,7 @@ class OKLChA_Array extends ColorWheel_Array  {
 	get hue()       {return this[2]}  set hue($)       {this[2]=$}
 	get alpha()     {return this[3]}  set alpha($)     {this[3]=$}
 	get opacity()   {return this[3]}  set opacity($)   {this[3]=$}
+	get lcha() {return this.slice(0,4);}
 
 	to_OKLab(factory)  {
 		factory??=this.config.OKLabA_Factory;
@@ -1597,14 +1615,15 @@ class OKLChA_Color extends OKLChA_Array  {
 	constructor($L,$C,$h,$α, $config)  {  // 0 ≤ [$L,$H] ≤ 1     0 ≤ $C ≤ 0.5  ←(100%===0.4)
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis_value($arr[1], 0.4, 0.5);  $h=thisClr.getHue($arr[2]);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis($arr[1], 0.4, 0.5);  $h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
-			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis_value($, 0.4, 0.5),  enumerable: true},
+			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 0.4, 0.5),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			oklcha: {get: ()=>[$L,$C,$h,$α],  set: readArr},
@@ -1614,7 +1633,7 @@ class OKLChA_Color extends OKLChA_Array  {
 
 Object.defineProperties(OKLChA_Color.prototype, {
 		getFactor: {value: getFactorValue},
-		getAxis_value: {value: getAxis_value},
+		getAxis: {value: getAxisValue},
 		getHue: {value: getHueFactor},
 		getAlpha: {value: getAlphaFactor},
 		γCorrect_linear_RGB: {value: γCorrect_linear_RGB},
@@ -1639,12 +1658,13 @@ class OKLabA_Array extends ColorA_Array  {
 	get b_axis()     {return this[2]}  set b_axis($)    {this[2]=$}
 	get alpha()    {return this[3]}    set alpha($)   {this[3]=$}
 	get opacity()  {return this[3]}    set opacity($) {this[3]=$}
+	get laba() {return this.slice(0,4);}
 
 	to_OKLCh(factory)  {
 		factory??=this.config.OKLChA_Factory;
 		const
 			C=Math.sqrt(this[1]*this[1] + this[2]*this[2]),
-			h= (C<Björn_Ottosson.minimumChroma) ? 1 : (radian(arcTangent2(this[2], this[1]))/π2),
+			h= (C<Björn_Ottosson.minimumChroma) ? 1 : (Math.rad(Math.atan2(this[2], this[1]))/π2),
 			α= (this[3]===undefined) ? this.config?.defaultAlpha : this[3];
 		return (α===undefined) ? new factory(this[0],C,h) : new factory(this[0],C,h,α);  }
 	to_OKHSV(factory) {return Björn_Ottosson.oklab_to_okhsv.call(this, this, factory);}
@@ -1700,15 +1720,16 @@ class OKLabA_Color extends OKLabA_Array  {   // 0 ≤ [$L] ≤ 1     0 ≤ [$A,$
 		if (!new.target)  throw new Error('SoftMoon.WebWare.OKLab_Color is a constructor, not a function.');
 		super();
 		this.config= new OKLabA_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $a=thisClr.getAxis_value($arr[1], 0.4, 0.4);  $b=thisClr.getAxis_value($arr[2], 0.4, 0.4);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $a=thisClr.getAxis($arr[1], 0.4, 0.4);  $b=thisClr.getAxis($arr[2], 0.4, 0.4);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
-			1: {get: ()=>$a,  set: ($)=>$a=thisClr.getAxis_value($, 0.4, 0.4),  enumerable: true},
-			2: {get: ()=>$b,  set: ($)=>$b=thisClr.getAxis_value($, 0.4, 0.4),  enumerable: true},
+			1: {get: ()=>$a,  set: ($)=>$a=thisClr.getAxis($, 0.4, 0.4),  enumerable: true},
+			2: {get: ()=>$b,  set: ($)=>$b=thisClr.getAxis($, 0.4, 0.4),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			oklaba: {get: ()=>[$L,$a,$b,$α],  set: readArr},
 			to: {value: Object.defineProperties(new Object, {
@@ -1719,7 +1740,7 @@ class OKLabA_Color extends OKLabA_Array  {   // 0 ≤ [$L] ≤ 1     0 ≤ [$A,$
 
 Object.defineProperties(OKLabA_Color.prototype, {
 	getFactor: {value: getFactorValue},
-	getAxis_value: {value: getAxis_value},
+	getAxis: {value: getAxisValue},
 	getAlpha: {value: getAlphaFactor} });
 
 SoftMoon.WebWare.OKLabA_Array=OKLabA_Array;
@@ -1745,6 +1766,7 @@ class LabA_Array extends ColorA_Array  {// 0 ≤ l ≤ 100   --170 ≤ (a,b) ≤
 	get b_axis()    {return this[2]}  set b_axis($)    {this[2]=$}
 	get alpha()     {return this[3]}  set alpha($)     {this[3]=$}
 	get opacity()   {return this[3]}  set opacity($)   {this[3]=$}
+	get laba() {return this.slice(0,4);}
 
 	// https://github.com/color-js/color.js/blob/main/src/spaces/lab-d65.js
 	// https://github.com/color-js/color.js/blob/main/src/spaces/lab.js
@@ -1792,21 +1814,22 @@ class LabA_Color extends LabA_Array  {
 	constructor($L,$a,$b,$α, $config)  {
 		super();
 		this.config= new LabA_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $a=thisClr.getAxis_value($arr[1], 125, 170);  $b=thisClr.getAxis_value($arr[2], 125, 170);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $a=thisClr.getAxis($arr[1], 125, 170);  $b=thisClr.getAxis($arr[2], 125, 170);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
-			1: {get: ()=>$a,  set: ($)=>$a=thisClr.getAxis_value($, 125, 170),  enumerable: true},
-			2: {get: ()=>$b,  set: ($)=>$b=thisClr.getAxis_value($, 125, 170),  enumerable: true},
+			1: {get: ()=>$a,  set: ($)=>$a=thisClr.getAxis($, 125, 170),  enumerable: true},
+			2: {get: ()=>$b,  set: ($)=>$b=thisClr.getAxis($, 125, 170),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			laba: {get: ()=>[$L,$a,$b,$α],  set: readArr} });  }  }
 
 Object.defineProperties(LabA_Color.prototype, {
 	getFactor: {value: getFactorValue},
-	getAxis_value: {value: getAxis_value},
+	getAxis: {value: getAxisValue},
 	getAlpha: {value: getAlphaFactor} });
 
 SoftMoon.WebWare.LabA_Array=LabA_Array;
@@ -1829,6 +1852,7 @@ class LChA_Array extends ColorWheel_Array  {// 0 ≤ l ≤ 100     0 ≤ h ≤ 1
 	get hue()       {return this[2]}  set hue($)       {this[2]=$}
 	get alpha()     {return this[3]}  set alpha($)     {this[3]=$}
 	get opacity()   {return this[3]}  set opacity($)   {this[3]=$}
+	get lcha() {return this.slice(0,4);}
 
 	// https://github.com/color-js/color.js/blob/main/src/spaces/lch.js
 	to_Lab(factory)  {
@@ -1853,21 +1877,22 @@ class LChA_Color extends LChA_Array  {
 	constructor($L,$C,$h,$α, $config)  {  // 0 ≤ [$L,$H] ≤ 1     0 ≤ $C ≤ 230  ←(100%===150)
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis_value($arr[1], 150, 230);  $h=thisClr.getHue($arr[2]);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis($arr[1], 150, 230);  $h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
-			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis_value($, 150, 230),  enumerable: true},
+			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 150, 230),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			lcha: {get: ()=>[$L,$C,$h,$α],  set: readArr}  });  }  }
 
 Object.defineProperties(LChA_Color.prototype, {
 	getFactor: {value: getFactorValue},
-	getAxis_value: {value: getAxis_value},
+	getAxis: {value: getAxisValue},
 	getHue: {value: getHueFactor},
 	getAlpha: {value: getAlphaFactor} });
 
@@ -1895,6 +1920,7 @@ class LuvA_Array extends ColorA_Array  {// 0 ≤ l ≤ 100   –215 ≤ (a,b) �
 	get v_axis()    {return this[2]}  set v_axis($)    {this[2]=$}
 	get alpha()     {return this[3]}  set alpha($)     {this[3]=$}
 	get opacity()   {return this[3]}  set opacity($)   {this[3]=$}
+	get luva() {return this.slice(0,4);}
 
 	//  https://github.com/color-js/color.js/blob/main/src/spaces/luv.js
 	//  https://en.wikipedia.org/wiki/CIELUV#The_reverse_transformation
@@ -1932,21 +1958,22 @@ class LuvA_Color extends LuvA_Array  {
 	constructor($L,$u,$v,$α, $config)  {
 		super();
 		this.config= new LuvA_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $u=thisClr.getAxis_value($arr[1], 215, 215);  $v=thisClr.getAxis_value($arr[2], 215, 215);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $u=thisClr.getAxis($arr[1], 215, 215);  $v=thisClr.getAxis($arr[2], 215, 215);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
-			1: {get: ()=>$u,  set: ($)=>$u=thisClr.getAxis_value($, 215, 215),  enumerable: true},
-			2: {get: ()=>$v,  set: ($)=>$v=thisClr.getAxis_value($, 215, 215),  enumerable: true},
+			1: {get: ()=>$u,  set: ($)=>$u=thisClr.getAxis($, 215, 215),  enumerable: true},
+			2: {get: ()=>$v,  set: ($)=>$v=thisClr.getAxis($, 215, 215),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			luva: {get: ()=>[$L,$u,$v,$α],  set: readArr} });  }  }
 
 Object.defineProperties(LuvA_Color.prototype, {
 	getFactor: {value: getFactorValue},
-	getAxis_value: {value: getAxis_value},
+	getAxis: {value: getAxisValue},
 	getAlpha: {value: getAlphaFactor} });
 
 SoftMoon.WebWare.LuvA_Array=LuvA_Array;
@@ -1974,21 +2001,22 @@ class LChᵤᵥA_Color extends LChᵤᵥA_Array  {
 	constructor($L,$C,$h,$α, $config)  {  // 0 ≤ [$L,$H] ≤ 1     0 ≤ $C ≤ 0.5  ←(100%===0.4)
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis_value($arr[1], 215, 215);  $h=thisClr.getHue($arr[2]);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis($arr[1], 215, 215);  $h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
-			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis_value($, 215, 215),  enumerable: true},
+			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 215, 215),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			lchᵤᵥa: {get: ()=>[$L,$C,$h,$α],  set: readArr}  });  }  }
 
 Object.defineProperties(LChᵤᵥA_Color.prototype, {
 	getFactor: {value: getFactorValue},
-	getAxis_value: {value: getAxis_value},
+	getAxis: {value: getAxisValue},
 	getHue: {value: getHueFactor},
 	getAlpha: {value: getAlphaFactor} });
 
@@ -2016,6 +2044,7 @@ class HSLᵤᵥA_Color extends HSLᵤᵥA_Array  {
 	constructor($H,$S,$L,$α, $config)  {  // 0 ≤ [$H,$S,$L] ≤ 1
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
 		function readArr($arr)  { $H=thisClr.getHue($arr[0]);  $S=thisClr.getFactor($arr[1]);  $L=thisClr.getFactor($arr[2]);
@@ -2104,7 +2133,7 @@ class XYZA_Array extends ColorA_Array  {
 	static ε = 216 / 24389;  // 6^3/29^3 == (24/116)^3
 	static κ = 24389 / 27;  // 29^3/3^3    === 903.296296296296…
 
-	constructor(X,Y,Z,α, illuminant, observer)  {
+	constructor(X,Y,Z,α, illuminant="D65", observer="2°")  {
 		if (arguments.length===0)  super(4);
 		else if (α===undefined)  super(X,Y,Z);
 		else  super(X,Y,Z,α);
@@ -2201,6 +2230,7 @@ class XYZA_Array extends ColorA_Array  {
 	get α() {return this[3]}  set α($) {this[3]=$}
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
 	get opacity() {return this[3]}  set opacity($) {this[3]=$}
+	get xyza() {return this.slice(0,4);}
 
 	toString(format)  {
 		if (typeof format != 'string')  format="";
@@ -2253,7 +2283,8 @@ XYZA_Array.prototype.adapt_illuminant.adaptor="CSS";  // ← CSS ‖ Lindbloom
 class XYZA_Color extends XYZA_Array  {  // at this time we are NOT verifying the input values for XYZA_Colors, as we do other …A_Colors
 	constructor(X,Y,Z,α, illuminant, observer, $config)  {
 		super(X,Y,Z,α, illuminant, observer);
-		this.config= new XYZA_Color.ConfigStack(this, $config);  }  }
+		this.config= new XYZA_Color.ConfigStack(this, $config);
+		if (α===undefined)  this[3]=this.config.defaultAlpha;  }  }
 
 SoftMoon.WebWare.XYZA_Array=XYZA_Array;
 SoftMoon.WebWare.XYZA_Color=XYZA_Color;
@@ -2503,15 +2534,17 @@ function RGB_Calc($config, $quickCalc, $mini)  {
 			convertColor: {value: convertColor},  //this is for plug-ins
 			$: {value: calc}  });   } //this is also used internally by convertColor
 
+	const definer=RGB_Calc.definer[$quickCalc ? 'quick' : 'audit'];
+
 	Object.defineProperties(calc, {
-		config: {enumerable: true,  writable: true, configurable: true,   value: new RGB_Calc.definer[$quickCalc ? 'quick' : 'audit'].ConfigStack(calc, $config)},
-		to:     {enumerable: true,  value: Object.create(calc, !$mini && RGB_Calc.definer[$quickCalc ? 'quick' : 'audit'].to)},
-		from:   {enumerable: true,  value: Object.create(calc, !$mini && RGB_Calc.definer[$quickCalc ? 'quick' : 'audit'].from)}  });
+		config: {enumerable: true,  writable: true, configurable: true,   value: new definer.ConfigStack(calc, $config)},
+		to:     {enumerable: true,  value: Object.create(calc, !$mini && definer.to)},
+		from:   {enumerable: true,  value: Object.create(calc, !$mini && definer.from)}  });
 	if ($mini)  {
 		if ($mini.to)  for (const p of $mini.to)  {
-			Object.defineProperty(calc.to,  p,  RGB_Calc.definer[$quickCalc ? 'quick' : 'audit'].to[p]);  }
+			Object.defineProperty(calc.to,  p,  definer.to[p]);  }
 		if ($mini.from)  for (const p of $mini.from)  {
-			Object.defineProperty(calc.from,  p,  RGB_Calc.definer[$quickCalc ? 'quick' : 'audit'].from[p]);  }  }
+			Object.defineProperty(calc.from,  p,  definer.from[p]);  }  }
 
 	return calc;  }
 
@@ -2527,7 +2560,7 @@ const
 	defProps1={  // these are worker methods of a Calculator & a ColorFactory
 		getByte:     {value: getByteValue},
 		getFactor:   {value: getFactorValue},
-		getAxis_value: {value: getAxis_value},  // for OKLab & OKLCh & Lab & LCh
+		getAxis:     {value: getAxisValue},  // for OKLab & OKLCh & Lab & LCh
 		getHueFactor:{value: getHueFactor},
 		getAlpha:    {value: getAlphaFactor},
 		factorize:   {value: factorize},
@@ -3397,8 +3430,8 @@ function auditLab(RE, space, axisPer, axisMax, callback, $lab)  {
 		else  return this.config.onError($lab, space);  }
 	else if (this.config.preserveInputArrays)  $lab=Array.from($lab);
 	$lab[0]=this.getFactor($lab[0]),
-	$lab[1]=this.getAxis_value($lab[1], axisPer, axisMax),
-	$lab[2]=this.getAxis_value($lab[2], axisPer, axisMax),
+	$lab[1]=this.getAxis($lab[1], axisPer, axisMax),
+	$lab[2]=this.getAxis($lab[2], axisPer, axisMax),
 	$lab[3]=this.getAlpha($lab[3]);
 	if ($lab[0]===false  ||  $lab[1]===false  ||  $lab[2]===false  ||  $lab[3]===false)  this.config.onError($lab, space);
 	return callback.call(this, $lab);  };
@@ -3420,7 +3453,7 @@ function auditLCh(RE, space, CPer, CMax, callback, $lch)  {
 		else  return this.config.onError($lch, space);  }
 	else if (this.config.preserveInputArrays)  $lch=Array.from($lch);
 	$lch[0]=this.getFactor($lch[0]),
-	$lch[1]=this.getAxis_value($lch[1], CPer, CMax),  // note the RegExp above filters out negative values
+	$lch[1]=this.getAxis($lch[1], CPer, CMax),  // note the RegExp above filters out negative values
 	$lch[2]=this.getHueFactor($lch[2]),
 	$lch[3]=this.getAlpha($lch[3]);
 	if ($lch[0]===false  ||  $lch[1]===false  ||  Number.isNaN($lch[2])  ||  $lch[3]===false)  this.config.onError($lch, space);
