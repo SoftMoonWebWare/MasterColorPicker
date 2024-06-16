@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.9~BETA   April 28, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.9.1~BETA   May 7, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -239,7 +239,7 @@ let userOptions;
 			n => n.name.match( /^(?:MasterColorPicker_)?(.+)(?:\[\])?$/ )[1]);  // ←←this defines property names (of the array-object: userOptions) ↑ ↑
 		userOptions.palette_select=UniDOM(document.getElementById('MasterColorPicker_palette_select'));
 
-  	Color_Picker.registeredPickers.setOptions();
+		Color_Picker.registeredPickers.setOptions();
 
 		if (userOptions.applyToAll)
 			UniDOM.addEventHandler(userOptions.applyToAll, 'onchange', function()  {
@@ -249,20 +249,20 @@ let userOptions;
 
 		UniDOM.addEventHandler(userOptions.showLocator, 'onchange', function()  {
 			if (!userOptions.applyToAll.checked)
-      	Color_Picker.registeredPickers[userOptions.palette_select.getSelected().value].doIndexLocator=this.checked;
+				Color_Picker.registeredPickers[userOptions.palette_select.getSelected().value].doIndexLocator=this.checked;
 			UniDOM.disable(document.getElementById('MasterColorPicker_locatorStyle'), !this.checked);
 			UniDOM.disable(document.getElementById('MasterColorPicker_locatorColor'), !this.checked);
 			UniDOM.disable(document.getElementById('MasterColorPicker_interlink'), !this.checked);  });
 
 		UniDOM.addEventHandler([userOptions.doInterlink, userOptions.keepPrecision], 'onchange', function()  {
 			if (!userOptions.applyToAll.checked)
-      	Color_Picker.registeredPickers[userOptions.palette_select.getSelected().value][getName(this)]=this.checked;  });
+				Color_Picker.registeredPickers[userOptions.palette_select.getSelected().value][getName(this)]=this.checked;  });
 
 		UniDOM.addEventHandler([userOptions.outputMode, userOptions.locatorStyle, userOptions.locatorColor], 'onchange', function()  {
 			//note that, “technically,” changing one radio button (selecting it) should change another (it automatically deselects)
 			//however, by specs only the newly selected one fires an onchange event, simplifying and streamlining this function
 			if (!userOptions.applyToAll.checked)
-      	Color_Picker.registeredPickers[userOptions.palette_select.getSelected().value][getName(this)]=this.value;  });
+				Color_Picker.registeredPickers[userOptions.palette_select.getSelected().value][getName(this)]=this.value;  });
 
 //		UniDOM.addEventHandler(userOptions.palette_select, 'onchange', function()  {
 		UniDOM.addEventHandler(userOptions.palette_select.element, 'onchange', function()  {
@@ -270,7 +270,7 @@ let userOptions;
 			if (!(p instanceof Array))
 				Color_Picker.registeredPickers[p.firstChild.data].putOptions();  });
 
-  });  //close  window onload
+	});  //close  window onload
 
 
 
@@ -290,7 +290,7 @@ Color_Picker.registeredPickers.setOptions=function() {for (const picker of this)
 /*read the HTML “options” and return the appropriate values for this ColorPicker’s options accordingly*/
 Color_Picker.prototype.getOptions=function()  {
 	if (userOptions.applyToAll.checked)
-	  return {
+		return {
 			outputMode: userOptions.outputMode.value,
 			keepPrecision: userOptions.keepPrecision.checked,
 			canInterlink: this.canInterlink,
@@ -356,7 +356,7 @@ Color_Picker.prototype.onmouseout=function()  {
 Color_Picker.prototype.onclick=function(event)  {
 	//if (event.type==='contextmenu')  event.preventDefault();
 	const colorSpecCache=this.getColor.apply(this, arguments);
-  if (colorSpecCache && colorSpecCache.RGB)  MasterColorPicker.pick(colorSpecCache, event, this.name);  }
+	if (colorSpecCache && colorSpecCache.RGB)  MasterColorPicker.pick(colorSpecCache, event, this.name);  }
 
 
 // =================================================================================================== \\
@@ -460,7 +460,7 @@ Color_Picker.Color_SpecCache=function(color, model='text', RGB)  {
 		case "text": RGB=MasterColorPicker.RGB_calc(color);
 			break;
 		default: RGB=RGB_calc.from[model.toLowerCase()](color instanceof Array ? color : color[model.toLowerCase()+'a']);  }
-  if (!RGB)  return false;
+	if (!RGB)  return false;
 	this.RGB=RGB;
 	this.model=model;
 	if (model!=='RGB')  this[model]=color;  }
@@ -806,7 +806,7 @@ function MyPalette(HTML, PNAME)  {
 		UniDOM.generateEvent(MasterColorPicker.userOptions.showHelp, 'change');
 		MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
 		document.getElementById(event.currentTarget.getAttribute('referto')).scrollIntoView();  });
-  UniDOM.addPowerSelect(paletteMetaHTML.querySelector("select.duplicate"));
+	UniDOM.addPowerSelect(paletteMetaHTML.querySelector("select.duplicate"));
 	UniDOM.addPowerSelect(paletteMetaHTML.querySelector("select.alternative"))
 
 	for (let i=0; i<portHTML.elements.length; i++)  {if (portHTML.elements[i].type==='radio')  portHTML.elements[i].checked=false;}
@@ -818,7 +818,7 @@ function MyPalette(HTML, PNAME)  {
 	UniDOM.disable(_mergeMode, true);
 	UniDOM.disable(_filetype, true);
 
-  UniDOM.addEventHandler(paletteMetaHTML, 'onFocusIn', function() {thisPalette.MetaGenie.tabbedOut=false});
+	UniDOM.addEventHandler(paletteMetaHTML, 'onFocusIn', function() {thisPalette.MetaGenie.tabbedOut=false});
 	UniDOM.addEventHandler(paletteMetaHTML, 'onKeyDown', this.MetaGenie.catchTab);
 	UniDOM.addEventHandler(paletteMetaHTML, 'onFocusOut', function()  {
 		if (event.target.nodeName==='TEXTAREA'
@@ -1115,7 +1115,7 @@ MyPalette.prototype.fromJSON=function($JSON_palette, mergeMode)  {
 			if (!a[i])  continue;
 			flds.lastElementChild.value=a[i];
 			if (!thisPalette.MetaGenie.popNewGroup(flds.lastElementChild))  break;  }  }
-  metaHTML.querySelector('select.alternative').setSelected(JSON_palette.alternatives ? JSON_palette.alternatives : '—none—');
+	metaHTML.querySelector('select.alternative').setSelected(JSON_palette.alternatives ? JSON_palette.alternatives : '—none—');
 
 	var tbody, id;
 	switch (mergeMode)  {
@@ -1511,7 +1511,7 @@ MyPalette.prototype.uploadPalette=function(JSON_Palette) {
 		filepath=document.URL.substring(0, document.URL.lastIndexOf("/")+1)+SoftMoon.colorPalettes_defaultPath,
 		connection=HTTP.Connection(SoftMoon.colorPalettes_defaultPath, 'Can not upload Palette to server: no HTTP service available.');
 	var pName, div;
-  for (pName in palette)  {break;}
+	for (pName in palette)  {break;}
 	connection.onFileLoad=function()  {
 		if (thisPalette.doLog)  console.log(' ←← Upload response:',this.responseText);
 		const response=this.responseText.split(GS)[0];  // ASCII code29=“group separator” : the response may be followed by the index
@@ -1523,7 +1523,7 @@ MyPalette.prototype.uploadPalette=function(JSON_Palette) {
 		if (thisPalette.doLog)  console.warn(' ←← Upload: HTTP or server Error.');
 		div.innerHTML=MyPalette.NOTICES.HTTP;  }
 	connection.onloadend=function() {UniDOM.remove$Class(div, 'wait');  div.wait=false;};
-  connection.requestHeaders={'Content-Type': 'application/x-www-form-urlencoded'};
+	connection.requestHeaders={'Content-Type': 'application/x-www-form-urlencoded'};
 	connection.postData=HTTP.URIEncodeObject({
 		filename: filename,
 		palette: this.toFileText(palette, filetype, filename, this.HTML.querySelector('[name$="CSSautoType"]').value),
@@ -1770,7 +1770,7 @@ Color_Picker.colorSwatch=function colorSwatch(inp, swatch)  {
 		if (swatch= (inp.getAttribute('swatch')  ||  inp.swatch))  {
 			if (typeof swatch===Function  ||  !UniDOM.isElement(document.getElementById(swatch)))  {
 				try  {
-					if (typeof swatch!==Function)  swatch=new Function("return "+swatch+";")
+					if (typeof swatch!==Function)  swatch=new Function("return ("+swatch+");")
 					swatch=swatch.call(inp);  }
 				catch(e) {console.error('Custom “swatch” expression failed for ',inp,'\n with Error message:\n ',e.message);};  }  }
 		else  switch (this.showColorAs)  {
@@ -1783,7 +1783,7 @@ Color_Picker.colorSwatch=function colorSwatch(inp, swatch)  {
 	if (!swatch.defaultBorder)
 		swatch.defaultBorder=getComputedStyle(swatch).borderColor || getComputedStyle(swatch).color;
 	var toggleBorder= swatch.hasAttribute('toggleBorder') ?
-		  Boolean.evalString(swatch.getAttribute('toggleBorder'))
+			Boolean.evalString(swatch.getAttribute('toggleBorder'))
 		: this.toggleBorder;
 	if (( /^(none|blank|gap|zilch|\-|\_|\u2013|\u2014)$/i ).test(inp.value))  {
 		if (toggleBorder)  {
@@ -2163,7 +2163,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		finally {RGB_Calc.config.cull();}  }
 	swatch.color();
 	function CSL_picker(event)  {MasterColorPicker.pick(ColorSpaceLab.getColor(), event, "ColorSpace Lab");}
-  UniDOM.addEventHandler(ColorSpaceLab.swatch, 'onClick', CSL_picker);
+	UniDOM.addEventHandler(ColorSpaceLab.swatch, 'onClick', CSL_picker);
 	UniDOM.addEventHandler(ColorSpaceLab.swatch.closest('button'), 'buttonpress', CSL_picker);
 
 	UniDOM.addEventHandler(settings.showContrastInLab, 'change', function(event)  {
@@ -2368,7 +2368,7 @@ BeezEye.getColor=function(event)  {
 	const
 		x=(row%2) ?
 				(event.offsetX<center.x ? Math.ceil((event.offsetX-center.x)/space.x)*space.x - space.x/2
-															  : Math.floor((event.offsetX-center.x)/space.x)*space.x + space.x/2)
+																: Math.floor((event.offsetX-center.x)/space.x)*space.x + space.x/2)
 			: Math.round((event.offsetX-center.x)/space.x)*space.x ;
 	BeezEye.calcNativeHSV(x, y, maxSatPoint);  // globals ↓
 	if (saturation>1)  return;
@@ -2765,12 +2765,12 @@ RainbowMaestro.getColor=function(event)  { mouseColor=null;  targetHue=null;
 	if (r<w*this.smRainbowRing.inRad)  break calcColor;
 	if (r<w*this.smRainbowRing.outRad)  {
 		if (settings.websafe.checked)  a=Math.round(a/_['24°'])*_['24°'];
-    targetHue=a;
+		targetHue=a;
 		color=mouseColor=new RainbowMaestro.Color_SpecCache(
 				MasterColorPicker.RGB_calc.from.hue(a/π2), 'HCG',  a/π2, 1, .5, 'smRainbow', a);
 		break calcColor;  }
 	if (r<w*this.focalHuesRing.outRad/2)  {
-    targetHue=a;
+		targetHue=a;
 		break calcColor;  }
 
 	if (r<w*this.focalHuesRing.outRad)  {
@@ -2823,7 +2823,7 @@ RainbowMaestro.getColor=function(event)  { mouseColor=null;  targetHue=null;
 		if (settings.websafe.checked)  a=Math.round(a/_['24°'])*_['24°'];
 		else if (settings.splitComplement.checked)
 			a=Math.rad(Math.Trig.ellipseAngle(a-focalHue, 1/3)+focalHue);
-    targetHue=a;
+		targetHue=a;
 		color=mouseColor=new RainbowMaestro.Color_SpecCache(
 				MasterColorPicker.RGB_calc.from.hue(a/π2), 'HCG',  a/π2, 1, .5, 'lgRainbow', a);  }
 
@@ -3406,7 +3406,7 @@ YinYangNiHong.buildPalette=function()  {
 			if (settings.OK.checked)  {
 				const oklab=RGB_Calc.to.oklab(hue);
 				fh=Math.rad(Math.atan2(oklab[2], oklab[1]))/π2;  }
-      for (let blg=0; blg<256; blg++)  { for (let sc=0; sc<256; sc++)  {
+			for (let blg=0; blg<256; blg++)  { for (let sc=0; sc<256; sc++)  {
 				const RGB=RGB_Calc.from[mode]([fh, 1-sc/255, blg/255]);
 				if (RGB===null)  continue;
 				cnvs.context.fillStyle=RGB.toString('css');
@@ -3487,7 +3487,7 @@ YinYangNiHong.onmouseout=YinYangNiHong.onmousemove;
 
 
 YinYangNiHong.onclick=function()  {
-  this.constructor.prototype.onclick.apply(this, arguments);
+	this.constructor.prototype.onclick.apply(this, arguments);
 	if (Color && Color.focal)  {
 		focalHue=Color[Color.model].hue;
 		settings.focalHueInput.value=Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[this.hueAngleUnit], Color.focal);
@@ -3913,7 +3913,7 @@ function initPaletteTables($path, $whenLoaded, $whenDone)  { // ←← optional 
 						console.error('The MasterColorPicker JSON palette file was malformed.  Filename:\n  '+(allFiles[i].filename || allFiles[i].url)+'\n  Error: ', e);  }
 					allFiles[i].built=true;
 					updateAlertBox();
-				  if (++i >= allFiles.length)  {
+					if (++i >= allFiles.length)  {
 						clearInterval(wait);
 						if (typeof $whenDone === 'function')  {
 							try {$whenDone(allFiles);}
@@ -3934,10 +3934,10 @@ SoftMoon.WebWare.initPaletteTables.fadeRate=162;
 SoftMoon.WebWare.initPaletteTables.HTML={
 	waiting: " <p class='waiting'>…waiting for the palette index to load…</p>",
 	connected: " <span class='connected'>…connected and loading…</span>",
-  building: " <span class='loaded'>¡Loaded!……building table……</span>",
-  loaded: " <span class='loaded'>¡Loaded and Built!</span>",
-  reload: " <span class='reload'>¡Retrying to Load!</span>",
-  failed: " <span class='failed'>¡Failed to Load!</span>",
+	building: " <span class='loaded'>¡Loaded!……building table……</span>",
+	loaded: " <span class='loaded'>¡Loaded and Built!</span>",
+	reload: " <span class='reload'>¡Retrying to Load!</span>",
+	failed: " <span class='failed'>¡Failed to Load!</span>",
 	malformed: " <span class='failed'>¡Malformed File!</span>",
 	noPalettes: "<p class='noPalettes'>No MasterColorPicker Palettes found.</p>",
 	indexFailed: "<p class='indexFailed'>The index to the MasterColorPicker Palettes’ files <strong>¡Failed!</strong> to load.</p>",
@@ -4077,7 +4077,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 		return hdft;  }
 
 	function buildTableBodys(pData, displayChain, clickChain)  {
-    var display = (pData.display===undefined) ? 'list' : pData.display;
+		var display = (pData.display===undefined) ? 'list' : pData.display;
 		const dlb=[];
 		function chkDisp(disp)  {
 			if (typeof disp !== 'string'
@@ -5144,9 +5144,9 @@ Gradientor.buildTriadicPalette=function buildGradientorTraidicPalette()  {
 	MasterColorPicker.RGB_calc.config.stack({defaultAlpha:{value:1}});
 	try  {
 		var
-			c1=color_factory.create_A_Color(triads[0].value),
-			c2=color_factory.create_A_Color(triads[1].value),
-			c3=color_factory.create_A_Color(triads[2].value);  }
+			c1=color_factory.createColor(triads[0].value),
+			c2=color_factory.createColor(triads[1].value),
+			c3=color_factory.createColor(triads[2].value);  }
 	finally {MasterColorPicker.RGB_calc.config.cull();}
 	if (!c1 || !c2 || !c3)  return;
 	const
@@ -5155,22 +5155,24 @@ Gradientor.buildTriadicPalette=function buildGradientorTraidicPalette()  {
 		spaceX=(width/(variety+1))/2,
 		spaceY=spaceX/Math.cos(_['30°']),
 		radius=spaceY+0.5,
-		cSpace=colorSpace.value,  // it is imperative that the value is case-sensitive for specifying which factory to specify when using color_factory.convert_color
+		cSpace=colorSpace.value,  // it is imperative that the value is case-sensitive for specifying which factory to specify when using color_factory.convertColor
 		cspace=cSpace.toLowerCase();
-	c1=color_factory.convert_color(c1, cSpace, Array);
-	c2=color_factory.convert_color(c2, cSpace, Array);
-	c3=color_factory.convert_color(c3, cSpace, Array);
+	c1=color_factory.convertColor(c1, cSpace, Array);
+	c2=color_factory.convertColor(c2, cSpace, Array);
+	c3=color_factory.convertColor(c3, cSpace, Array);
 	cnvs.width=width;  cnvs.height=(width/2)/Math.tan(_['30°'])+spaceY/2;
 	const
 		context=cnvs.getContext('2d'),
-		hexagon=SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon.bind(null, context, context.lineTo.bind(context), 6);
+		hexagon=SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon.bind(null, context, context.lineTo.bind(context), 6),
+		topPtRGB=rgb_calc.from[cspace](c1);
 	//first we draw the top point color individually, since we can’t divide by 0 in the loops, so we start the loop below @j=1 : the second row
 	//otherwise we test for j===0 for EVERY color drawn and slow the loop
-	context.fillStyle= rgb_calc.to.hex(rgb_calc.from[cspace](c1));
-	context.beginPath();
-	hexagon(width/2, spaceY, radius, radius);
-	context.closePath();
-	context.fill();
+	if (topPtRGB)  {
+		context.fillStyle= rgb_calc.to.hex(topPtRGB);
+		context.beginPath();
+		hexagon(width/2, spaceY, radius, radius);
+		context.closePath();
+		context.fill();  }
 	const
 		H=normalizeTriadicTrueGrayHues(c1,c2,c3, cspace),
 		mixer= cspace.includes('h') ? mixTriadsWithHues : mixTriads;
@@ -5349,8 +5351,8 @@ Gradientor.processLinearColorStops=function processGradientorColorStops(cSpace) 
 	try  { for (const stop of stops)  {
 		if (stop.color!="")  {
 			const boogar=stop.color;
-			if (stop.color=color_factory.create_A_Color(stop.color))  {
-				stop.color=color_factory.convert_color(stop.color, cSpace, Array);  }
+			if (stop.color=color_factory.createColor(stop.color))  {
+				stop.color=color_factory.convertColor(stop.color, cSpace, Array);  }
 			else  {
 				if (this.doLog)  console.error('MasterColorPicker Gradientor error: unknown color: “'+boogar+'”');
 				return;  }  }  }  }
@@ -5420,14 +5422,14 @@ Gradientor.getColor=function Gradientor_getColor(event)  {
 		const k=Math.round((event.offsetX-width/2+spaceX*j)/(spaceX*2));
 		if (k<0  ||  k>j)  return null;
 		var
-			c1=color_factory.create_A_Color(triads[0].value),
-			c2=color_factory.create_A_Color(triads[1].value),
-			c3=color_factory.create_A_Color(triads[2].value);
+			c1=color_factory.createColor(triads[0].value),
+			c2=color_factory.createColor(triads[1].value),
+			c3=color_factory.createColor(triads[2].value);
 		if (!(c1 && c2 && c3))  return;
-		let c=color_factory.convert_color(c1, cSpace, Array);
+		let c=color_factory.convertColor(c1, cSpace, Array);
 		if (j!==0)  {
-			c2=color_factory.convert_color(c2, cSpace, Array);
-			c3=color_factory.convert_color(c3, cSpace, Array);
+			c2=color_factory.convertColor(c2, cSpace, Array);
+			c3=color_factory.convertColor(c3, cSpace, Array);
 			const
 				H=normalizeTriadicTrueGrayHues(c,c2,c3, cspace),
 				mixer= cspace.includes('h') ? mixTriadsWithHues : mixTriads;
@@ -5450,7 +5452,7 @@ Gradientor.Color_SpecCache=function(c, RGB, space)  {
 	if (!new.target)  throw new Error('“Gradientor.Color_SpecCache” is a constructor, not a function.');
 	this.RGB=RGB;
 	this.model=space;
-	if (space!=='RGB')  this[space]=color_factory.copy_color(c, space);  }
+	if (space!=='RGB')  this[space]=color_factory.copyColor(c, space);  }
 Gradientor.Color_SpecCache.prototype=Object.create(
 			SoftMoon.WebWare.Color_Picker.Color_SpecCache.prototype,
 			{name: {value:'SoftMoon.WebWare.Gradientor.Color_SpecCache'},
@@ -5493,7 +5495,7 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 		UniDOM.generateEvent(MasterColorPicker.userOptions.showHelp, 'change');
 		MasterColorPicker.setTopPanel(document.getElementById('MasterColorPicker_Help'));
 		document.getElementById(event.currentTarget.getAttribute('referto')).scrollIntoView();  });
-	const init=UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_ready', buildGradientorPalette, {once:true});
+	UniDOM.addEventHandler(window, 'mastercolorpicker_palettes_ready', buildGradientorPalette, {once:true});
 	function buildGradientorPalette()  {
 		const format=Gradientor.HTML.querySelector('input[name*="format"]:checked');
 		UniDOM.swapOut$Class(Gradientor.HTML, ["linear", "triadic"], format.value);
@@ -5506,6 +5508,10 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 		break;
 		case 'linear':  Gradientor.buildLinearPalette();  }  }
 	UniDOM.addEventHandler(Gradientor.HTML.querySelector('div'), ['mouseOver', 'mouseMove', 'mouseOut', 'click'], Gradientor);
+	UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
+		MasterColorPicker.colorSwatch(triads[0]);
+		MasterColorPicker.colorSwatch(triads[1]);
+		MasterColorPicker.colorSwatch(triads[2]);  });
 	});  //close window onload
 
 }  //close Gradientor private namespace
@@ -6002,7 +6008,7 @@ MasterColorPicker=new SoftMoon.WebWare.Picker(  //if you want to debug, you must
 	document.getElementById('MasterColorPicker_mainPanel'),
 	{ // debugLogger: document.getElementById('MasterColorPicker_debugLog'),   //requires SoftMoon.WebWare.Log
 		// debugLogger: new SoftMoon.WebWare.Log(),  //requires SoftMoon.WebWare.Log, but will log to the console with event-grouping
-	  // debugLogger: window.console,
+		// debugLogger: window.console,
 		//  registerPanel: true,  //currently is default
 		aria_popUp: document.getElementById('MasterColorPicker'),
 		doKeepInterfaceFocus: true,  //←most interface control elements keep focus when the ENTER key is pressed
@@ -6427,7 +6433,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 
 	//Note these flags are dynamic: you may toggle them on/off with your custom JavaScript depending on the state of your application as you deem necessary.
 	if (MasterColorPicker.enablePanelDrag===undefined)  MasterColorPicker.enablePanelDrag=true;
-  //StickyPanels allow the user to drag&drop back and forth to/from fixed/absolute positions by holding the shift key (except MSIE 9).
+	//StickyPanels allow the user to drag&drop back and forth to/from fixed/absolute positions by holding the shift key (except MSIE 9).
 	if (MasterColorPicker.enableStickyPanels===undefined)  MasterColorPicker.enableStickyPanels=true;
 	//This is the restraining element for dragging an absolutely positioned panel: it will not drag outside of the bounder.
 	//Note that your custom JavaScript may dynamically relocate the div#MasterColorPicker anywhere in your HTML page
@@ -6479,7 +6485,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 					{x: (side==='right' ? document.body.offsetWidth-event.clientX : event.clientX) - parseInt(CSS[side]),
 					 y: event.clientY-parseInt(CSS.top)}
 				: UniDOM.getMouseOffset(stickyPanels[0], event),
-		  dragHandle=event.currentTarget,
+			dragHandle=event.currentTarget,
 			move=UniDOM.addEventHandler(document.body, 'onMouseMove', panelMover, true),
 			blockMenu=UniDOM.addEventHandler(document.body, 'onContextMenu', abortContextMenu, true),
 			drop=UniDOM.addEventHandler(document, ['onMouseUp', 'onPickerStateChange', 'onVisibilityStateChange'], done, true);
@@ -6518,8 +6524,8 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 					: (event.clientX - mOff.x);
 			else
 			var b=UniDOM.getElementOffset(stickyPanels[0].offsetParent, MasterColorPicker.dragBounder),
-			    b={y: b.y, x: b.x, w: MasterColorPicker.dragBounder.offsetWidth, h: MasterColorPicker.dragBounder.offsetHeight},
-			    m=UniDOM.getMouseOffset(stickyPanels[0].offsetParent, event),
+					b={y: b.y, x: b.x, w: MasterColorPicker.dragBounder.offsetWidth, h: MasterColorPicker.dragBounder.offsetHeight},
+					m=UniDOM.getMouseOffset(stickyPanels[0].offsetParent, event),
 					y=m.y - (parseInt(CSS.marginTop) + mOff.y),
 					x= (side==='right') ?
 						(b.w-m.x) - (stickyPanels[0].offsetWidth-mOff.x) + parseInt(CSS.marginRight)
@@ -6539,12 +6545,12 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 			drop.onMouseUp.remove();  drop.onPickerStateChange.remove();  drop.onVisibilityStateChange.remove();
 			event.stopPropagation();
 			event.preventDefault();
-		  for (var i=0;  i<stickyPanels.length;  i++)  {UniDOM.remove$Class(stickyPanels[i], ['dragging', ttcn]);}
+			for (var i=0;  i<stickyPanels.length;  i++)  {UniDOM.remove$Class(stickyPanels[i], ['dragging', ttcn]);}
 			UniDOM.remove$Class(document.body, ['MCP_drag', ttcn]);
 			if (stick) dragHandle.removeChild(MasterColorPicker.thumbtackImage);
 			try {MasterColorPicker.dataTarget.focus();} catch(e) {}  }
-	  for (var i=0;  i<stickyPanels.length;  i++)  {
-		  UniDOM.addClass(stickyPanels[i], ['dragging', ttcn]);
+		for (var i=0;  i<stickyPanels.length;  i++)  {
+			UniDOM.addClass(stickyPanels[i], ['dragging', ttcn]);
 			MasterColorPicker.setTopPanel(stickyPanels[i]);  }
 		if (stick)  {
 			mOff.x=stickyPanels[0].offsetWidth-mOff.x;
@@ -6554,9 +6560,9 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 			else  {
 				mOff.y += parseInt(CSS.marginTop);
 				var currentCN='scrollable', newCN='floating';  }
-		  while (--i>=0)  {UniDOM.swapOut$Class(stickyPanels[i], currentCN, newCN);}
-		  dragHandle.appendChild(MasterColorPicker.thumbtackImage);
-		  move.onMouseMove.handler(event);  }
+			while (--i>=0)  {UniDOM.swapOut$Class(stickyPanels[i], currentCN, newCN);}
+			dragHandle.appendChild(MasterColorPicker.thumbtackImage);
+			move.onMouseMove.handler(event);  }
 		UniDOM.addClass(document.body, ['MCP_drag', ttcn]);  }
 	function returnPanelsOn3(event, stickyPanels)  {
 		event.stopPropagation();
@@ -6565,7 +6571,7 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 		MasterColorPicker.returnPanelsHome(stickyPanels);  }
 	function abortContextMenu(event) {event.preventDefault();  event.stopPropagation();}
 	MasterColorPicker.returnPanelsHome=function(stickyPanels)  {
-	  for (var i=0;  i<stickyPanels.length;  i++)  {
+		for (var i=0;  i<stickyPanels.length;  i++)  {
 			stickyPanels[i].style.top= "";
 			stickyPanels[i].style.right= "";
 			stickyPanels[i].style.left= "";
