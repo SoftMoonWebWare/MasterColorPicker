@@ -1,5 +1,5 @@
 // charset: UTF-8    tab-spacing: 2
-/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated April 28, 2024)
+/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated June 16, 2024)
  * Copyright (c) 2021 Björn Ottosson
  * & Copyright © 2024 Joe Golembieski, SoftMoon-WebWare
  *
@@ -35,8 +35,10 @@
  *  • NaN (Not a Number) bugs from dividing by 0
  *  • weird S value for “white” in OKHSL
  *  • two fixes for: out-of-bounds conversions for some colors in OKHSL:
- *     ▪ clamped S →  0 ≥ S ≥ 1  but this is now commented out; we instead use the other fix:
+ *     ▪ clamped S →  0 ≤ S ≤ 1  but this is now commented out; we instead use the other fix:
  *     ▪ increased the accuracyLevel from 1 to 2
+ *  • one fix for: out-of-bounds conversions (very slight) for some colors in OKHSV:
+ *     ▪ clamped [S,V] →  0 ≤ [S,V] ≤ 1
  *
  * Known bug: with accuracyLevel=1, OKHSV_to_RGB is not properly converting “red” (sRGB [255,0,0]) from:  OKHSV(29.23deg 100% 100%)
  * a little experimentation shows a few limits:    26.926° — 29.233° (pure red),  @ S=100%, V>99.9%
@@ -45,7 +47,7 @@
  *
  * Known bug: OKHSV_to_RGB is not properly converting “blueish” hues with near 100% chroma
  * The bug seems to lie more in OKLab_to_RGB.  We are getting sRGB channel values of (-1) and (-2).
- * No known fix at this time; however, the “clapmRGB” method in RGB_Calc may address this in the future.
+ * No known fix at this time; however, the “clampRGB” method in RGB_Calc may address this in the future.
  * It does no clamping, only rejections at this time.
  *
  * Minor superficial modifications by SoftMoon-WebWare for:
@@ -93,7 +95,7 @@ Björn_Ottosson["©"] = "“"+SI+"OK"+SO+"”-color-spaces algorithms and softwa
 // If an alpha-channel is “undefined”, then it will not be passed to the factory (including the RGB factory that RGB_Calc uses).
 // In this way, you can use  Array  as a factory, but it will not have an additional unused value, thus making it friendlier to Array methods, for (…of…), etc.
 // The exception to the above rule is for XYZ values: they have meta-data (illuminant & observer) that is also included with the XYZ and alpha values themselves.
-// All these functions expect to be methods (members) of an RGB_Calc class to use “this” within the functions themselves.
+// All these functions expect to be methods (members) of an RGB_Calc class to use the keyword “this” within the functions themselves.
 // In other words, the keyword “this” is NOT intended to refer to the Björn_Ottosson “namespace”.
 // You could, however, provide the required methods and config-stack directly to the  Björn_Ottosson  namespace and it would become a “static-calculator” class.
 Björn_Ottosson.oklab_to_srgb  =  oklab_to_srgb;
@@ -111,6 +113,7 @@ Björn_Ottosson.okhwb_to_srgb  =  okhwb_to_srgb;
 Björn_Ottosson.srgb_to_okhwb  =  srgb_to_okhwb;
 
 Björn_Ottosson.okhcg_to_srgb  =  okhcg_to_srgb;
+Björn_Ottosson.okhcg_to_okhsv =  okhcg_to_okhsv;
 Björn_Ottosson.srgb_to_okhcg  =  srgb_to_okhcg;
 
 Björn_Ottosson.okhsl_to_oklab  =  okhsl_to_srgb;  // ← you MUST supply a factory as a second argument…
@@ -126,7 +129,15 @@ Björn_Ottosson.okhsv_to_okhwb  =  srgb_to_okhwb;  // ← the array you pass in 
 Björn_Ottosson.okhsv_to_okhcg  =  srgb_to_okhcg;  // ← the array you pass in must have a “model” property: arr.model==="OKHSV"  …or it will be considered sRGB!
 
 /* to use without RGB_Calc:
-Björn_Ottosson.config= {defaultAlpha:1, OKLabA_Factory:Array, OKLChA_Factory:Array, OKHSVA_Factory:Array, OKHSLA_Factory:Array, XYZA_Factory:Array}  //customized to your liking
+Björn_Ottosson.config= {
+	defaultAlpha:1,
+	OKLabA_Factory:Array,
+	OKLChA_Factory:Array,
+	OKHSVA_Factory:Array,  // ←↑↓ customized to your liking
+	OKHSLA_Factory:Array,
+	OKHWBA_Factory:Array,
+	OKHCGA_Factory:Array,
+	XYZA_Factory:Array }
 Björn_Ottosson.γCorrect_linear_RGB= function(r,g,b,α) {… … …}       // ←he calls it a “transfer” function  ←↓ these should mul/div by 255 also
 Björn_Ottosson.linearize_γCorrected_RGB= function(rgbα) {… … …}    // ←he calls it an “inverse-transfer” function
 Björn_Ottosson.output_sRGB= function(r,g,b,α) {… … …}  //customized to your liking
@@ -542,7 +553,7 @@ function srgb_to_okhsl(rgbα, factory)  {
 	const
 		lab = arguments[0].model==='OKLab' ? arguments[0] : srgb_to_oklab.call(this, rgbα, Array),
 
-		C = squareRoot(lab[1]*lab[1] +lab[2]*lab[2]),
+		C = squareRoot(lab[1]*lab[1] + lab[2]*lab[2]),
 		a_ = lab[1]/C,
 		b_ = lab[2]/C,
 
@@ -578,8 +589,8 @@ function srgb_to_okhsl(rgbα, factory)  {
 			t = (C - k_0)/(k_1 + k_2*(C - k_0));
 		s = (0.8 + 0.2*t) || 0; /*NaN bug*/  }
 
-	// this problem noted below only happens when the accuracyLevel=1
-	//s=minimum(1, maximum(0, s));  // added by SoftMoon-WebWare: we were getting as s value of 100.1% for #330033, #660066, #990099.
+	// this problem noted below is worse when the accuracyLevel=1; but bumping to 3 did not fix all problems… I found them in the “red” hue.
+	s=minimum(1, maximum(0, s));  // added by SoftMoon-WebWare: we were getting as s value of 100.1% for #330033, #660066, #990099.
 
 	return (α===undefined) ? new factory(h,s,l) : new factory(h,s,l,α);  }
 
@@ -675,8 +686,8 @@ function srgb_to_okhsv(rgbα, factory)  {
 	L = toe(L);
 
 	const
-		v = L/L_v || 0,  //NaN bug
-		s = (S_0+T)*C_v/((T*S_0) + T*k*C_v)  || 0,  //NaN bug
+		v = minimum(1, maximum(0, L/L_v || 0)),  //NaN bug, out-of-range bug
+		s = minimum(1, maximum(0, (S_0+T)*C_v/((T*S_0) + T*k*C_v)  || 0)),  //NaN bug, out-of-range bug
 		α= (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
 
 	return (α===undefined) ? new factory(h,s,v) : new factory(h,s,v,α);  }
@@ -690,7 +701,7 @@ function okhwb_to_srgb(hwbα, factory)  {
 	const
 		g=hwbα[1]+hwbα[2];
 	if (g>=1)  {const G=hwbα[1]/g*255;  return this.output_sRGB(G,G,G,hwbα[3]);}
-	return okhsv_to_srgb.call(this, [hwbα[0], 1-(hwbα[1]/(1-hwbα[2])), 1-hwbα[2], hwbα[3]], factory);  }
+	return okhsv_to_srgb.call(this, [hwbα[0], 1-(hwbα[1]/(1-hwbα[2]) || 0 /*avoid NaN*/), 1-hwbα[2], hwbα[3]], factory);  }
 
 //       okhsv_to_okhwb
 function srgb_to_okhwb(rgbα, factory)  {
@@ -706,17 +717,18 @@ function srgb_to_okhwb(rgbα, factory)  {
 
 
 
-/*  HCG & OKHCG  → → → Hue, Chroma, Gray
+/*  HCG & OKHCG  → → → Hue, Chroma∝, Gray
  *  These are color space models based on an RGB (e.g. sRGB) color space,
  *  similar to HSL & HSV (HSB), or OKHSL & OKHSV.
+ *  Note while HCG is generically related to *any* RGB color-space, OKHCG is mapped *only* to sRGB via OKHSV.
  *  Hue is the same as the corresponding hue in the similar color spaces.
- *  Chroma (C) is defined in this color space model as being “mathematical Chroma”,
+ *  Chroma∝ (C) is defined in these color space models as being “mathematical proportional Chroma”,
  *  relative to the maximum C that the RGB color space can accommodate for any given hue,
  *  similar to saturation, being a percentage from 0%-100%, with all values producing an in-gamut color.
  *  For sRGB, maximum C is when one channel [R,G,B] =255, one channel =0, and the third varies.
  *  This is NOT perceived Chroma, as other color models such as LCh or OKLCh attempt to quantitize.
  *  Gray is essentially ≡ lightness or value/brightness, with the term chosen to distinguish these color spaces.
- *  For HCG, the color is a simple mathematical interpolation of corresponding channels between
+ *  For HCG, the color is a simple mathematical interpolation of corresponding RGB channels between
  *  a fully-chromatic hue (as defined above) and a gray-tone (all RGB channels have the same value),
  *  with C being the interpolation factor.
  *  For OKHCG, the color is defined & derived by OKLab’s (& OKHSV’s) mapping to the sRGB color space.
@@ -728,23 +740,38 @@ function srgb_to_okhwb(rgbα, factory)  {
  *  I coined this term circa 2011 based on what Wikipedia taught me, before I knew about LCh and “perceived Chroma”…
  *  but I still don’t know of a better term.
  */
+
 //if you pass in a factory below, this will only covert to OKLab and return those values through the factory
 //       okhcg_to_oklab
 function okhcg_to_srgb(hcgα, factory)  {
 	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
-	const V=  hcgα[1] + (1-hcgα[1])*hcgα[2];
-if (V<0 || V>1)  console.log('this formula ain’t workin');
-	return okhsv_to_srgb.call(this, [hcgα[0], hcgα[1], V, hcgα[3]], factory);  }
+	return okhsv_to_srgb.call(this, okhcg_to_okhsv.call(this, hcgα, Array), factory);  }
+
+function okhcg_to_okhsv(hcgα, factory)  {
+	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
+	factory??=this.config.OKHSVA_Factory;
+	const
+		[H,C,G] = hcgα,
+		V= C + (1-C)*G,  // derived from a combination of creative visual logic, intuition, luck, and sheer brute force.
+		B= 1 - V,  // see srgb_to_okhwb above
+		W= 1 - B - C,  // derived from known formula: C=1-(W+B)  →  C = 1 - W - B  ← White and Black must be “normalized” such that: W+B ≤ 1
+		S= minimum(1, 1 - (W/(1-B) || 0)),  /*avoid NaN*/// see okhwb_to_srgb above
+		α= (hcgα[3]===undefined) ? this.config.defaultAlpha : hcgα[3];
+	return (α===undefined) ? new factory(H,S,V) : new factory(H,S,V,α);  }
 
 //       okhsv_to_okhcg
 function srgb_to_okhcg(rgbα, factory)  {
 	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
 	factory??=this.config.OKHCGA_Factory;
 	const
-		[H,S,V] = arguments[0].model==='OKHSV' ? arguments[0] : srgb_to_okhsv.call(this, rgbα, Array),
-		C= 1 - (((1-S)*V) + (1-V)),
+		[H,S,V] = (arguments[0].model==='OKHSV') ? arguments[0] : srgb_to_okhsv.call(this, rgbα, Array),
+		W= (1-S)*V,
+		B= 1-V,
+		g= W+B,
+		C= maximum(0, minimum(1, 1 - g)),  //  ← C is the inverse of White+Black
+		G= (C===1) ? 0.5 : (W/g),
 		α= (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
-	return (α===undefined) ? new factory(H,C,V) : new factory(H,C,V,α);  }
+	return (α===undefined) ? new factory(H,C,G) : new factory(H,C,G,α);  }
 
 }  // close the private namespace
 
