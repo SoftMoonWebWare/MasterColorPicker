@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.11.2  May 6, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.11.3  June 16, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
@@ -640,7 +640,7 @@ class ConfigStack  {
 const CS_props={
 	name: 'RGB_Calc.ConfigStack',
 
-	RGB_bitDepth: 255,
+	RGB_bitDepth: 255, // see window.screen.pixelDepth
 
 	clamp_sRGB: function(r,g,b,a)  {  // to be enhanced…
 		return null;  },
@@ -1477,7 +1477,9 @@ SoftMoon.WebWare.HCGA_Color=HCGA_Color;
 class OKHCGA_Array extends HCGA_Array  {
 	to_OKLab(factory)  {
 		factory??=this.config.OKHCGA_Factory;
-		return Björn_Ottosson.okhcg_to_oklab.call(this, this, factory);  }  }
+		return Björn_Ottosson.okhcg_to_oklab.call(this, this, factory);  }
+	to_OKHSV(factory)  {
+		return Björn_Ottosson.okhcg_to_okhsv.call(this, this, factory);  }  }
 
 Object.defineProperty(OKHCGA_Array.prototype, "model", {value:"OKHCG"});
 
@@ -2071,14 +2073,14 @@ const XYZ_references={  //whites
 /*  XYZ (Tristimulus) Reference values of a perfect reflecting diffuser:
 Observer:        2° (CIE 1931)                        10° (CIE 1964)
 Illuminant   X2       Y2       Z2                 X10      Y10      Z10        // Notes:
-  A: {"2°": [109.850, 100.000, 35.585],   "10°": [111.144, 100.000, 35.200]},  // Incandescent/tungsten
-  B: {"2°": [99.0927, 100.000, 85.313],   "10°": [99.178, 100.000, 84.3493]},  // Old direct sunlight at noon
-  C: {"2°": [98.074, 100.000, 118.232],   "10°": [97.285, 100.000, 116.145]},  // Old daylight
+	A: {"2°": [109.850, 100.000, 35.585],   "10°": [111.144, 100.000, 35.200]},  // Incandescent/tungsten
+	B: {"2°": [99.0927, 100.000, 85.313],   "10°": [99.178, 100.000, 84.3493]},  // Old direct sunlight at noon
+	C: {"2°": [98.074, 100.000, 118.232],   "10°": [97.285, 100.000, 116.145]},  // Old daylight
 D50: {"2°": [96.422, 100.000, 82.521],    "10°": [96.720, 100.000, 81.427]},   // ICC profile PCS
 D55: {"2°": [95.682, 100.000, 92.149],    "10°": [95.799, 100.000, 90.926]},   // Mid-morning daylight
 D65: {"2°": [95.047, 100.000, 108.883],   "10°": [94.811, 100.000, 107.304]},  // Daylight, sRGB, Adobe-RGB
 D75: {"2°": [94.972, 100.000, 122.638],   "10°": [94.416, 100.000, 120.641]},  // North sky daylight
-  E: {"2°": [100.000, 100.000, 100.000],  "10°": [100.000, 100.000, 100.000]}, // Equal energy
+	E: {"2°": [100.000, 100.000, 100.000],  "10°": [100.000, 100.000, 100.000]}, // Equal energy
  F1: {"2°": [92.834, 100.000, 103.665],   "10°": [94.791, 100.000, 103.191]},  // Daylight Fluorescent
  F2: {"2°": [99.187, 100.000, 67.395],    "10°": [103.280, 100.000, 69.026]},  // Cool fluorescent
  F3: {"2°": [103.754, 100.000, 49.861],   "10°": [108.968, 100.000, 51.965]},  // White Fluorescent
@@ -2200,7 +2202,7 @@ class XYZA_Array extends ColorA_Array  {
 
 	to_OKLab(factory) {return Björn_Ottosson.xyz_to_oklab.call(this, this, factory);}
 
-  //  https://github.com/color-js/color.js/blob/main/src/spaces/luv.js
+	//  https://github.com/color-js/color.js/blob/main/src/spaces/luv.js
 	//  https://en.wikipedia.org/wiki/CIELUV#The_forward_transformation
 	to_Luv(factory)  {  //D65
 		const
@@ -3730,32 +3732,32 @@ class ColorFactory  {
 		this.ConfigStack.prototype.LChᵤᵥA_Factory= LChᵤᵥA_Array;
 		this.ConfigStack.prototype.HSLᵤᵥA_Factory= HSLᵤᵥA_Array;  }
 
-	constructor($config)  {  // ← this $config is for the class and determines how a $color input is evaluated
+	constructor($config)  {  // ← this $config is for the class and determines how a $color input is evaluated, and the factory to return color values in.
 		this.config=new ColorFactory.ConfigStack(this, $config);
 		this.rgb_calc=new RGB_Calc();  //for processing palette colors by create_A_Color below
 		Object.defineProperty(this.rgb_calc, 'config', {get:()=>this.config});  }
 
-	create_A_Color($color, $config, $as_Color)  {  // ← this $config is for the color-object you want to create
+	createColor($color, $config, $dSpace)  {  // ← this $config is for the color-object (…A_Color) you want to create; typically, DO NOT INCLUDE when your factory is not an …A_Color
+		//  ↑↑↑ But if your factory is YOUR custom constructor, you could pass any value YOU need from $config to your custom constructor.
+		//  ↑↑↑ $dSpace is optional, and will convert the interpreted color to the “destination color space model”.
 		if ($color == null)  return null;
 		if (typeof $color!=="string")  throw new TypeError('“ColorFactory.create_A_Color()” takes a string as a parameter.  Passed in:',$color);
 		$config??=this.config.configWhip;
-		var pClr, matches, clippedA=false;
+		var factory, pClr, matches, clippedA=false;
+		const applyConversion= ($clr)=>{return $dSpace ? this.convertColor($clr, $dSpace, undefined, undefined, $config) : $clr;}
+		function applyConfig($RGB)  {
+			if ($config  &&  !$dSpace)  for (const p in $config)  {$RGB.config[p]=$config[p];}
+			return applyConversion($RGB);  }
 		function returnVs($Vs) {return $Vs;}
-		const rgbFact= $as_Color ?
-				function (r,g,b,a) {return new RGBA_Color(r,g,b,a, $config);}
-			: function (r,g,b,a) {return new RGBA_Array(r,g,b,a, $config);}
 		if (RegExp.isHex.test($color))  {
-			this.config.stack({RGBA_Factory: {value:rgbFact}});
 			const config=RGB_Calc.config;
 			RGB_Calc.config=this.config;
-			try {return RGB_Calc.from.hex($color);}
-			finally {RGB_Calc.config=config;  this.config.cull();}  }
+			try {return applyConfig(RGB_Calc.from.hex($color));}
+			finally {RGB_Calc.config=config;}  }
 		if ((SoftMoon.palettes[SoftMoon.defaultPalette] instanceof SoftMoon.WebWare.Palette)
 		&&  (pClr=$color.match(RegExp.addOnAlpha))
-		&&  SoftMoon.palettes[SoftMoon.defaultPalette].getColor(pClr[1]) )  {
-			this.config.stack({RGBA_Factory: {value:rgbFact}});
-			try {return this.rgb_calc($color);}
-			finally {this.config.cull();}  }
+		&&  SoftMoon.palettes[SoftMoon.defaultPalette].getColor(pClr[1]) )
+			return applyConfig(this.rgb_calc($color));
 		if (matches=($color.match(RegExp.stdWrappedColor)  ||  $color.match(RegExp.stdPrefixedColor)))  {
 			matches[1]=matches[1].trim().toUpperCase();
 			if (matches[1].endsWith('A'))  {clippedA=true;  matches[1]=matches[1].slice(0,-1);}
@@ -3766,98 +3768,97 @@ class ColorFactory  {
 				if (!_vals_)  return null;
 			case 'RGB':
 				_vals_??=matches[2];
-				this.config.stack({RGBA_Factory: {value:rgbFact}});
 				const config=RGB_Calc.config;
 				RGB_Calc.config=this.config;
-				try {return RGB_Calc.from[matches[1].toLowerCase()](_vals_);}
-				finally {RGB_Calc.config=config;  this.config.cull();}
-			case 'HSL':
-			case 'HSB':
-			case 'HSV':
+				try {return applyConfig(RGB_Calc.from[matches[1].toLowerCase()](_vals_));}
+				finally {RGB_Calc.config=config;}
+			case 'HSL':    factory=this.config.HSLA_Factory;
+			case 'HSB':    factory??=this.config.HSBA_Factory;
+			case 'HSV':    factory??=this.config.HSVA_Factory;
+			case 'HCG':    factory??=this.config.HCGA_Factory;
+			case 'HWB':    factory??=this.config.HWBA_Factory;
 			case 'HSLᵤᵥ':
-			case 'HSLUV':
-			case 'OKHSL':
-			case 'OKHSV':
-			case 'OKHWB':
-			case 'OKHCG':
-			case 'HCG':
-			case 'HWB':  {
+			case 'HSLUV':  factory??=this.config.HSLᵤᵥA_Factory;
+			case 'OKHSL':  factory??=this.config.OKHSLA_Factory;
+			case 'OKHSV':  factory??=this.config.OKHSVA_Factory;
+			case 'OKHWB':  factory??=this.config.OKHWBA_Factory;
+			case 'OKHCG':  factory??=this.config.OKHCGA_Factory;
+				{
 				const vals=parseColorWheelColor.call(this, matches[2], matches[1]);
 				if (vals)  {
 					vals.length=4;
-					return $as_Color ? ColorWheel_Color.create(...vals, $config, matches[1]) : ColorWheel_Array.create(...vals, $config, matches[1]);  }
-				return null;  }
+					return applyConversion($config ? new factory(...vals, $config) : new factory(...vals));  }
+				return null;
+				}
 			case 'CMYK':  {
 				const vals=parseCMYK.call(this, matches[2]);
 				if (vals)  {
 					vals.length=5;
-					return $as_Color ? new CMYKA_Color(...vals, $config) :  new CMYKA_Array(...vals, $config);  }
+					return applyConversion($config ? new this.config.CMYKA_Factory(...vals, $config) : new this.config.CMYKA_Factory(...vals));  }
 				return null;  }
 			case 'LAB':  {
 				const vals=auditLab.call(this, {factors:RegExp.lab_factors_a, vals:RegExp.lab_a}, 'Lab', 125, 170, returnVs, matches[2]);
 				if (vals)  {
 					vals.length=4;
-					return $as_Color ? new LabA_Color(...vals, $config) :  new LabA_Array(...vals, $config);  }
+					return applyConversion($config ? new this.config.LabA_Factory(...vals, $config) : new this.config.LabA_Factory(...vals));  }
 				return null;  }
 			case 'LCH':  {
 				const vals=auditLCh.call(this, {factors:RegExp.lch_factors_a, vals:RegExp.lch_a}, 'LCh', 150, 230, returnVs, matches[2]);
 				if (vals)  {
 					vals.length=4;
-					return $as_Color ? new LChA_Color(...vals, $config) :  new LChA_Color(...vals, $config);  }
+					return applyConversion($config ? new this.config.LChA_Factory(...vals, $config) : new this.config.LChA_Factory(...vals));  }
 				return null;  }
 			case 'LUV':  {
 				const vals=auditLab.call(this, {factors:RegExp.luv_factors_a, vals:RegExp.luv_a}, 'Luv', 215, 215, returnVs, matches[2]);
 				if (vals)  {
 					vals.length=4;
-					return $as_Color ? new LuvA_Color(...vals, $config) :  new LuvA_Array(...vals, $config);  }
+					return applyConversion($config ? new this.config.LuvA_Factory(...vals, $config) : new this.config.LuvA_Factory(...vals));  }
 				return null;  }
 			case 'LCHUV':
 			case 'LCHᵤᵥ':  {
 				const vals=auditLCh.call(this, {factors:RegExp.lchᵤᵥ_factors_a, vals:RegExp.lchᵤᵥ_a}, 'LChᵤᵥ', 304, 304, returnVs, matches[2]);
 				if (vals)  {
 					vals.length=4;
-					return $as_Color ? new LChᵤᵥA_Color(...vals, $config) :  new LChᵤᵥA_Array(...vals, $config);  }
+					return applyConversion($config ? new this.config.LChᵤᵥA_Factory(...vals, $config) : new this.config.LChᵤᵥA_Factory(...vals));  }
 				return null;  }
 			case 'OKLAB':  {
 				const vals=auditLab.call(this, {factors:RegExp.oklab_factors_a, vals:RegExp.oklab_a}, 'OKLab', 0.4, 0.4, returnVs, matches[2]);
 				if (vals)  {
 					vals.length=4;
-					return $as_Color ? new OKLabA_Color(...vals, $config) : new OKLabA_Array(...vals, $config);  }
+					return applyConversion($config ? new this.config.OKLabA_Factory(...vals, $config) : new this.config.OKLabA_Factory(...vals));  }
 				return null;  }
 			case 'OKLCH':  {
 				const vals=auditLCh.call(this, {factors:RegExp.oklch_factors_a, vals:RegExp.oklch_a}, 'OKLCh', 0.4, 0.5, returnVs, matches[2]);
 				if (vals)  {
 					vals.length=4;
-					return $as_Color ? new OKLChA_Color(...vals, $config) :   new OKLChA_Array(...vals, $config);  }
+					return applyConversion($config ? new this.config.OKLChA_Factory(...vals, $config) : new this.config.OKLChA_Factory(...vals));  }
 				return null;  }
 			case 'XYZ':  {
 				const vals=parseXYZ.call(this, matches[2]);
 				if (vals)  {
 					if (vals.profile)  switch (vals.profile)  {
 						case 'sRGB':
-							this.config.stack({RGBA_Factory: {value:rgbFact}});
 							const config=RGB_Calc.config;
 							RGB_Calc.config=this.config;
-							try {return RGB_Calc.from.xyz(vals.xyz, vals.profile);}
-							finally {RGB_Calc.config=config;  this.config.cull();}
+							try {return applyConfig(RGB_Calc.from.xyz(vals.xyz, vals.profile));}
+							finally {RGB_Calc.config=config;}
 						default: return null;  }
 					vals.xyz.length=4;
 					const illiminant=vals.xyz.illuminant;
-					return $as_Color ?
-							new XYZA_Color(...vals.xyz, illuminant, fromXYZ_matrix.sRGB[illuminant].observer)
-						: new XYZA_Array(...vals.xyz, illuminant, fromXYZ_matrix.sRGB[illuminant].observer);  }
+					return applyConversion( $config ?
+							new this.config.XYZA_Factory(...vals.xyz, illuminant, fromXYZ_matrix.sRGB[illuminant].observer, $config)
+						: new this.config.XYZA_Factory(...vals.xyz, illuminant, fromXYZ_matrix.sRGB[illuminant].observer) );  }
 				return null;  }  }
 			if (clippedA)  matches[1]+='A';
 			for (const p in SoftMoon.palettes)  {
-				if (p.toUpperCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))  {
-					this.config.stack({RGBA_Factory: {value:rgbFact}});
-					try {return this.rgb_calc($color);}
-					finally {this.config.cull();}  }  }
+				if (p.toUpperCase()===matches[1]  &&  (SoftMoon.palettes[p] instanceof SoftMoon.WebWare.Palette))
+					return applyConfig(this.rgb_calc($color));  }
 			return null;  }  }  }
 
-	// this will also convert …A_Arrays to …A_Colors and visa-versa, or simple Arrays to either of the former
-function copy_color($color, $model, $config)  { // ← this optional $config is for the …A_Color Object you want to create
-		// remember, all the “A_Color” classes are extensions of Array
+// this will also convert …A_Arrays to …A_Colors and visa-versa, or simple Arrays to either of the former, or to/from YOUR custom Array-based color-class
+//  ↓↓↓ only $color is required; all others are optional except $model if $color does not have a  .model  property
+function copyColor($color, $model, $factory, $config)  { // ← this optional $config is for the …A_Color Object you want to create; typically, DO NOT INCLUDE when your factory is not an …A_Color
+		//  ↑↑↑ But if your factory is YOUR custom constructor, you could pass any value YOU need from $config to your custom constructor.
 		if (!($color instanceof Array))  throw new TypeError('“ColorFactor.copy_color()” can only copy Array instances.');
 		$model=($color.model||$model).toUpperCase();
 		$config??=this.config.configWhip;
@@ -3866,51 +3867,54 @@ function copy_color($color, $model, $config)  { // ← this optional $config is 
 			cData=$color.slice(0,L);
 		cData.length=L;
 		switch ($model)  {
-		case 'RGB':  return $config ? new $RGBA_Color(...cData, $config) :  RGBA_Array(...cData);
-		case 'HSL':
-		case 'HSB':
-		case 'HSV':
-		case 'HWB':
-		case 'HCG':
-		case 'HSLᵤᵥ':
-		case 'HSLuv':
-		case 'OKHSL':
-		case 'OKHSV':
-		case 'OKHWB':
-		case 'OKHCG':  return $config ? ColorWheel_Color.create(...cData, $config, $model) : ColorWheel_Array.create(...cData, $model);
-		case 'OKLCH':
-		case 'LCH':
-		case 'LCHᵤᵥ':
-		case 'LCHuv':  return $config ?
-					ColorWheel_Color.create(cData[2], cData[1], cData[0], cData[3], $config, $model)
-				: ColorWheel_Array.create(cData[2], cData[1], cData[0], cData[3], $model);
-		case 'CMYK':   return $config ? new CMYKA_Color(...cData, $config)  : new CMYKA_Array(...cData);
-		case 'LAB':    return $config ? new LabA_Color(...cData, $config)   : new LabA_Array(...cData);
-		case 'LUV':    return $config ? new LuvA_Color(...cData, $config)   : new LuvA_Array(...cData);
-		case 'OKLAB':  return $config ? new OKLabA_Color(...cData, $config) : new OKLabA_Array(...cData);
-		case 'XYZ':    return $config ?
-					new XYZA_Color(...cData, $color.illuminant, $color.observer, $config)
-				: new XYZA_Array(...cData, $color.illuminant, $color.observer);
-		default: throw new TypeError("Unknown input color-model type for “ColorFactory.copy_color()” … ",$model);  }  }
+			case 'RGB': $factory ??= this.config.RGBA_Factory;  break;
+			case 'HSL': $factory ??= this.config.HSLA_Factory;  break;
+			case 'HSB': $factory ??= this.config.HSBA_Factory;  break;
+			case 'HSV': $factory ??= this.config.HSVA_Factory;  break;
+			case 'HWB': $factory ??= this.config.HWBA_Factory;  break;
+			case 'HCG': $factory ??= this.config.HCGA_Factory;  break;
+			case 'HSLᵤᵥ':
+			case 'HSLUV': $factory ??= this.config.HSLᵤᵥA_Factory;  break;
+			case 'OKHSL': $factory ??= this.config.OKHSLA_Factory;  break;
+			case 'OKHSV': $factory ??= this.config.OKHSVA_Factory;  break;
+			case 'OKHWB': $factory ??= this.config.OKHWBA_Factory;  break;
+			case 'OKHCG': $factory ??= this.config.OKHCGA_Factory;  break;
+			case 'OKLCH': $factory ??= this.config.OKLChA_Factory;  break;
+			case 'LCH':   $factory ??= this.config.LChA_Factory;    break;
+			case 'LCHᵤᵥ':
+			case 'LCHUV': $factory ??= this.config.LChᵤᵥA_Factory;  break;
+			case 'CMYK':  $factory ??= this.config.CMYKA_Factory;   break;
+			case 'LAB':   $factory ??= this.config.LabA_Factory;    break;
+			case 'LUV':   $factory ??= this.config.LuvA_Factory;    break;
+			case 'OKLAB': $factory ??= this.config.OKLabA_Factory;  break;
+			case 'XYZ':   $factory ??= this.config.XYZA_Factory;
+				return $config ?
+						new $factory(...cData, $color.illuminant, $color.observer, $config)
+					: new $factory(...cData, $color.illuminant, $color.observer);
+			default: throw new TypeError("Unknown input color-model type for “ColorFactory.copy_color()” … ",$model);  }
+		return $config ? new $factory(...cData, $config) : new $factory(...cData);  }
 
 	// this will convert all Array-based Colors
-function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡case-sensitive! in able to specify the type of factory
-		$cModel= ($c.model===undefined) ? $CModel : $c.model;
-		if ($cModel===$dSpace)  return $factory?.from?.($c)  ||  $c;
+function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡case-sensitive! in able to specify the type of factory
+		//  ↑↑↑ this optional $config is for the …A_Color Object you want to create; typically, DO NOT INCLUDE when your factory is not an …A_Color
+		//  ↑↑↑ But if your factory is YOUR custom constructor, you could pass any value YOU need from $config to your custom constructor
+		function applyConfig($clr) {if ($config)  for (const p in $config)  {$clr.config[p]=$config[p];}  return $clr;}
+		if ($c.model===$dSpace)  return applyConfig($factory?.from?.($c)  ||  $c);
 		var convert, flag=true;
 		switch ($dSpace)  {
 			case 'RGB':
 				RGB_Calc.config.stack({RGBA_Factory:{value:$factory||this.config.RGBA_Factory}});
-				try {return RGB_Calc.from[$cModel.toLowerCase()]($c);}
+				try {return applyConfig(RGB_Calc.from[$c.model.toLowerCase()]($c));}
 				catch(e) {console.warn("$c failed to convert:",$c,"to RGB because:\n",e);  throw e;}
 				finally {RGB_Calc.config.cull()};
-			case 'OKLCh': convert='to_OKLCh';
-			case 'OKHSV': convert??='to_OKHSV';
+			case 'OKHSV': if ($c.model==='OKHCG')  return applyConfig($c.to_OKHSV($factory||this.config.OKHSVA_Factory));
+										convert='to_OKHSV';
+			case 'OKLCh': convert??='to_OKLCh';
 			case 'OKHSL': convert??='to_OKHSL';
-				switch ($cModel)  {
+				switch ($c.model)  {
 				case 'LChᵤᵥ':
 				case 'HSLᵤᵥ': $c=$c.to_Luv(LuvA_Array);
-				case 'LCh':   if ($cModel==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
 				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
@@ -3919,37 +3923,39 @@ function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡c
 				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
-				case 'OKLab': return $c[convert]($factory||this.config[$dSpace+"A_Factory"]);  }
+				case 'OKLab': return applyConfig($c[convert]($factory||this.config[$dSpace+"A_Factory"]));  }
 				break;
 			case 'OKHCG':
-				switch($cModel)  {
+				switch($c.model)  {
 				case 'LChᵤᵥ':
 				case 'HSLᵤᵥ': $c=$c.to_Luv(LuvA_Array);
-				case 'LCh':   if ($cModel==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
 				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
 				case 'OKHSL':
 				case 'OKHWB': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': $c=$c.to_OKHSV(OKHSVA_Array);
-				case 'OKHSV': return $c.to_OKHCG($factory||this.config.OKHCGA_Factory);  }
+				case 'OKHSV': return applyConfig($c.to_OKHCG($factory||this.config.OKHCGA_Factory));  }
+				break;
 			case 'OKHWB':
-				switch($cModel)  {
+				switch($c.model)  {
 				case 'LChᵤᵥ':
 				case 'HSLᵤᵥ':  $c=$c.to_Luv(LuvA_Array);
-				case 'LCh': if ($cModel==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'LCh': if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
 				case 'Luv': $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
 				case 'OKHSL':
 				case 'OKHCG': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': $c=$c.to_OKHSV(OKHSVA_Array);
-				case 'OKHSV': return $c.to_OKHWB($factory||this.config.OKHWBA_Factory);  }
+				case 'OKHSV': return applyConfig($c.to_OKHWB($factory||this.config.OKHWBA_Factory));  }
+				break;
 			case 'OKLab':
-				switch ($cModel)  {
+				switch ($c.model)  {
 				case 'LChᵤᵥ':
 				case 'HSLᵤᵥ':  $c=$c.to_Luv(LuvA_Array);
-				case 'LCh':    if ($cModel==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'LCh':    if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
 				case 'Luv':    $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
@@ -3957,10 +3963,10 @@ function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡c
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
-				case 'OKHSL': return $c.to_OKLab($factory||this.config.OKLabA_Factory);  }
+				case 'OKHSL': return applyConfig($c.to_OKLab($factory||this.config.OKLabA_Factory));  }
 				break;
 			case 'LCh':
-				switch($cModel)  {
+				switch($c.model)  {
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
@@ -3971,10 +3977,10 @@ function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡c
 				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
 				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':   $c=$c.to_Lab(LabA_Array);
-				case 'Lab': return $c.to_LCh($factory||this.config.LChA_Factory);  }
+				case 'Lab': return applyConfig($c.to_LCh($factory||this.config.LChA_Factory));  }
 				break;
 			case 'Lab':
-				switch ($cModel)  {
+				switch ($c.model)  {
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
@@ -3985,24 +3991,24 @@ function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡c
 				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
 				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
 				case 'LCh':
-				case 'XYZ': return $c.to_Lab($factory||this.config.LabA_Factory);  }
+				case 'XYZ': return applyConfig($c.to_Lab($factory||this.config.LabA_Factory));  }
 				break;
 			case 'LChᵤᵥ':
-				switch($cModel)  {
+				switch($c.model)  {
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab':
-				case 'LCh':   if ($cModel==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':   $c=$c.to_Luv(LuvA_Array);
 				case 'HSLᵤᵥ':
-				case 'Luv':   return $c.to_LChᵤᵥ($factory||this.config.LChᵤᵥA_Factory);  }
+				case 'Luv':   return applyConfig($c.to_LChᵤᵥ($factory||this.config.LChᵤᵥA_Factory));  }
 				break;
 			case 'Luv':
-				switch ($cModel)  {
+				switch ($c.model)  {
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
@@ -4013,26 +4019,26 @@ function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡c
 				case 'Lab':   $c=$c.to_XYZ(XYZA_Array);
 				case 'LChᵤᵥ':
 				case 'HSLᵤᵥ':
-				case 'XYZ': return $c.to_Luv($factory||this.config.LuvA_Factory);  }
+				case 'XYZ': return applyConfig($c.to_Luv($factory||this.config.LuvA_Factory));  }
 				break;
 			case 'HSLᵤᵥ':
-				switch ($cModel)  {
+				switch ($c.model)  {
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab':
-				case 'LCh':   if ($cModel==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':   $c=$c.to_Luv(LuvA_Array);
-				case 'Luv':   return $c.to_LChᵤᵥ(LChᵤᵥA_Array).to_HSLᵤᵥ($factory||this.config.HSLᵤᵥA_Factory);  }
+				case 'Luv':   return applyConfig($c.to_LChᵤᵥ(LChᵤᵥA_Array).to_HSLᵤᵥ($factory||this.config.HSLᵤᵥA_Factory));  }
 				break;
 			case 'XYZ':
-				switch ($cModel)  {
-				case 'LCh':   return $c.to_Lab(LabA_Array).to_XYZ($factory||this.config.XYZA_Factory);
+				switch ($c.model)  {
+				case 'LCh':   return applyConfig($c.to_Lab(LabA_Array).to_XYZ($factory||this.config.XYZA_Factory));
 				case 'HSLᵤᵥ':
-				case 'LChᵤᵥ': return $c.to_Luv(LuvA_Array).to_XYZ($factory||this.config.XYZA_Factory);
+				case 'LChᵤᵥ': return applyConfig($c.to_Luv(LuvA_Array).to_XYZ($factory||this.config.XYZA_Factory));
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
@@ -4040,7 +4046,7 @@ function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡c
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab':
 				case 'Lab':
-				case 'Luv': return $c.to_XYZ($factory||this.config.XYZA_Factory);  }
+				case 'Luv': return applyConfig($c.to_XYZ($factory||this.config.XYZA_Factory));  }
 			case 'HSL':
 			case 'HSB':
 			case 'HSV':
@@ -4054,14 +4060,14 @@ function convert_color($c, $dSpace, $factory, $cModel)  {  // ← $dSpace is ¡c
 		else
 			RGB_Calc.config.stack({
 				RGBA_Factory: {value:Array} });
-		try {return RGB_Calc.to[$dSpace.toLowerCase()](RGB_Calc.from[$cModel.toLowerCase()]($c));}
+		try {return applyConfig(RGB_Calc.to[$dSpace.toLowerCase()](RGB_Calc.from[$c.model.toLowerCase()]($c)));}
 		catch(e) {console.warn("$c failed to convert:",$c,"to:",$dSpace,"because:\n",e);  throw e;}
 		finally {RGB_Calc.config.cull()};  }
 
 
-ColorFactory.prototype.copy_color=copy_color;
-ColorFactory.prototype.convert_color=convert_color;
-ColorA_Array.prototype.convert_color=convert_color;
+ColorFactory.prototype.copyColor=copyColor;
+ColorFactory.prototype.convertColor=convert_color;
+ColorA_Array.prototype.convertColor=convert_color;
 // the worker methods of a calculator & ColorFactory:
 Object.defineProperties(ColorFactory.prototype, defProps1); // see the RGB_Calc code above
 
