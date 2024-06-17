@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.11.3  June 16, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.11.4  June 17, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
@@ -188,7 +188,7 @@ SoftMoon.WebWare.loadDBPalettes=function loadDBPalettes($DB, $store,  // ←requ
 	return dbFiles;  }
 
 SoftMoon.WebWare.addPalette=function($json_palette)  {
-	if ($json_palette instanceof Event)  $json_palette= this.responseText  ||  this.result?.JSON;
+	if (arguments[0] instanceof Event)  $json_palette= this.responseText  ||  this.result?.JSON;
 	// JSON.parse will not allow for custom methods; eval can be dangerous and slow and “unstrict”, but may be necessary for your implementation.
 //	if (typeof json_palette == 'string')  json_palette=eval("("+json_palette+")");
 	if (typeof $json_palette === 'string')  $json_palette=JSON.parse($json_palette);
@@ -775,12 +775,10 @@ for (const p in CS_props) {ConfigStack.prototype[p]=CS_props[p];}
 /*********************************************************************************/
 
 
-class ColorA_Array extends Array {}
-/* see the end of this file */
-ColorA_Array.prototype.copy=function copy_thisColorA($config, $as_Color)  {
-	return copy_color.call(this, this, $config, $as_Color);  }
-ColorA_Array.prototype.convertTo=function convert_thisColorA($dSpace, $factory)  {
-	return convert_color.call(this, this, $dSpace, $factory);  }
+class ColorA_Array extends Array  {
+/* see the ColorFactory Class at end of this file */
+	copy($factory, $config) {return copy_color.call(this, this, undefined, $factory, $config);}
+	convertTo($dSpace, $factory, $config) {return convert_color.call(this, this, $dSpace, $factory, $config);}  }
 
 
 /*
@@ -3857,7 +3855,7 @@ class ColorFactory  {
 
 // this will also convert …A_Arrays to …A_Colors and visa-versa, or simple Arrays to either of the former, or to/from YOUR custom Array-based color-class
 //  ↓↓↓ only $color is required; all others are optional except $model if $color does not have a  .model  property
-function copyColor($color, $model, $factory, $config)  { // ← this optional $config is for the …A_Color Object you want to create; typically, DO NOT INCLUDE when your factory is not an …A_Color
+function copy_color($color, $model, $factory, $config)  { // ← this optional $config is for the …A_Color Object you want to create; typically, DO NOT INCLUDE when your factory is not an …A_Color
 		//  ↑↑↑ But if your factory is YOUR custom constructor, you could pass any value YOU need from $config to your custom constructor.
 		if (!($color instanceof Array))  throw new TypeError('“ColorFactor.copy_color()” can only copy Array instances.');
 		$model=($color.model||$model).toUpperCase();
@@ -4065,9 +4063,8 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 		finally {RGB_Calc.config.cull()};  }
 
 
-ColorFactory.prototype.copyColor=copyColor;
+ColorFactory.prototype.copyColor=copy_color;
 ColorFactory.prototype.convertColor=convert_color;
-ColorA_Array.prototype.convertColor=convert_color;
 // the worker methods of a calculator & ColorFactory:
 Object.defineProperties(ColorFactory.prototype, defProps1); // see the RGB_Calc code above
 
