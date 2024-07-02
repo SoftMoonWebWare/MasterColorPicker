@@ -1,8 +1,8 @@
 //  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 /*   written by and Copyright © 2019, 2022, 2023 Joe Golembieski, SoftMoon WebWare */
 
-/// plusplusplusInput last updated June 28, 2023
-// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated April 20, 2023
+/// plusplusplusInput last updated July 2, 2024
+// input type='numeric' Feb 5, 2019; rewritten May 13, 2022; last updated June 2, 2024
 // input type='file…………'  April 20, 2022
 
 'use strict';
@@ -52,10 +52,9 @@ SoftMoon.WebWare.register_input_type_file=function register_input_type_file(inpu
 				&&  (event.key==='/'  ||  event.key==='\\')))  event.preventDefault();  });
 
 	input.addEventListener('paste', function(event) {
-		var len,
-				curPos=this.selectionStart,
-				data=event.clipboardData.getData('text');
-		len=data.length;
+		var curPos=this.selectionStart,
+				data=event.clipboardData.getData('text'),
+				len=data.length;
 		data=this.value.substr(0,curPos)+data+this.value.substr(this.selectionEnd||curPos);
 		this.value=SoftMoon.WebWare.filename_safe(data,
 									this.getAttribute('replacement-char') || "",
@@ -72,7 +71,7 @@ class OutOfRangeEvent extends UIEvent  {
 		this.max=options.max;
 		this.min=options.min;  }  }
 
-SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeric(input)	{
+SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeric(input)  {
 
 	const
 		iBase=parseInt(input.getAttribute('base')) || 10,
@@ -86,21 +85,21 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 
 	input.units=units;  //you may modify this Array of units in real-time; the “units” attribute is only read once when first registered…
 
-	function reset_type() {
+	function reset_type()  {
 		return iType==='numeric-slider' ? 'range' : (input.value===""  ||  (input.units && input.value.match( /[^-−+\d.]/u )) || input.value==='∞' ? 'text' : 'number');}
 
 	function getValueUnitIndex() {return /[^-−+0-9.]/u.exec(input.value)?.index;}
-  function usesUnit(data) {
+	function usesUnit(data)  {
 		const unit=data.match( /^([-−+\d.]*)([\D]+)$/u );
 		if (unit  &&  input.units)  for (const u of input.units)  {
 			if (u.toUpperCase()===unit[2])  {unit[2]=u;  return unit;}  }
 		return false;  }
 	function autoAppendUnit()  {
 		if (this.value  &&  this.hasAttribute('auto-append-unit')  &&  this.value!=='∞')  {
-		  for (const unit of this.units)  {if (this.value.endsWith(unit))  return;}
-		  this.value+=this.units[0];  }  }
+			for (const unit of this.units)  {if (this.value.endsWith(unit))  return;}
+			this.value+=this.units[0];  }  }
 	function generateErrorEvent(min, max)  {
-		const event=new OutOfRangeEvent('out_of_range', {bubbles:true, cancelable:true, composed: true, min:min, max,max});
+		const event=new OutOfRangeEvent('out_of_range', {bubbles:true, cancelable:true, composed: true, min:min, max:max});
 		input.dispatchEvent(event);
 		return event;  }
 
@@ -122,7 +121,7 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 				input.addEventListener('blur', autoAppendUnit);  }
 		break;
 		case 'numeric-slider':
-			input.addEventListener('keydown', function(event) {
+			input.addEventListener('keydown', function(event)  {
 				if (this.type!=='text'
 				&&  ((event.key>='0' && event.key<='9')  ||  event.key==='NumLock'))  {
 					this.type='text';
@@ -137,12 +136,12 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 				const
 					v=parseFloat(this.value),
 					ui=getValueUnitIndex();
-					/*	          MIN / MAX   === VALUE RULES ===
-					 *	if there is no value, there is no limit, as usual.
-					 *	if there is a single value with no unit, that value applies to all input values with units and unitless numbers.
-					 *	if there is a single value with a unit, that value applies only when the input unit matches; otherwise no limit.
-					 *	if there are multiple values separated with commas, they apply when their unit matches the input unit,
-					 *	  or if a min/max value has no unit, it applies when the input value has no unit; otherwise, no limit.
+					/*           MIN / MAX   === VALUE RULES ===
+					 * if there is no value, there is no limit, as usual.
+					 * if there is a single value with no unit, that value applies to all input values with units and unitless numbers.
+					 * if there is a single value with a unit, that value applies only when the input unit matches; otherwise no limit.
+					 * if there are multiple values separated with commas, they apply when their unit matches the input unit,
+					 *   or if a min/max value has no unit, it applies when the input value has no unit; otherwise, no limit.
 					 */
 				var
 					min=this.hasAttribute('min')  &&  this.getAttribute('min').split(",").map(d=>d.trim()),
@@ -181,7 +180,7 @@ SoftMoon.WebWare.register_input_type_numeric=function register_input_type_numeri
 			testAllowPositive=() => allowPositive=((!this.hasAttribute('max')  ||  parseFloat(this.getAttribute('max'))>=0  ||  this.getAttribute('max')==='∞')  &&  this.hasAttribute('allow-plus-sign')),
 			testAllowDecimal=() => allowDecimal=(!this.hasAttribute('step')  ||  (s=this.getAttribute('step'))==='any'  ||  s.includes('.')),
 			cleanNum=(data) => data.replace(RegExp('[^' + (testAllowNegative() ? '-−' : "") + (testAllowPositive() ? '+' : "") + (testAllowDecimal() ? '.' : "") + '\\d]', "g"), ""),
-			addData=(doAdd) => {
+			addData=(doAdd) =>  {
 				const curPos=this.selectionStart;
 				data=this.value.substr(0,curPos)+data+this.value.substr(this.selectionEnd||curPos);
 				if (doAdd)  {
