@@ -1,6 +1,6 @@
 // charset: UTF-8    tab-spacing: 2
-/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated June 16, 2024)
- * Copyright (c) 2021 Björn Ottosson
+/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated July 3, 2024)
+ * Copyright (c) 2021 Björn Ottosson;
  * & Copyright © 2024 Joe Golembieski, SoftMoon-WebWare
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -153,8 +153,8 @@ Björn_Ottosson.minimumChroma=minimumChroma;
 // for:  compute_max_saturation()  and  find_gamut_intersection()  below…
 let accuracyLevel=2;
 
-Object.defineProperty(Björn_Ottosson, 'accuracy', {get: ()=>accuracyLevel, set: (x)=>{
-	accuracyLevel= minimum(3, maximum(1, Math.round(x)));  }});
+Object.defineProperty(Björn_Ottosson, 'accuracy', {get: ()=>accuracyLevel, set: (i)=>{
+	accuracyLevel= minimum(3, maximum(1, Math.round(i)));  }});
 
 
 // OKLab and OKLCh are also released under public domain
@@ -229,7 +229,7 @@ function xyz_to_oklab(xyzα, factory)  {
 // For some browsers, it may be faster to hard-code these matrices, and the calculated inverses below, into the functions;
 // I chose to show my work here.  Firefox, if I understand it correctly, will automatically “hard code” these values
 // into the compiled OP-code on the first iteration of calling each of these functions, especially since they are frozen (see below).
-// Testing with Firefox & Chromium with other software certainly shows this difference in performance:
+// Testing other software with Firefox & Chromium certainly shows this difference in performance:
 // JS apps on Firefox have nearly native-app performance, while they are clunky and slow using Chromium.
 xyz_to_oklab.M1=[
 		[0.8189330101, 0.3618667424, -0.1288597137],
@@ -263,7 +263,8 @@ oklab_to_xyz.M2=Math.invert_3_3_matrix(xyz_to_oklab.M2);
 
 
 
-//the rest below is copied and overhauled for RGB_Calc & JavaScript compilers (seems it was quick-ported from C) from:
+//most of the rest below (except OKHWB & OKHCG code)
+// is copied and overhauled for RGB_Calc & JavaScript compilers (seems it was quick-ported from C) from:
 //  https://github.com/bottosson/bottosson.github.io/blob/master/misc/colorpicker/colorconversion.js
 
 function toe(x)  {
@@ -500,8 +501,10 @@ function get_Cs(L, a_, b_)  {
 
 	return [C_0, C_mid, C_max];  }
 
-//       okhsl_to_oklab
-function okhsl_to_srgb(hslα, factory)  {
+
+//if you pass in a factory below, this will only covert to OKLab and return those values through the factory
+//       okhsl_to_oklab()    ←↓ you MUST supply the factory
+function okhsl_to_srgb(hslα, factory)  {  // ← for sRGB, DO NOT supply the factory
 	const [h,s,l,α] = hslα;
 	function oklab(L,a,b)  {
 		if (α===undefined)  α=this.config.defaultAlpha;
@@ -547,7 +550,7 @@ function okhsl_to_srgb(hslα, factory)  {
 	return (factory) ? oklab(L,a,b) : oklab_to_srgb.call(this, [L,a,b,α]);  }
 
 
-//       oklab_to_okhsl
+//      oklab_to_okhsl(OKLabα, factory)  ← OKLabα MUST have the proper  .model  property!
 function srgb_to_okhsl(rgbα, factory)  {
 	factory??=this.config.OKHSLA_Factory;
 	const
@@ -594,9 +597,11 @@ function srgb_to_okhsl(rgbα, factory)  {
 
 	return (α===undefined) ? new factory(h,s,l) : new factory(h,s,l,α);  }
 
+
 //if you pass in a factory below, this will only covert to OKLab and return those values through the factory
-//       okhsv_to_oklab
-function okhsv_to_srgb(hsvα, factory)  {  // problems: h= 26.926° — 29.233° (pure red),  @ s=100%, v>99.9%
+//       okhsv_to_oklab()    ←↓ you MUST supply the factory
+function okhsv_to_srgb(hsvα, factory)  {  // ← for sRGB, DO NOT supply the factory
+	// problems: h= 26.926° — 29.233° (pure red),  @ s=100%, v>99.9%
 
 	const
 		[h,s,v,α] = hsvα;
@@ -649,6 +654,7 @@ function okhsv_to_srgb(hsvα, factory)  {  // problems: h= 26.926° — 29.233°
 	return oklab_to_srgb.call(this, [L,a,b,α]);  }
 
 
+//      oklab_to_okhsv(OKLabα, factory)  ← OKLabα  MUST have the proper  .model  property!
 function srgb_to_okhsv(rgbα, factory)  {
 	factory??=this.config.OKHSVA_Factory;
 	const
@@ -694,8 +700,8 @@ function srgb_to_okhsv(rgbα, factory)  {
 
 
 //if you pass in a factory below, this will only covert to OKLab and return those values through the factory
-//       okhwb_to_oklab
-function okhwb_to_srgb(hwbα, factory)  {
+//       okhwb_to_oklab()    ←↓ you MUST supply the factory
+function okhwb_to_srgb(hwbα, factory)  {  // ← for sRGB, DO NOT supply the factory
 	// algorithm provided by Björn Ottosson
 	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
 	const
@@ -703,7 +709,8 @@ function okhwb_to_srgb(hwbα, factory)  {
 	if (g>=1)  {const G=hwbα[1]/g*255;  return this.output_sRGB(G,G,G,hwbα[3]);}
 	return okhsv_to_srgb.call(this, [hwbα[0], 1-(hwbα[1]/(1-hwbα[2]) || 0 /*avoid NaN*/), 1-hwbα[2], hwbα[3]], factory);  }
 
-//       okhsv_to_okhwb
+
+//      okhsv_to_okhwb(OKHSVα, factory)  ← OKHSVα MUST have the proper  .model  property!
 function srgb_to_okhwb(rgbα, factory)  {
 	// algorithm provided by Björn Ottosson
 	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
@@ -734,18 +741,25 @@ function srgb_to_okhwb(rgbα, factory)  {
  *  For OKHCG, the color is defined & derived by OKLab’s (& OKHSV’s) mapping to the sRGB color space.
  *
  *  HCG is very useful in mathematically analyzing and working with colors.
+ *  MasterColorPicker™ uses it in the Color Thesaurus for finding color-similarities;
+ *  and along with OKHCG, for mathematically mapping colors to the RainbowMaestro color picker (as described below).
+ *  The  Rigden-colorbilnd_websafe-table_interpolator.js  uses it to identify which 2-8 data-elements of the
+ *  “websafe colors to colorblind table” to use to interpolate the final colorblind simulation.
  *  HCG & OKHCG are very useful for color-picker sliders, I (Joe) believe more so than HSL, HSV/HSB, or HWB.
  *  The old-school color-picker with the rainbow-ring
  *  and the gradient-triangle with colored-black-white tips is displaying the HCG space.
+ *  Somewhere, quite a while back, likely on Wikipedia, I read this style of color-picker was one of the original.
+ *  The HCG concept is not new; RGB-to-HCG and HCG-to-RGB algorithms are likely older, but I’ve never seen them before.
  *  I coined this term circa 2011 based on what Wikipedia taught me, before I knew about LCh and “perceived Chroma”…
  *  but I still don’t know of a better term.
  */
 
 //if you pass in a factory below, this will only covert to OKLab and return those values through the factory
-//       okhcg_to_oklab
-function okhcg_to_srgb(hcgα, factory)  {
+//       okhcg_to_oklab()    ←↓ you MUST supply the factory
+function okhcg_to_srgb(hcgα, factory)  {  // ← for sRGB, DO NOT supply the factory
 	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
 	return okhsv_to_srgb.call(this, okhcg_to_okhsv.call(this, hcgα, Array), factory);  }
+
 
 function okhcg_to_okhsv(hcgα, factory)  {
 	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
@@ -759,7 +773,8 @@ function okhcg_to_okhsv(hcgα, factory)  {
 		α= (hcgα[3]===undefined) ? this.config.defaultAlpha : hcgα[3];
 	return (α===undefined) ? new factory(H,S,V) : new factory(H,S,V,α);  }
 
-//       okhsv_to_okhcg
+
+//      okhsv_to_okhcg(OKHSVα, factory)  ← OKHSVα MUST have the proper  .model  property!
 function srgb_to_okhcg(rgbα, factory)  {
 	// algorithm & JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
 	factory??=this.config.OKHCGA_Factory;
@@ -772,6 +787,7 @@ function srgb_to_okhcg(rgbα, factory)  {
 		G= (C===1) ? 0.5 : (W/g),
 		α= (rgbα[3]===undefined) ? this.config.defaultAlpha : rgbα[3];
 	return (α===undefined) ? new factory(H,C,G) : new factory(H,C,G,α);  }
+
 
 }  // close the private namespace
 
