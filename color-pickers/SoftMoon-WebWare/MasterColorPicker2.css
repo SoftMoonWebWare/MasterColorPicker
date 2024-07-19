@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.9  April 27, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.10  July 19, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -39,6 +39,14 @@ body.MCP_we-be-a-cuttin {
 	--fore-text-message:  black;
 	--back-text-message: HoneyDew;
 	--back-text-message-error: LavenderBlush;
+	--fore-text-popMenu: black;
+	--back-text-popMenu: paleGreen;
+	--fore-text-popMenu-focused: white;
+	--back-text-popMenu-focused: DarkGreen;  /*  Indigo;  */
+	--fore-text-popMenu-hoveredOver: white;
+	--back-text-popMenu-hoveredOver: Indigo;  /* ← HCG(274.62deg, 51%, 0%) *//* DarkBlue;  */
+	--fore-text-popMenu-hoveredSet: black;
+	--back-text-popMenu-hoveredSet: #C97DFF;  /* ← HCG(274.62deg, 51%, 100%) *//* LightSkyBlue;  */
 	--fore-text-GenieMenu: black;
 	--back-text-GenieMenu: paleGreen;
 	--fore-text-GenieMenu-focused: white;
@@ -227,7 +235,8 @@ span.MCP_fix_Safari {
 #MasterColorPicker .pickerPanel.pseudoHover,  /*applied dynamically by JavaScript. If the CSS ~ combinator matched previous siblings as well as following siblings, we wouldn’t need this*/
 #MasterColorPicker_options.pickerPanel:hover ~ #MasterColorPicker_mainPanel,  /*these two panels work together as one in this layout*/
 #MasterColorPicker_mainPanel.pickerPanel:hover ~ #MasterColorPicker_options {z-index: 6179;}
-#MasterColorPicker .pickerPanel:hover {z-index: 6180;}
+#MasterColorPicker .pickerPanel:focus-within,
+#MasterColorPicker .pickerPanel:hover {z-index: 6180 !important;}
 #MasterColorPicker .pickerPanel.dragging  {z-index: 7000 !important;}
 
 #MasterColorPicker .pickerPanel.activeInterface.activePickerPanel  {z-index: 6420 !important;}
@@ -237,7 +246,8 @@ span.MCP_fix_Safari {
 #MasterColorPicker select.activeInterface,
 #MasterColorPicker textarea.activeInterface,
 #MasterColorPicker button.activeInterface,
-#MasterColorPicker legend.activeInterface {
+#MasterColorPicker legend.activeInterface,
+#MasterColorPicker table.color_chart td:focus {
 	outline: var(--border-hot) double medium; }
 
 #MasterColorPicker .pickerPanel {
@@ -1459,9 +1469,11 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_Lab table {
 	border: 1px solid;
 	margin: 0 0 .618em; }
-#MasterColorPicker_Lab caption abbr:nth-child(2),
-#MasterColorPicker_Lab caption abbr:nth-child(4),
-#MasterColorPicker_Lab caption abbr:last-child {
+#MasterColorPicker_Lab caption > label {
+	float: left; }
+#MasterColorPicker_Lab caption > abbr:nth-child(3),
+#MasterColorPicker_Lab caption > abbr:nth-child(5),
+#MasterColorPicker_Lab caption > abbr:last-child {
 	margin-left: 1.618em; }
 #MasterColorPicker_Lab td {
 	padding: 0;}
@@ -1549,6 +1561,13 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_Lab tr.hue input[type="range"]::-webkit-slider-runnable-track {
 	background: linear-gradient(to right, #FF0000 0%, #FFFF00 16.7%, #00FF00 33.3%, #00FFFF 50%, #0000FF 66.7%, #FF00FF 83.3%, #FF0000 100%);
 	height: .618em; }
+
+#MasterColorPicker_Lab table.isOK tr.hue input[type="range"]::-moz-range-track {
+	background: gray; }
+#MasterColorPicker_Lab table.isOK tr.hue input[type="range"]::-ms-track {
+	background: gray; }
+#MasterColorPicker_Lab table.isOK tr.hue input[type="range"]::-webkit-slider-runnable-track {
+	background: gray; }
 
 #MasterColorPicker_Lab tr.cyan input[type="range"]::-moz-range-thumb,
 #MasterColorPicker_Lab tr.cyan input[type="range"]::-moz-range-track {
@@ -1864,7 +1883,7 @@ indicator#MasterColorPicker_LabContrast.disabled {
 															* but table.palette does not is a mystery.  */
 	background-color: transparent; }
 #MasterColorPicker_mainPanel table.color_chart th,
-#MasterColorPicker_mainPanel table.color_chart tbody.list td:last-child,
+#MasterColorPicker_mainPanel table.color_chart tbody.list td,  /* :last-child */
 #MasterColorPicker_mainPanel table.color_chart tr.footnote,
 #MasterColorPicker_mainPanel table.color_chart thead,
 #MasterColorPicker_mainPanel table.color_chart tfoot {
@@ -1873,6 +1892,23 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	/* this “swatch” will have a specific color set by JavaScript as a style-property
 		“unknown” colors should then instead show through the entire color_chart to the background behind  */
 	background-color: transparent; }
+
+#MasterColorPicker_paletteTables > menu {
+	position: fixed;  /*hard-coded by JS; right,bottom,top,left calculated by JS*/
+	color: var(--fore-text-popMenu);
+	background-color: var(--back-text-popMenu);
+	list-style-type: none;
+	margin: 0;
+	padding: 0.2em; }
+#MasterColorPicker_paletteTables > menu li {
+	margin: 0;
+	padding: 0; }
+#MasterColorPicker_paletteTables > menu li:focus {
+	color: var(--fore-text-popMenu-focused);
+	background-color: var(--back-text-popMenu-focused);  }
+#MasterColorPicker_paletteTables > menu li:hover {
+	color: var(--fore-text-popMenu-hoveredOver);
+	background-color: var(--back-text-popMenu-hoveredOver);  }
 
 #MasterColorPicker_mainPanel table.color_chart,
 #MasterColorPicker_mainPanel .palette {
@@ -1917,7 +1953,8 @@ indicator#MasterColorPicker_LabContrast.disabled {
 #MasterColorPicker_mainPanel table.color_chart tbody.list td:first-child {
 	position: relative;
 	width: 2.618em;  }
-/* styling the td above sort-of works.  Sometimes…
+/* ***old notes - may now be irrelevant ***
+ * styling the td above sort-of works.  Sometimes…
  * styling this span can cause an unwanted scroll bar at the bottom of the mainPanel
 #MasterColorPicker_mainPanel table.color_chart tbody.list td:first-child span {
 	display: inline-block;
@@ -1926,6 +1963,7 @@ indicator#MasterColorPicker_LabContrast.disabled {
  */
 #MasterColorPicker_mainPanel table.color_chart tbody.list td:first-child div {
 	display: none; }
+#MasterColorPicker_mainPanel table.color_chart tbody.list td:first-child:focus div,
 #MasterColorPicker_mainPanel table.color_chart tbody.list td:first-child:hover div {
 	display: block;
 	position: absolute;
@@ -1934,7 +1972,8 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	background-color: inherit;
 	padding: 2px .618em; }
 #MasterColorPicker_mainPanel table.color_chart tbody.list td:nth-child(2) {
-/* styling this td works until the color-name is longer than 14em; then the swatch shrinks */
+/* ***old notes - may now be irrelevant ***
+ * styling this td works until the color-name is longer than 14em; then the swatch shrinks * /
 	min-width: 14em;
 /*  */
 	}

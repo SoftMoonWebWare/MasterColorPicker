@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.9.1~BETA   May 7, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.10~BETA   July 19, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -440,7 +440,8 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 
 
 Color_Picker.toSystemClipboard=function(colorSpecCache, event)  {
-	if (event.type==='click'  &&  MasterColorPicker.copyToClipboard)  {
+	if ((event.type==='click'  ||  (event.type==='keydown'  &&  event.target.closest('table')?.classList.contains('color-chart')))
+	&&  MasterColorPicker.copyToClipboard)  {
 		try {navigator.clipboard.writeText(colorSpecCache.text_output);}
 		catch(e) {
 			var inp=this.currentTarget;
@@ -839,7 +840,7 @@ function MyPalette(HTML, PNAME)  {
 			if (isit  ||  e.nodeName==="TABLE") goDeep.doContinue=false;
 			return isit;  }
 		function getNeighbor(e)  {
-			const isit= e.classList.contains("MyColor")  &&  (event.key==='ArrorUp'  ||  ++count>1);
+			const isit= e.classList.contains("MyColor")  &&  (event.key==='ArrowUp'  ||  ++count>1);
 			if (isit  ||  e.nodeName==="TABLE") goDeep.doContinue=false;
 			return isit;  }
 		if (newPaletteKey.sniff(event))  {
@@ -1857,15 +1858,29 @@ ColorSpaceLab.Color_SpecCache= class extends SoftMoon.WebWare.Color_Picker.Color
 		if (!new.target)  throw new Error("“SoftMoon.WebWare.ColorSpaceLab.Color_SpecCache” is a constructor, not a function or method.");
 		const alpha= (settings.applyOpacity.checked || withAlpha) ? parseFloat(settings.opacity_percent.value)/100 : undefined;
 		super(null, 'RGB', new SoftMoon.WebWare.RGBA_Color(settings.Rgb_byte.value, settings.rGb_byte.value, settings.rgB_byte.value, alpha, {useHexSymbol:true} ));
-		const hue= parseFloat(settings.Hue_degrees.value) / RGB_Calc.hueAngleUnitFactors[ColorSpaceLab.hueAngleUnit];
-		this.HSL= new SoftMoon.WebWare.HSLA_Color(hue, parseFloat(settings.hSl_percent.value)/100, parseFloat(settings.hsL_percent.value)/100, alpha);
-		this.HSB= new SoftMoon.WebWare.HSBA_Color(hue, parseFloat(settings.hSv_percent.value)/100, parseFloat(settings.hsV_percent.value)/100, alpha);
-		this.HSV= new SoftMoon.WebWare.HSVA_Color(hue, parseFloat(settings.hSv_percent.value)/100, parseFloat(settings.hsV_percent.value)/100, alpha);
-		this.HWB= new SoftMoon.WebWare.HWBA_Color(hue, parseFloat(settings.hWb_percent.value)/100, parseFloat(settings.hwB_percent.value)/100, alpha);
-		this.HCG= new SoftMoon.WebWare.HCGA_Color(hue, parseFloat(settings.hCg_percent.value)/100, parseFloat(settings.hcG_percent.value)/100, alpha);
+		const
+			hue= parseFloat(settings.Hue_degrees.value) / RGB_Calc.hueAngleUnitFactors[ColorSpaceLab.hueAngleUnit],
+			OK= settings.Lab_OK.checked ? "OK" : "";
+		this[OK+"HSL"]= new SoftMoon.WebWare[OK+"HSLA_Color"](hue, parseFloat(settings.hSl_percent.value)/100, parseFloat(settings.hsL_percent.value)/100, alpha);
+		if (!OK)
+			this.HSB= new SoftMoon.WebWare.HSBA_Color(hue, parseFloat(settings.hSv_percent.value)/100, parseFloat(settings.hsV_percent.value)/100, alpha);
+		this[OK+"HSV"]= new SoftMoon.WebWare[OK+"HSVA_Color"](hue, parseFloat(settings.hSv_percent.value)/100, parseFloat(settings.hsV_percent.value)/100, alpha);
+		this[OK+"HWB"]= new SoftMoon.WebWare[OK+"HWBA_Color"](hue, parseFloat(settings.hWb_percent.value)/100, parseFloat(settings.hwB_percent.value)/100, alpha);
+		this[OK+"HCG"]= new SoftMoon.WebWare[OK+"HCGA_Color"](hue, parseFloat(settings.hCg_percent.value)/100, parseFloat(settings.hcG_percent.value)/100, alpha);
 		this.CMYK= new SoftMoon.WebWare.CMYKA_Color(parseFloat(settings.Cmyk_percent.value)/100, parseFloat(settings.cMyk_percent.value)/100, parseFloat(settings.cmYk_percent.value)/100, parseFloat(settings.cmyK_percent.value)/100, alpha);
 		}  }
 ColorSpaceLab.Color_SpecCache.prototype.name="SoftMoon.WebWare.ColorSpaceLab.Color_SpecCache";
+
+ColorSpaceLab.toggle_OK=function toggle_CSL_OK(isOK)  {
+	if (typeof isOK === 'boolean')  settings.Lab_OK.checked=isOK;
+	else  isOK=settings.Lab_OK.checked;
+	const table=settings.Lab_OK.closest('table');
+	table.classList.toggle('isOK', isOK);
+	for (const e of table.querySelectorAll('[ok]'))  {
+		const hastxt= e.firstChild.data.startsWith("OK");
+		if (isOK  &&  !hastxt)  e.insertBefore(document.createTextNode('OK'+ (e.nodeName==="LABEL" ? '-' : "")), e.firstChild);
+		else if (!isOK  &&  hastxt)  e.removeChild(e.firstChild);  }
+	ColorSpaceLab.setColor();  }
 
 const stackSpecs={
 		RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color},
@@ -1874,6 +1889,10 @@ const stackSpecs={
 		HSVA_Factory: {value: SoftMoon.WebWare.HSVA_Color},
 		HCGA_Factory: {value: SoftMoon.WebWare.HCGA_Color},
 		HWBA_Factory: {value: SoftMoon.WebWare.HWBA_Color},
+		OKHSLA_Factory: {value: SoftMoon.WebWare.OKHSLA_Color},
+		OKHSVA_Factory: {value: SoftMoon.WebWare.OKHSVA_Color},
+		OKHCGA_Factory: {value: SoftMoon.WebWare.OKHCGA_Color},
+		OKHWBA_Factory: {value: SoftMoon.WebWare.OKHWBA_Color},
 		CMYKA_Factory: {value: SoftMoon.WebWare.CMYKA_Color}  };
 
 ColorSpaceLab.setColor=function(CLR, space)  {
@@ -1881,6 +1900,12 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 	||  !document.getElementById('MasterColorPicker_showLab').checked
 	||  (arguments[1] instanceof Event  &&  ( /mouse/ ).test(arguments[1].type)  &&  !settings.updateLabOnMouseMove.checked) )
 		return CLR;
+
+	if (arguments.length===0)  {
+		CLR={
+			model: "RGB",
+			RGB: new SoftMoon.WebWare.RGBA_Array(settings.Rgb_byte.value, settings.rGb_byte.value, settings.rgB_byte.value) };
+		space='rgb';  }
 
 	RGB_Calc.config.stack(stackSpecs);
 
@@ -1939,40 +1964,48 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 		settings.rGb_hex.value=CLR.RGB.hex.substr(3,2);
 		settings.rgB_hex.value=CLR.RGB.hex.substr(5,2);  }
 
-	if (!CLR.HSV)  CLR.HSV=RGB_Calc.to.hsv(CLR.RGB);
-	else if (typeof alpha === 'number')  CLR.HSV.alpha=alpha;
+	const isOK= settings.Lab_OK.checked ? "OK" : "";
+
+	if (isOK)  {
+		if (!CLR.OKHSV)  CLR.OKHSV=RGB_Calc.to.okhsv(CLR.RGB);
+		else if (typeof alpha === 'number')  CLR.OKHSV.alpha=alpha;  }
+	else  {
+		if (!CLR.HSV)  CLR.HSV=RGB_Calc.to.hsv(CLR.RGB);
+		else if (typeof alpha === 'number')  CLR.HSV.alpha=alpha;  }
 
 	if (space!=='hsb' && space!=='hsv' && space!=='hsl' && space!=='hcg')  {
-		var hau=ColorSpaceLab.hueAngleUnit
+		const
+			hau=ColorSpaceLab.hueAngleUnit,
+			hue=CLR[isOK+"HSV"].hue;
 		settings.Hue_degrees.value=
 //				Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision.deg, parseFloat(CLR.HSV.hue)*ColorSpaceLab.hueAngleUnitFactor);
-			Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau], CLR.HSV.hue*RGB_Calc.hueAngleUnitFactors[hau]);
+			Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision[hau], hue*RGB_Calc.hueAngleUnitFactors[hau]);
 		settings.Hue_range.value=
-			Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['deg'], CLR.HSV.hue*360);
+			Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['deg'], hue*360);
 
-		settings.Hue_percent.value= Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['%'], parseFloat(CLR.HSV.hue)*100);  }
+		settings.Hue_percent.value= Math.roundTo(SoftMoon.WebWare.ColorWheel_Color.hueUnitPrecision['%'], hue*100);  }
 
 	if (space!=='hsb' && space!=='hsv')  {
-		settings.hSv_percent.value= settings.hSv_range.value= Math.roundTo(5, CLR.HSV.saturation*100);
-		settings.hsV_percent.value= settings.hsV_range.value= Math.roundTo(5, CLR.HSV.value*100);  }
+		settings.hSv_percent.value= settings.hSv_range.value= Math.roundTo(5, CLR[isOK+"HSV"].saturation*100);
+		settings.hsV_percent.value= settings.hsV_range.value= Math.roundTo(5, CLR[isOK+"HSV"].value*100);  }
 
 	if (space!=='hsl')  {
-		if (!CLR.HSL)  CLR.HSL=RGB_Calc.to.hsl(CLR.RGB);
-		else if (typeof alpha === 'number')  CLR.HSL.alpha=alpha;
-		settings.hSl_percent.value= settings.hSl_range.value= Math.roundTo(5, CLR.HSL.saturation*100);
-		settings.hsL_percent.value= settings.hsL_range.value= Math.roundTo(5, CLR.HSL.lightness*100);  }
+		if (!CLR[isOK+"HSL"])  CLR[isOK+"HSL"]=RGB_Calc.to[isOK? "okhsl" : "hsl"](CLR.RGB);
+		else if (typeof alpha === 'number')  CLR[isOK+"HSL"].alpha=alpha;
+		settings.hSl_percent.value= settings.hSl_range.value= Math.roundTo(5, CLR[isOK+"HSL"].saturation*100);
+		settings.hsL_percent.value= settings.hsL_range.value= Math.roundTo(5, CLR[isOK+"HSL"].lightness*100);  }
 
 	if (space!=='hwb')  {
-		if (!CLR.HWB)  CLR.HWB=RGB_Calc.to.hwb(CLR.RGB);
-		else if (typeof alpha === 'number')  CLR.HWB.alpha=alpha;
-		settings.hWb_percent.value= settings.hWb_range.value= Math.roundTo(5, CLR.HWB.white*100);
-		settings.hwB_percent.value= settings.hwB_range.value= Math.roundTo(5, CLR.HWB.black*100);  }
+		if (!CLR[isOK+"HWB"])  CLR[isOK+"HWB"]=RGB_Calc.to[isOK? "okhwb" : "hwb"](CLR.RGB);
+		else if (typeof alpha === 'number')  CLR[isOK+"HWB"].alpha=alpha;
+		settings.hWb_percent.value= settings.hWb_range.value= Math.roundTo(5, CLR[isOK+"HWB"].white*100);
+		settings.hwB_percent.value= settings.hwB_range.value= Math.roundTo(5, CLR[isOK+"HWB"].black*100);  }
 
 	if (space!=='hcg')  {
-		if (!CLR.HCG)  CLR.HCG=RGB_Calc.to.hcg(CLR.RGB);
-		else if (typeof alpha === 'number')  CLR.HCG.alpha=alpha;
-		settings.hCg_percent.value= settings.hCg_range.value= Math.roundTo(5, CLR.HCG.chroma*100);
-		settings.hcG_percent.value= settings.hcG_range.value= Math.roundTo(5, CLR.HCG.gray*100);  }
+		if (!CLR[isOK+"HCG"])  CLR[isOK+"HCG"]=RGB_Calc.to[isOK? "okhcg" : "hcg"](CLR.RGB);
+		else if (typeof alpha === 'number')  CLR[isOK+"HCG"].alpha=alpha;
+		settings.hCg_percent.value= settings.hCg_range.value= Math.roundTo(5, CLR[isOK+"HCG"].chroma*100);
+		settings.hcG_percent.value= settings.hcG_range.value= Math.roundTo(5, CLR[isOK+"HCG"].gray*100);  }
 
 	if (space!=='cmyk')  {
 		if (!CLR.CMYK)  CLR.CMYK=RGB_Calc.to.cmyk(CLR.RGB);
@@ -2087,7 +2120,8 @@ ColorSpaceLab.alignColor=function(event)  {
 		case 'hcg':  build[1]=parseFloat(settings.hCg_percent.value||0); build[2]=parseFloat(settings.hcG_percent.value||0);  break;  }  }  }
 
 	build.push(parseFloat(settings.opacity_percent.value||0)/100);
-	ColorSpaceLab.setColor({RGB: CSL_calc.from[space](build)}, space);  }
+	const isOK=settings.Lab_OK.checked ? "ok" : "";
+	ColorSpaceLab.setColor({RGB: CSL_calc.from[isOK+space](build)}, space);  }
 
 
 
@@ -2099,7 +2133,9 @@ ColorSpaceLab.update_Hue_rangeHandle=function(cssColor)  {  // pass in valid CSS
 		const hue=settings.Hue_range.value;
 		if (hue===settings.Hue_range.max)  // grayscale, but we fall back on the actual color if hue is incorrect for some reason
 			cssColor="#"+settings.Rgb_hex.value+settings.rGb_hex.value+settings.rgB_hex.value;
-		else  cssColor=CSL_calc.from.hue(hue).toString('css');  }
+		else  {
+			cssColor= settings.Lab_OK.checked ? CSL_calc.from.okhsv([hue,100,100]) : CSL_calc.from.hue(hue);
+			cssColor=cssColor.toString('css');  }  }
 	const rules=MCP_stylesheet.ss.cssRules;
 	for (const i of MCP_stylesheet.hue_range_thumb_Indexes)  {
 		rules[i].style.backgroundColor=cssColor;  }  }
@@ -2125,10 +2161,12 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 																				function(e) {return e.name.match( /^[a-z]+_([a-z_]+)$/i )[1];});
 	ColorSpaceLab.settings=settings;  //for debugging
 	for (var i=0; i<settings.length-10; i++)  {  // ignore Alpha, & the last seven inputs are “options” checkboxes
+		if (settings[i].name.endsWith('Lab_OK'))  continue;
 		UniDOM.addEventHandler(settings[i], ['onChange', 'onKeyUp', 'onTabOut'], ColorSpaceLab.alignColor);
 		if (settings[i].type!=='range')  {
 			UniDOM.addEventHandler(settings[i], 'onPaste', function(event)  {  //wait for paste to change the value
 				setTimeout(() => {ColorSpaceLab.alignColor.call(this, event);}, 0);  });  }  }
+	UniDOM.addEventHandler(settings.Lab_OK, 'change', ColorSpaceLab.toggle_OK);
 	const
 		swatch=ColorSpaceLab.HTML.querySelector('swatch'),
 		contrastSwatch=ColorSpaceLab.HTML.querySelector('contrastSwatch'),
@@ -2197,7 +2235,8 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			MCP_stylesheet.alpha_range_thumb_color=dflt;  // ¡We need the “computed” color, not the SS text!
 			break;  }  }
 
-	ColorSpaceLab.update_Hue_rangeHandle();
+	ColorSpaceLab.toggle_OK();
+	//ColorSpaceLab.update_Hue_rangeHandle();
 	ColorSpaceLab.update_Alpha_rangeHandle();
 
 	function updateHandle(event, updater)  {
@@ -3653,7 +3692,7 @@ Spectral_CP.buildPalette=function()  {
 
 
 	// these are the properties of a Palette that MasterColorPicker uses to build Palette Tables
-const paletteProps=['header', 'footer', 'footnote', 'useShortChains', 'alternatives', 'display', 'columns',
+const paletteProps=['header', 'footer', 'footnote', 'useShortChains', 'alternatives', 'display', 'columns', 'maxNames',
 										'ignoreUnknownColors', 'referenceMarks', 'backReferenceAll', 'forwardReferenceAll'];
 const inherited=['requireSubindex', 'useShortChains', 'alternatives', 'display', 'columns',
 										'ignoreUnknownColors', 'referenceMarks', 'backReferenceAll', 'forwardReferenceAll'];
@@ -4043,6 +4082,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 				cpt=document.createElement('caption'),
 				displayChain= (pName===SoftMoon.defaultPalette) ? "" : (pName+': '),
 				clickChain=displayChain,
+				tColumns= (pData.maxNames || 1)+1,
 				footer= (pData.footer instanceof Array) ? pData.footer.slice() : (pData.footer ? [pData.footer] : []);
 				// footer may have additional “footers” added from sub-palettes.
 				// These are all displayed togeter at the bottom of the complete MasterColorPicker palette table.
@@ -4068,12 +4108,15 @@ function buildPaletteTable(pName, id, pData, className)  {
 	tbl.appendChild(buildTableBodys(pData, displayChain, clickChain));
 	if (footer.length)  tbl.appendChild(buildTableHdFt(footer, 'tfoot', 'td'));
 	UniDOM.addEventHandler(tbl, ["onMouseOver", "onClick"], x_CP);
+	const focusables=tbl.querySelectorAll("[tabindex]");
+	focusables[0].setAttribute('backtabTo', "@next-panel");
+	focusables[focusables.length-1].setAttribute('tabTo', "@target");
 	return tbl;
 
 	function buildTableHdFt(data, hf, clmn)  {
 		if (!(data instanceof Array))  data=[data];
 		const hdft=document.createElement(hf);
-		for (var i=0; i<data.length; i++)  {hdft.appendChild( buildTableRow(clmn, [{colSpan:2, text:data[i] }]) );}
+		for (var i=0; i<data.length; i++)  {hdft.appendChild( buildTableRow(clmn, [{colSpan:tColumns, text:data[i] }]) );}
 		return hdft;  }
 
 	function buildTableBodys(pData, displayChain, clickChain)  {
@@ -4103,10 +4146,14 @@ function buildPaletteTable(pName, id, pData, className)  {
 				inp.name='MCP display for '+displayChain;
 				inp.value=disp;
 				inp.checked=flag;
-				inp.onchange=function() {this.closest('tr').className='switch '+this.value;}
+				inp.onchange=function() {
+					this.closest('tr').className='switch '+this.value;
+					let tb=this.closest('tr');
+					while ((tb=tb.nextElementSibling)  &&  tb.nodeName==='TBODY')  {
+						UniDOM.disable(tb, !tb.className.includes(this.value))  }  }
 				th.appendChild(document.createElement('label')).append(inp, disp);
 				flag=false;  }
-			const tr=buildTableRow('th', [{colSpan:2, html:th}]);
+			const tr=buildTableRow('th', [{colSpan:tColumns, html:th}]);
 			tr.className='switch '+display[0];
 			tr.firstChild.className='display';
 			frag.appendChild(tr);  }
@@ -4121,11 +4168,11 @@ function buildPaletteTable(pName, id, pData, className)  {
 					colors=Object.getPrototypeOf(pData.palette);  //the palette has been “cleansed” so we need the original data with formatting marks
 
 		if (canDisplay('grid'))  {
-			const columns= Number(pData.columns || buildPaletteTable.defaultGridColumns);
-			if (Number.isNaN(columns))
+			const gColumns= Number(pData.columns || buildPaletteTable.defaultGridColumns);
+			if (Number.isNaN(gColumns))
 				throw new TypeError('Column value for MasterColorPicker palette '+displayChain+' is not a number: '+(pData.columns || buildPaletteTable.defaultGridColumns));
-			if (columns<2  ||  columns>61)
-				throw new RangeError('Column value for MasterColorPicker palette '+displayChain+' is out of range: '+columns);
+			if (gColumns<2  ||  gColumns>61)
+				throw new RangeError('Column value for MasterColorPicker palette '+displayChain+' is out of range: '+gColumns);
 			let tb=false, tbl, row= new Object, i=0;
 			for (const c in colors)  {
 				if (isAlternative(c))  continue;
@@ -4135,53 +4182,67 @@ function buildPaletteTable(pName, id, pData, className)  {
 				if (ignore  &&  colors[c]!=='◊'
 				&&  MasterColorPicker.RGB_calc( checkIsRef(colors[c], referenceMarks) || colors[c] ) == null)
 					continue;
-				row[c]=colors[c];
+				row[c]= colors[c].definition || colors[c];
 				if (!tb)  {
 					tb=document.createElement('tbody');
-					const tr=document.createElement('tr');
-					const td=document.createElement('td');  td.colSpan='2';
+					const
+						tr=document.createElement('tr'),
+						td=document.createElement('td');  td.colSpan=tColumns;
 					tbl=document.createElement('table');  tbl.className='grid';
 					tb.appendChild(tr).appendChild(td).appendChild(tbl);  }
-				if (++i===columns)  { i=0;
-					tbl.appendChild(buildGridRow(row, columns, referenceMarks, bakRefAll, fwdRefAll));
+				if (++i===gColumns)  { i=0;
+					tbl.appendChild(buildGridRow(row, gColumns, referenceMarks, bakRefAll, fwdRefAll));
 					row=new Object;  }  }
-			if (i>0)  tbl.appendChild(buildGridRow(row, columns, referenceMarks, bakRefAll, fwdRefAll));
+			if (i>0)  tbl.appendChild(buildGridRow(row, gColumns, referenceMarks, bakRefAll, fwdRefAll));
 			if (tb)  addTB(tb, 'grid');
 			unbuilt=false;  }
 
 		if (canDisplay('list'))  {
-			let tb=false, html;
+			let html,
+					tb=false,
+					trCount=0;
 			for (const c in colors)  {
 				if (isAlternative(c))  continue;
 				if (colors[c].palette  &&  unbuilt)  {  // ←← this has the original palette data
 					subs[c]=get_subP(pData.palette[c]);   // ←← this has the Palette class instance
 					continue;  }
-				const clr=checkIsRef(colors[c], referenceMarks);
-				const flagBakRef= bakRefAll || clr
-				const flagFwdRef= fwdRefAll || checkIsRef(c, referenceMarks);
-				const clrOb=MasterColorPicker.RGB_calc(clr||colors[c]);
+				const
+					clrDef= colors[c].definition || colors[c],
+					clr=checkIsRef(clrDef, referenceMarks),
+					flagBakRef= bakRefAll || clr,
+					flagFwdRef= fwdRefAll || checkIsRef(c, referenceMarks),
+					clrOb=MasterColorPicker.RGB_calc(clr||clrDef);
 				if (ignore  &&  clrOb == null)  continue;
 				if (!tb)  tb=document.createElement('tbody');
 				if (flagBakRef)  {
-					html=document.createElement('div');  html.appendChild(document.createTextNode(clr||colors[c]));  }
+					html=document.createElement('div');  html.appendChild(document.createTextNode(clr||clrDef));  }
 				else html=undefined;
-				tb.appendChild(buildTableRow('td', [
+				const tblData=[
 					{ html: html,
-						stylez: {backgroundColor: clrOb ? clrOb.hex : "", color: clrOb ? clrOb.contrast : ""},
+						stylez: {backgroundColor: clrOb ? clrOb.hex : "", color: clrOb ? clrOb.contrast : "" },
 						getColor_cb: clrOb ? (flagBakRef ?  addBackRef : returnNext) : undefined },
-					{ text: flagFwdRef ? (clr||colors[c]) : c,
-						getColor_cb: clrOb ? (flagFwdRef ?  addRef : addEntry) : undefined }  ],
-					clrOb ? undefined : "unknown-color"));  }
-			if (tb)  addTB(tb, 'list');  }
+					{ text: flagFwdRef ? (clr||clrDef) : c,
+						getColor_cb: clrOb ? (flagFwdRef ?  addRef : addEntry) : undefined } ];
+				if (colors[c].aliases)  for (const alias of colors[c].aliases)  {
+					tblData.push({
+						text: alias,
+						getColor_cb: clrOb ? addEntry : undefined });  }
+				tb.appendChild(buildTableRow('td', tblData, clrOb ? undefined : "unknown-color", ++trCount));  }
+			if (tb)  {
+				UniDOM.addEventHandler(tb, "onContextMenu", function(event)  {
+					event.stopPropagation();
+					event.preventDefault();
+					showPopMenu(event);  });
+				addTB(tb, 'list');  }  }
 
 		if (display === 'none')
 			for (const c in colors)  {
 				if (colors[c].palette)  subs[c]= get_subP(pData.palette[c]);  }
 
 		for (const s in subs)  { const subChain=displayChain+s;
-			frag.appendChild(buildTableRow('th', [{colSpan:2, className:'head', text:subChain}]));
+			frag.appendChild(buildTableRow('th', [{colSpan:tColumns, className:'head', text:subChain}]));
 			if (subs[s].header)
-				frag.appendChild(buildTableRow('th', [{colSpan:2, className:'header', text:subs[s].header}]));
+				frag.appendChild(buildTableRow('th', [{colSpan:tColumns, className:'header', text:subs[s].header}]));
 			if (subs[s].footer)  footer.add(subs[s].footer);
 			frag.appendChild(buildTableBodys(subs[s], subChain+': ',      // pData.requireSubindex is evaluated to a Boolean by the Palette class constructor.
 																			 clickChain+((useShortChains && !pData.requireSubindex) ? "" : (s+": "))));  }
@@ -4191,7 +4252,7 @@ function buildPaletteTable(pName, id, pData, className)  {
 		function addTB(tb, disp)  {
 			if (pData.footnote)  {
 				const footnote= (pData.footnote instanceof Array) ? pData.footnote : [pData.footnote],
-							tr=buildTableRow('td', [{colSpan:2}]);
+							tr=buildTableRow('td', [{colSpan:tColumns}]);
 				tr.className='footnote';
 				for (const fn of footnote)  {
 					tr.firstChild.appendChild(document.createElement('p')).appendChild(document.createTextNode(fn));  }
@@ -4199,7 +4260,9 @@ function buildPaletteTable(pName, id, pData, className)  {
 			tb.setAttribute('chain', clickChain);
 			tb.setAttribute('full-chain', displayChain);
 			tb.className=disp;
-			frag.appendChild(tb);  }
+			tb.onkeydown=navByKbd;
+			frag.appendChild(tb);
+			if (display instanceof Array  &&  display[0]!==disp)  UniDOM.disable(tb, true);  }
 		function canDisplay(format)  {
 			return display===format  ||  (display instanceof Array  &&  display.includes(format));  }
 		function get_subP(plt)  {
@@ -4207,29 +4270,34 @@ function buildPaletteTable(pName, id, pData, className)  {
 			for (const p of paletteProps.inherited)  {if (!(p in plt)) subP[p]=pData[p];}
 			return subP;  }
 		function isAlternative(c)  {
+			if (!(typeof c === 'string'))  return false;
 			// color names that are in all-lowercase/UPPERCASE may be alternative spellings and ifso are not displayed
 			// for example,  HTML: grey  HTML: Gray
 			return ((pData.alternatives==='lowercase'  &&  ( /[a-z]/ ).test(c)  &&  !( /[A-Z]/ ).test(c))
 					||  (pData.alternatives==='UPPERCASE'  &&  ( /[A-Z]/ ).test(c)  &&  !( /[a-z]/ ).test(c)));  }  }
 
 
-	function buildTableRow(chlds, data, className)  {
+	function buildTableRow(chlds, data, className, rowNum)  {
 		const tr=document.createElement('tr');
 		if (className)  tr.className=className;
-		for (const i in data)  {
+		if (rowNum)  tr.setAttribute('natural-order', rowNum);
+		for (const col of data)  {
 			const td=document.createElement(chlds); // td ‖ th
-			for (const p in data[i])  { switch (p)  {
-				case 'text':  td.appendChild(document.createTextNode(data[i].text));
+			for (const p in col)  { switch (p)  {
+				case 'text':  td.appendChild(document.createTextNode(col.text));
+				if (rowNum)  td.setAttribute('tabindex', "0");
 				break;
-				case 'html':  if (data[i].html)  td.appendChild(data[i].html);
+				case 'html':  if (col.html)  {
+					td.appendChild(col.html);
+					if (rowNum)  td.setAttribute('tabindex', "0");  }
 				break;
-				case 'stylez':  for (const s in data[i].stylez)  {td.style[s]=data[i].stylez[s]};
+				case 'stylez':  for (const s in col.stylez)  {td.style[s]=col.stylez[s]};
 				break;
-				default:  td[p]=data[i][p];  }  }
+				default:  td[p]=col[p];  }  }
 			tr.appendChild(td);  }
 		return tr;  }
 
-	function buildGridRow(colors, columns, referenceMarks, backRefAll, fwdRefAll)  {
+	function buildGridRow(colors, gColumns, referenceMarks, backRefAll, fwdRefAll)  {
 		var i=0, j;
 		const tr=document.createElement('tr');
 		for (const c in colors)  { i++;
@@ -4246,21 +4314,176 @@ function buildPaletteTable(pName, id, pData, className)  {
 				if (clr)  {
 					td.style.backgroundColor=clr.hex;
 					td.style.color=clr.contrast;
-					td.getColor_cb=addGridEntry;  }
+					td.getColor_cb=addGridEntry;
+					td.setAttribute('tabindex', "0");  }
 				else  td.className='unknown-color';
 				if (flagBackRef)  td.title=colors[c];  }
 			tr.appendChild(td);  }
-		for (j=0; j<columns-i; j++)  {tr.appendChild(document.createElement('td')).className='filler';}
+		for (j=0; j<gColumns-i; j++)  {tr.appendChild(document.createElement('td')).className='filler';}
 		return tr;  }
 
+	function navByKbd(event)  {
+		if (event.target.closest("tbody").className==='list'
+		&&  SoftMoon.altMenuKey.sniff(event))  return showPopMenu(event);
+		if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)  return;
+		var newFocus, flag=false, skip=0;
+		keySwitch: {  switch (event.key)  {
+			case "Enter":
+			case "Space":
+				if (event.target.getColor_cb)
+					MasterColorPicker.pick(event.target.getColor_cb(event, event.target.closest('tbody').getAttribute('chain')), event, pName);
+				event.stopPropagation();
+				event.preventDefault();
+			return;
+			case "PageUp":    flag=true;
+			case "PageDown":  skip=10;
+			case "ArrowUp":   if (event.key==="ArrowUp")  flag=true;
+			case "ArrowDown":
+				let tdNum=0,
+						tr=event.target.closest('tr');
+				while (tr.children[tdNum]!==event.target  &&  tdNum<tr.children.length-1)  tdNum++;
+				while (skip--  &&  tr)  tr= flag ? tr.previousElementSibling : tr.nextElementSibling;
+				while (tr= flag ? tr?.previousElementSibling : tr?.nextElementSibling)  {
+					const next=tr.children[tdNum];
+					if (next?.hasAttribute('tabIndex'))  {newFocus=next;  break keySwitch;}  }
+				let tb=event.target.closest('tbody.grid, tbody.list');
+				while ((tb=tb[flag ? "previousElementSibling" : "nextElementSibling"])
+					 &&  (tb.nodeName!=='TBODY'  ||  tb.disabled));
+				const next= tb?.className==='grid' ?
+						tb.querySelector('table')[flag ? "lastElementChild" : "firstElementChild"].children[tdNum]
+					: tb?.[flag ? "lastElementChild" : "firstElementChild"].children[tdNum];
+				if (next?.hasAttribute('tabIndex'))  newFocus=next;
+			break;
+			case "ArrowLeft":   flag=true;
+			case "ArrowRight":
+				let newTD=event.target;
+				while (newTD= flag ? newTD.previousElementSibling : newTD.nextElementSibling)  {
+					if (newTD.hasAttribute('tabIndex'))  {newFocus=newTD;  break;}  }
+			break;
+			default: return;  }  }
+		if (newFocus)  {
+			event.stopPropagation();
+			event.preventDefault();
+			//newFocus.scrollIntoView(false);  //Firefox will auto-scroll-into-view, which actuallly works better...
+			UniDOM.generateEvent(newFocus, 'tabIn', {bubbles:true}, {relatedTarget:event.target, tabbedFrom:event.target});  }  }
+
+	function showPopMenu(event)  {
+		const
+			menu=Tabular_ColorPicker.popUpMenu,
+			target=event.target.closest("td, tb"),
+			bcr=target.getBoundingClientRect(),
+			x= bcr.left+bcr.width/2,
+			y= bcr.top+(target.nodeName==="TD" ? bcr.height/2 : event.clientY);
+		if (target.nodeName==='TD'  &&  target===target.parentNode.firstElementChild)  {
+			menu.style.left= Math.round(x) + "px";
+			menu.style.bottom=Math.round(document.documentElement.clientHeight-y) + "px";
+			menu.style.right= menu.style.top= "auto";  }
+		else  {
+			menu.style.right= Math.round(document.documentElement.clientWidth-x) + "px";
+			menu.style.bottom=Math.round(document.documentElement.clientHeight-y) + "px";
+			menu.style.left= menu.style.top= "auto";  }
+		menu.style.position="fixed";
+		menu.target=target;
+		menu.activatedBy=event.type;
+		document.getElementById("MasterColorPicker_paletteTables").appendChild(menu);
+		UniDOM.generateEvent(menu.firstElementChild, 'tabIn', {bubbles: true}, {relatedTarget:target, tabbedFrom:target});  }
+
  }; //close  Tabular_ColorPicker.buildPaletteTable
-}  //close the private namespace for the Palette Tables manager/constructor  TabularColorPicker
 
+Tabular_ColorPicker.sortByName=function sortPaletteByName(tb, tdNum=1)  {
+	const trs=Array.from(tb.children);
+	trs.sort((tr1,tr2)=>{
+		if (tr1.children[tdNum].innerText<tr2.children[tdNum].innerText)  return -1;
+		if (tr1.children[tdNum].innerText>tr2.children[tdNum].innerText)  return 1;
+		return parseInt(tr1.getAttribute('natural-order'))-parseInt(tr2.getAttribute('natural-order'));  });
+	for (const tr of trs) {tb.appendChild(tr);}  }
 
+Tabular_ColorPicker.sortByNaturalOrder=function sortPaletteByNaturalOrder(tb)  {
+	const trs=Array.from(tb.children);
+	trs.sort((tr1,tr2)=>parseInt(tr1.getAttribute('natural-order'))-parseInt(tr2.getAttribute('natural-order')));
+	for (const tr of trs) {tb.appendChild(tr);}  }
+
+Tabular_ColorPicker.sortByColor=function sortPaletteByColor(tb)  {
+	const trs=Array.from(tb.children);
+	trs.sort((tr1,tr2)=>{
+		tr1.hcg??=MasterColorPicker.RGB_calc.to.hcg(tr1.firstElementChild.style.backgroundColor);
+		tr2.hcg??=MasterColorPicker.RGB_calc.to.hcg(tr2.firstElementChild.style.backgroundColor);
+		const hd=tr1.hcg.hue-tr2.hcg.hue;
+		if (hd)  return hd;
+		const sd=tr1.hcg.chroma-tr2.hcg.chroma;
+		if (sd)  return sd;
+		const gd=tr1.hcg.gray-tr2.hcg.gray;
+		if (gd)  return gd;
+		return parseInt(tr1.getAttribute('natural-order'))-parseInt(tr2.getAttribute('natural-order'));  });
+	for (const tr of trs) {tb.appendChild(tr);}  }
+
+UniDOM.addEventHandler(window, "onload", function()  {
+	const
+		wrap=document.getElementById("MasterColorPicker_paletteTables"),
+		menu= Tabular_ColorPicker.popUpMenu= wrap.removeChild(wrap.querySelector("menu"));
+	function closeMenu(event)  {
+		const tableLoosesFocus=event.type==='click'  ||  menu.activatedBy==='contextmenu';
+		if (tableLoosesFocus  &&  MasterColorPicker.interfaceControl)
+			MasterColorPicker.setActiveInterfaceState(false, MasterColorPicker.interfaceControl, false);
+		UniDOM.generateEvent(tableLoosesFocus ? MasterColorPicker.dataTarget : menu.target,
+				"tabIn", {bubbles: true}, {relatedTarget:event.target, escapedFrom:event.target});
+		if (menu.isConnected)  menu.remove();  }
+	function menuActivation(event)  {
+		const
+			sortBy=event.target.innerText,
+			tb=menu.target.closest('tbody'),
+			text=Tabular_ColorPicker.sortMenuText;
+		closeMenu(event);
+		switch (sortBy)  {
+		case text.name:
+			let tdNum=0;
+			const tr=menu.target.closest('tr');
+			while (tr.children[tdNum]!==menu.target  &&  tdNum<tr.children.length-1)  tdNum++;
+			Tabular_ColorPicker.sortByName(tb, tdNum);
+		break;
+		case text.color:
+			Tabular_ColorPicker.sortByColor(tb);
+		break;
+		case text.natural:
+			Tabular_ColorPicker.sortByNaturalOrder(tb);
+		break;
+		default: console.error('error with Tabular_ColorPicker’s pop-up sort menu………');  }  }
+	UniDOM.addEventHandler(menu, 'onKeyDown', function(event)  {
+		event.stopPropagation();
+		event.preventDefault();
+		if (event.key==="Escape"  ||  SoftMoon.altMenuKey.sniff(event))  {closeMenu(event);  return;}
+		if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)  return;
+    switch (event.key)  {
+			case "ArrowUp":
+				event.target.previousElementSibling?.focus();
+			return;
+			case "ArrowDown":
+				event.target.nextElementSibling?.focus();
+			return;
+			case "Enter":
+			case "Space":
+				menuActivation(event);
+			default: return;  }
+		menu.target.scrollIntoView();  });
+	UniDOM.addEventHandler(menu, 'onClick', function(event)  {
+		event.stopPropagation();
+		event.preventDefault();
+		if (event.target.tagName!=='LI')  return;
+		menuActivation(event);  });
+	UniDOM.addEventHandler(menu, 'onFocusOut', function(event)  {
+		if (menu.isConnected  &&  event.relatedTarget?.parentNode!==menu)  menu.remove();  });  });
+
+}  //close the private namespace for the Palette Tables manager/constructor  Tabular_ColorPicker
+
+// here you can adjust the JS element on-the-fly to accomodate different languages for the Tabular_ColorPicker:
 SoftMoon.WebWare.Tabular_ColorPicker.buildPaletteTable.caption={
 	"h6": ["{pName}"," color-picker table"],  // you may add in other strings of text; they build in order.  {pName} gets put in a <strong>pName</strong>
 	"text": "click to choose" };  //  '<h6><strong>{pName}</strong> color-picker table</h6><span>click to choose</span>';  //  '{pName} colors'  //  'couleurs de {pName}'
 SoftMoon.WebWare.Tabular_ColorPicker.buildPaletteTable.defaultGridColumns=13;  // the default number of columns in a grid layout format
+SoftMoon.WebWare.Tabular_ColorPicker.sortMenuText={  /*this should match the HTML file*/
+	name: "sort by name",
+	color: "sort by color",
+	natural: "sort naturally" };
 // The following property is no longer used by MasterColorPicker.
 // Instead, referenceMarks are a property of a specific Palette instance.
 // The MyPalette class prototype now contains this value to use in the toJSON method.
@@ -6003,23 +6226,29 @@ var user=MasterColorPicker,  //capture user options set via JavaScript
 
 for (i in meta) {if (meta[i].name==="MasterColorPicker"  &&  (o=meta[i].getAttribute('option')))  meta[o]=meta[i].getAttribute('value') || "";}
 
-//the Picker Class is generic; the pickFilter is for our color-picker application
-MasterColorPicker=new SoftMoon.WebWare.Picker(  //if you want to debug, you must use the Picker.withDebug.js file
-	document.getElementById('MasterColorPicker_mainPanel'),
-	{ // debugLogger: document.getElementById('MasterColorPicker_debugLog'),   //requires SoftMoon.WebWare.Log
+//we add to this Object in the section below to support the default HTML/CSS files
+// where the mainPanel & optionsPanel are “bound” together.
+const PickerOptions=	{
+		// debugLogger: document.getElementById('MasterColorPicker_debugLog'),   //requires SoftMoon.WebWare.Log
 		// debugLogger: new SoftMoon.WebWare.Log(),  //requires SoftMoon.WebWare.Log, but will log to the console with event-grouping
 		// debugLogger: window.console,
 		//  registerPanel: true,  //currently is default
+		panelOpts: {},  //we add to this here per note above…this is the options for the mainPanel only
 		aria_popUp: document.getElementById('MasterColorPicker'),
 		doKeepInterfaceFocus: true,  //←most interface control elements keep focus when the ENTER key is pressed
 		picker_select: document.getElementById('MasterColorPicker_palette_select'),
 		pickFilters: [SoftMoon.WebWare.Color_Picker.ColorFilter,   //modifies the selected color: filters colors in or out
 									SoftMoon.WebWare.ColorSpaceLab.setColor,      //sets the input-values of the Lab and expands the selected color’s data-format to include all applicable Color-Spaces
 									SoftMoon.WebWare.Color_Picker.pickFilter,    //determines the final text-output of the picked color and adds it to the colorSpecCache object:  colorSpecCache.text_output
-									SoftMoon.WebWare.Color_Picker.toSystemClipboard] } );
+									SoftMoon.WebWare.Color_Picker.toSystemClipboard] };
 							//  ↑ the pickFilters filter the “picked” data and handle any other
 							// chores before MasterColorPicker.pick() adds the text
 							// to the active MasterColorPicker.dataTarget.value
+
+
+//the Picker Class is generic; the pickFilter is for our color-picker application
+MasterColorPicker=new SoftMoon.WebWare.Picker(  //if you want to debug, you must use the Picker.withDebug.js file
+	document.getElementById('MasterColorPicker_mainPanel'), PickerOptions);
 
 var calcOpts={  // note we ¡¡ RELY !! on the RGB_Calc default values for factories
 	RGBA_Factory: function(r,g,b,a) {return new SoftMoon.WebWare.RGBA_Color(r,g,b,a,{useHexSymbol: true})},
@@ -6138,18 +6367,62 @@ UniDOM.addEventHandler(optsHTML, 'interfaceStateChange',
 UniDOM.addEventHandler(mainHTML,  ['onMouseEnter', 'onMouseLeave'],
 	function(event) {UniDOM.useClass(optsHTML, "pseudoHover", event.type==='mouseenter');},
 	false);
+
+//::::::::::::::::::::::::::::::::::::::::::
+// below we “bind” the mainPanel & the optionsPanel in the graphic display
+// they work as a “hybrid” of two panels and one panel
+// this gives us the display we want (big panel (main) with tab-handle (opts) to drag them both with)
+// yet we can “panel-tab” from one to the other…
+// in the mean-time, they overlap just a bit to accomodate a nice graphic display (round corners…☺)
+// but the one being “used” by the end-user always needs to be on top to accomodate a nice graphic display
+// (options expand over the mainPanel, and the mainPanel has a scrollbar & “focused” elements in a scrolling table of named colors).
+// At least, the options should always be on top, since they expand over the mainPanel,
+// and the mainpanel can just be trimmed a bit at the top without real worry,
+// and then we can ditch the onTabOut handler…
+
 UniDOM.addEventHandler(mainHTML, 'pickerPanelZLevelChange',
 	function(event) { if (this===event.newTopPanel)  {
 		MasterColorPicker.panels.splice(MasterColorPicker.panels.indexOf(optsHTML), 1);
-		MasterColorPicker.panels.push(optsHTML);  }  },  // options on top
-		//MasterColorPicker.panels.splice(-1, 0, optsHTML);  }  },  // main (picker-panel) on top
+		//MasterColorPicker.panels.push(optsHTML);  }  },  // options on top
+		MasterColorPicker.panels.splice(-1, 0, optsHTML);  }  },  // main (picker-panel) on top
 	false);
+
+//we need this to manage the fact that these two panels will just rotate between eachother
+//if the end-user tries to forward-panel-tab when either of these two panels may be on top
+//we don’t need it if the optionsPanel is always on top
+//this overrides the Picker’s onkeydown handler for interface controls on the mainPanel only
+PickerOptions.panelOpts.onTabOut= function(event)  {
+	if (MasterColorPicker.panelTabKey.sniff(event)
+	||  (event.key==="Tab"  &&  event.ctrlKey))  {  //←the browser prevents this key combo from reaching JS
+		let panels=MasterColorPicker.panels;
+		const newTop=panels[panels.length-3];       //← because ↓↓↓
+		panels.splice(panels.indexOf(optsHTML),1);  //← “should” be @ panels.length-2
+		panels.unshift(optsHTML);
+		MasterColorPicker.setTopPanel(newTop, panels.length-1);
+		panels=MasterColorPicker.panels.clone();
+		const tabTo=panels.reverse().filter((e)=>!e.disabled).getElements(SoftMoon.WebWare.Picker.isTabStop, SoftMoon.WebWare.Picker.goDeep)[0];
+		if (tabTo)  {
+			UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels:true});
+			UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});  }
+		return true;  }
+	if (MasterColorPicker.panelBacktabKey.sniff(event)
+	||  (event.key==="Tab"  &&  event.shiftKey  &&  event.ctrlKey))  {  //←the browser prevents this key combo from reaching JS
+		MasterColorPicker.setTopPanel(optsHTML);
+		const tabTo=UniDOM.getElements(optsHTML, SoftMoon.WebWare.Picker.isTabStop, SoftMoon.WebWare.Picker.goDeep)[0];
+		if (tabTo)  {
+			UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels:false});
+			UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});  }
+		return true;  }  }
+
 UniDOM.addEventHandler(optsHTML, 'pickerPanelZLevelChange',
 	function(event) { if (this===event.newTopPanel)  {
-		MasterColorPicker.panels.splice(MasterColorPicker.panels.indexOf(mainHTML), 1);
-		MasterColorPicker.panels.splice(-1, 0, mainHTML);  }  },  // options on top
+		const panels=MasterColorPicker.panels;
+		panels.splice(panels.indexOf(mainHTML), 1);
+		panels.splice(-1, 0, mainHTML);  }  },  // options on top
 		//MasterColorPicker.panels.push(mainHTML);  }  },  // main (picker-panel) on top
 	false);
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 
 
 		//grab all the elements with a 'name' attribute (the <input>s) into an array, with corresponding properties
@@ -6340,10 +6613,12 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 				UniDOM.generateEvent(userOptions.showMyPalette, 'change');
 				if (!event.ShiftKey)  {
 					MasterColorPicker.setTopPanel(MasterColorPicker.MyPalette.HTML);  //document.getElementById('MasterColorPicker_MyPalette')
+					let clrDat;
 					if (event.ctrlKey   //add color in user-input box to MyPalette
 					&&  !UniDOM.hasAncestor(event.target, MasterColorPicker.MyPalette.HTML)
-					&&  MasterColorPicker.RGB_calc(event.target.value))  {
-						MasterColorPicker.MyPalette.addColor(event.target.value);
+					&&  (clrDat= event.target.value || event.target.getColor_cb?.(event, event.target.closest('tbody').getAttribute('chain'))?.text)
+					&&  MasterColorPicker.RGB_calc(clrDat))  {
+						MasterColorPicker.MyPalette.addColor(clrDat);
 						return;  }  }
 			break;
 			case 'F3':   // F3 function key
