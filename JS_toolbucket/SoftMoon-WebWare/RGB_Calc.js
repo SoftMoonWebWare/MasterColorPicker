@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.11.4  June 17, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.11.5  July 13, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
@@ -90,7 +90,9 @@ Object.defineProperty(
 			if ('requireSubindex' in this)  $requireSubindex=this.requireSubindex;
 			for (const c in this.palette)  {
 				if (!this.palette[c].palette)  {
-					if (c.trim().toLowerCase()===$clr)  return this.palette[c];
+					if (c.trim().toLowerCase()===$clr)  return this.palette[c].definition || this.palette[c];
+					if (this.palette[c].aliases instanceof Array)  for (const alias of this.palette[c].aliases)  {
+						if (alias.trim().toLowerCase()===$clr)  return this.palette[c].definition;  }
 					else  continue;  }
 				if ((matches=($clr.match(RegExp.stdWrappedColor)  ||  $clr.match(RegExp.stdPrefixedColor)))
 				&&  c.toLowerCase()===matches[1].toLowerCase())
@@ -589,7 +591,10 @@ function linearize_γCorrected_RGB(rgb, profile)  {
 	return [R,G,B,rgb[3]];  }
 
 
-const round=Math.round,
+const
+			max=Math.max,
+		round=Math.round,
+	roundTo=Math.roundTo,
 	output_RGB=output_sRGB;  // ← preparation for the future: to support RGB color-spaces beyond sRGB
 
 function output_sRGB(r,g,b,α)  {  // ← preparation for the future: to support color-models that are bound to sRGB
@@ -603,8 +608,13 @@ function output_sRGB(r,g,b,α)  {  // ← preparation for the future: to support
 
 function output_clampedRGB(r,g,b,α)  {  // for color space models that go beyond the color space of any current RGB profile
 	const bits=this.config.RGB_bitDepth;
-	r=round(r); g=round(g); b=round(b);
-	if (r>=0 && r<=bits  &&  g>=0 && g<=bits  &&  b>=0 && b<=bits)  {
+	if (this.config.roundRGB)  {
+			r=round(r); g=round(g); b=round(b);  }
+	else  {r=roundTo(10, r);  g=roundTo(10, g);  b=roundTo(10, b);}
+	// negative values are simply clamped: we find -1 and -2, in the “blue” hues (¿others?)
+	// in the future, this may change to “preserve the true hue”
+	r=max(0,r);  g=max(0,g);  b=max(0,b);
+	if (r<=bits  &&  g<=bits  &&  b<=bits)  {
 		if (α===undefined  &&  (α=this.config.defaultAlpha)===undefined)
 			return new this.config.RGBA_Factory(r,g,b);
 		else
