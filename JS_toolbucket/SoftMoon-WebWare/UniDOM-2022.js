@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.6  February 8, 2024
+/*  UniDOM-2022  version 1.6.1  July 16, 2024
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -860,6 +860,12 @@ ElementWrapper.prototype.setSelected=function() {if (this.element.nodeName==='SE
 
 
 class ElementArray extends Array  {  //  ← a new Array will be created with the relevant “UniDOM power methods”.
+
+	static from=function(iterable, wrapElements=false)  {
+		const EA=new ElementArray(wrapElements);
+		for (const i of iterable)  {EA.add(i);}
+		return EA;  }
+
 /*
  *  When a standard Array method returns an array, when used in this class it will instead return an ElementArray.
  *  In the process, it will call this constructor and pass an integer value for the array length.
@@ -973,11 +979,18 @@ class ElementArray extends Array  {  //  ← a new Array will be created with th
 		return this;  }
 
 	filter(cb, o)  {
-		for (var i=0, filtered=new ElementArray(this.wrappedElements);  i<this.length;  i++)  {
+		const filtered=new ElementArray(this.wrappedElements);
+		for (var i=0;  i<this.length;  i++)  {
 			if (o)  {if (cb.call(o, xElement(this[i]), i, this))  filtered.add(this[i]);}
 			else if (cb(xElement(this[i]), i, this))  filtered.add(this[i]);  }
 		return filtered;  }
 
+	clone()  {
+		const
+			clone=new ElementArray(this.wrappedElements),
+			props=Object.getOwnPropertyNames(this);
+		for (name of props)  {clone[name]=this[name];}
+		return clone;  }
 }
 Object.defineProperty(ElementArray.prototype, 'type', {value: 'UniDOM ElementArray'});
 // default value for constructor above (unused internally by UniDOM’s functions and methods)
