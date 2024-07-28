@@ -1,5 +1,5 @@
 // charset: UTF-8    tab-spacing: 2
-/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated July 3, 2024)
+/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated July 26, 2024)
  * Copyright (c) 2021 Björn Ottosson;
  * & Copyright © 2024 Joe Golembieski, SoftMoon-WebWare
  *
@@ -40,15 +40,20 @@
  *  • one fix for: out-of-bounds conversions (very slight) for some colors in OKHSV:
  *     ▪ clamped [S,V] →  0 ≤ [S,V] ≤ 1
  *
+ * Known issues: many conversions REQUIRE rounding sRGB values before considering whether they are “in-gamut”.
+ * High-precision is not a quality of these matrices and algorithms.
+ * We are finding that rounding to 2 decimal places is good … three is bad.  Maybe we need to round to 1 decimal place?
+ * RGB_Calc handles this rounding.
+ *
  * Known bug: with accuracyLevel=1, OKHSV_to_RGB is not properly converting “red” (sRGB [255,0,0]) from:  OKHSV(29.23deg 100% 100%)
  * a little experimentation shows a few limits:    26.926° — 29.233° (pure red),  @ S=100%, V>99.9%
  * I looked quick, but didn’t find a reasonable way to clamp a value (in the end, we get RGB [255,-1,0] for “red”)
  * Jumping to accuracyLevel=2 fixes the problem.
  *
- * Known bug: OKHSV_to_RGB is not properly converting “blueish” hues with near 100% chroma
- * The bug seems to lie more in OKLab_to_RGB.  We are getting sRGB channel values of (-1) and (-2).
- * No known fix at this time; however, the “clampRGB” method in RGB_Calc may address this in the future.
- * It does no clamping, only rejections at this time.
+ * Known bug: OKHSV and OKHSL are not properly converting “blueish” hues (standard RGB angles 227°, 240°) with near 100% chroma
+ * The bug seems to lie more in OKLab_to_sRGB.  We were getting final R channel values of (-1) and (-2) and (-3).
+ * Now we specifically clamp the R-channel to 0 within OKLab_to_sRGB when it is just a little below 0.
+ * This seems to fix the problem, hopefully not creating new ones in other hues…☻
  *
  * Minor superficial modifications by SoftMoon-WebWare for:
  *  • inclusion into the RGB_Calc package (values input as Arrays, alpha (α, opacity) channel support, etc),
@@ -158,13 +163,19 @@ Object.defineProperty(Björn_Ottosson, 'accuracy', {get: ()=>accuracyLevel, set:
 
 
 // OKLab and OKLCh are also released under public domain
-function oklab_to_srgb(Labα, γCorrect=true)  {  // l → 0.0—1.0     ¿¿  a,b → -0.5—0.5  ??  ← ¡seems to be correct!
-const [L,a,b]=Labα;
+function oklab_to_srgb(Labα, γCorrect=true)  {  // l → 0.0—1.0      a,b → -0.4—0.4
 	const
+		//hue= squareRoot(labα[1]*labα[1] + labα[2]*labα[2]))*360;
 		l = (Labα[0] + 0.3963377774 * Labα[1] + 0.2158037573 * Labα[2])**3,
 		m = (Labα[0] - 0.1055613458 * Labα[1] - 0.0638541728 * Labα[2])**3,
 		s = (Labα[0] - 0.0894841775 * Labα[1] - 1.2914855480 * Labα[2])**3,
-		R = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+		r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+		// here we clamp small negative numbers
+		// (-0.0117647058823529 ← after gamma-correction : sRGB → -3 <= r < 0 ← when r is rounded to zero decimal places)
+		// to “fix” standard-RGB hues at approx 226.95°–229.29° and 234°–240.35° (blues)
+		// (OK hues approx:  263.95°–264.13°  and  264.42°–264.3° ← ¡note how the hue values reverse-direction in comparison to standard RGB hues!)
+		// too drastic?  clamping them elsewhere is more drastic…and affects other color-spaces negatively
+		R = (/*hue>=263.8  &&  hue<=264.5  &&*/  r>=-9.105809506465125e-4  &&  r<0) ? 0 : r,
 		G = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
 		B = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
 	if (γCorrect)  return this.γCorrect_linear_RGB(R,G,B,Labα[3],'sRGB');
@@ -606,7 +617,7 @@ function okhsv_to_srgb(hsvα, factory)  {  // ← for sRGB, DO NOT supply the fa
 	const
 		[h,s,v,α] = hsvα;
 	if (v===0)  return factory ?
-		  ((α===undefined  &  this.config.defaultAlpha===undefined) ? factory(0,0,0) : factory(0,0,0, a===undefined ? this.config.defaultAlpha : α))
+			((α===undefined  &  this.config.defaultAlpha===undefined) ? factory(0,0,0) : factory(0,0,0, a===undefined ? this.config.defaultAlpha : α))
 		: this.output_sRGB(0,0,0);
 	const
 		a_ = cosine(π2*h),
