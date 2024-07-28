@@ -14,7 +14,7 @@ body, section, div {
 body {
 	color: white;
 	background: #808080;
-  position: absolute; /* This keeps the very small body sized to the full window.  We need this for the panel-drag 'mouseover' which is on the body.  */
+	position: absolute; /* This keeps the very small body sized to the full window.  We need this for the panel-drag 'mouseover' which is on the body.  */
 	width: 100%;
 	height: 100%;  }
 
@@ -133,7 +133,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-      release 2.6.10  July 19, 2024
+			release 2.6.10  July 27, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -198,6 +198,8 @@ but to retain the settings this file may be included inside an existing web <for
 	<option title='OK: Hue, Saturation, Value'>OKHSV</option>
 	<option title='OK: Hue, White, Black'>OKHWB</option>
 	<option title='OK: Hue, Chroma∝, Gray'>OKHCG</option>
+	<option title='lightness-Jz, az-axis, bz-axis'>Jᶻaᶻbᶻ</option>
+	<option title='lightness-Jz, chroma-z, hue-z'>JᶻCᶻhᶻ</option>
 	<option title='X, Y, Z'>XYZ</option>
 	</select></label>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
@@ -522,9 +524,9 @@ or pin it to the window when it is pinned to the page.
 <p>The colors selected within this tool will mix with future colors selected from the color-picker palettes.</p>
 <p>(choose color(s) using any color-picker or type directly)</p>
 	<fieldset>
-	  <label><span>¿Average all filter-colors and apply the result, or apply each filter-color individually and progressively?</span>
+		<label><span>¿Average all filter-colors and apply the result, or apply each filter-color individually and progressively?</span>
 			<select name='MasterColorPicker_Filter_average' backtabToTarget='true'><option selected>average</option><option>progressive</option></select></label>
-	  <label><span>¿Add/subtract the filters’ average to the picked color, or grade the picked color to the filters’ average?</span>
+		<label><span>¿Add/subtract the filters’ average to the picked color, or grade the picked color to the filters’ average?</span>
 			<select name='MasterColorPicker_Filter_applyToAverage'><option selected>add to</option><option>grade to</option><option>sub from</option></select></label>
 	</fieldset>
 
@@ -717,7 +719,7 @@ or pin it to the window when it is pinned to the page.
 <h2 id='MasterColorPicker_Gradientor_header'>MasterColorPicker<footmark>™</footmark> <span>Gradientor</span></h2>
 <fieldset role='tablist'><legend>mix format:</legend>
 <label><input type='radio' name='MasterColorPicker_Gradientor_format' value='linear' checked backtabToTarget
-  role='tab' aria-controls='MasterColorPicker_Gradientor_linear-colors' aria-selected='true'>
+	role='tab' aria-controls='MasterColorPicker_Gradientor_linear-colors' aria-selected='true'>
 multistop linear</label>
 <label><input type='radio' name='MasterColorPicker_Gradientor_format' value='triadic'
 	role='tab' aria-controls='MasterColorPicker_Gradientor_triadic-colors' aria-selected='false'>
@@ -739,6 +741,8 @@ triadic</label>
 	<option>HSLᵤᵥ</option>
 	<option>OKLab</option>
 	<option>OKLCh</option>
+	<option>Jᶻaᶻbᶻ</option>
+	<option>JᶻCᶻhᶻ</option>
 </select></label>
 <fieldset id='MasterColorPicker_Gradientor_linear-colors'><legend>Enter gradient <em>colors</em> and <em>offsets</em> below</legend>
  <p>You may use <code>pixels</code> or percents <code>%</code> or a mix as units for the offsets.&nbsp;
@@ -866,7 +870,7 @@ triadic</label>
 							<nobr>(-215‖-100%) ≤ (u,v) ≤ (215‖100%)</nobr></code>
 							<p>Color space models based on <abbr>Luv</abbr> have the “ᵤᵥ” or “uv” suffix and are referred to herein as “<abbr title="Luv-ly">♥ly</abbr>”.</p></li>
 				<li><range>❇</range><abbr title='Lightness, Chromaᵤᵥ, Hueᵤᵥ'>LChᵤᵥ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LChᵤᵥ</abbr> color space)</aka>
-				   (use the <kbd><span>Alt</span></kbd> key for subscript ᵤᵥ or use <aka>LChuv</aka>)
+					 (use the <kbd><span>Alt</span></kbd> key for subscript ᵤᵥ or use <aka>LChuv</aka>)
 							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>0 ≤ C ≤ (304‖100%)</nobr></code></li>
 				<li><range>❇</range><abbr title='OK: Lightness, a-axis, b-axis'>OKLab</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
@@ -874,6 +878,14 @@ triadic</label>
 							<p>All the “<abbr ok>OK</abbr>” color spaces are based on <abbr>OKLab</abbr></p></li>
 				<li><range>❇</range><abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> ← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>0 ≤ C ≤ (0.5‖125%)</nobr></code> ← where <code>100%=0.4</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
+				<li><range>❇</range><abbr title='Lightness, az-axis, bz-axis'>Jᶻaᶻbᶻ</abbr>
+					 (use the <kbd><span>Alt</span></kbd> key for modifier ᶻ or use <aka>Jzazbz</aka>)
+							← <code>0 ≤ Jᶻ ≤ (1.0‖100%),&nbsp;
+							<nobr>(-0.5‖-100%) ≤ (aᶻ,bᶻ) ≤ (0.5‖100%)</nobr></code></li>
+				<li><range>❇</range><abbr title='Lightness, Chroma, Hue'>JᶻCᶻhᶻ</abbr>
+					 (use the <kbd><span>Alt</span></kbd> key for modifier ᶻ or use <aka>JzCzhz</aka>)
+							← <code>0 ≤ Jᶻ ≤ (1.0‖100%),&nbsp;
+							<nobr>0 ≤ Cᶻ ≤ (1.0‖100%)</nobr></code></li>
 				<li><range>❇</range><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
 					→&nbsp; <code>(X,Y,Z,α) ‖ (<var>illuminant</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, <var>illuminant</var>, X,Y,Z,α)</code>
 					<p>I am not sure of the exact limits of the input values, but I <em>think maybe</em> generally
@@ -925,7 +937,7 @@ triadic</label>
 							Uses the XYZ→RGB matrix provided by
 							<a target='XYZ' href="http://colorlab.wickline.org/colorblind/colorlab/engine.js">►Matthew Wickline</a>,
 							a respected color-theory researcher who created one of the original
-						  color-blind filter algorithms.&nbsp; He uses this high-precision matrix in his calculations.</dd>
+							color-blind filter algorithms.&nbsp; He uses this high-precision matrix in his calculations.</dd>
 					</dl>
 				 </li>
 			</ul>
@@ -1047,6 +1059,22 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	<h4 id='MasterColorPicker_helpFor_conversions'>A quick note about color-space conversions,
 	the <abbr>CMYK<abbr> color spaces, Chroma, Chroma∝, Hue, &amp; gray-scale tones</h4>
 
+	<p>To convert from one color-space model to another using MasterColorPicker is easy.&nbsp;
+	First, open the Color Space Lab.&nbsp;
+	If it does not explicitly show you the conversion data you want, you can still convert.&nbsp;
+	Either way, then in MasterColorPicker’s main-options panel, choose the color-space
+	you want to convert <em>to</em> as the “output”.&nbsp;
+	Then in any color-input-box,
+	type or paste the color-spec you want to convert <em>from</em>.&nbsp;
+	If the Color Space Lab’s options do not auto-update the Lab on keystrokes,
+	then press <kbd><span>CTRL</span>+<span>F3</span></kbd>
+	to sync the Lab with the color you just typed in.&nbsp;
+	Finally, click on the “color swatch” in the lower-right of the Color Space Lab,
+	and the conversion will appear in the color-input-box.&nbsp;
+	Remember, in the main-options panel, you can also choose to
+	automatically copy the selected color (in this case the converted color data) to the system clipboard,
+	making multiple conversions quicker and easier!</p>
+
 	<p>Most color-spaces supported herein are based on an <abbr title='Red, Green, Blue'>RGB</abbr> color-space,
 	and the default <abbr title='Red, Green, Blue'>RGB</abbr> “color-profile” is the
 	<abbr title='standard: Red, Green, Blue'>sRGB</abbr> color-space.&nbsp;
@@ -1112,19 +1140,22 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	than red light, and red light as “brighter” (more chroma) than blue,
 	so HCG(120°, 100%, 50%) (green or “CSS: lime”) will seem much brighter (have more chroma) than HCG(240°, 100%, 50%) (blue),
 	even though they have the same Chroma∝ of 100%.&nbsp;
-	The <abbr>LCh</abbr> (Lightness, Chroma, Hue), <abbr>LChᵤᵥ</abbr> (Lightness, Chromaᵤᵥ, Hueᵤᵥ), &amp; <abbr>OKLCh</abbr> (OK: Lightness, Chroma, Hue) color-spaces,
+	The <abbr>LCh</abbr> (Lightness, Chroma, Hue), <abbr>LChᵤᵥ</abbr> (Lightness, Chromaᵤᵥ, Hueᵤᵥ),
+	<abbr>OKLCh</abbr> (OK: Lightness, Chroma, Hue), &amp; <abbr>JᶻCᶻhᶻ</abbr> (Lightness-Jz, Chroma-z, hue-z) color-spaces,
 	(and the “Munsell color system”) are based on the <abbr>XYZ</abbr> color-space,
 	and the term “Chroma” refers to the <em><strong>perceived</strong></em> chroma of the color.&nbsp;
 	Mathematically speaking, the maximum chroma possible is always limited by the <abbr>RGB</abbr> color-space
 	(as defined by Chroma∝ in <abbr>HCG</abbr>),
-	but “green” and “blue” will have very different Chromatic values in <abbr>LCh</abbr>, <abbr>LChᵤᵥ</abbr>, or <abbr>OKLCh</abbr>.</p>
+	but “green” and “blue” will have very different Chromatic values in
+	<abbr>LCh</abbr>, <abbr>LChᵤᵥ</abbr> <abbr>OKLCh</abbr>, or <abbr>JᶻCᶻhᶻ</abbr>.</p>
 
 	<h6 id='MasterColorPicker_helpFor_Hue'>Hue:</h6>
 	<p>Hue is the term used to describe the “pure-color” (or full chromacity) of a tint/tone/shade.&nbsp;
 	Thirteen (13) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “hue”,
-	(HSV, HSB, HSL, HCG, HWB, OKHSV, OKHSL, OKHCG, OKHWB, LCh, LChᵤᵥ, HSLᵤᵥ, OKLCh) but the outcome can be slightly different.&nbsp;
+	(HSV, HSB, HSL, HCG, HWB, OKHSV, OKHSL, OKHCG, OKHWB, LCh, LChᵤᵥ, HSLᵤᵥ, OKLCh, JᶻCᶻhᶻ) but the outcome can be slightly different.&nbsp;
 	Also, Hue <em><strong>values</strong></em> are the same for all the traditional <abbr>RGB</abbr>-based color-spaces (an “RGB-standard hue”),
-	but all different for <abbr>LCh</abbr>, the “<abbr title="Luv-ly">♥ly</abbr>” color-spaces, and the “<abbr ok>OK</abbr>” color-spaces.&nbsp;
+	but all different for <abbr>LCh</abbr>, <abbr>JᶻCᶻhᶻ</abbr>,
+	the “<abbr title="Luv-ly">♥ly</abbr>” color-spaces, and the “<abbr ok>OK</abbr>” color-spaces.&nbsp;
 	An “RGB-standard hue” is based on an RGB color-space, with the Red, Green, &amp; Blue channels evenly spaced at 0°, 120°, &amp; 240°,
 	mixing into Yellow at 60°, Cyan at 180°, &amp; Magenta at 300°.&nbsp;
 	For all <abbr>RGB</abbr>-based color-spaces, the “<abbr title="Luv-ly">♥ly</abbr>” color spaces, &amp; the <abbr>LCh</abbr> color-space,
@@ -1270,6 +1301,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	<tr><td><kbd><span>R</span></kbd></td> <td><code>ᴿ</code></td> <td></td></tr>
 	<tr><td><kbd><span>U</span></kbd></td> <td><code>ᵤ</code></td> <td></td></tr>
 	<tr><td><kbd><span>V</span></kbd></td> <td><code>ᵥ</code></td> <td></td></tr>
+	<tr><td><kbd><span>Z</span></kbd></td> <td><code>ᶻ</code></td> <td></td></tr>
 	</table>
 
 	<p>Some specific “input-sliders” may be temporarily changed to text-based numeric inputs
@@ -1546,7 +1578,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	the “Hued Gray” becomes a “True Gray”.</p>
 
 	<p>When grading through the <abbr>XYZ</abbr>-based color-spaces
-	(<abbr>Lab</abbr>, <abbr>LCh</abbr>, <abbr>OKLab</abbr>, <abbr>OKLCh</abbr>)
+	(<abbr>Lab</abbr>, <abbr>LCh</abbr>, <abbr>OKLab</abbr>, <abbr>OKLCh</abbr>,
+	<abbr>Luv</abbr>, <abbr>LChᵤᵥ</abbr>, <abbr>Jᶻaᶻbᶻ</abbr>, <abbr>JᶻCᶻhᶻ</abbr>)
 	note that you can define stop-colors that are valid, but that create gaps in the gradient.&nbsp;
 	In the worst case, no gradient at all!&nbsp;
 	This happens when the gradient-line through the color-space leaves the <abbr title='standard Red Green Blue'>sRGB</abbr> color-space.&nbsp;
@@ -1657,11 +1690,11 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 		 The Websafe-Color Interpolator color-blind filter function
 		 Copyright © 2019 by Joe Golembieski, SoftMoon-WebWare.</p>
 	<p>The Wickline Color Blindness Simulation algorithmic filter function is
-     Copyright © 2000-2001 by Matthew Wickline and the
-     Human-Computer Interaction Resource Network.&nbsp;
-     It is used with the permission of Matthew Wickline and <abbr>HCIRN</abbr>,
-     and is freely available for non-commercial use.&nbsp; For commercial use, please
-     contact the Human-Computer Interaction Resource Network ( <kbd>https://hcirn.com/</kbd> )
+		 Copyright © 2000-2001 by Matthew Wickline and the
+		 Human-Computer Interaction Resource Network.&nbsp;
+		 It is used with the permission of Matthew Wickline and <abbr>HCIRN</abbr>,
+		 and is freely available for non-commercial use.&nbsp; For commercial use, please
+		 contact the Human-Computer Interaction Resource Network ( <kbd>https://hcirn.com/</kbd> )
 		 or see <kbd>http://colorlab.wickline.org/colorblind/colorlab/engine.js</kbd> for more info.</p>
 	<p>The “<abbr>HSLᵤᵥ</abbr>” color-space was created by Alexei Boronine;
 		 and the software and algorithms are Copyright © 2012-2022 by Alexei Boronine;
@@ -1743,10 +1776,33 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 <table class='picker palette' id='BeezEye'>
 <caption><h6>BeezEye Color Picker™</h6>click to choose</caption>
 <tbody>
-<tr><!-- ROW 1 -->
+<tr class='foobar'><!-- ROW 1 -->
 	<td><label>¿<input type='checkbox' name='BeezEye_twist' value='twist' backtabTo='#MasterColorPicker_palette_select'>Twist?
 		<input type='range' name='BeezEye_twist_value' value='50' min='0' max='100'></label></td>
 	<td><fieldset><legend>color space model</legend>
+		<table onchange='for (td of this.querySelectorAll("td")) {td.classList.toggle("checked", Boolean(td.querySelector("input")?.checked))}'>
+		<tr>
+			<td><label><input type='radio' name='BeezEye_model' value='CMYK'>CMYK</label></td>
+			<td><label><input type='radio' name='BeezEye_model' value='HSV'>HSV / HSB</label></td>
+			<td class='checked'><label><input type='radio' name='BeezEye_model' value='HSL' checked>HSL</label></td>
+			<td><label><input type='radio' name='BeezEye_model' value='HCG'>HCG</label></td>
+			<td><label><input type='radio' name='BeezEye_model' value='LCh'>LCh</label></td>
+		</tr>
+		<tr><td></td>
+			<td><label><input type='radio' name='BeezEye_model' value='OKHSV'>OKHSV</label></td>
+			<td><label><input type='radio' name='BeezEye_model' value='OKHSL'>OKHSL</label></td>
+			<td><label><input type='radio' name='BeezEye_model' value='OKHCG'>OKHCG</label></td>
+			<td><label><input type='radio' name='BeezEye_model' value='OKLCh'>OKLCh</label></td>
+		</tr>
+		<tr><td></td><td></td>
+			<td><label><input type='radio' name='BeezEye_model' value='HSLᵤᵥ'>HSLᵤᵥ</label></td>
+			<td></td>
+			<td><label><input type='radio' name='BeezEye_model' value='LChᵤᵥ'>LChᵤᵥ</label></td>
+		</tr>
+		<tr><td></td><td></td><td></td><td></td>
+			<td><label><input type='radio' name='BeezEye_model' value='JᶻCᶻhᶻ'>JᶻCᶻhᶻ</label></td>
+		</tr>
+		</table>
 		<dl>
 			<dt>CMYK</dt>
 				<dd>Cyan, Magenta, Yellow, Black</dd>
@@ -1758,22 +1814,11 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 				<dd>Hue, Chroma∝, Gray</dd>
 			<dt>LCh</dt>
 				<dd>Lightness, Chroma, hue</dd>
-			<dt>¡OK!</dt>
-				<dd>Ottosson Krafted color space models</dd>
-			<dt>¡♥ly!</dt>
-				<dd>models based on the <abbr>CIE L*u*v*</abbr> color space</dd>
 			<dt>Curve</dt>
 				<dd>modulates the saturation/chromatic rate</dd>
 			<dt>Twist</dt>
 				<dd>twists the color-disk at its center to make it easier to find progressive color-series</dd>
 		</dl>
-		<label><input type='radio' name='BeezEye_model' value='CMYK'>CMYK</label>
-		<label><input type='radio' name='BeezEye_model' value='HSV'>HSV / HSB</label>
-		<label><input type='radio' name='BeezEye_model' value='HSL' checked>HSL</label>
-		<label><input type='radio' name='BeezEye_model' value='HCG'>HCG</label>
-		<label><input type='radio' name='BeezEye_model' value='LCh'>LCh</label>
-		<label>¡<input type='checkbox' name='BeezEye_model_OK' value='OK'><abbr title='Ottosson Krafted'>OK</abbr>!</label>
-		<label>¡<input type='checkbox' name='BeezEye_model_Luvly' value='♥ly'><abbr title='Luv-ly'>♥ly</abbr>!</label>
 		</fieldset>
 	</td>
 </tr>
