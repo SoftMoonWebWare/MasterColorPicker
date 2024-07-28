@@ -1,8 +1,9 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.11.5  July 13, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.11.6  July 26, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
+// All color-space conversion algorithms and code herein are either: public-domain, MIT-licenced, or both.
+/*  Program written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
 		For qualified “humane entities”, this program is free software:
@@ -416,6 +417,15 @@ RegExp.luv_factors_a=new window.RegExp( '^' +f +sep+ f_signed +sep+ f_signed + '
 RegExp.lchᵤᵥ_factors_a=new window.RegExp( '^' +f +sep+ f +sep+ h+ '(?:' +aSep+ f+ ')?$' );
 
 
+const
+	azbzMax='0*\.(?:50*|[0-4]\d*)',
+	azbz='\\s*0*(-?(?:0%?|(?:' +pVal+ ')%|' +azbzMax+ '))\\s*';
+
+RegExp.jzazbz_a=new window.RegExp( '^' +p+ sep +azbz+ sep +azbz+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.jzczhz_a=new window.RegExp( '^' +p+ sep +p+ sep + h+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.jzazbz_factors_a=new window.RegExp( '^' +f +sep+ f_signed +sep+ f_signed + '(?:' +aSep+ f+ ')?$' );
+RegExp.jzczhz_factors_a=new window.RegExp( '^' +f +sep+ f +sep+ h+ '(?:' +aSep+ f+ ')?$' );
+
 
 
 //=================================================================================================\\
@@ -557,8 +567,6 @@ function applyAlpha(c_o, $α, source)  {
 
 function γCorrect_linear_RGB(r,g,b,α, profile)  {
 	//gamma correction
-	const
-		bits=this.config.RGB_bitDepth;  //sRGB=255
 	if (profile === 'sRGB')  {
 				// ¿ 0.00304 ?
 		r = (r > 0.0031308) ?  1.055 * Math.pow(r, 1/2.4) - 0.055  :  12.92 * r;
@@ -569,6 +577,7 @@ function γCorrect_linear_RGB(r,g,b,α, profile)  {
 		r = Math.pow(r, γ);
 		g = Math.pow(g, γ);
 		b = Math.pow(b, γ);  }
+	const bits=this.config.RGB_bitDepth;  //sRGB=255
 	return this.output_clampedRGB(r*bits, g*bits, b*bits, α);  }
 
 function linearize_γCorrected_RGB(rgb, profile)  {
@@ -606,15 +615,15 @@ function output_sRGB(r,g,b,α)  {  // ← preparation for the future: to support
 	else
 		return new this.config.RGBA_Factory(r,g,b,α);  }
 
+SoftMoon.maxfoorgb=-3;  // you can play around with this value in real-time using the browser console
+
 function output_clampedRGB(r,g,b,α)  {  // for color space models that go beyond the color space of any current RGB profile
+	if (this.config.roundRGB)  {r=round(r); g=round(g); b=round(b);}
+	// precision is not a quality of OKLab…  bumping to 3 decimal places, we loose valid colors
+	else  {r=roundTo(2, r);  g=roundTo(2, g);  b=roundTo(2, b);}
 	const bits=this.config.RGB_bitDepth;
-	if (this.config.roundRGB)  {
-			r=round(r); g=round(g); b=round(b);  }
-	else  {r=roundTo(10, r);  g=roundTo(10, g);  b=roundTo(10, b);}
-	// negative values are simply clamped: we find -1 and -2, in the “blue” hues (¿others?)
-	// in the future, this may change to “preserve the true hue”
-	r=max(0,r);  g=max(0,g);  b=max(0,b);
-	if (r<=bits  &&  g<=bits  &&  b<=bits)  {
+	if (r>=0  &&  g>=0  &&  b>=0
+	&&  r<=bits  &&  g<=bits  &&  b<=bits)  {
 		if (α===undefined  &&  (α=this.config.defaultAlpha)===undefined)
 			return new this.config.RGBA_Factory(r,g,b);
 		else
@@ -756,8 +765,11 @@ const CS_props={
 	LChA_Factory: Array,
 	LuvA_Factory: Array,
 	LChᵤᵥA_Factory: Array,
+	HSLᵤᵥA_Factory: Array,
+	JᶻaᶻbᶻA_Factory: Array,
+	JᶻCᶻhᶻA_Factory: Array,
 /*
- *The 18 factory pointers (above) control the output of the “quick” RGB_Calc–functions and its instances;
+ *The 20 factory pointers (above) control the output of the “quick” RGB_Calc–functions and its instances;
  * these are by default superseded by …A_Array Objects for conversion functions in …A_Array Object instances, &
  * these are by default superseded by …A_Color Objects for Auditing Calculators and conversion functions in …A_Color Object instances.
  *
@@ -1118,7 +1130,7 @@ class ColorWheel_Array extends ColorA_Array {
 		if (outAs==='html')  outAs='css5';
 		const
 			model=this.model,
-			isNewModel=['HWB', 'OKLCh', 'OKHSL', 'OKHSV', 'OKHWB', 'OKHCG', 'LCh', 'LChᵤᵥ'].includes(model),
+			isNewModel=['HWB', 'OKLCh', 'OKHSL', 'OKHSV', 'OKHWB', 'OKHCG', 'LCh', 'LChᵤᵥ', 'JᶻCᶻhᶻ'].includes(model),
 			isNewStndrd=outAs==='css5'  ||  (isNewModel  &&  outAs==='css'),
 			arr=this,
 			hasCom=format.match(/cvs|commas/i),
@@ -1149,6 +1161,7 @@ class ColorWheel_Array extends ColorA_Array {
 		case 'LCh':
 		case 'LChᵤᵥ':
 		case 'OKLCh':
+		case 'JᶻCᶻhᶻ':
 			const
 				hasNum=format.match(/numeric/i),
 				numb= hasNum  &&  (!hasPer  ||  hasNum.index < hasPer.index);
@@ -2000,6 +2013,7 @@ class LChᵤᵥA_Array extends LChA_Array {
 		return Alexei_Boronine.HSLᵤᵥ_from_LChᵤᵥ.call(this, this, factory);  }  }
 Object.defineProperties(LChᵤᵥA_Array.prototype, {
 	model: {value: 'LChᵤᵥ'},
+	CSS_model: {value: 'LChuv'},
 	cPer: {value: 304},  // 304= √(215²+215²)
 	cMax: {value: 304},
 	progenitor_factory: {value:"LuvA_Factory"},
@@ -2030,8 +2044,7 @@ Object.defineProperties(LChᵤᵥA_Color.prototype, {
 	getHue: {value: getHueFactor},
 	getAlpha: {value: getAlphaFactor} });
 
-LChᵤᵥA_Color.ConfigStack=class extends ConfigStack {
-	constructor($owner, $config) {super($owner, $config);}  }
+LChᵤᵥA_Color.ConfigStack=class extends ConfigStack {}
 LChᵤᵥA_Color.ConfigStack.prototype.name='LChᵤᵥA_Color.ConfigStack';
 LChᵤᵥA_Color.ConfigStack.prototype.LuvA_Factory=LuvA_Color;
 
@@ -2048,6 +2061,7 @@ class HSLᵤᵥA_Array extends HSLA_Array  {
 		return Alexei_Boronine.HSLᵤᵥ_to_LChᵤᵥ.call(this, this, LChᵤᵥA_Array).to_Luv(factory);  }  }
 Object.defineProperties(HSLᵤᵥA_Array.prototype, {
 	model: {value: 'HSLᵤᵥ'},
+	CSS_model: {value: 'HSLuv'},
 	config: {writable:true, value: new ConfigStack(HSLᵤᵥA_Array.prototype, {LuvA_Factory: LuvA_Array, LChᵤᵥA_Factory: LChᵤᵥA_Array})} });
 
 class HSLᵤᵥA_Color extends HSLᵤᵥA_Array  {
@@ -2069,6 +2083,168 @@ class HSLᵤᵥA_Color extends HSLᵤᵥA_Array  {
 
 SoftMoon.WebWare.HSLᵤᵥA_Array=HSLᵤᵥA_Array;
 SoftMoon.WebWare.HSLᵤᵥA_Color=HSLᵤᵥA_Color;
+
+
+	//  https://github.com/color-js/color.js/blob/main/src/spaces/jzazbz.js
+const _Jᶻaᶻbᶻ_={  //ᶻɀẕ
+	b : 1.15,
+	g : 0.66,
+	n : 2610 / (2 ** 14),
+	ninv : (2 ** 14) / 2610,
+	c1 : 3424 / (2 ** 12),
+	c2 : 2413 / (2 ** 7),
+	c3 : 2392 / (2 ** 7),
+	p : 1.7 * 2523 / (2 ** 5),
+	pinv : (2 ** 5) / (1.7 * 2523),
+	d : -0.56,
+	d0 : 1.6295499532821566E-11,
+	XYZtoCone_M : [
+		[  0.41478972, 0.579999,  0.0146480 ],
+		[ -0.2015100,  1.120649,  0.0531008 ],
+		[ -0.0166008,  0.264800,  0.6684799 ] ],
+// XYZtoCone_M inverted
+	ConetoXYZ_M : [
+		[  1.9242264357876067,  -1.0047923125953657,  0.037651404030618   ],
+		[  0.35031676209499907,  0.7264811939316552, -0.06538442294808501 ],
+		[ -0.09098281098284752, -0.3127282905230739,  1.5227665613052603  ] ],
+	ConetoIab_M : [
+		[  0.5,       0.5,       0        ],
+		[  3.524000, -4.066708,  0.542708 ],
+		[  0.199076,  1.096799, -1.295875 ] ],
+// ConetoIab_M inverted
+	IabtoCone_M : [
+		[ 1,                   0.1386050432715393,   0.05804731615611886 ],
+		[ 0.9999999999999999, -0.1386050432715393,  -0.05804731615611886 ],
+		[ 0.9999999999999998, -0.09601924202631895, -0.8118918960560388  ] ] };
+Object.freeze(_Jᶻaᶻbᶻ_);
+
+class JᶻaᶻbᶻA_Array extends ColorA_Array  {
+	constructor(Jz,az,bz,α)  { // Jz is “normalized” to 0–1
+		if (arguments.length===0)  super(4);
+		else if (α===undefined)  super(Jz,az,bz);
+		else  super(Jz,az,bz,α);  }
+	get Jz() {return this[0]}  set Jz($) {this[0]=$}
+	get az() {return this[1]}  set az($) {this[1]=$}
+	get bz() {return this[2]}  set bz($) {this[2]=$}
+	get α() {return this[3]}  set α($) {this[3]=$}
+	get lightness() {return this[0]}  set lightness($) {this[0]=$}
+	get a_axis()    {return this[1]}  set a_axis($)    {this[1]=$}
+	get b_axis()    {return this[2]}  set b_axis($)    {this[2]=$}
+	get alpha()     {return this[3]}  set alpha($)     {this[3]=$}
+	get opacity()   {return this[3]}  set opacity($)   {this[3]=$}
+	get jzazbza() {return this.slice(0,4);}
+
+	//  https://github.com/color-js/color.js/blob/main/src/spaces/jzazbz.js
+	to_XYZ(factory)  {
+		factory??=this.config.XYZA_Factory;
+		const
+			_=_Jᶻaᶻbᶻ_,  //←properties are constants
+			[Jz, az, bz] = this,
+//			Jz=_Jz_*0.221866,  // added by SoftMoon-WebWare − not sure why I had to; I thought 0 <= Jz <=1
+			Iz = (Jz + _.d0) / (1 + _.d - _.d * (Jz + _.d0)),
+		// bring into LMS cone domain
+			PQLMS = Math.mul_3_3_matrix(_.IabtoCone_M, [ Iz, az, bz ]),
+		// convert from PQ-coded to linear-light
+			LMS = PQLMS.map(val=>{
+				const
+					num = (_.c1 - (val ** _.pinv)),
+					denom = (_.c3 * (val ** _.pinv)) - _.c2;
+				// luminance relative to diffuse white, [0, 70 or so].
+				return 10000 * ((num / denom) ** _.ninv);  }),
+		// modified abs XYZ
+			[ Xm, Ym, Za ] = Math.mul_3_3_matrix(_.ConetoXYZ_M, LMS),
+		// restore standard D50 relative XYZ, relative to media white
+			Xa = (Xm + ((_.b - 1) * Za)) / _.b,
+			Ya = (Ym + ((_.g - 1) * Xa)) / _.g,
+		// convert XYZ_abs_D65 to XYZ_D65
+			X=Math.max(Xa,0)/203,  //203=absolute luminance of media white
+			Y=Math.max(Ya,0)/203,
+			Z=Math.max(Za,0)/203,
+			α= (this[3]===undefined) ? this.config?.defaultAlpha : this[3];
+		// color.js says this is "based" on XYZ_abs_D65, but comments above suggest D50?
+		return new factory(X,Y,Z,α, "D65", "2°");  }  }
+
+Object.defineProperties(JᶻaᶻbᶻA_Array.prototype, {
+	to_JᶻCᶻhᶻ: {value: LabA_Array.prototype.to_LCh},
+	LCh_factory: {value: "JᶻaᶻbᶻA_Factory"},
+	model: {value: 'Jᶻaᶻbᶻ'},
+	CSS_model: {value: 'Jzazbz'},
+	toString: {value: OKLabA_Array.prototype.toString},
+	axisPer: {value: 0.5},
+	axisMax: {value: 0.5} });  // no data found on max limits
+// ↑ we add config to the prototype below…
+
+
+class JᶻaᶻbᶻA_Color extends JᶻaᶻbᶻA_Array  {
+	constructor($Jz,$az,$bz,$α, $config)  {
+		super();
+		this.config= new JᶻaᶻbᶻA_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
+		const
+			thisClr=this;
+		function readArr($arr)  { $Jz=thisClr.getFactor($arr[0]);  $az=thisClr.getAxis($arr[1], 0.5, 0.5);  $bz=thisClr.getAxis($arr[2], 0.5, 0.5);
+			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
+			else  $α=thisClr.config.defaultAlpha;  }
+		Object.defineProperties(this, {
+			0: {get: ()=>$Jz,  set: ($)=>$Jz=thisClr.getFactor($),  enumerable: true},
+			1: {get: ()=>$az,  set: ($)=>$az=thisClr.getAxis($, 0.5, 0.5),  enumerable: true},
+			2: {get: ()=>$bz,  set: ($)=>$bz=thisClr.getAxis($, 0.5, 0.5),  enumerable: true},
+			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
+			jzazbza: {get: ()=>[$Jz,$az,$bz,$α],  set: readArr} });  }  }
+
+Object.defineProperties(JᶻaᶻbᶻA_Color.prototype, {
+	getFactor: {value: getFactorValue},
+	getAxis: {value: getAxisValue},
+	getAlpha: {value: getAlphaFactor} });
+
+SoftMoon.WebWare.JᶻaᶻbᶻA_Array=JᶻaᶻbᶻA_Array;
+SoftMoon.WebWare.JᶻaᶻbᶻA_Color=JᶻaᶻbᶻA_Color;
+
+JᶻaᶻbᶻA_Color.ConfigStack=class extends ConfigStack {}
+JᶻaᶻbᶻA_Color.ConfigStack.prototype.name='JᶻaᶻbᶻA_Color.ConfigStack';
+// ↑ we add factories to the prototype below…
+
+
+class JᶻCᶻhᶻA_Array extends LChA_Array {}
+Object.defineProperties(JᶻCᶻhᶻA_Array.prototype, {
+	model: {value: 'JᶻCᶻhᶻ'},
+	cPer: {value: 1},
+	cMax: {value: 1},
+	progenitor_factory: {value:"JᶻaᶻbᶻA_Factory"},
+	to_Lab: {value: undefined},
+	to_Jᶻaᶻbᶻ: {value: LChA_Array.prototype.to_Lab},
+	config: {writable:true, value: new ConfigStack(JᶻCᶻhᶻA_Array.prototype, {JᶻaᶻbᶻA_Factory: JᶻaᶻbᶻA_Array})} });
+
+class JᶻCᶻhᶻA_Color extends JᶻCᶻhᶻA_Array  {
+	constructor($J,$C,$h,$α, $config)  {  // 0 ≤ [$J,$H] ≤ 1     0 ≤ $C ≤ 1  ←(100%===1)
+		super();
+		this.config= new ColorWheel_Color.ConfigStack(this, $config);
+		if ($α===undefined)  $α=this.config.defaultAlpha;
+		const
+			thisClr=this;
+		function readArr($arr)  { $J=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis($arr[1], 1, 1);  $h=thisClr.getHue($arr[2]);
+			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
+			else  $α=thisClr.config.defaultAlpha;  }
+		Object.defineProperties(this, {
+			0: {get: ()=>$J,  set: ($)=>$J=thisClr.getFactor($),  enumerable: true},
+			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 1, 1),  enumerable: true},
+			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
+			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
+			lchᵤᵥa: {get: ()=>[$J,$C,$h,$α],  set: readArr}  });  }  }
+
+Object.defineProperties(JᶻCᶻhᶻA_Color.prototype, {
+	getFactor: {value: getFactorValue},
+	getAxis: {value: getAxisValue},
+	getHue: {value: getHueFactor},
+	getAlpha: {value: getAlphaFactor} });
+
+JᶻCᶻhᶻA_Color.ConfigStack=class extends ConfigStack {}
+JᶻCᶻhᶻA_Color.ConfigStack.prototype.name='JᶻCᶻhᶻA_Color.ConfigStack';
+JᶻCᶻhᶻA_Color.ConfigStack.prototype.JᶻaᶻbᶻA_Factory=JᶻaᶻbᶻA_Color;
+
+SoftMoon.WebWare.JᶻCᶻhᶻA_Array=JᶻCᶻhᶻA_Array;
+SoftMoon.WebWare.JᶻCᶻhᶻA_Color=JᶻCᶻhᶻA_Color;
+
 
 
 
@@ -2151,11 +2327,12 @@ class XYZA_Array extends ColorA_Array  {
 			illuminant: {value: illuminant, writable: true},
 			observer: {value: observer, writable: true} });  }
 
-	adapt_illuminant($I, $O)  {  // ← illuminant, observer
+	// note that for performance, conversion functions herein DO NOT automatically adapt.  YOUR code must accomodate that.
+	adapt_illuminant($I, $O='2°')  {  // ← illuminant, observer
 		if ($O!=='2°'  ||  this.observer!=='2°')
 			//return this.config.onError(this, undefined, "Can not adapt XYZ values to other illuminants using observers other than 2°.");
 			throw new TypeError("Can not adapt XYZ values to other illuminants using observers other than 2°.\n  XYZ:",this,"\n  requested observer:",$O);
-		illum=this.illuminant.match(/^([A-F]\d{1,2})_/)?.[1];
+		const illum=this.illuminant.match(/^([A-F]\d{1,2})_/)?.[1];
 		if (illum===$I)  return this;
 		const M=XYZ_adaptors[illum][$I][adapt_illuminant.adaptor];
 		return new XYZA_Array(
@@ -2187,7 +2364,7 @@ class XYZA_Array extends ColorA_Array  {
 	// https://github.com/color-js/color.js/blob/main/src/spaces/lab-d65.js
 	// https://github.com/color-js/color.js/blob/main/src/spaces/lab.js
 	// https://www.easyrgb.com/en/math.php  // ← ¿incorrect formula?
-	to_Lab(factory)  {
+	to_Lab(factory)  {  //D65
 		factory??=this.config.LabA_Factory;
 		// κ * ε  = 2^3 = 8
 		const
@@ -2208,11 +2385,12 @@ class XYZA_Array extends ColorA_Array  {
 			α= (this[3]===undefined) ? this.config?.defaultAlpha : this[3];
 		return (α===undefined) ? new factory(L,a,b) : new factory(L,a,b,α);  }
 
-	to_OKLab(factory) {return Björn_Ottosson.xyz_to_oklab.call(this, this, factory);}
+	to_OKLab(factory) {return Björn_Ottosson.xyz_to_oklab.call(this, this, factory);}  //D65
 
 	//  https://github.com/color-js/color.js/blob/main/src/spaces/luv.js
 	//  https://en.wikipedia.org/wiki/CIELUV#The_forward_transformation
 	to_Luv(factory)  {  //D65
+		factory??=this.config.LuvA_Factory;
 		const
 			[X,Y,Z] = (this.illuminant.startsWith("D65")  &&  this.observer==="2°") ? this : this.adapt_illuminant("D65", "2°"),
 			denom = X + 15 * Y + 3 * Z,
@@ -2229,6 +2407,34 @@ class XYZA_Array extends ColorA_Array  {
 			u = 13 * L * (up - LuvA_Array.U_PRIME_WHITE),
 			v = 13 * L * (vp - LuvA_Array.V_PRIME_WHITE);
 		return (α===undefined) ? new factory(L/100,u,v) : new factory(L/100,u,v,α);  }
+
+	//  https://github.com/color-js/color.js/blob/main/src/spaces/jzazbz.js
+	to_Jᶻaᶻbᶻ(factory)  {  //D65
+		factory??=this.config.JᶻaᶻbᶻA_Factory;
+		const
+			_=_Jᶻaᶻbᶻ_,  //←properties are constants
+		// First make XYZ absolute, not relative to media white
+		// Maximum luminance in PQ is 10,000 cd/m²
+		// Relative XYZ has Y=1 for media white
+		// BT.2048 says media white Y=203 at PQ 58
+			[ Xa, Ya, Za ] = this.map (v => Math.max(v * 203, 0)),  //203=absolute luminance of media white
+		// modify X and Y
+			Xm = (_.b * Xa) - ((_.b - 1) * Za),
+			Ym = (_.g * Ya) - ((_.g - 1) * Xa),
+		// move to LMS cone domain
+			LMS = Math.mul_3_3_matrix(_.XYZtoCone_M, [ Xm, Ym, Za ]),
+		// PQ-encode LMS
+			PQLMS = LMS.map(val=>{
+				const
+					num = _.c1 + (_.c2 * ((val / 10000) ** _.n)),
+					denom = 1 + (_.c3 * ((val / 10000) ** _.n));
+				return (num / denom)  ** _.p;  }),
+		// almost there, calculate Iz az bz
+			[ Iz, az, bz] = Math.mul_3_3_matrix(_.ConetoIab_M, PQLMS),
+			Jz = ((1 + _.d) * Iz) / (1 + (_.d * Iz)) - _.d0,
+//			Jz=_Jz_/0.221866,  // added by SoftMoon-WebWare − not sure why I had to; I thought 0 <= Jz <=1
+			α= (this[3]===undefined) ? this.config?.defaultAlpha : this[3];
+		return (α===undefined) ? new factory(Jz,az,bz) : new factory(Jz,az,bz,α);  }
 
 
 	get x() {return this[0]}  set x($) {this[0]=$}
@@ -2286,7 +2492,9 @@ Object.defineProperties(XYZA_Array.prototype, {
 	γCorrect_linear_RGB: {value: γCorrect_linear_RGB},
 	output_clampedRGB: {value: output_clampedRGB},
 	config: {writable:true, value: new ConfigStack(XYZA_Array.prototype,
-		{roundRGB:false, defaultAlpha:undefined, colorProfile:'sRGB', RGB_bitDepth:255, RGBA_Factory: RGBA_Array, LabA_Factory: LabA_Array, LuvA_Factory: LuvA_Array, OKLabA_Factory: OKLabA_Array})} });
+		{roundRGB:false, defaultAlpha:undefined, colorProfile:'sRGB', RGB_bitDepth:255,
+			RGBA_Factory: RGBA_Array, LabA_Factory: LabA_Array, LuvA_Factory: LuvA_Array,
+			OKLabA_Factory: OKLabA_Array, JᶻaᶻbᶻA_Factory: JᶻaᶻbᶻA_Array})} });
 
 XYZA_Array.prototype.adapt_illuminant.adaptor="CSS";  // ← CSS ‖ Lindbloom
 
@@ -2305,11 +2513,17 @@ XYZA_Color.ConfigStack.prototype.RGBA_Factory=RGBA_Color;
 XYZA_Color.ConfigStack.prototype.LabA_Factory=LabA_Color;
 XYZA_Color.ConfigStack.prototype.LuvA_Factory=LuvA_Color;
 XYZA_Color.ConfigStack.prototype.OKLabA_Factory=OKLabA_Color;
+XYZA_Color.ConfigStack.prototype.JᶻaᶻbᶻA_Factory=JᶻaᶻbᶻA_Color;
 
 
 
 // Now we take-up the slack since classes are not hoisted…
 // ↓ ¡Yet another example of “classes” making the codebase harder to follow and read and maintain!
+
+Object.defineProperties(JᶻaᶻbᶻA_Array.prototype, {
+	config: {writable:true, value: new ConfigStack(JᶻaᶻbᶻA_Array.prototype, {XYZA_Factory:XYZA_Array, JᶻCᶻhᶻA_Factory: JᶻCᶻhᶻA_Array})} });
+JᶻaᶻbᶻA_Color.ConfigStack.prototype.XYZA_Factory=XYZA_Color;
+JᶻaᶻbᶻA_Color.ConfigStack.prototype.JᶻCᶻhᶻA_Factory=JᶻCᶻhᶻA_Color;
 
 
 const __denom__=XYZ_references.D65['2°'][0] + 15 * XYZ_references.D65['2°'][1] + 3 * XYZ_references.D65['2°'][2];
@@ -2320,6 +2534,7 @@ Object.defineProperties(LuvA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(LuvA_Array.prototype, {XYZA_Factory:XYZA_Array, LChᵤᵥA_Factory: LChᵤᵥA_Array})} });
 LuvA_Color.ConfigStack.prototype.XYZA_Factory=XYZA_Color;
 LuvA_Color.ConfigStack.prototype.LChᵤᵥA_Factory=LChᵤᵥA_Color;
+
 
 
 Object.defineProperties(LabA_Array.prototype, {
@@ -2375,7 +2590,8 @@ RGBA_Color.ConfigStack.prototype.LabA_Factory=   LabA_Color;
 RGBA_Color.ConfigStack.prototype.LChA_Factory=   LChA_Color;
 RGBA_Color.ConfigStack.prototype.LuvA_Factory=   LuvA_Color;
 RGBA_Color.ConfigStack.prototype.LChᵤᵥA_Factory= LChᵤᵥA_Color;
-RGBA_Color.ConfigStack.prototype.HSLᵤᵥA_Factory= HSLᵤᵥA_Color;
+RGBA_Color.ConfigStack.prototype.JᶻaᶻbᶻA_Factory= JᶻaᶻbᶻA_Color;
+RGBA_Color.ConfigStack.prototype.JᶻCᶻhᶻA_Factory= JᶻCᶻhᶻA_Color;
 RGBA_Color.ConfigStack.prototype.OKLabA_Factory= OKLabA_Color;
 RGBA_Color.ConfigStack.prototype.OKLChA_Factory= OKLChA_Color;
 RGBA_Color.ConfigStack.prototype.OKHSLA_Factory= OKHSLA_Color;
@@ -2384,7 +2600,7 @@ RGBA_Color.ConfigStack.prototype.OKHWBA_Factory= OKHWBA_Color;
 RGBA_Color.ConfigStack.prototype.OKHCGA_Factory= OKHCGA_Color;
 RGBA_Color.ConfigStack.prototype.XYZA_Factory=   XYZA_Color;
 /*
- *The 18 factory pointers (above) control the output of the RGBA_Color instance conversion functions.
+ *The 20 factory pointers (above) control the output of the RGBA_Color instance conversion functions.
  */
 
 
@@ -2407,6 +2623,8 @@ Object.defineProperty(ColorWheel_Array, 'create', {enumerable: true,
 		case 'LCHUV':
 		case 'LCHᵤᵥ': return new LChᵤᵥA_Array($_2, $_1, $θ, $α);
 		case 'LCH':   return new LChA_Array($_2, $_1, $θ, $α);
+		case 'JZCZHZ':
+		case 'JᶻCᶻHᶻ':return new JᶻCᶻhᶻA_Array($_2, $_1, $θ, $α);
 		case 'OKLCH': return new OKLChA_Array($_2, $_1, $θ, $α);
 		case 'OKHSV': return new OKHSVA_Array($θ, $_1, $_2, $α);
 		case 'OKHSL': return new OKHSLA_Array($θ, $_1, $_2, $α);
@@ -2428,6 +2646,8 @@ Object.defineProperty(ColorWheel_Color, 'create', {enumerable: true,
 		case 'LCHUV':
 		case 'LCHᵤᵥ': return new LChᵤᵥA_Color($_2, $_1, $θ, $α, $config);
 		case 'LCH':   return new LChA_Color($_2, $_1, $θ, $α, $config);
+		case 'JZCZHZ':
+		case 'JᶻCᶻHᶻ':return new JᶻCᶻhᶻA_Color($_2, $_1, $θ, $α, $config);
 		case 'OKLCH': return new OKLChA_Color($_2, $_1, $θ, $α, $config);
 		case 'OKHSV': return new OKHSVA_Color(...arguments);
 		case 'OKHSL': return new OKHSLA_Color(...arguments);
@@ -2705,8 +2925,10 @@ const ACS_props={
 	LuvA_Factory: LuvA_Color,
 	LChᵤᵥA_Factory: LChᵤᵥA_Color,
 	HSLᵤᵥA_Factory: HSLᵤᵥA_Color,
+	JᶻaᶻbᶻA_Factory: JᶻaᶻbᶻA_Color,
+	JᶻCᶻhᶻA_Factory: JᶻCᶻhᶻA_Color,
 /*
- *The 19 factory pointers (above) control the output of the “auditing” RGB_Calc–functions and its instances.
+ *The 21 factory pointers (above) control the output of the “auditing” RGB_Calc–functions and its instances.
  *
  * //this example provides an auditing calculator that returns RGB output as a simple array of values, instead of the default RGBA_Color object instance:
  * myCalc=new SoftMoon.WebWare.RGB_Calc({RGBA_Factory:Array});
@@ -3179,6 +3401,21 @@ RGB_Calc.definer.audit.to.hslᵤᵥ =
 RGB_Calc.definer.audit.to.hsluv = {value: function(color) {return this.convertColor(color, toHSLᵤᵥ, 'hslᵤᵥ');}};
 function toHSLᵤᵥ(rgb, factory)  {
 	return toXYZ.call(this, rgb, XYZA_Array).to_Luv(LuvA_Array).to_LChᵤᵥ(LChᵤᵥA_Array).to_HSLᵤᵥ(factory||this.config.HSLᵤᵥA_Factory);  }
+
+RGB_Calc.to.jzazbz =
+RGB_Calc.to.jᶻaᶻbᶻ = toJᶻaᶻbᶻ;
+RGB_Calc.definer.quick.to.jzazbz = {value: toJᶻaᶻbᶻ};
+RGB_Calc.definer.audit.to.jzazbz = {value: function(color) {return this.convertColor(color, toJᶻaᶻbᶻ, 'jzazbz');}};
+function toJᶻaᶻbᶻ(rgb, factory)  {
+	return toXYZ.call(this, rgb, XYZA_Array).to_Jᶻaᶻbᶻ(factory||this.config.JᶻaᶻbᶻA_Factory);  }
+
+RGB_Calc.to.jzczhz =
+RGB_Calc.to.jᶻcᶻhᶻ = toJᶻCᶻhᶻ;
+RGB_Calc.definer.quick.to.jzczhz = {value: toJᶻCᶻhᶻ};
+RGB_Calc.definer.audit.to.jzczhz = {value: function(color) {return this.convertColor(color, toJᶻCᶻhᶻ, 'jzczhz');}};
+function toJᶻCᶻhᶻ(rgb, factory)  {
+	return toXYZ.call(this, rgb, XYZA_Array).to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array).to_JᶻCᶻhᶻ(factory||this.config.JᶻCᶻhᶻA_Factory);  }
+
 
 
 /* This object’s properties are conversion functions.
@@ -3712,6 +3949,43 @@ function fromHSLᵤᵥ(hsl)  {  // 0.0 ≤ [h,s,l] ≤ 1.0
 
 
 
+RGB_Calc.from.jᶻaᶻbᶻ=
+RGB_Calc.from.jᶻaᶻbᶻa=
+RGB_Calc.from.jzazbz=
+RGB_Calc.from.jzazbza=fromJᶻaᶻbᶻ;
+RGB_Calc.definer.quick.from.jᶻaᶻbᶻ=
+RGB_Calc.definer.quick.from.jᶻaᶻbᶻa=
+RGB_Calc.definer.quick.from.jzazbz=
+RGB_Calc.definer.quick.from.jzazbza={enumerable:true, value:fromJᶻaᶻbᶻ};
+RGB_Calc.definer.audit.from.jᶻaᶻbᶻ=
+RGB_Calc.definer.audit.from.jᶻaᶻbᶻa=
+RGB_Calc.definer.audit.from.jzazbz=
+RGB_Calc.definer.audit.from.jzazbza={enumerable:true, value:function($jzazbz) {return auditLab.call(this, {factors:RegExp.jzazbz_factors_a, vals:RegExp.jzazbz_a}, 'Jᶻaᶻbᶻ', 0.5, 0.5, fromJᶻaᶻbᶻ, $jzazbz);}};
+
+function fromJᶻaᶻbᶻ(jzazbz)  {  // 0.0 ≤ Jz ≤ 1.0   -0.5 ≤ (az,bz) ≤ 0.5  (100%=0.5)
+	if (jzazbz instanceof JᶻaᶻbᶻA_Array)  return jzazbz.to_XYZ(XYZA_Array).to_RGB(this.config.RGBA_Factory);
+	return         JᶻaᶻbᶻA_Array.prototype.to_XYZ.call(jzazbz, XYZA_Array).to_RGB(this.config.RGBA_Factory);  }
+
+RGB_Calc.from.jᶻcᶻhᶻ=
+RGB_Calc.from.jᶻcᶻhᶻa=
+RGB_Calc.from.jzczhz=
+RGB_Calc.from.jzczhza=fromJᶻCᶻhᶻ;
+RGB_Calc.definer.quick.from.jᶻcᶻhᶻ=
+RGB_Calc.definer.quick.from.jᶻcᶻhᶻa=
+RGB_Calc.definer.quick.from.jzczhz=
+RGB_Calc.definer.quick.from.jzczhza={enumerable:true, value:fromJᶻCᶻhᶻ};
+RGB_Calc.definer.audit.from.jᶻcᶻhᶻ=
+RGB_Calc.definer.audit.from.jᶻcᶻhᶻa=
+RGB_Calc.definer.audit.from.jzczhz=
+RGB_Calc.definer.audit.from.jzczhza={enumerable:true, value:function($jzczhz) {return auditLCh.call(this, {factors:RegExp.jzczhz_factors_a, vals:RegExp.jzczhz_a}, 'JᶻCᶻhᶻ', 1, 1, fromJᶻCᶻhᶻ, $jzczhz);}};
+
+function fromJᶻCᶻhᶻ(jzczhz)  {  // 0.0 ≤ Jz ≤ 1.0     0 ≤ h ≤ 1    0 ≤ Cz ≤ 1  (100%=1)
+	if (jzczhz instanceof JᶻCᶻhᶻA_Array)  return jzczhz.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array).to_XYZ(XYZA_Array).to_RGB(this.config.RGBA_Factory);
+	return      JᶻCᶻhᶻA_Array.prototype.to_Jᶻaᶻbᶻ.call(jzczhz, JᶻaᶻbᶻA_Array).to_XYZ(XYZA_Array).to_RGB(this.config.RGBA_Factory);  }
+
+
+
+
 /*********************************************************************************/
 /*********************************************************************************/
 /*********************************************************************************/
@@ -3738,7 +4012,9 @@ class ColorFactory  {
 		this.ConfigStack.prototype.LChA_Factory= LChA_Array;
 		this.ConfigStack.prototype.LuvA_Factory= LuvA_Array;
 		this.ConfigStack.prototype.LChᵤᵥA_Factory= LChᵤᵥA_Array;
-		this.ConfigStack.prototype.HSLᵤᵥA_Factory= HSLᵤᵥA_Array;  }
+		this.ConfigStack.prototype.HSLᵤᵥA_Factory= HSLᵤᵥA_Array;
+		this.ConfigStack.prototype.JᶻaᶻbᶻA_Factory= JᶻaᶻbᶻA_Array;
+		this.ConfigStack.prototype.JᶻCᶻhᶻA_Factory= JᶻCᶻhᶻA_Array; }
 
 	constructor($config)  {  // ← this $config is for the class and determines how a $color input is evaluated, and the factory to return color values in.
 		this.config=new ColorFactory.ConfigStack(this, $config);
@@ -3829,6 +4105,20 @@ class ColorFactory  {
 					vals.length=4;
 					return applyConversion($config ? new this.config.LChᵤᵥA_Factory(...vals, $config) : new this.config.LChᵤᵥA_Factory(...vals));  }
 				return null;  }
+			case 'JᶻAᶻBᶻ':
+			case 'JZAZBZ':  {
+				const vals=auditLab.call(this, {factors:RegExp.jzazbz_factors_a, vals:RegExp.jzazbz_a}, 'Jᶻaᶻbᶻ', 0.5, 0.5, returnVs, matches[2]);
+				if (vals)  {
+					vals.length=4;
+					return applyConversion($config ? new this.config.JᶻaᶻbᶻA_Factory(...vals, $config) : new this.config.JᶻaᶻbᶻA_Factory(...vals));  }
+				return null;  }
+			case 'JᶻCᶻHᶻ':
+			case 'JZCZHZ':  {
+				const vals=auditLCh.call(this, {factors:RegExp.jzczhz_factors_a, vals:RegExp.jzczhz_a}, 'JᶻCᶻhᶻ', 1, 1, returnVs, matches[2]);
+				if (vals)  {
+					vals.length=4;
+					return applyConversion($config ? new this.config.JᶻCᶻhᶻA_Factory(...vals, $config) : new this.config.JᶻCᶻhᶻA_Factory(...vals));  }
+				return null;  }
 			case 'OKLAB':  {
 				const vals=auditLab.call(this, {factors:RegExp.oklab_factors_a, vals:RegExp.oklab_a}, 'OKLab', 0.4, 0.4, returnVs, matches[2]);
 				if (vals)  {
@@ -3891,6 +4181,10 @@ function copy_color($color, $model, $factory, $config)  { // ← this optional $
 			case 'LCH':   $factory ??= this.config.LChA_Factory;    break;
 			case 'LCHᵤᵥ':
 			case 'LCHUV': $factory ??= this.config.LChᵤᵥA_Factory;  break;
+			case 'JᶻAᶻBᶻ':
+			case 'JZAZBZ':$factory ??= this.config.JᶻaᶻbᶻA_Factory; break;
+			case 'JᶻCᶻHᶻ':
+			case 'JZCZHZ':$factory ??= this.config.JᶻCᶻhᶻA_Factory; break;
 			case 'CMYK':  $factory ??= this.config.CMYKA_Factory;   break;
 			case 'LAB':   $factory ??= this.config.LabA_Factory;    break;
 			case 'LUV':   $factory ??= this.config.LuvA_Factory;    break;
@@ -3920,8 +4214,10 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 			case 'OKLCh': convert??='to_OKLCh';
 			case 'OKHSL': convert??='to_OKHSL';
 				switch ($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'LChᵤᵥ':
-				case 'HSLᵤᵥ': $c=$c.to_Luv(LuvA_Array);
+				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
 				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
 				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
@@ -3935,8 +4231,10 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				break;
 			case 'OKHCG':
 				switch($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'LChᵤᵥ':
-				case 'HSLᵤᵥ': $c=$c.to_Luv(LuvA_Array);
+				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
 				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
 				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
@@ -3948,11 +4246,13 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				break;
 			case 'OKHWB':
 				switch($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'LChᵤᵥ':
-				case 'HSLᵤᵥ':  $c=$c.to_Luv(LuvA_Array);
-				case 'LCh': if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
+				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
-				case 'Luv': $c=$c.to_XYZ(XYZA_Array);
+				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
 				case 'OKHSL':
 				case 'OKHCG': $c=$c.to_OKLab(OKLabA_Array);
@@ -3961,11 +4261,13 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				break;
 			case 'OKLab':
 				switch ($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'LChᵤᵥ':
-				case 'HSLᵤᵥ':  $c=$c.to_Luv(LuvA_Array);
-				case 'LCh':    if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
+				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':
-				case 'Luv':    $c=$c.to_XYZ(XYZA_Array);
+				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':
 				case 'OKLCh':
 				case 'OKHWB':
@@ -3975,11 +4277,13 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				break;
 			case 'LCh':
 				switch($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
-				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKHSL': if (flag)  $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': flag=false;
 				case 'LChᵤᵥ':
 				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
@@ -3989,11 +4293,13 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				break;
 			case 'Lab':
 				switch ($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
-				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKHSL': if (flag)  $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': flag=false;
 				case 'LChᵤᵥ':
 				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
@@ -4001,15 +4307,18 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				case 'LCh':
 				case 'XYZ': return applyConfig($c.to_Lab($factory||this.config.LabA_Factory));  }
 				break;
+			case 'LChuv':
 			case 'LChᵤᵥ':
 				switch($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
-				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
-				case 'OKLab':
-				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'OKHSL': if (flag)  $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKLab': flag=false;
+				case 'LCh':   if (flag)  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':   $c=$c.to_Luv(LuvA_Array);
 				case 'HSLᵤᵥ':
@@ -4017,11 +4326,13 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				break;
 			case 'Luv':
 				switch ($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
-				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKHSL': if (flag)  $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab': flag=false;
 				case 'LCh':   if (flag)  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':   $c=$c.to_XYZ(XYZA_Array);
@@ -4029,22 +4340,59 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				case 'HSLᵤᵥ':
 				case 'XYZ': return applyConfig($c.to_Luv($factory||this.config.LuvA_Factory));  }
 				break;
+			case 'HSLuv':
 			case 'HSLᵤᵥ':
 				switch ($c.model)  {
+				case 'JᶻCᶻhᶻ':$c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ':flag=false;
 				case 'OKLCh':
 				case 'OKHWB':
 				case 'OKHCG':
 				case 'OKHSV':
-				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
-				case 'OKLab':
-				case 'LCh':   if ($c.model==='LCh')  $c=$c.to_Lab(LabA_Array);
+				case 'OKHSL': if (flag)  $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKLab': flag=false;
+				case 'LCh':   if (flag)  $c=$c.to_Lab(LabA_Array);
 				case 'Lab':   $c=$c.to_XYZ(XYZA_Array);
 				case 'XYZ':   $c=$c.to_Luv(LuvA_Array);
 				case 'Luv':   return applyConfig($c.to_LChᵤᵥ(LChᵤᵥA_Array).to_HSLᵤᵥ($factory||this.config.HSLᵤᵥA_Factory));  }
 				break;
+			case 'JzCzhz':
+			case 'JᶻCᶻhᶻ':
+				switch($c.model)  {
+				case 'LCh':		$c=$c.to_Lab(LabA_Array);
+				case 'Lab':   flag=false
+				case 'OKHWB':
+				case 'OKHCG':
+				case 'OKHSV':
+				case 'OKHSL': if (flag)  $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKLab': flag=false;
+				case 'LChᵤᵥ':
+				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
+				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
+				case 'XYZ':   $c=$c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array);
+				case 'Jᶻaᶻbᶻ': return applyConfig($c.to_JᶻCᶻhᶻ($factory||this.config.JᶻCᶻhᶻA_Factory));  }
+				break;
+			case 'Jzazbz':
+			case 'Jᶻaᶻbᶻ':
+				switch ($c.model)  {
+				case 'LCh':		$c=$c.to_Lab(LabA_Array);
+				case 'Lab':   flag=false
+				case 'OKLCh':
+				case 'OKHWB':
+				case 'OKHCG':
+				case 'OKHSV':
+				case 'OKHSL': if (flag)  $c=$c.to_OKLab(OKLabA_Array);
+				case 'OKLab': flag=false;
+				case 'LChᵤᵥ':
+				case 'HSLᵤᵥ': if (flag)  $c=$c.to_Luv(LuvA_Array);
+				case 'Luv':   $c=$c.to_XYZ(XYZA_Array);
+				case 'XYZ':
+				case 'JᶻCᶻhᶻ': return applyConfig($c.to_Jᶻaᶻbᶻ($factory||this.config.JᶻaᶻbᶻA_Factory));  }
+				break;
 			case 'XYZ':
 				switch ($c.model)  {
 				case 'LCh':   return applyConfig($c.to_Lab(LabA_Array).to_XYZ($factory||this.config.XYZA_Factory));
+				case 'JᶻCᶻhᶻ':return applyConfig($c.to_Jᶻaᶻbᶻ(JᶻaᶻbᶻA_Array).to_XYZ($factory||this.config.XYZA_Factory));
 				case 'HSLᵤᵥ':
 				case 'LChᵤᵥ': return applyConfig($c.to_Luv(LuvA_Array).to_XYZ($factory||this.config.XYZA_Factory));
 				case 'OKLCh':
@@ -4053,6 +4401,7 @@ function convert_color($c, $dSpace, $factory, $config)  {  // ← $dSpace is ¡c
 				case 'OKHSV':
 				case 'OKHSL': $c=$c.to_OKLab(OKLabA_Array);
 				case 'OKLab':
+				case 'Jᶻaᶻbᶻ':
 				case 'Lab':
 				case 'Luv': return applyConfig($c.to_XYZ($factory||this.config.XYZA_Factory));  }
 			case 'HSL':
@@ -4084,6 +4433,7 @@ SoftMoon.WebWare.ColorFactory=ColorFactory;
 }  //close the private namespace
 
 
-//  most (except hcg) thanks to, and see for more formulas:  http://www.easyrgb.com/index.php?X=MATH
-//  and except hwb: https://drafts.csswg.org/css-color/#the-hwb-notation
-//  and except oklab & oklch & lab & lch (see coded algorithms within for reference)
+//  thanks to, and see for more formulas:  http://www.easyrgb.com/index.php?X=MATH
+//  hwb: https://drafts.csswg.org/css-color/#the-hwb-notation
+//  thanks to, and see for more formulas:  https://github.com/color-js/color.js/
+//  and thanks to others: see coded algorithms within for reference
