@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.10  July 19, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.10  July 27, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -105,59 +105,59 @@ span.MCP_fix_Safari {
 	border-radius: 1em / .618em; }
 /*------*/
 #MasterColorPicker input[type="range"] {
-    /*removes default webkit styles*/
-    -webkit-appearance: none;
+		/*removes default webkit styles*/
+		-webkit-appearance: none;
 		background-color: transparent; }
 #MasterColorPicker input[type="range"]::-webkit-slider-runnable-track {
 /*    width: 12em; */
-    height: 5px;
-    background: #808080;
-    border: none;
-    border-radius: 3px; }
+		height: 5px;
+		background: #808080;
+		border: none;
+		border-radius: 3px; }
 #MasterColorPicker input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    margin-top: -4px;
+		-webkit-appearance: none;
+		margin-top: -4px;
 		border: 1px solid black;
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    background: white; }
+		height: 16px;
+		width: 16px;
+		border-radius: 50%;
+		background: white; }
 #MasterColorPicker input[type="range"]:focus::-webkit-slider-runnable-track {
-    background: lightSteelBlue; }
+		background: lightSteelBlue; }
 
 #MasterColorPicker input[type="range"]::-ms-fill-lower,
 #MasterColorPicker input[type="range"]::-ms-fill-upper {
 /*    width: 12em; */
-    height: 5px;
-    background: #808080;
-    border: none;
-    border-radius: 3px; }
+		height: 5px;
+		background: #808080;
+		border: none;
+		border-radius: 3px; }
 #MasterColorPicker input[type="range"]::-ms-thumb {
-    margin-top: -4px;
+		margin-top: -4px;
 		border: 1px solid black;
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    background: white; }
+		height: 16px;
+		width: 16px;
+		border-radius: 50%;
+		background: white; }
 #MasterColorPicker input[type="range"]::-ms-fill-lower:focus,
 #MasterColorPicker input[type="range"]::-ms-fill-upper:focus {
-    background: lightSteelBlue; }
+		background: lightSteelBlue; }
 
 #MasterColorPicker input[type="range"]::-moz-range-track {
 /*    width: 12em; */
-    height: 5px;
-    background: #808080;
-    border: none;
-    border-radius: 3px; }
+		height: 5px;
+		background: #808080;
+		border: none;
+		border-radius: 3px; }
 #MasterColorPicker input[type="range"]::-moz-range-thumb {
-    margin-top: -4px;
+		margin-top: -4px;
 		border: 1px solid black;
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    background: white; }
+		height: 16px;
+		width: 16px;
+		border-radius: 50%;
+		background: white; }
 #MasterColorPicker input[type="range"]:focus::-moz-range-track {
-    background: lightSteelBlue; }
+		background: lightSteelBlue; }
 /*------*/
 
 #MasterColorPicker input[type="file"] {
@@ -169,7 +169,7 @@ span.MCP_fix_Safari {
 #MasterColorPicker button {
 	color: var(--fore-button);
 	background-color: var(--back-button);
-  font-variant: small-caps;
+	font-variant: small-caps;
 	border-radius: .618em / 1em;
 	font-size: 15px; }  /*lock down the font-size.*/
 
@@ -1157,13 +1157,13 @@ body.MCP_dragMySubPalette #MasterColorPicker_MyPalette tbody:hover th {
 
 iframe#MasterColorPicker_local_filesaver {
 	/* this is not included in the default HTML,
-	   but is injected as the last-child of the body
-	   when saving a palette to the local file-system.
-	   If that causes layout issues (it does when this
-	   element is included in the default HTML)
-	   you should include this element in your HTML
-	   page at the point where it will not cause
-	   interference with your page layout. */
+		 but is injected as the last-child of the body
+		 when saving a palette to the local file-system.
+		 If that causes layout issues (it does when this
+		 element is included in the default HTML)
+		 you should include this element in your HTML
+		 page at the point where it will not cause
+		 interference with your page layout. */
 	display: none; }
 
 
@@ -1255,9 +1255,9 @@ iframe#MasterColorPicker_local_filesaver {
 	height: 4em;
 	margin: 2px;
 	position: relative;  /* JavaScript controls this directly as the swatch is dragged:
-											  * relative when inside the swatches’ fieldset
-											  * absolute when inside the Blender panel
-											  * fixed when outside the Blender panel */
+												* relative when inside the swatches’ fieldset
+												* absolute when inside the Blender panel
+												* fixed when outside the Blender panel */
 	z-index: 2; }
 #MasterColorPicker_Blender textarea.passive {
 	color: transparent;
@@ -1838,9 +1838,9 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	color: var(--fore-palette);
 	background-color: var(--back-palette);  /* anyone for a game of hoops? */
 	background: linear-gradient(var(--back-palette), var(--back-palette)) top left / 1em 100% no-repeat scroll border-box,  /* padding-left, this box */
-	            linear-gradient(var(--back-palette), var(--back-palette)) top left / 100% calc(.618em + 1px) no-repeat scroll border-box,  /* padding-top, this box */
-	            linear-gradient(var(--back-palette), var(--back-palette)) top right / var(--scrollbar-width) 100% no-repeat scroll border-box,  /* padding-right, table.palette when there is no scrollbar.  See more notes below on how this screws up hopes for perfection in transparent backgournd on color_chart “grids” */
-	            linear-gradient(var(--back-palette), var(--back-palette)) bottom left / 100% 1.618em no-repeat scroll border-box;  /* margin-bottom on all tables within */
+							linear-gradient(var(--back-palette), var(--back-palette)) top left / 100% calc(.618em + 1px) no-repeat scroll border-box,  /* padding-top, this box */
+							linear-gradient(var(--back-palette), var(--back-palette)) top right / var(--scrollbar-width) 100% no-repeat scroll border-box,  /* padding-right, table.palette when there is no scrollbar.  See more notes below on how this screws up hopes for perfection in transparent backgournd on color_chart “grids” */
+							linear-gradient(var(--back-palette), var(--back-palette)) bottom left / 100% 1.618em no-repeat scroll border-box;  /* margin-bottom on all tables within */
 	background-color: transparent;  /* We want “none” and “unknown” colors in color_charts to show through to the page behind.
 																	 * We fill only the padding/margin area with default palette background-color. */
 	}
@@ -1849,7 +1849,7 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	background-color: var(--back-palette);
 	/*  var(--scrollbar-width)
 	padding-right: 1.016em;  /* for scroll bar on mainPanel, ¡or it will cover the table!
-													  * With this padding, the scroll-bar will cover the padding and that part of the table-border.
+														* With this padding, the scroll-bar will cover the padding and that part of the table-border.
 														* ¡10 years and the table-layout algorithm bug still has not been fixed —
 														* it affects the internally-controlled “painting” of background colors on these same tables
 														* which is why we use padding not margin!
@@ -2145,11 +2145,10 @@ table#BeezEye label {
 	margin: 0;
 	padding: 0;
 	display: inline-block;  }
-table#BeezEye tr:first-child fieldset {
+table#BeezEye > tbody > tr:first-child fieldset {
 	padding-top: .382em;
 	padding-bottom: .382em;
-  border-bottom-left-radius: 1em 1.618em; }
-table#BeezEye fieldset input[type="checkbox"],
+	border-bottom-left-radius: 1em 1.618em; }
 table#BeezEye fieldset input[type="radio"] {
 	display: inline; }
 table#BeezEye input[type="range"] {
@@ -2159,9 +2158,12 @@ table#BeezEye input[name='BeezEye_variety'] {
 table#BeezEye input[name='BeezEye_value'] {
 	background-color: transparent; }
 
+/*table#BeezEye tr:has(fieldset),  dispite promises that :has() works with FireFox since 2023, it does not in July 2024, and flubbers this ruleset*/
+table#BeezEye tr.foobar {
+	position: relative; }
 table#BeezEye fieldset {
 	position: absolute;
-	top: 0;
+	top: -1.162em;
 	right: 0;
 	bottom: auto;
 	left: auto;
@@ -2169,42 +2171,62 @@ table#BeezEye fieldset {
 	padding: .618em;
 	text-align: left;
 	overflow: visible;
-	z-index: 2; }
+	z-index: 2;
+	color: var(--fore-palette);
+	background-color: rgba(0,0,0,0.7);
+	background-color: color(from black srgb r g b / 0.7); }
 table#BeezEye fieldset dl {
 	display: none; }
 table#BeezEye fieldset:focus-within dl,
 table#BeezEye fieldset:hover dl {
 	display: block;
+	/*
 	position: absolute;
 	top: .618em;
 	right: 100%;
 	bottom: auto;
 	left: auto;
+	*/
 	margin: 0;
 	padding: .618em;
-	width: 16.18em;
-	font-weight: bold;
-	color: white;
-	background-color: rgba(0,0,0, .7); }
-table#BeezEye fieldset label {
-	display: block; }
+	width: 21em;
+	font-weight: bold; }
+table#BeezEye fieldset table {
+	color: var(--fore-palette);
+	background-color: var(--back-palette);
+	margin: 0;
+	padding: 0;
+	border-collapse: collapse; }
+table#BeezEye fieldset table td {
+	display: none; }
+table#BeezEye fieldset table td.checked,
+table#BeezEye fieldset table.focus-within td,
+table#BeezEye fieldset:hover table td {
+	display: table-cell;
+	padding: 0 .618em 0 0;
+	text-align: left; }
+table#BeezEye fieldset:hover table td:last-child {
+	padding-right: 0; }
+table#BeezEye fieldset table label {
+	display: block;
+	margin: 0;
+	padding: 0;
+	white-space: nowrap; }
 
 table#BeezEye .disabled,
 table#BeezEye :disabled {
 	visibility: hidden; }
-
-table#BeezEye tr:first-child td:first-child label {
 	position: absolute;
 	top: 3em;
 	left: 5px;
 	transform: rotate(330deg); }
-table#BeezEye tr:first-child td:last-child label:nth-last-child(1),
-table#BeezEye tr:first-child td:last-child label:last-child,
-table#BeezEye tr:first-child label:has(input[type='checkbox']) {
+table#BeezEye > tbody > tr:first-child td:last-child label:nth-last-child(1),
+table#BeezEye > tbody > tr:first-child td:last-child label:last-child,
+table#BeezEye > tbody > tr:first-child label:has(input[type='checkbox']) {
 	display: inline;
 	padding-left: .382em; }
 
-table#BeezEye tr:nth-child(2) label {
+table#BeezEye > tbody > tr:nth-child(2) label {
 	position: absolute;
 	top: 13.62em;
 	left: 327px;
@@ -2214,11 +2236,11 @@ table#BeezEye tr:nth-child(2) label {
 	transform: rotate(270deg);
 	background: linear-gradient(to right, #000000, #FFFFFF); }
 
-table#BeezEye tr:nth-child(2) label span {
+table#BeezEye > tbody > tr:nth-child(2) label span {
 	color: black;
 	padding-left: 1.618em;  }
 
-table#BeezEye tr:nth-child(2) label input[type="text"] {
+table#BeezEye > tbody > tr:nth-child(2) label input[type="text"] {
 	display: block;
 	color: black;
 	background-color: white;
@@ -2227,15 +2249,15 @@ table#BeezEye tr:nth-child(2) label input[type="text"] {
 	top: -2.618em;  /* since the containing <label> is rotated, this appears to be “left” not “top” */
 	bottom: auto; }
 
-table#BeezEye tr:nth-child(3) td {
+table#BeezEye > tbody > tr:nth-child(3) td {
 	position: relative;
 	vertical-align: bottom; }
-table#BeezEye tr:nth-child(3) fieldset {
+table#BeezEye > tbody > tr:nth-child(3) fieldset {
 	position: static;
 	margin: 0 0 0 0;
 	padding: 0;
 	border: none;  }
-table#BeezEye tr:nth-child(3) fieldset label:first-child {
+table#BeezEye > tbody > tr:nth-child(3) fieldset label:first-child {
 	position: absolute;
 	top: auto;
 	bottom: 1.618em;
@@ -2244,15 +2266,15 @@ table#BeezEye tr:nth-child(3) fieldset label:first-child {
 	text-align: center;
 	transform: rotate(315deg);
 	z-index: 2; }
-table#BeezEye tr:nth-child(3) fieldset label:last-child {
+table#BeezEye > tbody > tr:nth-child(3) fieldset label:last-child {
 	margin: .382em;
 	white-space: nowrap; }
 
-table#BeezEye tr:nth-child(4) td:last-child {
+table#BeezEye > tbody > tr:nth-child(4) td:last-child {
 	color: black;
 	border: 1px solid;
 	border-bottom-color: inherit;  }
-table#BeezEye tr:last-child td {
+table#BeezEye > tbody > tr:last-child td {
 	height: 1.618em;
 	white-space: pre;
 	font-family: "consolas", monospace;
@@ -2354,7 +2376,7 @@ table#RainbowMaestro div.subpalette_swatch {
 	display: none; }
 #RainbowMaestro_hueIndicator:focus-within note,
 #RainbowMaestro_hueIndicator:hover note {
-  display: block;
+	display: block;
 	position: absolute;
 	top: 100%;
 	right: 0;
@@ -2467,10 +2489,10 @@ table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-moz-range-t
 table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-ms-fill-lower,
 table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-ms-fill-upper {
 	width: 5px;
-  height: auto; }
+	height: auto; }
 table#Simple² tr:nth-child(2) td:nth-child(6) input[type="range"]::-webkit-slider-runnable-track {
 	width: 5px;
-  height: auto; }
+	height: auto; }
 
 table#Simple² tr:nth-child(2) td:nth-child(6) input[type="text"] {
 	transform: rotate(-270deg);

@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.10~BETA   July 19, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.10~BETA   July 27, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -387,6 +387,8 @@ const RGB_calc=new SoftMoon.WebWare.RGB_Calc({
 	LuvA_Factory: SoftMoon.WebWare.LuvA_Array,
 	LChᵤᵥA_Factory: SoftMoon.WebWare.LChᵤᵥA_Array,
 	HSLᵤᵥA_Factory: SoftMoon.WebWare.HSLᵤᵥA_Array,
+	JᶻaᶻbᶻA_Factory: SoftMoon.WebWare.JᶻaᶻbᶻA_Array,
+	JᶻCᶻhᶻA_Factory: SoftMoon.WebWare.JᶻCᶻhᶻA_Array,
 	XYZA_Factory: SoftMoon.WebWare.XYZA_Array }, true);
 
 Color_Picker.pickFilter=function(colorSpecCache)  {
@@ -423,6 +425,8 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 		case 'OKHSL':
 		case 'OKHWB':
 		case 'OKHCG':
+		case 'Jᶻaᶻbᶻ':
+		case 'JᶻCᶻhᶻ':
 		case 'XYZ':  //these are always wrapped
 			try {
 				if (!colorSpecCache[mode])  (colorSpecCache[mode]=RGB_calc.to[mode.toLowerCase()](colorSpecCache.RGB)).config.stack(format);
@@ -2328,7 +2332,7 @@ BeezEye.buildPalette=function()  {
 		for (var model, i=0; i<settings.model.length; i++)  {
 			if (settings.model[i].checked)  {model=settings.model[i].value.toLowerCase();  break;}  }
 
-		if (model.includes('lch'))  {
+		if (model.includes('lch')  ||  model==='jᶻcᶻhᶻ')  {
 			canvas.strokeStyle="#FFFFFF";
 			canvas.beginPath();
 			canvas.arc(center.x, center.y, w/2, 0, π2);
@@ -2354,17 +2358,18 @@ BeezEye.buildPalette=function()  {
 
 
 BeezEye.nativeToRGB=function(h,s,v,model)  {
-	var i, cPer;
+	var i, cPer, vMod=1;
 	switch (model)  {
 	case 'cmyk':
 		return RGB_Calc.from.cmyk(SoftMoon.WebWare.HSVA_Color.to_CMYK([h, s, v]));
 	// ↓ maximum chroma in the sRGB gamut
-	case 'lch':   cPer=133.8084163491125;
+	case 'jᶻcᶻhᶻ':cPer=0.1902896996290237; vMod=0.221866;
+	case 'lch':   cPer??=133.8084163491125;
 	case 'lchᵤᵥ': cPer??=179.03809692362097;
 	case 'oklch': cPer??=0.32249096477516437;
-		return RGB_Calc.from[model]([v, s*cPer, h]);
+		return RGB_Calc.from[model]([v*vMod, s*cPer, h]);
 	default:
-		return RGB_Calc.from[model]([h, s, v]);  }  }
+		return RGB_Calc.from[model]([h, s, v*vMod]);  }  }
 
 
 BeezEye.calcNativeHSV=function(x, y, maxRadius)  {  // {x,y} are Cartesian co-ordinates
@@ -2424,20 +2429,22 @@ BeezEye.getColor=function(event)  {
 			RGB=MasterColorPicker.RGB_calc.from.cmyk(CMYK);
 		return new BeezEye.Color_SpecCache(RGB, CMYK, model);  }
 	else  {
-		let cPer=1;
+		let cPer=1, vMod=1;
 		switch (model)  {  // ↓ maximum chroma in the sRGB gamut
 			case 'LCh':   cPer=133.8084163491125;
 			break;
 			case 'LChuv':
 			case 'LChᵤᵥ': cPer=179.03809692362097;
 			break;
-			case 'OKLCh': cPer=0.32249096477516437;  }
+			case 'OKLCh': cPer=0.32249096477516437;
+			break;
+			case 'JᶻCᶻhᶻ':cPer=0.1902896996290237;  vMod=0.221866;  }
 		const
-			RGB= (model.includes('LCh')) ?
-					MasterColorPicker.RGB_calc.from[model.toLowerCase()]([color_value, saturation*cPer, hue])
-				: MasterColorPicker.RGB_calc.from[model.toLowerCase()]([hue, saturation, color_value]);
+			RGB= (model.includes('LCh')  ||  model==="JᶻCᶻhᶻ") ?
+					MasterColorPicker.RGB_calc.from[model.toLowerCase()]([color_value*vMod, saturation*cPer, hue])
+				: MasterColorPicker.RGB_calc.from[model.toLowerCase()]([hue, saturation, color_value*vMod]);
 		if (RGB)
-			return new BeezEye.Color_SpecCache(RGB, SoftMoon.WebWare.ColorWheel_Color.create(hue, saturation*cPer, color_value, undefined, undefined, model), model);  }  }
+			return new BeezEye.Color_SpecCache(RGB, SoftMoon.WebWare.ColorWheel_Color.create(hue, saturation*cPer, color_value*vMod, undefined, undefined, model), model);  }  }
 	finally {MasterColorPicker.RGB_calc.config.cull();}  }
 
 BeezEye.Color_SpecCache=function(RGB, color, model)  {
@@ -2451,7 +2458,7 @@ BeezEye.Color_SpecCache.prototype=Object.create(
 			 constructor: {value: BeezEye.Color_SpecCache}});
 
 /** /// calculate maximum chroma in the sRGB gaumt:
-for (var cMax=0, OKcMax=0, uvcMax=0, b=0;  b<256;  b++)  {
+for (var cMax=0, OKcMax=0, uvcMax=0, czMax=0, b=0;  b<256;  b++)  {
 	let chromatic=RGB_Calc.to.lch([255,0,b]);
 	cMax=Math.max(cMax, chromatic[1]);
 	chromatic=RGB_Calc.to.lch([0,255,b]);
@@ -2490,21 +2497,31 @@ for (var cMax=0, OKcMax=0, uvcMax=0, b=0;  b<256;  b++)  {
 	uvcMax=Math.max(uvcMax, chromatic[1]);
 	chromatic=RGB_Calc.to.lchᵤᵥ([b,0,255]);
 	uvcMax=Math.max(uvcMax, chromatic[1]);
+
+	chromatic=RGB_Calc.to.jzczhz([255,0,b]);
+	czMax=Math.max(czMax, chromatic[1]);
+	chromatic=RGB_Calc.to.jzczhz([0,255,b]);
+	czMax=Math.max(czMax, chromatic[1]);
+	chromatic=RGB_Calc.to.jzczhz([255,b,0]);
+	czMax=Math.max(czMax, chromatic[1]);
+	chromatic=RGB_Calc.to.jzczhz([0,b,255]);
+	czMax=Math.max(czMax, chromatic[1]);
+	chromatic=RGB_Calc.to.jzczhz([b,255,0]);
+	czMax=Math.max(czMax, chromatic[1]);
+	chromatic=RGB_Calc.to.jzczhz([b,0,255]);
+	czMax=Math.max(czMax, chromatic[1]);
 }
-console.log('maximum chroma for LCh in sRGB:',cMax,'\nmaximum chroma for OKLCh in sRGB:',OKcMax,'\nmaximum chroma for LChᵤᵥ in sRGB:',uvcMax);
-// ↑ yields:  133.8084163491125   0.32249096477516437  179.03809692362097
+console.log('maximum chroma for LCh in sRGB:',cMax,'\nmaximum chroma for OKLCh in sRGB:',OKcMax,'\nmaximum chroma for LChᵤᵥ in sRGB:',uvcMax,'\nmaximum chroma for JᶻCᶻhᶻ in sRGB:',czMax);
+// ↑ yields:  133.8084163491125   0.32249096477516437  179.03809692362097  0.1902896996290237
  /**/
 
 
 
 UniDOM.addEventHandler(window, 'onload', function()  {
+		const HTML=document.getElementById('BeezEye');
 		//first we set the private global members                                        ↓  this defines property names (of the array-object: settings)
-		settings=UniDOM.getElementsBy$Name(document.getElementById('BeezEye'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <input>s) into an array, with corresponding properties
+		settings=UniDOM.getElementsBy$Name(HTML, "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <input>s) into an array, with corresponding properties
 		const lbl=settings.value.parentNode;
-		UniDOM.addEventHandler(settings.model_OK, 'onchange', OKifyColorModels);
-		if (settings.model_OK.checked)  OKifyColorModels.call(settings.model_OK, false);
-		UniDOM.addEventHandler(settings.model_Luvly, 'onchange', LuvifyColorModels);
-		if (settings.model_Luvly.checked)  LuvifyColorModels.call(settings.model_Luvly, false);
 		for (let i=0; i<settings.model.length; i++)  {
 			UniDOM.addEventHandler(settings.model[i], 'onchange', setColorSpace);
 			if (settings.model[i].checked)  setColorSpace.call(settings.model[i], false);  }
@@ -2526,29 +2543,10 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		BeezEye.swatch=document.getElementById('BeezEye_swatch');
 		const cnvsWrap=document.querySelector("#MasterColorPicker #BeezEye canvas").parentNode;
 		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut', 'onclick'], BeezEye);
+		UniDOM.addEventHandler(HTML.querySelector('fieldset table'), ['tabIn', 'tabOut'], function(event)  {
+			this.classList.toggle('focus-within', event.type==='tabin'  ||  event.tabbedTo.closest('table')===this);  });
+		UniDOM.generateEvent(HTML.querySelector('fieldset input:checked'), 'change', {bubbles:true});
 		BeezEye.buildPalette();
-
-		function OKifyColorModels(flag)  { // flag is false upon start-up and ==true (it’s an “onchange” Event Object) otherwise
-			if (flag  &&  this.checked)  settings.model_Luvly.checked=false;
-			for (let i=1 /*skip CMYK*/; i<settings.model.length; i++)  {
-				if (this.checked  &&  !settings.model[i].value.startsWith('OK'))  {
-					settings.model[i].value="OK"+settings.model[i].value.replace(/ᵤᵥ/, "");
-					settings.model[i].nextSibling.data="OK"+settings.model[i].nextSibling.data.replace(/ᵤᵥ/, "");  }
-				else if (!this.checked  &&  settings.model[i].value.startsWith('OK'))  {
-					settings.model[i].value=settings.model[i].value.slice(2);
-					settings.model[i].nextSibling.data=settings.model[i].nextSibling.data.slice(2);  }  }
-			if (flag)  BeezEye.buildPalette();  }
-
-		function LuvifyColorModels(flag)  { // flag is false upon start-up and ==true (it’s an “onchange” Event Object) otherwise
-			for (let i=1 /*skip CMYK*/; i<settings.model.length; i++)  {
-				if (this.checked  &&  /HSL|LCh/.test(settings.model[i].value)  &&  !settings.model[i].value.endsWith('ᵤᵥ'))  {
-					settings.model[i].value=settings.model[i].value.replace(/^OK/, "")+"ᵤᵥ";
-					settings.model[i].nextSibling.data=settings.model[i].nextSibling.data.replace(/^OK/, "")+"ᵤᵥ";  }
-				else if (!this.checked  &&  settings.model[i].value.endsWith('ᵤᵥ'))  {
-					const ok= settings.model_OK.checked ? "OK" : ""
-					settings.model[i].value=ok+settings.model[i].value.slice(0,-2);
-					settings.model[i].nextSibling.data=ok+settings.model[i].nextSibling.data.slice(0,-2);  }  }
-			if (flag)  BeezEye.buildPalette();  }
 
 		function setColorSpace(flag)  { // flag is false upon start-up and ==true (it’s an “onchange” Event Object) otherwise
 			switch (this.value.toLowerCase())  {
@@ -2557,9 +2555,12 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			case 'okhsv':
 			case 'hsb': lbl.firstChild.data='Brightness';  lbl.childNodes[1].firstChild.data='Value';  break;
 			case 'lch':
+			case 'lchᵤᵥ':
 			case 'oklch':
 			case 'okhsl':
+			case 'hslᵤᵥ':
 			case 'hsl': lbl.firstChild.data='Lightness';  lbl.childNodes[1].firstChild.data='';  break;
+			case 'jᶻcᶻhᶻ': lbl.firstChild.data='Lightness';  lbl.childNodes[1].firstChild.data='(scaled)';  break;
 			case 'okhcg':
 			case 'hcg': lbl.firstChild.data='Gray';  lbl.childNodes[1].firstChild.data='';  break;  }
 			if (flag)  BeezEye.buildPalette();  }
@@ -4453,7 +4454,7 @@ UniDOM.addEventHandler(window, "onload", function()  {
 		event.preventDefault();
 		if (event.key==="Escape"  ||  SoftMoon.altMenuKey.sniff(event))  {closeMenu(event);  return;}
 		if (event.altKey || event.ctrlKey || event.shiftKey || event.metaKey)  return;
-    switch (event.key)  {
+		switch (event.key)  {
 			case "ArrowUp":
 				event.target.previousElementSibling?.focus();
 			return;
@@ -5352,6 +5353,8 @@ const
 		LuvA_Factory:Array,
 		LChᵤᵥA_Factory:Array,
 		HSLᵤᵥA_Factory:Array,
+		JᶻaᶻbᶻA_Factory: Array,
+		JᶻCᶻhᶻA_Factory: Array,
 		useHexSymbol:true}, true),
 	color_factory= new SoftMoon.WebWare.ColorFactory;
 
