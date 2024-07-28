@@ -1,6 +1,6 @@
 // charset=UTF-8
 //  +++Math.js
-//  April 7, 2024
+//  July 25, 2024
 
 
 Math['+++angleDefiners']={
@@ -40,11 +40,12 @@ const
  */
 	 π_2=      Math.PI/2  ,
 		 π=      Math.PI    ,
-  π3_2=      Math.PI*3/2,
-	  π2=      Math.PI*2  ,
+	π3_2=      Math.PI*3/2,
+		π2=      Math.PI*2  ,
 
 		 φ=1.618033988749894848204586834,
 		 Φ=0.618033988749894848204586834;
+
 
 delete Math['+++angleDefiners'];
 
@@ -162,6 +163,12 @@ Math.Trig.rotate_box=function($box, $rotation)  {
 	$box.width= Math.round(Math.max(Math.abs(x1), Math.abs(x2))*2)+1;
 	$box.height=Math.round(Math.max(Math.abs(y1), Math.abs(y2))*2)+1;  }
 
+
+Math.mul_3_3_matrix=function(M, Vin)  {
+	return [
+			Vin[0]*M[0][0] + Vin[1]*M[0][1] + Vin[2]*M[0][2],
+			Vin[0]*M[1][0] + Vin[1]*M[1][1] + Vin[2]*M[1][2],
+			Vin[0]*M[2][0] + Vin[1]*M[2][1] + Vin[2]*M[2][2] ];  }
 
 Math.invert_3_3_matrix=function(M)  {
 	// https://byjus.com/maths/inverse-of-3-by-3-matrix/
