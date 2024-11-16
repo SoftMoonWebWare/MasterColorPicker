@@ -1,5 +1,5 @@
 // charset: UTF-8    tab-spacing: 2
-/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated July 26, 2024)
+/*  “OK” (“Ottosson Krafted”) color space models  (this file was last updated October 22, 2024)
  * Copyright (c) 2021 Björn Ottosson;
  * & Copyright © 2024 Joe Golembieski, SoftMoon-WebWare
  *
@@ -178,7 +178,7 @@ function oklab_to_srgb(Labα, γCorrect=true)  {  // l → 0.0—1.0      a,b �
 		R = (/*hue>=263.8  &&  hue<=264.5  &&*/  r>=-9.105809506465125e-4  &&  r<0) ? 0 : r,
 		G = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
 		B = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
-	if (γCorrect)  return this.γCorrect_linear_RGB(R,G,B,Labα[3],'sRGB');
+	if (γCorrect)  return this.γCorrect_linear_RGB(R,G,B,Labα[3],'sRGB',255);
 	// this function is also a worker for OKHSL & OKHSV below…
 	else  return [R,G,B,Labα[3]];  }
 
@@ -523,10 +523,10 @@ function okhsl_to_srgb(hslα, factory)  {  // ← for sRGB, DO NOT supply the fa
 
 	if (l >= 1)  {
 		if (factory)  return oklab(1,0,0);
-		return this.output_sRGB(255,255,255,α);  }
+		return this.output_RGB(255,255,255,α,'sRGB',255);  }
 	else if (l <= 0)  {
 		if (factory)  return oklab(0,0,0);
-		return this.output_sRGB(0,0,0,α);  }
+		return this.output_RGB(0,0,0,α,'sRGB',255);  }
 
 	const
 		a_ = cosine(π2*h),
@@ -617,8 +617,8 @@ function okhsv_to_srgb(hsvα, factory)  {  // ← for sRGB, DO NOT supply the fa
 	const
 		[h,s,v,α] = hsvα;
 	if (v===0)  return factory ?
-			((α===undefined  &  this.config.defaultAlpha===undefined) ? factory(0,0,0) : factory(0,0,0, a===undefined ? this.config.defaultAlpha : α))
-		: this.output_sRGB(0,0,0);
+			((α===undefined  &  this.config.defaultAlpha===undefined) ? factory(0,0,0) : factory(0,0,0, α===undefined ? this.config.defaultAlpha : α))
+		: this.output_RGB(0,0,0,α,'sRGB',255);
 	const
 		a_ = cosine(π2*h),
 		b_ = sine(π2*h),
@@ -717,7 +717,7 @@ function okhwb_to_srgb(hwbα, factory)  {  // ← for sRGB, DO NOT supply the fa
 	// JavsScript code provided by SoftMoon-WebWare under public domain license & MIT license
 	const
 		g=hwbα[1]+hwbα[2];
-	if (g>=1)  {const G=hwbα[1]/g*255;  return this.output_sRGB(G,G,G,hwbα[3]);}
+	if (g>=1)  {const G=hwbα[1]/g*255;  return this.output_RGB(G,G,G,hwbα[3],'sRGB',255);}
 	return okhsv_to_srgb.call(this, [hwbα[0], 1-(hwbα[1]/(1-hwbα[2]) || 0 /*avoid NaN*/), 1-hwbα[2], hwbα[3]], factory);  }
 
 
