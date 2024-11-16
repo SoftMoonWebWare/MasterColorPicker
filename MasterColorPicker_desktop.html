@@ -133,7 +133,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-			release 2.6.10  July 27, 2024
+			release 2.6.11  November 15, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -198,10 +198,98 @@ but to retain the settings this file may be included inside an existing web <for
 	<option title='OK: Hue, Saturation, Value'>OKHSV</option>
 	<option title='OK: Hue, White, Black'>OKHWB</option>
 	<option title='OK: Hue, Chroma∝, Gray'>OKHCG</option>
-	<option title='lightness-Jz, az-axis, bz-axis'>Jᶻaᶻbᶻ</option>
-	<option title='lightness-Jz, chroma-z, hue-z'>JᶻCᶻhᶻ</option>
+	<option title='Lightness-Jz, az-axis, bz-axis'>Jᶻaᶻbᶻ</option>
+	<option title='Lightness-Jz, Chroma-z, hue-z'>JᶻCᶻhᶻ</option>
+	<option title='Intensity, Tritanopia-axis, Protanopia-axis'>ICᵀCᴾ</option>
+	<option title='Intensity, Chroma-tp, hue-tp'>IChᵀᴾ</option>
 	<option title='X, Y, Z'>XYZ</option>
 	</select></label>
+	<label>¿<input type='checkbox' id='MasterColorPicker_useHexSymbol' name='MasterColorPicker_useHexSymbol' value='true' checked
+		onchange='MasterColorPicker.useHexSymbol=this.checked;'>use # Hex symbol?</label>
+	<button type='button' name='MasterColorPicker_outputFormatter_open' keep-focus='no'
+		role='combobox' aria-haspopup='dialog' aria-controls='MasterColorPicker_output_formatter' aria-expanded='false'
+		aria-labeledby='MasterColorPicker_output_formatter_header'>open the Output Formatter</button>
+	<popbox class='disabled' id='MasterColorPicker_output_formatter'>
+		<h4>Choose the color-<abbr title='specification'>spec</abbr> output format:</h4>
+		<button type='button' name='MasterColorPicker_outputFormatter_close'>☒</button>
+		<p>To control the text-output format of the color specification,
+		use the properly selected keywords from the tables shown below.&nbsp;
+		Type these keywords into the “format” input-box;
+		the contents of this “format” input-box is not strict and may contain anything.&nbsp;
+		The keywords are recognized in order from start to end (left→right);
+		keywords closer to the beginning override keywords closer to the end.&nbsp;
+		Different color-space models may react in different ways to these keywords,
+		depending on the historical “age” of the model as supported by <abbr>CSS</abbr>.&nbsp;
+		MasterColorPicker (and hence the software it supports) may not recognize all these output formats;
+		or worse, may interpret non-<abbr>RGB</abbr> color-space model values as <abbr>RGB</abbr> values
+		if you use <code>commas</code>, <code>cvs</code>, <code>plain</code>, or <code>tabbed</code>
+		as the output format (not the sub-format);
+		but maybe you are filling in a table full of data, etc.,
+		and you just want <abbr title='specifications'>specs</abbr> copied to the clipboard.</p>
+		<label>format: <input type='text' size='28' name='MasterColorPicker_outputFormat' value="wrapped" disabled></label>
+		<table><caption>output formatting style:</caption>
+		<tbody>
+			<tr><th>keyword</th><th>examples</th></tr>
+			<tr><td class='clickable'>color<footmark>♣</footmark></td>  <th scope='row'>color(<var>sRGB</var> <var>r</var> <var>g</var> <var>b</var> <var>α</var>)</th></tr>
+			<tr><td class='clickable'><abbr>css</abbr><footmark>◊</footmark></td>  <th rowspan='5' scope='row'>RGBA(<var>r</var>, <var>g</var>, <var>b</var>, <var>α</var>)<footmark>☼</footmark></th></tr>
+			<tr><td class='clickable'><abbr>css5</abbr><footmark>◊</footmark></td></tr>
+			<tr><td class='clickable'><abbr>html</abbr><footmark>◊</footmark></td></tr>
+			<tr><td class='clickable'>wrap</td></tr>
+			<tr><td class='clickable'>function</td></tr>
+			<tr><td class='clickable'>prefix</td>  <th scope='row'>RGBA: <var>r</var>, <var>g</var>, <var>b</var>, <var>α</var><footmark>☼</footmark></th></tr>
+			<tr><td class='clickable'>commas<footmark>❇</footmark></td>  <th rowspan='2' scope='row'><var>r</var>, <var>g</var>, <var>b</var>, <var>α</var></th></tr>
+			<tr><td class='clickable'><abbr title='comma-separated values'>csv</abbr><footmark>❇</footmark></td></tr>
+			<tr><td class='clickable'>plain<footmark>❇</footmark></td>  <th scope='row'><var>r</var> <var>g</var> <var>b</var> <var>α</var></th></tr>
+			<tr><td class='clickable'>tabbed</td>  <th scope='row'><var>r</var><kbd><span>Tab</span></kbd><var>g</var><kbd><span>Tab</span></kbd><var>b</var><kbd><span>Tab</span></kbd><var>α</var></th></tr>
+		</tbody>
+		<tfoot>
+			<tr><td colspan='2'>All formats may not include the alpha value if it is undefined.</td></tr>
+			<tr><td colspan='2'>♣ The <abbr>CSS</abbr> “color” function format only works for color-models that <abbr>CSS</abbr> supports.</td></tr>
+			<tr><td colspan='2'>◊ <abbr>css</abbr> &amp; <abbr>html</abbr> formatting styles
+				prevent (most of) the numeric output format from being a factor (see the next table),
+				and prevent hue-angle units from being “symbols”
+				— they convert to the “textual” equivalent
+				except for <code>%</code> which is not a true <abbr>CSS</abbr> unit for hue-angles,
+				but word on the street is that all browsers support it.&nbsp;
+				Also, for the “newer” color models by default, and when using <abbr>CSS5</abbr>,
+				the output is de-standardized to suit the weird non-standard spec format,
+				and commas <code>,</code> are removed, and the alpha separator <code>/</code> is used,
+				and…(read on)…</td></tr>
+			<tr><td colspan='2'>☼ The “A” in “<abbr>RGBA</abbr>” and other “old-school” color-models
+				will not be included if the alpha value is undefined.&nbsp;
+				Also for some “newer” color-models, the “A” will always be dropped when the output style is
+				<abbr>css</abbr> ‖ <abbr>html</abbr>; the other “newer” color-models always drop their “A”.&nbsp;
+				When the output style is <abbr>css5</abbr>, the “A” will always be dropped for all color-models.</td></tr>
+			<tr><td colspan='2'>❇ Besides being an output format in-and-of themselves,
+				these specifiers control whether commas are used or not at all, regardless of the overall format.&nbsp;
+				Many newer color space model formats do not use commas at all (by <abbr>CSS</abbr> standards),
+				whereas older color models do.&nbsp;
+				Note <abbr>CSS5</abbr> standards do not require any commas,
+				and by specifying <abbr>CSS5</abbr> as the output format, no commas will be used.</td></tr>
+		</tfoot>
+		</table>
+		<table><caption>Numeric values output format:</caption>
+			<tr><td class='clickable'>byte</td>
+				<th scope='row'>For the <abbr>sRGB</abbr> color-space only, values are shown as integer-bytes (0–255).</th></tr>
+			<tr><td class='clickable'>percent</td>
+				<th scope='row'>Values are shown as percents (0%–100%)</th></tr>
+			<tr><td class='clickable'>factor</td>
+				<th scope='row'>Values are shown as factors (0.0–1.0)
+					(not for <abbr>css</abbr> ‖ <abbr>html</abbr> formatting styles, except for hue &amp; alpha values)</th></tr>
+			<tr><td class='clickable'>numeric</td>
+				<th scope='row'>For <code>-axis</code> and <code>Chroma</code> (<strong>¡not</strong> <code>Chroma∝</code><strong>!</strong>) values,
+				this overrides “percent” &amp; “factor” if they are found later in the formatting string.</th></tr>
+			<tr><td class='clickable'>alpha</td>
+				<th scope='row'>Always show an alpha value; <code>100%</code> if not specifically defined.</th></tr>
+			<tr><td class='clickable'>precision:</td>
+			<th scope='row'>For some color-space models,
+			you may define the number of significant digits that are shown
+			for some of the models’ values.&nbsp;
+			(Note that precision below the default will result in some colors not converting back properly.)&nbsp;
+			JavaScript™ limits the maximum precision internally.&nbsp;
+			For example:<br><code>precision: 10</code></th></tr>
+		</table>
+	</popbox>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
 		onchange='MasterColorPicker.keepPrecision=this.checked;'>keep precision?
 	<p>Hex/RGB values are calculated from the native format, and others are calculated from the RGB values.&nbsp;
@@ -210,8 +298,6 @@ but to retain the settings this file may be included inside an existing web <for
 			Note RGB values will always be shown as integers, and are always used internally by the computer’s hardware
 			as integers, so by <strong>not</strong> keeping precision, resulting conversions from the RGB values reflect
 			the “actual RGB values used” by the computer to display the color selected.</p></label>
-	<label>¿<input type='checkbox' id='MasterColorPicker_useHexSymbol' name='MasterColorPicker_useHexSymbol' value='true' checked
-		onchange='MasterColorPicker.useHexSymbol=this.checked;'>use # Hex symbol?</label>
 	<!--  label>¿<input type='checkbox' name='MasterColorPicker_selectInputboxText' value='true'>select choice in inputboxes?</label   -->
 	<label>¿<input type='checkbox' name='MasterColorPicker_copyColorToClipboard' value='true'
 		onchange='MasterColorPicker.copyToClipboard=this.checked;'>copy selected color to system clipboard?</label>
@@ -248,8 +334,8 @@ Right-click or Shift-click to: pin a panel to the page when it is pinned to the 
 or pin it to the window when it is pinned to the page.
 </p>
 </fieldset>
-<button type='button' name='MasterColorPicker_PaletteMngr_open'
-	role='conbobox' aria-haspopup='dialog' aria-controls='MasterColorPicker_PaletteMngr' aria-expanded='false'
+<button type='button' name='MasterColorPicker_PaletteMngr_open' keep-focus='no'
+	role='combobox' aria-haspopup='dialog' aria-controls='MasterColorPicker_PaletteMngr' aria-expanded='false'
 	aria-labeledby='MasterColorPicker_PaletteMngr_header'>open the Palette Manager</button>
 <fieldset>
 	<p>Hue angle unit values may be forced at any time when entered with a trailing unit;
@@ -743,6 +829,8 @@ triadic</label>
 	<option>OKLCh</option>
 	<option>Jᶻaᶻbᶻ</option>
 	<option>JᶻCᶻhᶻ</option>
+	<option>ICᵀCᴾ</option>
+	<option>IChᵀᴾ</option>
 </select></label>
 <fieldset id='MasterColorPicker_Gradientor_linear-colors'><legend>Enter gradient <em>colors</em> and <em>offsets</em> below</legend>
  <p>You may use <code>pixels</code> or percents <code>%</code> or a mix as units for the offsets.&nbsp;
@@ -860,11 +948,17 @@ triadic</label>
 				<li><range>✓</range><abbr title='OK: Hue, White, Black'>OKHWB</abbr></li>
 				<li><range>✓</range><abbr title='OK: Hue, Chroma∝, Gray'>OKHCG</abbr></li>
 				<li><range>❇</range><abbr title='Lightness, a-axis, b-axis'>Lab</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color space)</aka>
+							→&nbsp; <code>(L,a,b,α) ‖ (<var>illuminant</var>, L,a,b,α)</code>
 							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
-							<nobr>(-170‖-136%) ≤ (a,b) ≤ (170‖136%)</nobr></code> ← where <code>100%=125</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
+							<nobr>(-170‖-136%) ≤ (a,b) ≤ (170‖136%)</nobr></code> ← where <code>100%=125</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard.&nbsp;
+							The alpha (opacity) <code>α</code> value is optional as always;
+							and the optional <var>illuminant</var> may be <code>D50</code> (the default — as used by <abbr>CSS</abbr>) or <code>D65</code></li>
 				<li><range>❇</range><abbr title='Lightness, Chroma, Hue'>LCh</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LCh</abbr> color space)</aka>
-							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
-							<nobr>0 ≤ C ≤ (230‖154%)</nobr></code> ← where <code>100%=150</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
+							→&nbsp; <code>(L,C,h,α) ‖ (<var>illuminant</var>, L,C,h,α)</code>
+							← <code><nobr>0 ≤ L ≤ (1.0‖100%),</nobr>&nbsp;
+							<nobr>0 ≤ C ≤ (230‖154%)</nobr></code> ← where <code>100%=150</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard.&nbsp;
+							The alpha (opacity) <code>α</code> value is optional as always;
+							and the optional <var>illuminant</var> may be <code>D50</code> (the default — as used by <abbr>CSS</abbr>) or <code>D65</code></li>
 				<li><range>❇</range><abbr title='Lightness, u-axis, v-axis'>Luv</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*u*v*</abbr> color space)</aka>
 							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
 							<nobr>(-215‖-100%) ≤ (u,v) ≤ (215‖100%)</nobr></code>
@@ -880,12 +974,20 @@ triadic</label>
 							<nobr>0 ≤ C ≤ (0.5‖125%)</nobr></code> ← where <code>100%=0.4</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard</li>
 				<li><range>❇</range><abbr title='Lightness, az-axis, bz-axis'>Jᶻaᶻbᶻ</abbr>
 					 (use the <kbd><span>Alt</span></kbd> key for modifier ᶻ or use <aka>Jzazbz</aka>)
-							← <code>0 ≤ Jᶻ ≤ (1.0‖100%),&nbsp;
-							<nobr>(-0.5‖-100%) ≤ (aᶻ,bᶻ) ≤ (0.5‖100%)</nobr></code></li>
+							← <code><nobr>0 ≤ Jᶻ ≤ (1.0‖100%),</nobr>&nbsp;
+							<nobr>(-0.5‖-50%) ≤ (aᶻ,bᶻ) ≤ (0.5‖50%)</nobr></code></li>
 				<li><range>❇</range><abbr title='Lightness, Chroma, Hue'>JᶻCᶻhᶻ</abbr>
 					 (use the <kbd><span>Alt</span></kbd> key for modifier ᶻ or use <aka>JzCzhz</aka>)
-							← <code>0 ≤ Jᶻ ≤ (1.0‖100%),&nbsp;
-							<nobr>0 ≤ Cᶻ ≤ (1.0‖100%)</nobr></code></li>
+							← <code><nobr>0 ≤ Jᶻ ≤ (1.0‖100%),</nobr>&nbsp;
+							<nobr>0 ≤ Cᶻ ≤ (≈0.7071‖70.71%)</nobr></code> ← √(0.5²+0.5²)</li>
+				<li><range>❇</range><abbr title='Intensity, Tritanopia-axis, Protanopia-axis'>ICᵀCᴾ</abbr>
+					 (use the <kbd><span>Alt</span></kbd> key for modifiers ᵀ &amp; ᴾ or use <aka>ICtCp</aka>)
+							← <code><nobr>0 ≤ I ≤ (1.0‖100%),</nobr>&nbsp;
+							<nobr>(-0.5‖-50%) ≤ (Cᵀ,Cᴾ) ≤ (0.5‖50%)</nobr></code></li>
+				<li><range>❇</range><abbr title='Intensity, Chroma, Hue'>IChᵀᴾ</abbr>
+					 (use the <kbd><span>Alt</span></kbd> key for modifiers ᵀ &amp; ᴾ or use <aka>IChtp</aka>)
+							← <code><nobr>0 ≤ I ≤ (1.0‖100%),</nobr>&nbsp;
+							<nobr>0 ≤ C ≤ (≈0.7071‖70.71%)</nobr></code> ← √(0.5²+0.5²)</li>
 				<li><range>❇</range><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
 					→&nbsp; <code>(X,Y,Z,α) ‖ (<var>illuminant</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, <var>illuminant</var>, X,Y,Z,α)</code>
 					<p>I am not sure of the exact limits of the input values, but I <em>think maybe</em> generally
@@ -931,7 +1033,10 @@ triadic</label>
 							<a target='XYZ' href="http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html">►Bruce Lindbloom</a>,
 							a respected color-theory researcher who’s math is supposedly “more correct”.&nbsp;
 							The “D50” illuminant is the gateway to other <abbr title='Red-Green-Blue'>RGB</abbr> color-spaces
-							like “ProPhoto RGB” or “Wide Gamut RGB”.</dd>
+							like “ProPhoto RGB” or “Wide Gamut RGB”.&nbsp;
+							At this time, this is our “default” <code>D50</code> matrix,
+							and is used internally when calculating values for the
+							<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color-space model.</dd>
 						<dt><span>D65_Wickline</span></dt>
 						<dd><specs><span>(Observer = 2°, Illuminant = D65)</span></specs>
 							Uses the XYZ→RGB matrix provided by
@@ -944,9 +1049,11 @@ triadic</label>
 			<p>Use models by <kbd>wrapping()</kbd> or <kbd>prefixing:</kbd> their given values.&nbsp;
 				Color-space model names are all case-insensitive.&nbsp;
 				Each value may be separated by spaces/commas.&nbsp;
-				Values are given as percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %),
-				except where noted for the individual color-spaces (Lab, LCh, Luv, LChᵤᵥ, OKLab, OKLCh, XYZ); and
-				except Hue values are given in angular values using one of the following units:
+				Values are given as: ▪ percent ratios (<kbd>0%—100%</kbd> with or without the percent sign %)
+				for the <abbr>RGB</abbr>-based color-space models;
+				▪ and otherwise as noted for the individual color-spaces
+				(Lab, LCh, Luv, LChᵤᵥ, OKLab, OKLCh, Jᶻaᶻbᶻ, JᶻCᶻhᶻ, ICᵀCᴾ, IChᵀᴾ, XYZ);
+				▪ and except Hue values are given in angular values using one of the following units:
 				(the default unit used when none is specified is found on the MasterColorPicker “options” panel)</p>
 			<ul>
 				<li>in degrees (<kbd>0°—360°</kbd> ← postfixed using the <kbd>°</kbd> symbol or “<kbd>deg</kbd>”).</li>
@@ -955,8 +1062,13 @@ triadic</label>
 				<li>in % of a turn (<kbd>0%—100%</kbd> ← postfixed using the <kbd>%</kbd> symbol).</li>
 				<li>of a turn (<kbd>0●—1●</kbd> ← postfixed using the <kbd>●</kbd> symbol or “<kbd>turn</kbd>”).</li>
 			</ul>
-			<p>Note that “hue” values for “classic” color-spaces are the same for the same hues,
-			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr>, <abbr title='Lightness, Chromaᵤᵥ, Hueᵤᵥ'></abbr>LChᵤᵥ</abbr>, &amp; <abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr> hues are different from the “classics”.</p>
+			<p>Note that “hue” values for “classic” color-spaces (the <abbr>RGB</abbr>-based ones) are the same for the same hues,
+			while <abbr title='Lightness, Chroma, Hue'></abbr>LCh</abbr>,
+						<abbr title='Lightness, Chromaᵤᵥ, Hueᵤᵥ'>LChᵤᵥ</abbr>,
+						<abbr title='OK: Lightness, Chroma, Hue'>OKLCh</abbr>,
+						<abbr title='J-Lightness, J-Chroma, J-Hue'>JᶻCᶻhᶻ</abbr>, &amp;
+						<abbr title='Intensity, tp-Chroma, tp-Hue'>IChᵀᴾ</abbr>
+						hues are different from the “classics”.</p>
 			<ul class='keybrd'>
 				<li>The “degrees” <kbd>°</kbd> symbol may be entered by typing <kbd><span>SHIFT</span>+<span>CTRL</span>+<span>5%</span></kbd></li>
 				<li>The “radians” <kbd title='circle'>ᶜ</kbd> symbol may be entered by typing <kbd><span>ALT</span>+<span>C</span></kbd></li>
@@ -979,11 +1091,21 @@ ANSI: Windows 10 Console: Cyan
 ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 				<abbr>CSS</abbr> is the “default” palette and its colors do not need to be prefixed or wrapped.&nbsp;
 				Hackers can change the default palette thought the value at: <code>SoftMoon.defaultPalette</code></li>
+		<li>Using the <a href='https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color' target='Mozilla'><abbr>CSS</abbr>
+				<code>color()</code> functional format</a>.&nbsp;
+				MasterColorPicker will only <em>output</em> colors in this format if <abbr>CSS</abbr> supports it;
+				however, it will read and interpret any color space model,
+				but given values will be considered “factors” (from <code>0.0—1.0</code>) instead of “percents” or “bytes”
+				(unless you use the percent <code>%</code> sign).&nbsp;
+				Hue-angles are the same: you should use a unit-qualifier like <code>deg</code> or they will be considered “factors.”&nbsp;
+				Named color palettes also work with this format, so long as the palette name does not contain any spaces.&nbsp;
+				For examples: <code class='multiline'>color(Jzazbz 16.29268% -7.61321% 8.13822%)
+color(sRGB 0.655 0.871 0.645)
+color(Pantonic Peridot)</code></li>
 	</ul>
 
 	<h4 id='MasterColorPicker_helpFor_Alpha'>Alpha (opacity):</h4>
 	<p>You may specify opacity (the opposite of transparency) in any of the color space models
-			(RGB, CMYK, CMY, HSV, HSL, HCG, HWB, Hue, Lab, LCh, Luv, LChᵤᵥ, HSLᵤᵥ, OKLab, OKLCh, OKHSL, OKHSV, OKHWB, OKHCG, XYZ)
 			by adding an additional factor (0.0—1.0) or percent (0%—100% ← you must use the percent % sign).&nbsp;
 			The color-space model names may or may not end with an additional “A” (for example, RGB vs. RGBA).
 			Per CSS4 specifications, the opacity value may also be separated with a <kbd>/</kbd> symbol
@@ -1087,12 +1209,13 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	A computer monitor’s hardware is typically based on an <abbr>RGB</abbr> color-space,
 	and the “part” of the <abbr>XYZ color-space that it can display,
 	and the part that specific related <abbr>RGB</abbr> color-space defines is called the “gamut”.&nbsp;
-	The <abbr>Lab</abbr>, <abbr>LCh</abbr>, <abbr>Luv</abbr>, &amp; <abbr>LChᵤᵥ</abbr> color-spaces
+	The <abbr>Lab</abbr>, <abbr>LCh</abbr>, <abbr>Luv</abbr>, <abbr>LChᵤᵥ</abbr>,
+	<abbr>Jᶻaᶻbᶻ</abbr>, <abbr>JᶻCᶻhᶻ</abbr>, <abbr>ICᵀCᴾ</abbr>, &amp; <abbr>ICHᵀᴾ</abbr> color-spaces
 	are based on the <abbr>XYZ</abbr> color-space, and it is the intermediary between them and the <abbr>RGB</abbr> color-space.&nbsp;
 	The <abbr>OKLab</abbr> &amp; <abbr>OKLCh</abbr> color-spaces
 	are also based on the <abbr>XYZ</abbr> color-space, but there is a direct conversion to/from the <abbr title='standard: Red, Green, Blue'>sRGB</abbr> color-space.&nbsp;
-	These latter four (4) color-spaces have a “gamut” that covers the whole <abbr>XYZ</abbr> color-space,
-	but the gamut of the monitor you are using limits the “valid” values for all seven (7) of these color-spaces.</p>
+	These latter ten (10) color-spaces have a “gamut” that covers the whole <abbr>XYZ</abbr> color-space,
+	but the gamut of the monitor you are using limits the “valid” values for all of these color-spaces.</p>
 
 	<p>The <abbr>CMYK<abbr> color space was designed for print-graphics using inks that “mix” on white paper.&nbsp;
 	It is supported herein to help those more familiar with how inks mix in the printing world,
@@ -1126,7 +1249,7 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<h6>Chroma &amp; Chroma∝:</h6>
 	<p>Chroma is the measure of how much “pure color” is in a color; or in other words how vibrant the color is.&nbsp;
-	Five (5) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “chroma”,
+	Seven (7) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “chroma”,
 	but they use it differently.&nbsp;
 	The <abbr>HCG</abbr> (Hue, Chroma∝, Gray) &amp; <abbr>OKHCG</abbr> color-spaces used by MasterColorPicker<abbr tm>™</abbr>
 	are based on the <abbr>RGB</abbr> color-space
@@ -1141,20 +1264,23 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	so HCG(120°, 100%, 50%) (green or “CSS: lime”) will seem much brighter (have more chroma) than HCG(240°, 100%, 50%) (blue),
 	even though they have the same Chroma∝ of 100%.&nbsp;
 	The <abbr>LCh</abbr> (Lightness, Chroma, Hue), <abbr>LChᵤᵥ</abbr> (Lightness, Chromaᵤᵥ, Hueᵤᵥ),
-	<abbr>OKLCh</abbr> (OK: Lightness, Chroma, Hue), &amp; <abbr>JᶻCᶻhᶻ</abbr> (Lightness-Jz, Chroma-z, hue-z) color-spaces,
+	<abbr>OKLCh</abbr> (OK: Lightness, Chroma, Hue), <abbr>JᶻCᶻhᶻ</abbr> (Lightness-Jz, Chroma-z, hue-z),
+	&amp; <abbr>IChᵀᴾ</abbr> (Intensity, Chroma, hue) color-spaces,
 	(and the “Munsell color system”) are based on the <abbr>XYZ</abbr> color-space,
 	and the term “Chroma” refers to the <em><strong>perceived</strong></em> chroma of the color.&nbsp;
-	Mathematically speaking, the maximum chroma possible is always limited by the <abbr>RGB</abbr> color-space
+	Mathematically speaking, the maximum chroma possible is always limited
+	by the (current/monitor’s) <abbr>RGB</abbr> color-space
 	(as defined by Chroma∝ in <abbr>HCG</abbr>),
 	but “green” and “blue” will have very different Chromatic values in
-	<abbr>LCh</abbr>, <abbr>LChᵤᵥ</abbr> <abbr>OKLCh</abbr>, or <abbr>JᶻCᶻhᶻ</abbr>.</p>
+	<abbr>LCh</abbr>, <abbr>LChᵤᵥ</abbr> <abbr>OKLCh</abbr>, <abbr>JᶻCᶻhᶻ</abbr>, or <abbr>IChᵀᴾ</abbr>.</p>
 
 	<h6 id='MasterColorPicker_helpFor_Hue'>Hue:</h6>
 	<p>Hue is the term used to describe the “pure-color” (or full chromacity) of a tint/tone/shade.&nbsp;
-	Thirteen (13) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “hue”,
-	(HSV, HSB, HSL, HCG, HWB, OKHSV, OKHSL, OKHCG, OKHWB, LCh, LChᵤᵥ, HSLᵤᵥ, OKLCh, JᶻCᶻhᶻ) but the outcome can be slightly different.&nbsp;
+	Fifteen (15) color-spaces supported by MasterColorPicker<abbr tm>™</abbr> use the term “hue”,
+	(HSV, HSB, HSL, HCG, HWB, OKHSV, OKHSL, OKHCG, OKHWB, LCh, LChᵤᵥ, HSLᵤᵥ, OKLCh, JᶻCᶻhᶻ, IChᵀᴾ)
+	but the outcome can be slightly different.&nbsp;
 	Also, Hue <em><strong>values</strong></em> are the same for all the traditional <abbr>RGB</abbr>-based color-spaces (an “RGB-standard hue”),
-	but all different for <abbr>LCh</abbr>, <abbr>JᶻCᶻhᶻ</abbr>,
+	but all different for <abbr>LCh</abbr>, <abbr>JᶻCᶻhᶻ</abbr>, <abbr>IChᵀᴾ</abbr>,
 	the “<abbr title="Luv-ly">♥ly</abbr>” color-spaces, and the “<abbr ok>OK</abbr>” color-spaces.&nbsp;
 	An “RGB-standard hue” is based on an RGB color-space, with the Red, Green, &amp; Blue channels evenly spaced at 0°, 120°, &amp; 240°,
 	mixing into Yellow at 60°, Cyan at 180°, &amp; Magenta at 300°.&nbsp;
@@ -1298,7 +1424,9 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 	<tr><th>key</th> <th><kbd><span>ALT</span></kbd></th> <th></th></tr>
 	<tr><td><kbd><span>C</span></kbd></td> <td><code>ᶜ</code></td> <td></td></tr>
 	<tr><td><kbd><span>G</span></kbd></td> <td><code>ᵍ</code></td> <td></td></tr>
+	<tr><td><kbd><span>P</span></kbd></td> <td><code>ᴾ</code></td> <td></td></tr>
 	<tr><td><kbd><span>R</span></kbd></td> <td><code>ᴿ</code></td> <td></td></tr>
+	<tr><td><kbd><span>T</span></kbd></td> <td><code>ᵀ</code></td> <td></td></tr>
 	<tr><td><kbd><span>U</span></kbd></td> <td><code>ᵤ</code></td> <td></td></tr>
 	<tr><td><kbd><span>V</span></kbd></td> <td><code>ᵥ</code></td> <td></td></tr>
 	<tr><td><kbd><span>Z</span></kbd></td> <td><code>ᶻ</code></td> <td></td></tr>
@@ -1579,7 +1707,8 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 
 	<p>When grading through the <abbr>XYZ</abbr>-based color-spaces
 	(<abbr>Lab</abbr>, <abbr>LCh</abbr>, <abbr>OKLab</abbr>, <abbr>OKLCh</abbr>,
-	<abbr>Luv</abbr>, <abbr>LChᵤᵥ</abbr>, <abbr>Jᶻaᶻbᶻ</abbr>, <abbr>JᶻCᶻhᶻ</abbr>)
+	<abbr>Luv</abbr>, <abbr>LChᵤᵥ</abbr>, <abbr>Jᶻaᶻbᶻ</abbr>, <abbr>JᶻCᶻhᶻ</abbr>,
+	<abbr>ICᵀCᴾ</abbr>, <abbr>IChᵀᴾ</abbr>)
 	note that you can define stop-colors that are valid, but that create gaps in the gradient.&nbsp;
 	In the worst case, no gradient at all!&nbsp;
 	This happens when the gradient-line through the color-space leaves the <abbr title='standard Red Green Blue'>sRGB</abbr> color-space.&nbsp;
@@ -1801,6 +1930,10 @@ ANSI(3-bit &amp; 4-bit: Visual Studio Code: Cyan)</code>
 		</tr>
 		<tr><td></td><td></td><td></td><td></td>
 			<td><label><input type='radio' name='BeezEye_model' value='JᶻCᶻhᶻ'>JᶻCᶻhᶻ</label></td>
+		</tr>
+		<tr><td></td><td></td><td></td>
+			<td><label><input type='radio' name='BeezEye_model' value='HCT' disabled>HCT</label></td>
+			<td><label><input type='radio' name='BeezEye_model' value='IChᵀᴾ'>IChᵀᴾ</label></td>
 		</tr>
 		</table>
 		<dl>
