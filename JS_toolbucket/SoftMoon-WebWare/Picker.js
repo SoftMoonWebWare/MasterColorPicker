@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.3   February 13, 2024  by SoftMoon-WebWare.
+// Picker.js  Beta-4.3.01   November 6, 2024  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -249,10 +249,11 @@ Picker.prototype.supportsARIA=true;
 Picker.prototype.panelTabKey=new UniDOM.KeySniffer('>', undefined, true, false, false, false, false);
 Picker.prototype.panelBacktabKey=new UniDOM.KeySniffer('<', undefined, true, false, false, false, false);
                                                   //   key  shift      ctrl  alt    meta   altGraph  OS
-
 Picker.prototype.setTopPanel=function setTopPanel(panel, rotate)  {
 	if (panel===this.panels[this.panels.length-1])  return;
-	if (typeof rotate === 'number')  this.panels=this.panels.slice(rotate).concat(this.panels.slice(0, rotate));
+	if (typeof rotate === 'number')  {
+		this.panels=this.panels.slice(rotate).concat(this.panels.slice(0, rotate));
+		}
 	if (panel)  {
 		const i=this.panels.indexOf(panel);
 		if (i>=0)  this.panels.splice(i, 1);
@@ -583,7 +584,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 	if (isUserdataInputType)  {  // these can be focused with the mouse or the TAB key
 		UniDOM.addEventHandler(element, 'onFocus',  focusOnInterfaceControl);
 		UniDOM.addEventHandler(element, 'tabIn', tabIntoUserdataInputType);  }
-	else if (isInput(element))  // what is left can only be focused with the TAB key (checkbox | radio)
+	else if (isInput(element))  // what is left can only be focused with the TAB key (checkbox | radio | Button)
 		UniDOM.addEventHandler(element, 'tabIn', tabIntoInterfaceControl);
 	else  {  // these are panels and do not themselves focus
 		UniDOM.addEventHandler(element, 'tabIn', function tabIntoPanel(event)  {
@@ -729,9 +730,9 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 			else {
 				if (event.target.type==='checkbox'  ||  event.target.type==='radio')  {event.target.checked=!event.target.checked;  event.preventDefault();}
 				else if (event.target.nodeName==='BUTTON')  {
+					event.preventDefault();
 					UniDOM.generateEvent(event.target, 'buttonpress',
-						{bubbles:true, detail: enterKeyPressCount}, {shiftKey: event.shiftKey, ctrlKey: event.ctrlKey, altKey: event.altKey});
-					event.preventDefault();  }
+						{bubbles:true, detail: enterKeyPressCount}, {shiftKey: event.shiftKey, ctrlKey: event.ctrlKey, altKey: event.altKey});  }
 				UniDOM.generateEvent(event.target, 'change',
 						{bubbles: true}, {enterKeyed: true, keyedCount: enterKeyPressCount, shiftKey: event.shiftKey, ctrlKey: event.ctrlKey, altKey: event.altKey});
 				}  }
