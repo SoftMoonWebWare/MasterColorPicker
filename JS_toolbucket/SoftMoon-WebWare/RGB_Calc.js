@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.12  November 16, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.13  November 18, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 // All color-space conversion algorithms and code herein are either: public-domain, MIT-licenced, or both.
 /*  Program written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
@@ -380,25 +380,28 @@ RegExp.angle= new window.RegExp( '^' +h_+ '$', "u" );
 
 const
 	per125='(?:125(?:\\.0+)|12[0-4]|1[0-1]\\d|\\d{1,2})(?:\\.\\d+)?%',
-	OK_ab='\\s*0*(-?(?:(?:' + pVal + ')%|0|\\.40*|\\.[0-3]\\d*))\\s*',
+	OK_ab='\\s*(-?0*(?:(?:' + pVal + ')%|0|\\.40*|\\.[0-3]\\d*))\\s*',
 	OK_c='\\s*0*(' +per125+ '|\\.\\d+%|0|\\.50*|\\.[0-4]\\d*)\\s*',
 	OK_f_C='\\s*0*((?:0|1|\\.\\d+%?)|' +per125+ ')\\s*?',
-	OK_f_ab='\\s*0*(-?(?:0|1|\\.\\d+)|(?:' +pVal+ ')%)\\s*?';
+	OK_f_ab='\\s*(-?0*(?:0|1|\\.\\d+)|(?:' +pVal+ ')%)\\s*?';
 
-RegExp.oklab_a=new window.RegExp( '^' +p+ sep +OK_ab+ sep +OK_ab+ '(?:' +aSep +f+ ')?$', "u" );
-RegExp.oklch_a=new window.RegExp( '^' +p+ sep +OK_c+ sep + h+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.oklab_a=new window.RegExp( '^' +f+ sep +OK_ab+ sep +OK_ab+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.oklch_a=new window.RegExp( '^' +f+ sep +OK_c+ sep + h+ '(?:' +aSep +f+ ')?$', "u" );
 RegExp.oklab_factors_a=new window.RegExp( '^' +f +sep+ OK_ab +sep+ OK_ab + '(?:' +aSep+ f+ ')?$' );
 RegExp.oklch_factors_a=new window.RegExp( '^' +f +sep+ OK_f_C +sep+ h+ '(?:' +aSep+ f+ ')?$' );
+
+/^\s*0*((?:0|1|0?\.[0-9]+)|(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%))\s*?[, ]\s*0*(-?(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%|0|\.40*|\.[0-3]\d*))\s*[, ]\s*0*(-?(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%|0|\.40*|\.[0-3]\d*))\s*(?:(?:,| \/ | )\s*0*((?:0|1|0?\.[0-9]+)|(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%))\s*?)?$/u
+
 
 
 const
 	abMax='170(?:\\.0+)?|(?:1[0-6]\\d|\\d{1,2})(?:\\.\\d+)?|\\.\\d+%?',
 	per136='136%(?:\\.0+)?|(?:13[0-5]|1[0-2]\\d|\\d{1,2})(?:\\.\\d+)%',
-	ab='\\s*0*(-?(?:0%?|' +per136+ '|' +abMax+ '))\\s*',
+	ab='\\s*(-?0*(?:0%?|' +per136+ '|' +abMax+ '))\\s*',
 	per154='154(?:\\.0+)?%|(?:15[0-3]|1[0-4]\\d|\\d{1,2})(?:\\.\\d+)?%',
 	cMax='230(?:\\.0+)?|(?:2[0-2]\\d|1?\\d{1,2})(?:\\.\\d+)?',
 	c='\\s*0*(' +per154+ '|' + cMax + '|\\.\\d+%?)\\s*',
-	f_ab='\\s*0*(-?(?:(?:0|1(?:\\.360*|\\.3[0-5]\\d*|\\.[0-2]\\d*)?|\\.\\d+)|(?:' +per136+ ')%))\\s*?',
+	f_ab='\\s*(-?0*(?:(?:0|1(?:\\.360*|\\.3[0-5]\\d*|\\.[0-2]\\d*)?|\\.\\d+)|(?:' +per136+ ')%))\\s*?',
 	f_C='\\s*0*((?:0|1|\\.\\d+%?)|' +per154+ ')\\s*?';
 
 RegExp.lab_a=new window.RegExp( '^' +p+ sep +ab+ sep +ab+ '(?:' +aSep +f+ ')?$', "u" );
@@ -409,23 +412,23 @@ RegExp.lch_factors_a=new window.RegExp( '^' +f +sep+ f_C +sep+ h+ '(?:' +aSep+ f
 
 const  //  304= √(215²+215²)
 	uvMax='215(?:\\.0+)?|(?:21[0-4]|20\\d|1?\\d{1,2})(?:\\.\\d+)?|\\.\\d+%?',
-	uv='\\s*0*(-?(?:0%?|(?:' +pVal+ ')%|' +uvMax+ '))\\s*',
+	uv='\\s*(-?0*(?:0%?|(?:' +pVal+ ')%|' +uvMax+ '))\\s*',
 	cᵤᵥMax='304(?:\\.0+)?|(?:30[0-3]|[12]?\\d{1,2})(?:\\.\\d+)?',
 	cᵤᵥ='\\s*0*((?:' +pVal+ ')%|' + cᵤᵥMax + '|\\.\\d+%?)\\s*',
-	f_signed='\\s*0*(-?(?:0|1|0?\\.[0-9]+)|(?:(?:' + pVal + ')%))\\s*?';  //one leading zero allowed in factors <1  (extras truncated)
+	f_signed='\\s*(-?0*(?:0|1|\\.[0-9]+)|(?:(?:' + pVal + ')%))\\s*?';  //one leading zero allowed in factors <1  (extras truncated)
 
-RegExp.luv_a=new window.RegExp( '^' +p+ sep +uv+ sep +uv+ '(?:' +aSep +f+ ')?$', "u" );
-RegExp.lchᵤᵥ_a=new window.RegExp( '^' +p+ sep +cᵤᵥ+ sep + h+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.luv_a=new window.RegExp( '^' +f+ sep +uv+ sep +uv+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.lchᵤᵥ_a=new window.RegExp( '^' +f+ sep +cᵤᵥ+ sep + h+ '(?:' +aSep +f+ ')?$', "u" );
 RegExp.luv_factors_a=new window.RegExp( '^' +f +sep+ f_signed +sep+ f_signed + '(?:' +aSep+ f+ ')?$' );
 RegExp.lchᵤᵥ_factors_a=new window.RegExp( '^' +f +sep+ f +sep+ h+ '(?:' +aSep+ f+ ')?$' );
 
 
 const
-	azbzMax='0*\.(?:50*|[0-4]\d*)',
-	azbz='\\s*0*(-?(?:0%?|(?:' +pVal+ ')%|' +azbzMax+ '))\\s*';
+	azbzMax='\\.(?:50*|[0-4]\\d*)',
+	azbz='\\s*(-?0*(?:0%?|(?:' +pVal+ ')%|' +azbzMax+ '))\\s*';
 
-RegExp.jzazbz_a=new window.RegExp( '^' +p+ sep +azbz+ sep +azbz+ '(?:' +aSep +f+ ')?$', "u" );
-RegExp.jzczhz_a=new window.RegExp( '^' +p+ sep +p+ sep + h+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.jzazbz_a=new window.RegExp( '^' +f+ sep +azbz+ sep +azbz+ '(?:' +aSep +f+ ')?$', "u" );
+RegExp.jzczhz_a=new window.RegExp( '^' +f+ sep +p+ sep + h+ '(?:' +aSep +f+ ')?$', "u" );
 RegExp.jzazbz_factors_a=new window.RegExp( '^' +f +sep+ f_signed +sep+ f_signed + '(?:' +aSep+ f+ ')?$' );
 RegExp.jzczhz_factors_a=new window.RegExp( '^' +f +sep+ f +sep+ h+ '(?:' +aSep+ f+ ')?$' );
 
@@ -520,8 +523,8 @@ function getHueFactor(h)  {
 	if (unit=hueAngleUnitFactors[unit])  return (h<0 || h>unit) ?  (Math.sawtooth(unit, h)/unit)  :  (h/unit);
 	else  return false;  }
 
-function getFactorValue(v)  {
-	v= (this.config.inputAsFactor
+function getFactorValue(v, factorIsDefault=false)  {
+	v= ((this.config.inputAsFactor  ||  factorIsDefault)
 		&&  (typeof v !== 'string'  ||  !v.endsWith("%"))
 		&&  (!(v instanceof Number)  ||  v.unit!=='%'))  ?  // this experimental property name is subject to change
 		parseFloat(v)  :  (parseFloat(v)/100);
@@ -1228,6 +1231,7 @@ class ColorWheel_Array extends ColorA_Array {
 			hasCom=format.match(/cvs|commas/i),
 			hasPln=format.match(/plain/i),
 			hasPer=format.match(/percent/i),
+			hasFac=format.match(/!?factor/i),
 			plain= outAs!=='self'  &&  isNewStndrd  ||  (outAs!=='tabbed'  &&
 				(hasPln  &&  outAs!=='css' &&  (!hasCom  ||  hasPln.index < hasCom.index))  ||
 				(isNewModel  &&  (!hasCom  ||  (hasPln  &&  hasPln.index < hasCom.index)))),
@@ -1249,29 +1253,27 @@ class ColorWheel_Array extends ColorA_Array {
 			break;
 			case 'turn':
 			case "●":  hueAngleUnit= useSym ? "●" : 'turn';  }
-		let precision=7;
+		let precision=7, defaultLightness=1;
 		switch (model)  {
+		case 'LCh':  defaultLightness= (hasFac?.[0]==="factor") ? 1 : 100; // “lightness” defaults to a “percent” 0%—100% with this
 		case 'JᶻCᶻhᶻ':
 		case 'IChᵀᴾ':
-		case 'LCh':
 		case 'LChᵤᵥ':
-		case 'OKLCh':
+		case 'OKLCh':  // “lightness” defaults to a “factor” 0.0—1.0 with these
 			const
 				hasNum=format.match(/numeric/i),
 				numb= hasNum  &&  (!hasPer  ||  hasNum.index < hasPer.index),
 				p=format.match(/precision: ?(\d+)/);
 			if (p) precision= parseInt(p[1]);
 			if (numb)
-				s=roundTo(precision, arr[0]) + sep + roundTo(precision, this.chroma);
+				s=roundTo(precision, arr[0]*defaultLightness) + sep + roundTo(precision, this.chroma);
 			else
 				s=roundTo(precision-2, arr[0]*100) + '%' + sep + roundTo(precision-2, (this.chroma/this.cPer)*100) + '%';
 			s+=sep + roundTo(hueUnitPrecision[hueAngleUnit]+precision-5, this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + (alpha && aSep+(numb?  roundTo(3, this.alpha) : (roundTo(1, this.alpha*100)+'%')));
 		break;
-		default:
-			const
-				hasFac=format.match(/factor/i);
+		default:  // “lightness” defaults to a “percent” 0%—100% with these
 			s=roundTo(hueUnitPrecision[hueAngleUnit], this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + sep;
-			if (!outAs.startsWith('css')  &&  hasFac  &&  (!hasPer  ||  hasFac.index < hasPer.index))
+			if (!outAs.startsWith('css')  &&  hasFac?.[0]==='factor'  &&  (!hasPer  ||  hasFac.index < hasPer.index))
 				s+=roundTo(3, arr[1]) + sep + roundTo(3, arr[2]) + (alpha && aSep+roundTo(3, this.alpha));
 			else
 				s+=roundTo(1, arr[1]*100) + '%' + sep + roundTo(1, arr[2]*100) + '%' + (alpha && aSep+roundTo(1, this.alpha*100)+'%');  }
@@ -1742,11 +1744,11 @@ class OKLChA_Color extends OKLChA_Array  {
 		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis($arr[1], 0.4, 0.5);  $h=thisClr.getHue($arr[2]);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0], true);  $C=thisClr.getAxis($arr[1], 0.4, 0.5);  $h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 0.4, 0.5),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -1814,6 +1816,7 @@ class OKLabA_Array extends ColorA_Array  {
 			hasPln=format.match(/plain/i),    //this is default
 			hasNum=format.match(/numeric/i),
 			hasPer=format.match(/percent/i),  //this is default
+			hasFac=format.match(/!?factor/i),
 			commas= hasCom  &&  outAs!=='css'  &&  outAs!=='color'  &&  outAs!=='tabbed'
 						&&  (!hasPln  ||  hasCom.index < hasPln.index),
 			sep= (outAs==='tabbed') ? "\t" : (commas ? ", " : " "),
@@ -1821,8 +1824,9 @@ class OKLabA_Array extends ColorA_Array  {
 							||  ( ( /alpha/i ).test(format)                                       //  ↓↓ may be ===0   … so …     ↓↓
 									&&  ((this.alpha= (typeof this.config.defaultAlpha === 'number') ? this.config.defaultAlpha : 1),true) ));
 		let
+			defaultLightness= (this.model==='Lab'  &&  hasFac?.[0]!=='factor') ? 100 : 1,
 			s= (hasNum  &&  (!hasPer  ||  hasNum.index < hasPer.index)) ?
-				(roundTo(precision, this[0])+sep+roundTo(precision, this[1])+sep+roundTo(precision, this[2])+
+				(roundTo(precision, this[0]*defaultLightness)+sep+roundTo(precision, this[1])+sep+roundTo(precision, this[2])+
 					(alpha && (commas?sep:' / ')+roundTo(3, this.alpha)  ||  ""))
 			: (roundTo(precision-2, this[0]*100)+'%'+sep+roundTo(precision-2, (this[1]/this.axisPer)*100)+'%'+sep+roundTo(precision-2, (this[2]/this.axisPer)*100)+'%'+
 					(alpha && (commas?sep:' / ')+roundTo(1, this.alpha*100)+'%'  ||  ""));
@@ -1865,11 +1869,11 @@ class OKLabA_Color extends OKLabA_Array  {   // 0 ≤ [$L] ≤ 1     0 ≤ [$A,$
 		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $a=thisClr.getAxis($arr[1], 0.4, 0.4);  $b=thisClr.getAxis($arr[2], 0.4, 0.4);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0], true);  $a=thisClr.getAxis($arr[1], 0.4, 0.4);  $b=thisClr.getAxis($arr[2], 0.4, 0.4);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$a,  set: ($)=>$a=thisClr.getAxis($, 0.4, 0.4),  enumerable: true},
 			2: {get: ()=>$b,  set: ($)=>$b=thisClr.getAxis($, 0.4, 0.4),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -2110,11 +2114,11 @@ class LuvA_Color extends LuvA_Array  {
 		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $u=thisClr.getAxis($arr[1], 215, 215);  $v=thisClr.getAxis($arr[2], 215, 215);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0], true);  $u=thisClr.getAxis($arr[1], 215, 215);  $v=thisClr.getAxis($arr[2], 215, 215);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$u,  set: ($)=>$u=thisClr.getAxis($, 215, 215),  enumerable: true},
 			2: {get: ()=>$v,  set: ($)=>$v=thisClr.getAxis($, 215, 215),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -2157,11 +2161,11 @@ class LChᵤᵥA_Color extends LChᵤᵥA_Array  {
 		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0]);  $C=thisClr.getAxis($arr[1], 215, 215);  $h=thisClr.getHue($arr[2]);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0], true);  $C=thisClr.getAxis($arr[1], 215, 215);  $h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 215, 215),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -2314,11 +2318,11 @@ class JᶻaᶻbᶻA_Color extends JᶻaᶻbᶻA_Array  {
 		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $Jz=thisClr.getFactor($arr[0]);  $az=thisClr.getAxis($arr[1], 1, 0.5);  $bz=thisClr.getAxis($arr[2], 1, 0.5);
+		function readArr($arr)  { $Jz=thisClr.getFactor($arr[0], true);  $az=thisClr.getAxis($arr[1], 1, 0.5);  $bz=thisClr.getAxis($arr[2], 1, 0.5);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$Jz,  set: ($)=>$Jz=thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$Jz,  set: ($)=>$Jz=thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$az,  set: ($)=>$az=thisClr.getAxis($, 1, 0.5),  enumerable: true},
 			2: {get: ()=>$bz,  set: ($)=>$bz=thisClr.getAxis($, 1, 0.5),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -2359,13 +2363,13 @@ class JᶻCᶻhᶻA_Color extends JᶻCᶻhᶻA_Array  {
 		const
 			thisClr=this;
 		function readArr($arr)  {
-			$J=thisClr.getFactor($arr[0]);
+			$J=thisClr.getFactor($arr[0], true);
 			$C=thisClr.getAxis($arr[1], 1, 0.70710678118654752440084436210485);
 			$h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$J,  set: ($)=>$J=thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$J,  set: ($)=>$J=thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 1, 0.70710678118654752440084436210485),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -2501,13 +2505,13 @@ class ICᵀCᴾA_Color extends ICᵀCᴾA_Array  {
 		const
 			thisClr=this;
 		function readArr($arr)  {
-			$I=thisClr.getFactor($arr[0]);
+			$I=thisClr.getFactor($arr[0], true);
 			$Cᵀ=thisClr.getAxis($arr[1], 1, 0.5);
 			$Cᴾ=thisClr.getAxis($arr[2], 1, 0.5);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$I,   set: ($)=>$I =thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$I,   set: ($)=>$I =thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$Cᵀ,  set: ($)=>$Cᵀ=thisClr.getAxis($, 1, 0.5),  enumerable: true},
 			2: {get: ()=>$Cᴾ,  set: ($)=>$Cᴾ=thisClr.getAxis($, 1, 0.5),  enumerable: true},
 			3: {get: ()=>$α,   set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -2549,13 +2553,13 @@ class IChᵀᴾA_Color extends IChᵀᴾA_Array  {
 		const
 			thisClr=this;
 		function readArr($arr)  {
-			$I=thisClr.getFactor($arr[0]);
+			$I=thisClr.getFactor($arr[0], true);
 			$c=thisClr.getAxis($arr[1], 1, 0.70710678118654752440084436210485);
 			$h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
-			0: {get: ()=>$I,  set: ($)=>$I=thisClr.getFactor($),  enumerable: true},
+			0: {get: ()=>$I,  set: ($)=>$I=thisClr.getFactor($, true),  enumerable: true},
 			1: {get: ()=>$c,  set: ($)=>$c=thisClr.getAxis($, 1, 0.70710678118654752440084436210485),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
@@ -3765,8 +3769,8 @@ function toLab(rgb, factory, illuminant="D50")  { //there is a “D65” variant
 RGB_Calc.to.lch = toLCh;
 RGB_Calc.definer.quick.to.lch = {value: toLCh};
 RGB_Calc.definer.audit.to.lch = {value: function(color) {return this.convertColor(color, toLCh, 'lch');}};
-function toLCh(rgb, factory)  {
-	return toXYZ.call(this, rgb, XYZA_Array).to_Lab(LabA_Array).to_LCh(factory||this.config.LChA_Factory);  }
+function toLCh(rgb, factory, illuminant="D50")  {
+	return toXYZ.call(this, rgb, XYZA_Array, undefined, illuminant).to_Lab(LabA_Array).to_LCh(factory||this.config.LChA_Factory);  }
 
 RGB_Calc.to.luv = toLuv;
 RGB_Calc.definer.quick.to.luv = {value: toLuv};
@@ -4088,19 +4092,22 @@ RGB_Calc.definer.audit.from.oklaba={enumerable:true, value:function($lab)  {
 	return auditLab.call(this, {factors:RegExp.oklab_factors_A, vals:RegExp.oklab_a}, 'OKLab', 0.4, 0.4, Björn_Ottosson.oklab_to_srgb, $lab);  }};
 
 // audit Lab, OKLab, Luv, Jᶻaᶻbᶻ, ICᵀCᴾ
-function auditLab(RE, space, axisPer, axisMax, callback, $lab, allowIllum=false)  {
+function auditLab(RE, space, axisPer, axisMax, callback, $lab)  {
 	var matches, illuminant;
 	if (typeof $lab === 'string')  {
 		$lab=$lab.trim();
-		if (allowIllum  // only the Lab color-space spec allows an illuminant
+		if (space==="Lab"
 		&& (illuminant=$lab.match(/^(D50|D65)[, ]\s*/i)))  {
 			$lab=$lab.substring(illuminant[0].length);
 			illuminant=illuminant[1].toUpperCase();  }
-		if (matches=$lab.match((this.config.inputAsFactor  &&  !this.config.inputAsNumeric) ? RE.factors : RE.vals))
+		RE=(this.config.inputAsFactor  &&  !this.config.inputAsNumeric) ? RE.factors : RE.vals;
+		if (matches=$lab.match(RE))
 			$lab=matches.slice(1);
-		else  return this.config.onError($lab, space);  }
+		else  {
+			console.log($lab, RE)
+			return this.config.onError($lab, space);  }  }
 	else if (this.config.preserveInputArrays)  $lab=Array.from($lab);
-	$lab[0]=this.getFactor($lab[0]),
+	$lab[0]=this.getFactor($lab[0], space!=="Lab"),
 	$lab[1]=this.getAxis($lab[1], axisPer, axisMax),
 	$lab[2]=this.getAxis($lab[2], axisPer, axisMax),
 	$lab[3]=this.getAlpha($lab[3]);
@@ -4117,11 +4124,11 @@ RGB_Calc.definer.audit.from.oklch=
 RGB_Calc.definer.audit.from.oklcha={enumerable:true, value:function($lch)  {
 	return auditLCh.call(this, {factors:RegExp.oklch_factors_A, vals:RegExp.oklch_a}, 'OKLCh', 0.4, 0.5, Björn_Ottosson.oklch_to_srgb, $lch);  }};
 
-function auditLCh(RE, space, CPer, CMax, callback, $lch, allowIllum=false)  {
+function auditLCh(RE, space, CPer, CMax, callback, $lch)  {
 	var matches, illuminant;
 	if (typeof $lch == 'string')  {
 		$lch=$lch.trim();
-		if (allowIllum  // only the LCh color-space spec allows an illuminant
+		if (space==='LCh'
 		&& (illuminant=$lch.match(/^(D50|D65)[, ]\s*/i)))  {
 			$lch=$lch.substring(illuminant[0].length);
 			illuminant=illuminant[1].toUpperCase();  }
@@ -4129,7 +4136,7 @@ function auditLCh(RE, space, CPer, CMax, callback, $lch, allowIllum=false)  {
 			$lch=matches.slice(1);
 		else  return this.config.onError($lch, space);  }
 	else if (this.config.preserveInputArrays)  $lch=Array.from($lch);
-	$lch[0]=this.getFactor($lch[0]),
+	$lch[0]=this.getFactor($lch[0], space!=='LCh'),
 	$lch[1]=this.getAxis($lch[1], CPer, CMax),  // note the RegExp above filters out negative values
 	$lch[2]=this.getHueFactor($lch[2]),
 	$lch[3]=this.getAlpha($lch[3]);
@@ -4324,7 +4331,7 @@ RGB_Calc.definer.quick.from.lab=
 RGB_Calc.definer.quick.from.laba={enumerable:true, value:fromLab};
 RGB_Calc.definer.audit.from.lab=
 RGB_Calc.definer.audit.from.laba={enumerable:true, value:function($lab)  {
-	return auditLab.call(this, {factors:RegExp.lab_factors_a, vals:RegExp.lab_a}, 'Lab', 125, 170, fromLab, $lab, true);  }};
+	return auditLab.call(this, {factors:RegExp.lab_factors_a, vals:RegExp.lab_a}, 'Lab', 125, 170, fromLab, $lab);  }};
 
 function fromLab(lab, illuminant)  {  // 0.0 ≤ l ≤ 1.0   -170 ≤ (a,b) ≤ 170  (100%=125)
 	if (lab instanceof LabA_Array)  return lab.to_XYZ(XYZA_Array).to_RGB(this.config.RGBA_Factory);
@@ -4337,7 +4344,7 @@ RGB_Calc.definer.quick.from.lch=
 RGB_Calc.definer.quick.from.lcha={enumerable:true, value:fromLCh};
 RGB_Calc.definer.audit.from.lch=
 RGB_Calc.definer.audit.from.lcha={enumerable:true, value:function($lch)  {
-	return auditLCh.call(this, {factors:RegExp.lch_factors_a, vals:RegExp.lch_a}, 'LCh', 150, 230, fromLCh, $lch, true);  }};
+	return auditLCh.call(this, {factors:RegExp.lch_factors_a, vals:RegExp.lch_a}, 'LCh', 150, 230, fromLCh, $lch);  }};
 
 function fromLCh(lch, illuminant)  {  // 0.0 ≤ l ≤ 1.0     0 ≤ h ≤ 1    0 ≤ c ≤ 230  (100%=150)
 	if (lch instanceof LChA_Array)  return lch.to_Lab(LabA_Array).to_XYZ(XYZA_Array).to_RGB(this.config.RGBA_Factory);
