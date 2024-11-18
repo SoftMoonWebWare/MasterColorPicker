@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.10~BETA   July 27, 2024   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.11~BETA   November 15, 2024   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -369,27 +369,29 @@ Color_Picker.prototype.onclick=function(event)  {
 
 const RGB_calc=new SoftMoon.WebWare.RGB_Calc({
 	defaultAlpha: undefined,
-	RGBA_Factory: SoftMoon.WebWare.RGBA_Array,
-	HSLA_Factory: SoftMoon.WebWare.HSLA_Array,
-	HSBA_Factory: SoftMoon.WebWare.HSBA_Array,
-	HSVA_Factory: SoftMoon.WebWare.HSVA_Array,
-	HCGA_Factory: SoftMoon.WebWare.HCGA_Array,
-	HWBA_Factory: SoftMoon.WebWare.HWBA_Array,
-	CMYKA_Factory: SoftMoon.WebWare.CMYKA_Array,
-	OKLabA_Factory: SoftMoon.WebWare.OKLabA_Array,
-	OKLChA_Factory: SoftMoon.WebWare.OKLChA_Array,
-	OKHSVA_Factory: SoftMoon.WebWare.OKHSVA_Array,
-	OKHSLA_Factory: SoftMoon.WebWare.OKHSLA_Array,
-	OKHWBA_Factory: SoftMoon.WebWare.OKHWBA_Array,
-	OKHCGA_Factory: SoftMoon.WebWare.OKHCGA_Array,
-	LabA_Factory: SoftMoon.WebWare.LabA_Array,
-	LChA_Factory: SoftMoon.WebWare.LChA_Array,
-	LuvA_Factory: SoftMoon.WebWare.LuvA_Array,
-	LChᵤᵥA_Factory: SoftMoon.WebWare.LChᵤᵥA_Array,
-	HSLᵤᵥA_Factory: SoftMoon.WebWare.HSLᵤᵥA_Array,
-	JᶻaᶻbᶻA_Factory: SoftMoon.WebWare.JᶻaᶻbᶻA_Array,
-	JᶻCᶻhᶻA_Factory: SoftMoon.WebWare.JᶻCᶻhᶻA_Array,
-	XYZA_Factory: SoftMoon.WebWare.XYZA_Array }, true);
+	RGBA_Factory: SoftMoon.WebWare.RGBA_Color,
+	HSLA_Factory: SoftMoon.WebWare.HSLA_Color,
+	HSBA_Factory: SoftMoon.WebWare.HSBA_Color,
+	HSVA_Factory: SoftMoon.WebWare.HSVA_Color,
+	HCGA_Factory: SoftMoon.WebWare.HCGA_Color,
+	HWBA_Factory: SoftMoon.WebWare.HWBA_Color,
+	CMYKA_Factory: SoftMoon.WebWare.CMYKA_Color,
+	OKLabA_Factory: SoftMoon.WebWare.OKLabA_Color,
+	OKLChA_Factory: SoftMoon.WebWare.OKLChA_Color,
+	OKHSVA_Factory: SoftMoon.WebWare.OKHSVA_Color,
+	OKHSLA_Factory: SoftMoon.WebWare.OKHSLA_Color,
+	OKHWBA_Factory: SoftMoon.WebWare.OKHWBA_Color,
+	OKHCGA_Factory: SoftMoon.WebWare.OKHCGA_Color,
+	LabA_Factory: SoftMoon.WebWare.LabA_Color,
+	LChA_Factory: SoftMoon.WebWare.LChA_Color,
+	LuvA_Factory: SoftMoon.WebWare.LuvA_Color,
+	LChᵤᵥA_Factory: SoftMoon.WebWare.LChᵤᵥA_Color,
+	HSLᵤᵥA_Factory: SoftMoon.WebWare.HSLᵤᵥA_Color,
+	JᶻaᶻbᶻA_Factory: SoftMoon.WebWare.JᶻaᶻbᶻA_Color,
+	JᶻCᶻhᶻA_Factory: SoftMoon.WebWare.JᶻCᶻhᶻA_Color,
+	ICᵀCᴾA_Factory: SoftMoon.WebWare.ICᵀCᴾA_Color,
+	IChᵀᴾA_Factory: SoftMoon.WebWare.IChᵀᴾA_Color,
+	XYZA_Factory: SoftMoon.WebWare.XYZA_Color }, true);
 
 Color_Picker.pickFilter=function(colorSpecCache)  {
 	if (this.colorSwatch)  //we must wait until after the input.value is set  ← input.value = thisInstance.interfaceTarget || thisInstance.dataTarget
@@ -398,7 +400,7 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 	var chosen;
 	const mode=userOptions.outputMode.value,
 			format={
-		stringFormat: {value:this.outputFormat},
+		stringFormat: {value:userOptions.outputFormat.value + this.outputFormat},
 		hueAngleUnit: {value:this.hueAngleUnit},
 		useAngleUnitSymbol: {value:null}  };
 	if (colorSpecCache[mode]  &&  colorSpecCache[mode].config)  colorSpecCache[mode].config.stack(format);
@@ -427,6 +429,8 @@ Color_Picker.pickFilter=function(colorSpecCache)  {
 		case 'OKHCG':
 		case 'Jᶻaᶻbᶻ':
 		case 'JᶻCᶻhᶻ':
+		case 'ICᵀCᴾ':
+		case 'IChᵀᴾ':
 		case 'XYZ':  //these are always wrapped
 			try {
 				if (!colorSpecCache[mode])  (colorSpecCache[mode]=RGB_calc.to[mode.toLowerCase()](colorSpecCache.RGB)).config.stack(format);
@@ -2239,9 +2243,10 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			MCP_stylesheet.alpha_range_thumb_color=dflt;  // ¡We need the “computed” color, not the SS text!
 			break;  }  }
 
-	ColorSpaceLab.toggle_OK();
-	//ColorSpaceLab.update_Hue_rangeHandle();
-	ColorSpaceLab.update_Alpha_rangeHandle();
+	UniDOM.addEventHandler(window, 'MasterColorPicker_ready', function() {
+		ColorSpaceLab.toggle_OK();
+		//ColorSpaceLab.update_Hue_rangeHandle();
+		ColorSpaceLab.update_Alpha_rangeHandle();  });
 
 	function updateHandle(event, updater)  {
 		if ((event.buttons&1)===0)  {
@@ -2332,7 +2337,7 @@ BeezEye.buildPalette=function()  {
 		for (var model, i=0; i<settings.model.length; i++)  {
 			if (settings.model[i].checked)  {model=settings.model[i].value.toLowerCase();  break;}  }
 
-		if (model.includes('lch')  ||  model==='jᶻcᶻhᶻ')  {
+		if (model.includes('lch')  ||  model==='jᶻcᶻhᶻ'  ||  model==='ichᵀᴾ')  {
 			canvas.strokeStyle="#FFFFFF";
 			canvas.beginPath();
 			canvas.arc(center.x, center.y, w/2, 0, π2);
@@ -2363,13 +2368,14 @@ BeezEye.nativeToRGB=function(h,s,v,model)  {
 	case 'cmyk':
 		return RGB_Calc.from.cmyk(SoftMoon.WebWare.HSVA_Color.to_CMYK([h, s, v]));
 	// ↓ maximum chroma in the sRGB gamut
-	case 'jᶻcᶻhᶻ':cPer=0.1902896996290237; vMod=0.221866;
-	case 'lch':   cPer??=133.8084163491125;
-	case 'lchᵤᵥ': cPer??=179.03809692362097;
-	case 'oklch': cPer??=0.32249096477516437;
-		return RGB_Calc.from[model]([v*vMod, s*cPer, h]);
+	case 'jᶻcᶻhᶻ':cPer=0.1902896996290237;   vMod=0.221866;  break; //0.222065
+	case 'ichᵀᴾ': cPer=0.31397693947667876;  vMod=0.580689;  break;
+	case 'lch':   cPer=133.8084163491125;    break;
+	case 'lchᵤᵥ': cPer=179.03809692362097;   break;
+	case 'oklch': cPer=0.32249096477516437;  break;
 	default:
-		return RGB_Calc.from[model]([h, s, v*vMod]);  }  }
+		return RGB_Calc.from[model]([h, s, v]);  }
+	return RGB_Calc.from[model]([v*vMod, s*cPer, h]);  }
 
 
 BeezEye.calcNativeHSV=function(x, y, maxRadius)  {  // {x,y} are Cartesian co-ordinates
@@ -2438,9 +2444,11 @@ BeezEye.getColor=function(event)  {
 			break;
 			case 'OKLCh': cPer=0.32249096477516437;
 			break;
-			case 'JᶻCᶻhᶻ':cPer=0.1902896996290237;  vMod=0.221866;  }
+			case 'JᶻCᶻhᶻ':cPer=0.1902896996290237;  vMod=0.221866; //0.222065
+			break;
+			case 'IChᵀᴾ': cPer=0.31397693947667876; vMod=0.580689 }
 		const
-			RGB= (model.includes('LCh')  ||  model==="JᶻCᶻhᶻ") ?
+			RGB= (model.includes('LCh')  ||  model==="JᶻCᶻhᶻ"  ||  model==="IChᵀᴾ") ?
 					MasterColorPicker.RGB_calc.from[model.toLowerCase()]([color_value*vMod, saturation*cPer, hue])
 				: MasterColorPicker.RGB_calc.from[model.toLowerCase()]([hue, saturation, color_value*vMod]);
 		if (RGB)
@@ -2458,8 +2466,11 @@ BeezEye.Color_SpecCache.prototype=Object.create(
 			 constructor: {value: BeezEye.Color_SpecCache}});
 
 /** /// calculate maximum chroma in the sRGB gaumt:
-for (var cMax=0, OKcMax=0, uvcMax=0, czMax=0, b=0;  b<256;  b++)  {
-	let chromatic=RGB_Calc.to.lch([255,0,b]);
+for (var cMax=0, OKcMax=0, uvcMax=0, czMax=0, ctpMax=0, b=0;  b<256;  b++)  {
+	let chromatic;
+
+	/*
+	chromatic=RGB_Calc.to.lch([255,0,b]);
 	cMax=Math.max(cMax, chromatic[1]);
 	chromatic=RGB_Calc.to.lch([0,255,b]);
 	cMax=Math.max(cMax, chromatic[1]);
@@ -2471,6 +2482,7 @@ for (var cMax=0, OKcMax=0, uvcMax=0, czMax=0, b=0;  b<256;  b++)  {
 	cMax=Math.max(cMax, chromatic[1]);
 	chromatic=RGB_Calc.to.lch([b,0,255]);
 	cMax=Math.max(cMax, chromatic[1]);
+	* /
 
 	chromatic=RGB_Calc.to.oklch([255,0,b]);
 	OKcMax=Math.max(OKcMax, chromatic[1]);
@@ -2510,9 +2522,27 @@ for (var cMax=0, OKcMax=0, uvcMax=0, czMax=0, b=0;  b<256;  b++)  {
 	czMax=Math.max(czMax, chromatic[1]);
 	chromatic=RGB_Calc.to.jzczhz([b,0,255]);
 	czMax=Math.max(czMax, chromatic[1]);
+
+
+	chromatic=RGB_Calc.to.ichtp([255,0,b]);
+	ctpMax=Math.max(ctpMax, chromatic[1]);
+	chromatic=RGB_Calc.to.ichtp([0,255,b]);
+	ctpMax=Math.max(ctpMax, chromatic[1]);
+	chromatic=RGB_Calc.to.ichtp([255,b,0]);
+	ctpMax=Math.max(ctpMax, chromatic[1]);
+	chromatic=RGB_Calc.to.ichtp([0,b,255]);
+	ctpMax=Math.max(ctpMax, chromatic[1]);
+	chromatic=RGB_Calc.to.ichtp([b,255,0]);
+	ctpMax=Math.max(ctpMax, chromatic[1]);
+	chromatic=RGB_Calc.to.ichtp([b,0,255]);
+	ctpMax=Math.max(ctpMax, chromatic[1]);
+
 }
-console.log('maximum chroma for LCh in sRGB:',cMax,'\nmaximum chroma for OKLCh in sRGB:',OKcMax,'\nmaximum chroma for LChᵤᵥ in sRGB:',uvcMax,'\nmaximum chroma for JᶻCᶻhᶻ in sRGB:',czMax);
-// ↑ yields:  133.8084163491125   0.32249096477516437  179.03809692362097  0.1902896996290237
+console.log('maximum chroma for LCh in sRGB:',cMax,'\nmaximum chroma for OKLCh in sRGB:',OKcMax,'\nmaximum chroma for LChᵤᵥ in sRGB:',uvcMax,'\nmaximum chroma for JᶻCᶻhᶻ in sRGB:',czMax,'\nmaximum chroma for IChᵀᴾ in sRGB:',ctpMax);
+// ↑ yields:  133.8084163491125   0.32249096477516437  179.03809692362097  0.1902896996290237  0.31397693947667876
+
+console.log('max “lightness” for sRGB in JᶻCᶻhᶻ:', RGB_Calc.to.jzazbz([255,255,255]));
+console.log('max “lightness” for sRGB in IChᵀᴾ:',  RGB_Calc.to.ichtp([255,255,255]));
  /**/
 
 
@@ -2561,6 +2591,7 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			case 'hslᵤᵥ':
 			case 'hsl': lbl.firstChild.data='Lightness';  lbl.childNodes[1].firstChild.data='';  break;
 			case 'jᶻcᶻhᶻ': lbl.firstChild.data='Lightness';  lbl.childNodes[1].firstChild.data='(scaled)';  break;
+			case 'ichᵀᴾ': lbl.firstChild.data='Intensity';  lbl.childNodes[1].firstChild.data='(scaled)';  break;
 			case 'okhcg':
 			case 'hcg': lbl.firstChild.data='Gray';  lbl.childNodes[1].firstChild.data='';  break;  }
 			if (flag)  BeezEye.buildPalette();  }
@@ -5297,8 +5328,10 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_database_ready',
 			['click', 'buttonpress'], addAllSelected);
 		UniDOM.addEventHandler(HTML.querySelectorAll('.browser ul, .server ul'),
 			['click', 'contextmenu', 'change', 'keydown'], renamePalette, true);
-		const openButton=document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open');
-		UniDOM.addEventHandler(HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_close"]'),
+		const
+			openButton=document.querySelector('#MasterColorPicker_options button[name="MasterColorPicker_PaletteMngr_open'),
+			closeButtons=HTML.querySelectorAll('button[name="MasterColorPicker_PaletteMngr_close"]');
+		UniDOM.addEventHandler(closeButtons,
 			['click', 'buttonpress'], function(e)  {
 				if (e.type==='buttonpress')  MasterColorPicker.dataTarget.focus();  //this will activate only inline onblur/onfocusout events on the button
 				if (HTML.contains(document.activeElement))  // the element will disappear when we disable it, and then it will not automatically generate a focusout event
@@ -5306,15 +5339,22 @@ UniDOM.addEventHandler(window, 'mastercolorpicker_database_ready',
 				openButton.setAttribute('aria-expanded', 'false');
 				openButton.setAttribute('aria-pressed', 'false');
 				UniDOM.disable(HTML, true);  });
-		UniDOM.addEventHandler(openButton,
-			['click', 'buttonpress'], function()  {
+		UniDOM.addEventHandler(openButton, ['click', 'buttonpress'],
+			function(event)  {
 				if (HTML.disabled)  {
 					refreshDBList();
 					refreshServerList();  }
 				UniDOM.disable(HTML, false);
 				this.setAttribute('aria-expanded', 'true');
 				this.setAttribute('aria-pressed', 'true');
-				setTimeout(function(){MasterColorPicker.setTopPanel(HTML);}, 20);  });
+				if (event.type==='buttonpress')  {
+					setTimeout(()=>{
+							closeButtons[0].focus(); //if we don’t pre-focus, we loose focus during the tabIn and the Picker closes
+							// but we still need to tabIn for other overhead…
+							UniDOM.generateEvent(closeButtons[0], 'tabIn', {bubbles:true}, {tabbedFrom:openButton, relatedTarget:openButton});
+							},
+						20);  }
+				else  setTimeout(()=>MasterColorPicker.setTopPanel(HTML), 20);  });
 		if (!(HTML.disabled=UniDOM.has$Class(HTML, 'disabled')))  {
 			refreshDBList();
 			refreshServerList();  }  },
@@ -5353,8 +5393,10 @@ const
 		LuvA_Factory:Array,
 		LChᵤᵥA_Factory:Array,
 		HSLᵤᵥA_Factory:Array,
-		JᶻaᶻbᶻA_Factory: Array,
-		JᶻCᶻhᶻA_Factory: Array,
+		JᶻaᶻbᶻA_Factory:Array,
+		JᶻCᶻhᶻA_Factory:Array,
+		ICᵀCᴾA_Factory:Array,
+		ICHᵀᴾA_Factory:Array,
 		useHexSymbol:true}, true),
 	color_factory= new SoftMoon.WebWare.ColorFactory;
 
@@ -6445,6 +6487,51 @@ UniDOM.addEventHandler(MasterColorPicker.HTML, 'beforeToggle', function(event)  
 	if (event.newState==='closed'  &&  event.target.contains(document.activeElement))
 		UniDOM.generateEvent(document.activeElement, 'focusout', {bubbles:true, relatedTarget:MasterColorPicker.dataTarget});  });
 
+//========================== OUTPUT FORMATTER ==============================================
+const formatter_popup=MasterColorPicker.HTML.querySelector('#MasterColorPicker_output_formatter');
+UniDOM.disable(formatter_popup, true);
+UniDOM.addEventHandler(userOptions.outputFormatter_close,
+	['click', 'buttonpress'], function(e)  {
+		if (e.type==='buttonpress')  MasterColorPicker.dataTarget.focus();  //this will activate only inline onblur/onfocusout events on the button
+		if (formatter_popup.contains(document.activeElement))  // the element will disappear when we disable it, and then it will not automatically generate a focusout event
+			UniDOM.generateEvent(document.activeElement, 'focusout', {bubbles:true, relatedTarget:MasterColorPicker.dataTarget});
+		userOptions.outputFormatter_open.setAttribute('aria-expanded', 'false');
+		userOptions.outputFormatter_open.setAttribute('aria-pressed', 'false');
+		UniDOM.disable(formatter_popup, true);  });
+UniDOM.addEventHandler(userOptions.outputFormat,
+	'blur', function()  {
+		if (document.activeElement===MasterColorPicker.dataTarget)  return;
+		setTimeout(function()  {  //wait for the Picker to manage keyboard focus
+				userOptions.outputFormatter_open.setAttribute('aria-expanded', 'false');
+				userOptions.outputFormatter_open.setAttribute('aria-pressed', 'false');
+				UniDOM.disable(formatter_popup, true);  },
+			1);  });
+UniDOM.addEventHandler(userOptions.outputFormatter_open,
+	['click', 'buttonpress'], function(e)  {
+		if (e.type==='click')  {e.preventDefault();  e.stopPropagation();}
+		UniDOM.disable(formatter_popup, false);
+		this.setAttribute('aria-expanded', 'true');
+		this.setAttribute('aria-pressed', 'true');
+		UniDOM.generateEvent(userOptions.outputFormat, 'tabIn', {bubbles:true}, {tabbedFrom:this, relatedTarget:this});  });
+UniDOM.addEventHandler(formatter_popup,
+	'click', function(e)  {
+		const clkabl=e.target.closest('.clickable');
+		var data= clkabl?.firstChild.firstChild?.data || clkabl?.firstChild.data;
+		if (data)  {
+			const
+				inp=userOptions.outputFormat,
+				v=inp.value,
+				ss=inp.selectionStart,
+				se=inp.selectionEnd;
+			if (ss>0  &&  v.charAt(ss-1)!==" ")  data=" "+data;
+			if (v.charAt(se)!==" ") data+=" ";
+			inp.value=v.substring(0, ss)+data+v.substring(se);
+			inp.selectionStart= inp.selectionEnd= ss+data.length;  }
+		if (e.target!==userOptions.outputFormatter_close)  {
+			e.preventDefault();  e.stopPropagation();  }  });
+//========================= /output formatter ==================================================
+
+
 var inp;
 if (inp=userOptions.keepPrecision)
 	MasterColorPicker.keepPrecision=inp.checked;
@@ -6556,12 +6643,18 @@ UniDOM.addEventHandler(document.querySelector('#MasterColorPicker_Help nav'), ['
 			case 'C':  txt="ᶜ";  break findKey;
 			case 'g':
 			case 'G':  txt="ᵍ";  break findKey;
+			case 'p':
+			case 'P':  txt="ᴾ";  break findKey;
 			case 'r':
 			case 'R':  txt="ᴿ";  break findKey;
+			case 't':
+			case 'T':  txt="ᵀ";  break findKey;
 			case 'u':
 			case 'U':  txt="ᵤ";  break findKey;
 			case 'v':
 			case 'V':  txt="ᵥ";  break findKey;
+			case 'z':
+			case 'Z':  txt="ᶻ";  break findKey;
 			default:  return;  }
 			if (event.ctrlKey)  switch (event.key)  {
 			case '1':  txt="●";  break findKey;

@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.10  July 27, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.11  November 6, 2024  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -695,6 +695,50 @@ select#MasterColorPicker_palette_select {
 	margin-left: .2em; }
 #MasterColorPicker_options > div div > fieldset:nth-child(3) > label {
 	line-height: 1.2em;  }
+
+#MasterColorPicker_options popbox {
+	position: fixed;
+	display: block;
+	top: 6.18%;
+	bottom: auto;
+	height: 87%;
+	left: 6.18%;
+	right: 6.18%;
+	padding: 1em;
+	overflow: auto;
+	color: var(--fore-text);
+	background-color: var(--back-text);
+	z-index: 9000;
+	text-align: center; }
+#MasterColorPicker_options popbox.disabled {
+	display: none; }
+#MasterColorPicker_options popbox button {
+	position: absolute;
+	top: 0.618em;
+	bottom: auto;
+	right: 0.618em;
+	left: auto; }
+#MasterColorPicker_options popbox p {
+	display: block;
+	text-align: justify; }
+#MasterColorPicker_options popbox table {
+	display: inline-block;
+	vertical-align: top;
+	width: 48%;
+	margin-right: 1%;
+	border: 4px double; }
+#MasterColorPicker_options popbox table:last-of-type {
+	margin-right: 0; }
+#MasterColorPicker_options popbox td,
+#MasterColorPicker_options popbox th {
+	border: 1px solid; }
+#MasterColorPicker_options popbox tbody td {
+	color: var(--fore-text-highlight);
+	background-color: var(--back-text-highlight); }
+#MasterColorPicker_options popbox footmark {
+	color: var(--fore-text-standout); }
+#MasterColorPicker_options popbox caption,
+#MasterColorPicker_options popbox th { }
 
 
 #MasterColorPicker_PaletteManager.pickerPanel,
@@ -2216,10 +2260,12 @@ table#BeezEye fieldset table label {
 table#BeezEye .disabled,
 table#BeezEye :disabled {
 	visibility: hidden; }
+/*
 	position: absolute;
 	top: 3em;
 	left: 5px;
 	transform: rotate(330deg); }
+*/
 table#BeezEye > tbody > tr:first-child td:last-child label:nth-last-child(1),
 table#BeezEye > tbody > tr:first-child td:last-child label:last-child,
 table#BeezEye > tbody > tr:first-child label:has(input[type='checkbox']) {
