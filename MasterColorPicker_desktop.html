@@ -133,7 +133,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
-			release 2.6.11  November 15, 2024
+			release 2.6.11  November 18, 2024
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -282,12 +282,12 @@ but to retain the settings this file may be included inside an existing web <for
 			<tr><td class='clickable'>alpha</td>
 				<th scope='row'>Always show an alpha value; <code>100%</code> if not specifically defined.</th></tr>
 			<tr><td class='clickable'>precision:</td>
-			<th scope='row'>For some color-space models,
-			you may define the number of significant digits that are shown
-			for some of the models’ values.&nbsp;
-			(Note that precision below the default will result in some colors not converting back properly.)&nbsp;
-			JavaScript™ limits the maximum precision internally.&nbsp;
-			For example:<br><code>precision: 10</code></th></tr>
+				<th scope='row'>For some color-space models,
+				you may define the number of significant digits that are shown
+				for some of the models’ values.&nbsp;
+				(Note that precision below the default will result in some colors not converting back properly.)&nbsp;
+				JavaScript™ limits the maximum precision internally.&nbsp;
+				For example:<br><code>precision: 10</code></th></tr>
 		</table>
 	</popbox>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
@@ -949,13 +949,13 @@ triadic</label>
 				<li><range>✓</range><abbr title='OK: Hue, Chroma∝, Gray'>OKHCG</abbr></li>
 				<li><range>❇</range><abbr title='Lightness, a-axis, b-axis'>Lab</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>L*a*b*</abbr> color space)</aka>
 							→&nbsp; <code>(L,a,b,α) ‖ (<var>illuminant</var>, L,a,b,α)</code>
-							← <code>0 ≤ L ≤ (1.0‖100%),&nbsp;
+							← <code>0 ≤ L ≤ (100‖100%),&nbsp;
 							<nobr>(-170‖-136%) ≤ (a,b) ≤ (170‖136%)</nobr></code> ← where <code>100%=125</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard.&nbsp;
 							The alpha (opacity) <code>α</code> value is optional as always;
 							and the optional <var>illuminant</var> may be <code>D50</code> (the default — as used by <abbr>CSS</abbr>) or <code>D65</code></li>
 				<li><range>❇</range><abbr title='Lightness, Chroma, Hue'>LCh</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>LCh</abbr> color space)</aka>
 							→&nbsp; <code>(L,C,h,α) ‖ (<var>illuminant</var>, L,C,h,α)</code>
-							← <code><nobr>0 ≤ L ≤ (1.0‖100%),</nobr>&nbsp;
+							← <code><nobr>0 ≤ L ≤ (100‖100%),</nobr>&nbsp;
 							<nobr>0 ≤ C ≤ (230‖154%)</nobr></code> ← where <code>100%=150</code> is the <abbr title='Cascading Style Sheet'>CSS</abbr> standard.&nbsp;
 							The alpha (opacity) <code>α</code> value is optional as always;
 							and the optional <var>illuminant</var> may be <code>D50</code> (the default — as used by <abbr>CSS</abbr>) or <code>D65</code></li>
@@ -987,14 +987,14 @@ triadic</label>
 				<li><range>❇</range><abbr title='Intensity, Chroma, Hue'>IChᵀᴾ</abbr>
 					 (use the <kbd><span>Alt</span></kbd> key for modifiers ᵀ &amp; ᴾ or use <aka>IChtp</aka>)
 							← <code><nobr>0 ≤ I ≤ (1.0‖100%),</nobr>&nbsp;
-							<nobr>0 ≤ C ≤ (≈0.7071‖70.71%)</nobr></code> ← √(0.5²+0.5²)</li>
+							<nobr>0 ≤ Cᵀᴾ ≤ (≈0.7071‖70.71%)</nobr></code> ← √(0.5²+0.5²)</li>
 				<li><range>❇</range><abbr>XYZ</abbr> <aka>(<abbr title='International Commission on Illumination'>CIE</abbr> <abbr>XYZ</abbr> color space)</aka>
 					→&nbsp; <code>(X,Y,Z,α) ‖ (<var>illuminant</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, X,Y,Z,α) ‖ (<var>color-profile</var>, <var>illuminant</var>, X,Y,Z,α)</code>
 					<p>I am not sure of the exact limits of the input values, but I <em>think maybe</em> generally
 					<code>0 ≤ X ≤ 0.950489,&nbsp; 0 ≤ Y ≤ 1,&nbsp; 0 ≤ Z ≤ 1.0883</code> seems to be fair for the <abbr>D65</abbr> illuminant…?</p>
 					<p>The “<var>illuminant</var>” and/or “<var>color-profile</var>” is optional as shown; so is the alpha (opacity) value (α) as it always is.&nbsp;
 					Currently, only <code>"sRGB"</code> is valid for “<var>color-profile</var>”.&nbsp;
-					There are currently 6 different legal values for “<var>illuminant</var>”
+					There are currently 7 different legal values for “<var>illuminant</var>”
 					(these values are case <strong>sensitive</strong> and don’t miss the underscores _ ).&nbsp;
 					<code>"D65"</code> is the default illuminant as this is the same as used for
 					the <abbr title='standard Red-Green-Blue'>sRGB</abbr> color-space.</p>
@@ -1027,6 +1027,9 @@ triadic</label>
 							Uses the XYZ→RGB matrix provided by
 							<a target='XYZ' href="http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html">►Bruce Lindbloom</a>,
 							a respected color-theory researcher who’s math is supposedly “more correct”.</dd>
+						<dt><span>D50</span></dt>
+						<dd><specs><span>(Observer = 2°, Illuminant = D50)</span></specs>
+							There is no (known) “standard” matrix for this illuminant.&nbsp; We use “D50_Lindbloom” for now.
 						<dt><span>D50_Lindbloom</span></dt>
 						<dd><specs><span>(Observer = 2°, Illuminant = D50)</span></specs>
 							Uses the XYZ→RGB matrix provided by
