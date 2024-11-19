@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.13  November 18, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.14  November 19, 2024  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 // All color-space conversion algorithms and code herein are either: public-domain, MIT-licenced, or both.
 /*  Program written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
@@ -941,22 +941,21 @@ class RGBA_Array extends ColorA_Array {
 			alpha= (typeof this.alpha === 'number'
 							||  ( ( /alpha/i.test(format)  ||  outAs==='self' )                  //  ↓↓ may be ===0   … so …     ↓↓
 									&&  ((this.alpha= (typeof this.config.defaultAlpha === 'number') ? this.config.defaultAlpha : 1),true) ))  ?  'A' : "";
-		if (hasPer
-		&&  (outAs==='color'  ||  !hasByt  ||  (hasPer.index < hasByt.index))
-		&&  (!hasFac  ||  (hasPer.index < hasFac.index)))
-			s=roundTo(1, this.r/bits*100)+'%'+ sep +
-				roundTo(1, this.g/bits*100)+'%'+ sep +
-				roundTo(1, this.b/bits*100)+'%'+
-				(alpha  &&  (aSep+roundTo(1, this.alpha*100)+'%'));
-		else
-		if (outAs==='color'
-		||  ((!outAs.startsWith('css')  &&  outAs!=='html'  &&  outAs!=='self'
-				&&  hasFac
-				&&  (!hasByt  ||  (hasFac.index < hasByt.index)))) )
+		if (hasFac
+		&&  !outAs.startsWith('css')  &&  outAs!=='html'  &&  outAs!=='self'
+		&&  (outAs==='color'  ||  !hasByt  ||  (hasFac.index < hasByt.index))
+		&&  (!hasPer  ||  (hasFac.index < hasPer.index)))
 			s=roundTo(3, this.r/bits)+ sep +
 				roundTo(3, this.g/bits)+ sep +
 				roundTo(3, this.b/bits)+
 				(alpha  &&  (aSep+roundTo(3, this.alpha)));
+		else
+		if (outAs==='color'
+		||  (hasPer  &&  (!hasByt  ||  (hasPer.index < hasByt.index))))
+			s=roundTo(1, this.r/bits*100)+'%'+ sep +
+				roundTo(1, this.g/bits*100)+'%'+ sep +
+				roundTo(1, this.b/bits*100)+'%'+
+				(alpha  &&  (aSep+roundTo(1, this.alpha*100)+'%'));
 		else
 			s=round(this.r)+ sep +
 				round(this.g)+ sep +
@@ -1231,7 +1230,8 @@ class ColorWheel_Array extends ColorA_Array {
 			hasCom=format.match(/cvs|commas/i),
 			hasPln=format.match(/plain/i),
 			hasPer=format.match(/percent/i),
-			hasFac=format.match(/!?factor/i),
+			hasFac=format.match(/factor/i),
+			fctr= (hasFac  &&  (!hasPer  ||  hasFac.index < hasPer.index)),
 			plain= outAs!=='self'  &&  isNewStndrd  ||  (outAs!=='tabbed'  &&
 				(hasPln  &&  outAs!=='css' &&  (!hasCom  ||  hasPln.index < hasCom.index))  ||
 				(isNewModel  &&  (!hasCom  ||  (hasPln  &&  hasPln.index < hasCom.index)))),
@@ -1253,32 +1253,49 @@ class ColorWheel_Array extends ColorA_Array {
 			break;
 			case 'turn':
 			case "●":  hueAngleUnit= useSym ? "●" : 'turn';  }
-		let precision=7, defaultLightness=1;
+		let precision=7, L_magnitude=1;
 		switch (model)  {
-		case 'LCh':  defaultLightness= (hasFac?.[0]==="factor") ? 1 : 100; // “lightness” defaults to a “percent” 0%—100% with this
+		// you gotta wonder if the same people who defined CSS specs also defined PHP & the Apollo 13 moon-mission specs
+		case 'LCh':   if (!fctr  ||  outAS.startsWith('css'))  L_magnitude=100; // “lightness” defaults to a “percent” 0%—100% with this
 		case 'JᶻCᶻhᶻ':
 		case 'IChᵀᴾ':
 		case 'LChᵤᵥ':
 		case 'OKLCh':  // “lightness” defaults to a “factor” 0.0—1.0 with these
 			const
 				hasNum=format.match(/numeric/i),
-				numb= hasNum  &&  (!hasPer  ||  hasNum.index < hasPer.index),
+				numb=hasNum  &&  (!hasPer  ||  hasNum.index < hasPer.index),
 				p=format.match(/precision: ?(\d+)/);
 			if (p) precision= parseInt(p[1]);
-			if (numb)
-				s=roundTo(precision, arr[0]*defaultLightness) + sep + roundTo(precision, this.chroma);
+
+			if (fctr  //←↓¿Got that?  the rediculous hoops we need to jump though to create a universal output pattern
+			||  (model==='LCh'  &&  outAs.startsWith('css')  &&  numb  &&  (!hasPer  ||  format.charAt(hasPer.index-1)==="!")))
+				s=roundTo(precision-Math.log10(L_magnitude), arr[0]*L_magnitude);
 			else
-				s=roundTo(precision-2, arr[0]*100) + '%' + sep + roundTo(precision-2, (this.chroma/this.cPer)*100) + '%';
-			s+=sep + roundTo(hueUnitPrecision[hueAngleUnit]+precision-5, this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + (alpha && aSep+(numb?  roundTo(3, this.alpha) : (roundTo(1, this.alpha*100)+'%')));
+				s=roundTo(precision-2, arr[0]*100) + '%';
+
+			if (fctr  &&  !outAs.startsWith('css')  &&  (!numb  ||  hasFac.index < hasNum.index))
+				s+=sep + roundTo(precision-2, (this.chroma/this.cPer));
+			else if (numb)
+				s+=sep + roundTo(precision, this.chroma);
+			else
+				s+=sep + roundTo(precision-2, (this.chroma/this.cPer)*100) + '%';
+
+			s+=sep + roundTo(hueUnitPrecision[hueAngleUnit]+precision-5, this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + (alpha && aSep+(fctr?  roundTo(3, this.alpha) : (roundTo(1, this.alpha*100)+'%')));
 		break;
 		default:  // “lightness” defaults to a “percent” 0%—100% with these
 			s=roundTo(hueUnitPrecision[hueAngleUnit], this.hue*hueAngleUnitFactors[hueAngleUnit]) + hueAngleUnit + sep;
-			if (!outAs.startsWith('css')  &&  hasFac?.[0]==='factor'  &&  (!hasPer  ||  hasFac.index < hasPer.index))
+			if (!outAs.startsWith('css')  &&  fctr)
 				s+=roundTo(3, arr[1]) + sep + roundTo(3, arr[2]) + (alpha && aSep+roundTo(3, this.alpha));
 			else
-				s+=roundTo(1, arr[1]*100) + '%' + sep + roundTo(1, arr[2]*100) + '%' + (alpha && aSep+roundTo(1, this.alpha*100)+'%');  }
+				s+=roundTo(1, arr[1]*100) + "%" + sep + roundTo(1, arr[2]*100) + "%" + (alpha && aSep+roundTo(1, this.alpha*100)+"%");  }
 		if (isNewModel || outAs==='css5')  alpha="";  // ¡curses to the folks who de-standardized this specification!  Tolerance ≡ ☺good☻   Strict totalitarian control ≡ ˅bad˅
-		if (model==="LCh")  s=this.illuminant+sep+s;
+		if (model==="LCh")  switch (outAs)  {
+			case 'csv':
+			case 'commas':
+			case 'plain':
+			case 'tabbed':  break;
+			case 'css': if (this.illuminant==='D50')  break;
+			default: s=this.illuminant+sep+s;  }
 		switch (outAs)  {
 		case 'color': return 'color('+this.CSS_model+' '+s+')';
 		case 'css5':
@@ -1815,21 +1832,35 @@ class OKLabA_Array extends ColorA_Array  {
 			hasCom=format.match(/cvs|commas/i),
 			hasPln=format.match(/plain/i),    //this is default
 			hasNum=format.match(/numeric/i),
-			hasPer=format.match(/percent/i),  //this is default
-			hasFac=format.match(/!?factor/i),
+			hasPer=format.match(/!?percent/i),  //this is default
+			hasFac=format.match(/factor/i),
+			fctr=hasFac  &&  (!hasPer  ||  hasPer[0].startsWith("!")  ||  hasFac.index < hasPer.index),
+			numb=hasNum  &&  (!hasPer  ||  hasPer[0].startsWith("!")  ||  hasNum.index < hasPer.index),
 			commas= hasCom  &&  outAs!=='css'  &&  outAs!=='color'  &&  outAs!=='tabbed'
 						&&  (!hasPln  ||  hasCom.index < hasPln.index),
 			sep= (outAs==='tabbed') ? "\t" : (commas ? ", " : " "),
 			alpha= (typeof this.alpha === 'number'
 							||  ( ( /alpha/i ).test(format)                                       //  ↓↓ may be ===0   … so …     ↓↓
 									&&  ((this.alpha= (typeof this.config.defaultAlpha === 'number') ? this.config.defaultAlpha : 1),true) ));
-		let
-			defaultLightness= (this.model==='Lab'  &&  hasFac?.[0]!=='factor') ? 100 : 1,
-			s= (hasNum  &&  (!hasPer  ||  hasNum.index < hasPer.index)) ?
-				(roundTo(precision, this[0]*defaultLightness)+sep+roundTo(precision, this[1])+sep+roundTo(precision, this[2])+
-					(alpha && (commas?sep:' / ')+roundTo(3, this.alpha)  ||  ""))
-			: (roundTo(precision-2, this[0]*100)+'%'+sep+roundTo(precision-2, (this[1]/this.axisPer)*100)+'%'+sep+roundTo(precision-2, (this[2]/this.axisPer)*100)+'%'+
-					(alpha && (commas?sep:' / ')+roundTo(1, this.alpha*100)+'%'  ||  ""));
+		let s;
+		if (fctr
+		||  (this.model==='Lab'  &&  outAs==='css'  &&  numb))  {
+			let L_magnitude= (this.model==='Lab'  &&  (outAs==='css'  ||  !fctr)) ? 100 : 1;
+			s=roundTo(precision-Math.log10(L_magnitude), this[0]*L_magnitude);  }
+		else
+			s=roundTo(precision-2, this[0]*100)+'%';
+
+		if (fctr  &&  outAs!=='css'  &&  (!numb  ||  hasFac.index < hasNum.index))
+			s+= sep+roundTo(precision, (this[1]/this.axisPer))+sep+roundTo(precision, (this[2]/this.axisPer));
+		else if (numb)
+			s+= sep+roundTo(precision, this[1])+sep+roundTo(precision, this[2]);
+		else
+			s+= sep+roundTo(precision-2, (this[1]/this.axisPer)*100)+'%'+sep+roundTo(precision-2, (this[2]/this.axisPer)*100)+'%';
+
+		if (fctr)
+			s+=(alpha && (commas?sep:' / ')+roundTo(3, this.alpha)  ||  "")
+		else
+			s+=(alpha && (commas?sep:' / ')+roundTo(1, this.alpha*100)+'%'  ||  "")
 		if (model==="Lab")  switch (outAs)  {
 			case 'csv':
 			case 'commas':
