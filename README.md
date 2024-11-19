@@ -33,3 +33,7 @@ https://softmoon-webware.com/MasterColorPicker_instructions.php
 (no ads, no cookies, no tracking, no b.s!)
 
 ...And if you like it please *star* it ☺
+
+**_Special note_**
+If you download the .zip file, you may need to use the 7-Zip application to unzip it with the correct file-names.  I need to with Windows 7.  ¿Perhaps more current OSs have no problem?
+See the “issues” tab on GitHub.
