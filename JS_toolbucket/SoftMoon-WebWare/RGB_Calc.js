@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.14  November 19, 2024  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.14.02  January 10, 2026  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 // All color-space conversion algorithms and code herein are either: public-domain, MIT-licenced, or both.
 /*  Program written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
@@ -32,9 +32,10 @@
 // requires  “+++Math.js”  ←in  JS_toolbucket/++JS/
 // requires  “Björn_Ottosson.OK_color_space_models.js”  ←in  JS_toolbucket/
 // requires  “Alexei_Boronine.HSLᵤᵥ_color_space_model.js”  ←in  JS_toolbucket/
-// requires  “HTTP.js”  ←in  JS_toolbucket/SoftMoon-WebWare/    ← only when downloading color-palette tables from the web via ajax.  They may be included in other ways.
+// requires  “HTTP.js”  ←in  JS_toolbucket/SoftMoon-WebWare/    ← only when downloading color-palette tables from the web via ajax.
+//  ↑ ↑ ↑                                                         They may be included in other ways.
 //  ↑ ↑ ↑ This codebase does not initiate HTTP connections on its own.
-//  ↑ ↑ ↑ Your host environment code must handle that and you must understand how to do that and what that process does.
+//  ↑ ↑ ↑ Your host environment code must handle that and you must understand how use this codebase to do that and what that process does.
 
 'use strict';
 
@@ -235,7 +236,7 @@ const RegExp = SoftMoon.RegExp || window.RegExp;
 RegExp.stdWrappedColor= new window.RegExp( /^\s*([^(:]+)\s*\(\s*(.+)\s*\)\s*$/ );
 RegExp.stdPrefixedColor= new window.RegExp( /^\s*([^(:]+)\s*\:\s*(.+)\s*$/ );
 
-// confirm and identify agents of the === CSS5  color()  function ===
+// confirm and identify agents of the ===== CSS5  color()  function =====
 RegExp.CSSColorFunction= new window.RegExp( /^\s*color\(\s*(\S{2,})\s+(.+)\s*\)\s*$/i );
 
 
@@ -390,8 +391,9 @@ RegExp.oklch_a=new window.RegExp( '^' +f+ sep +OK_c+ sep + h+ '(?:' +aSep +f+ ')
 RegExp.oklab_factors_a=new window.RegExp( '^' +f +sep+ OK_ab +sep+ OK_ab + '(?:' +aSep+ f+ ')?$' );
 RegExp.oklch_factors_a=new window.RegExp( '^' +f +sep+ OK_f_C +sep+ h+ '(?:' +aSep+ f+ ')?$' );
 
+/*
 /^\s*0*((?:0|1|0?\.[0-9]+)|(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%))\s*?[, ]\s*0*(-?(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%|0|\.40*|\.[0-3]\d*))\s*[, ]\s*0*(-?(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%|0|\.40*|\.[0-3]\d*))\s*(?:(?:,| \/ | )\s*0*((?:0|1|0?\.[0-9]+)|(?:(?:100|[0-9]{1,2}(?:\.[0-9]*)?|0?\.[0-9]+)%))\s*?)?$/u
-
+*/
 
 
 const
@@ -448,22 +450,22 @@ RegExp.ichtp_factors_a=RegExp.jzczhz_factors_a
 const hueAngleUnitFactors=Math.Trig.angleUnitFactors;
 /*
 	Object.defineProperties(new Object, {
-		'deg':  {value: 360,       enumerable: true},
-		"°":    {value: 360,       enumerable: true},
+		'deg':  {value: 360, enumerable: true},
+		"°":    {value: 360, enumerable: true},
 		'rad':  {value: 2*π, enumerable: true},
 		"ᶜ":    {value: 2*π, enumerable: true},
 		"ᴿ":    {value: 2*π, enumerable: true},
-		'grad': {value: 400,       enumerable: true},
-		'ᵍ':    {value: 400,       enumerable: true},
-		"%":    {value: 100,       enumerable: true},
-		'turn': {value: 1,         enumerable: true},
-		"●":    {value: 1,         enumerable: true}  });
+		'grad': {value: 400, enumerable: true},
+		'ᵍ':    {value: 400, enumerable: true},
+		"%":    {value: 100, enumerable: true},
+		'turn': {value: 1,   enumerable: true},
+		"●":    {value: 1,   enumerable: true}  });
  */
 
 
 // http://www.brucelindbloom.com/index.html?WorkingSpaceInfo.html#Specifications
 const RGB_profiles={
-												// gamma values     with sRGB, we only have a “standard” matrix for D65 right now… but D50_Lindbloom is our D50 standard stand-in
+	// gamma values     with sRGB, we only have a “standard” matrix for D65 right now… but D50_Lindbloom is our D50 standard stand-in
 	"Adobe RGB (1998)": {γCorrection: 2.2, illuminant: 'D65'},
 	"Apple RGB":        {γCorrection: 1.8, illuminant: 'D65'},
 	"Best RGB":         {γCorrection: 2.2, illuminant: 'D50'},  // D50_Lindbloom
@@ -491,7 +493,7 @@ Object.deepFreeze(RGB_profiles);
 
 	// make sure the color’s value is an integer; and in the boundaries of 0-255; if not, “reflect” it back or “truncate”.
 function getByteValue(v)  {
-	var isNotPercent=true;  // or a factor…
+	var isNotPercent=true;  // nor a factor…
 	if (typeof v === 'string')  {
 		if (this.config.allowUndefinedRGBChannels)  {
 			if (v==='*'  ||  v==='◊')  return v;
@@ -519,7 +521,7 @@ function getHueFactor(h)  {
 	if ( (this.config.inputAsFactor  &&  !m)
 	||  unit==='turn'  ||  unit==="●" )
 		return (h<0 || h>1) ? Math.sawtooth(1,h) : h;
-	// ↑  ↓   all grayscale may be hue=1 instead of hue=0
+	// ↑  ↓   all grayscale may be hue=1 instead of the typical hue=0
 	if (unit=hueAngleUnitFactors[unit])  return (h<0 || h>unit) ?  (Math.sawtooth(unit, h)/unit)  :  (h/unit);
 	else  return false;  }
 
@@ -698,7 +700,7 @@ class ConfigStack  {
 const CS_props={
 	name: 'RGB_Calc.ConfigStack',
 
-// ↓facilitates “rounding” to the nearest “byte” value (integer used by the hardware - may be more than 8-bits)
+// ↓facilitates “rounding” to the nearest “byte” value (integer used by the hardware - now-a-days may be more than 8-bits)
 	RGB_bitDepth: 255, // see window.screen.pixelDepth
 // ↓for ∆RGB—XYZ & ∆RGB—∆RGB conversions, etc.
 	RGB_profile: 'sRGB',
@@ -714,10 +716,11 @@ const CS_props={
 
 //  for the RGB color model,
 //  depending on the flag below,
-//  values passed in to  RGB_Calc (¡when “auditing”!)  or  RGBA_Color  outside the range of 0-255 are “reflected” or “truncated” back into the correct range.
+//  values passed in to  RGB_Calc (¡when “auditing”!)  or  RGBA_Color
+//  outside the range of 0-255 are “reflected” or “truncated” back into the correct range.
 	reflect: false,
 
-// if ↓ true, RGB output will always include and alpha (α) value, as well as the profile and bit-depth
+// if ↓ true, RGB output will always include an alpha (α) value, as well as the profile and bit-depth
 	doOutput_RGB_metadata: false,
 
 /* This controls how RGB_Calc interprets == “audit” == values,
@@ -789,8 +792,8 @@ const CS_props={
 
 // You may want to •create your own Class constructor for any of these 23 Factories below
 //  or you may want to •use the  …A_Array  classes below for many of these factories below
-//  (they have conversion functions baked into their prototype)
-//  or you may want to •use any of the  …A_Color  Objects defined below.
+//  (they have friendly syntax and conversion functions baked into their prototype)
+//  or you may want to •use any of the  …A_Color  Objects defined below, that extend the …A_Array classes.
 // The RGB_Calc.ConfigStack child-class redefines these for auditing calculators,
 //   and so do all the  …A_Color  Objects and  …A_Array  Objects  for their conversion properties,
 //   while they remain the default for quick calculators.
@@ -822,10 +825,12 @@ const CS_props={
  * these are by default superseded by …A_Array Objects for conversion functions in …A_Array Object instances, &
  * these are by default superseded by …A_Color Objects for Auditing Calculators and conversion functions in …A_Color Object instances.
  *
- * //this example provides a quick calculator that returns RGB output as an RGBA_Color object instance, instead of the default simple array of values:
- * myCalc=new SoftMoon.WebWare.RGB_Calc({RGBA_Factory:SoftMoon.WebWare.RGBA_Color, true});
+ * //this example provides a quick calculator that returns RGB output as an RGBA_Color object instance,
+ * //  instead of the default simple array of values:
+ * myCalc=new SoftMoon.WebWare.RGB_Calc({RGBA_Factory:SoftMoon.WebWare.RGBA_Color}, true);
  *
- * //this example provides a calculator that returns an RGBA_Color object instance that outputs hex using the # symbol, regardless of the universal default:
+ * //this example provides a calculator that returns an RGBA_Color object instance that outputs hex using the # symbol,
+ * //  regardless of the universal default:
  * myCalc=new SoftMoon.WebWare.RGB_Calc;
  * myCalc.config.RGBA_Factory=function(r,g,b,a)  {return new SoftMoon.WebWare.RGBA_Color(r,g,b,a,{useHexSymbol:true})};
  */
@@ -884,8 +889,8 @@ class RGBA_Array extends ColorA_Array {
 	get g() {return this[1]}  set g($) {this[1]=$}
 	get B() {return this[2]}  set B($) {this[2]=$}
 	get b() {return this[2]}  set b($) {this[2]=$}
-	get A() {return this[3]}  set A($) {this[3]=$}  // RGB is the only color-space that supports “A” & “a” for alpha, due to conflicts in other color-spaces
-	get a() {return this[3]}  set a($) {this[3]=$}  // this is for historical reasons of compatability with other libraries
+	get A() {return this[3]}  set A($) {this[3]=$}  // RGB is the only color-space that supports “A” & “a” for alpha, due to conflicts in
+	get a() {return this[3]}  set a($) {this[3]=$}  //  other color-spaces.  This is for historical reasons of compatability with other libraries
 	get α() {return this[3]}  set α($) {this[3]=$}  // all others use Greek letter lowercase alpha α
 	get alpha()   {return this[3]}  set alpha($)   {this[3]=$}
 	get opacity() {return this[3]}  set opacity($) {this[3]=$}
@@ -928,7 +933,7 @@ class RGBA_Array extends ColorA_Array {
 			finally {if (sym) this.config.cull();}  }
 		const
 			bits=this.bitDepth || 255,
-			hasCom=format.match(/cvs|commas/i),
+			hasCom=format.match(/csv|commas/i),
 			hasPln=format.match(/plain/i),
 			hasByt=format.match(/byte/i),
 			hasFac=format.match(/factor/i),
@@ -1096,7 +1101,7 @@ class CMYKA_Array extends ColorA_Array {
 		var outAs=format.match( /css5?|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i );
 		if (outAs)  outAs=outAs[0].toLowerCase();
 		const
-			hasCom=format.match(/cvs|commas/i),
+			hasCom=format.match(/csv|commas/i),
 			hasPln=format.match(/plain/i),
 			hasFac=format.match(/factor/i),
 			hasPer=format.match(/percent/i),
@@ -1227,7 +1232,7 @@ class ColorWheel_Array extends ColorA_Array {
 			isNewModel=['HWB', 'OKLCh', 'OKHSL', 'OKHSV', 'OKHWB', 'OKHCG', 'LCh', 'LChᵤᵥ', 'JᶻCᶻhᶻ', 'IChᵀᴾ'].includes(model),
 			isNewStndrd=outAs==='css5'  ||  outAs==='color'  ||  (isNewModel  &&  outAs==='css'),
 			arr=this,
-			hasCom=format.match(/cvs|commas/i),
+			hasCom=format.match(/csv|commas/i),
 			hasPln=format.match(/plain/i),
 			hasPer=format.match(/percent/i),
 			hasFac=format.match(/factor/i),
@@ -1829,7 +1834,7 @@ class OKLabA_Array extends ColorA_Array  {
 					: /css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i );
 		if (outAs)  outAs=outAs[0].toLowerCase();
 		const
-			hasCom=format.match(/cvs|commas/i),
+			hasCom=format.match(/csv|commas/i),
 			hasPln=format.match(/plain/i),    //this is default
 			hasNum=format.match(/numeric/i),
 			hasPer=format.match(/!?percent/i),  //this is default
@@ -2186,18 +2191,18 @@ Object.defineProperties(LChᵤᵥA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(LChᵤᵥA_Array.prototype, {LuvA_Factory: LuvA_Array})} });
 
 class LChᵤᵥA_Color extends LChᵤᵥA_Array  {
-	constructor($L,$C,$h,$α, $config)  {  // 0 ≤ [$L,$H] ≤ 1     0 ≤ $C ≤ 0.5  ←(100%===0.4)
+	constructor($L,$C,$h,$α, $config)  {  // 0 ≤ [$L,$H] ≤ 1     0 ≤ $C ≤ 304  ←(100%===304)
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
 		if ($α===undefined)  $α=this.config.defaultAlpha;
 		const
 			thisClr=this;
-		function readArr($arr)  { $L=thisClr.getFactor($arr[0], true);  $C=thisClr.getAxis($arr[1], 215, 215);  $h=thisClr.getHue($arr[2]);
+		function readArr($arr)  { $L=thisClr.getFactor($arr[0], true);  $C=thisClr.getAxis($arr[1], 304, 304);  $h=thisClr.getHue($arr[2]);
 			if (typeof $arr[3] === 'number')  $α=thisClr.getAlpha($arr[3]);
 			else  $α=thisClr.config.defaultAlpha;  }
 		Object.defineProperties(this, {
 			0: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($, true),  enumerable: true},
-			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 215, 215),  enumerable: true},
+			1: {get: ()=>$C,  set: ($)=>$C=thisClr.getAxis($, 304, 304),  enumerable: true},
 			2: {get: ()=>$h,  set: ($)=>$h=thisClr.getHue($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			lchᵤᵥa: {get: ()=>[$L,$C,$h,$α],  set: readArr}  });  }  }
@@ -2387,7 +2392,7 @@ Object.defineProperties(JᶻCᶻhᶻA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(JᶻCᶻhᶻA_Array.prototype, {JᶻaᶻbᶻA_Factory: JᶻaᶻbᶻA_Array})} });
 
 class JᶻCᶻhᶻA_Color extends JᶻCᶻhᶻA_Array  {
-	constructor($J,$C,$h,$α, $config)  {  // 0 ≤ [$J,$H] ≤ 1     0 ≤ $C ≤ 1  ←(100%===1)
+	constructor($J,$C,$h,$α, $config)  {  // 0 ≤ [$J,$H] ≤ 1     0 ≤ $C ≤ ≈0.707106781  ←(100%===1)
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
 		if ($α===undefined)  $α=this.config.defaultAlpha;
@@ -2577,7 +2582,7 @@ Object.defineProperties(IChᵀᴾA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(IChᵀᴾA_Array.prototype, {ICᵀCᴾA_Factory: ICᵀCᴾA_Array})} });
 
 class IChᵀᴾA_Color extends IChᵀᴾA_Array  {
-	constructor($I,$c,$h,$α, $config)  {  // 0 ≤ [$I,$h] ≤ 1     0 ≤ $c ≤ 1  ←(100%===1)
+	constructor($I,$c,$h,$α, $config)  {  // 0 ≤ [$I,$h] ≤ 1     0 ≤ $c ≤ ≈0.707106781  ←(100%===1)
 		super();
 		this.config= new ColorWheel_Color.ConfigStack(this, $config);
 		if ($α===undefined)  $α=this.config.defaultAlpha;
@@ -2841,7 +2846,7 @@ class XYZA_Array extends ColorA_Array  {
 		var outAs=format.match( /color|css|html|wrap|function|prefix|csv|commas|plain|tabbed|self/i );
 		if (outAs)  outAs=outAs[0].toLowerCase();
 		const
-			hasCom=format.match(/cvs|commas/i),
+			hasCom=format.match(/csv|commas/i),
 			hasPln=format.match(/plain/i),    //this is default
 			commas= outAs==='self'
 				||  hasCom  &&  outAs!=='color'  &&  outAs!=='css'  &&  outAs!=='tabbed'  &&  (!hasPln  ||  hasCom.index < hasPln.index),
@@ -2874,7 +2879,7 @@ class XYZA_Array extends ColorA_Array  {
 		case 'wrap':
 		case 'function':  return model+'('+s+')';
 		case 'prefix':    return model+': '+s;
-		case 'cvs':
+		case 'csv':
 		case 'commas':
 		case 'plain':
 		case 'tabbed':  return s;
@@ -2885,7 +2890,7 @@ Object.defineProperties(XYZA_Array.prototype, {
 	model: {value: 'XYZ'},
 	γCorrect_linear_RGB: {value: γCorrect_linear_RGB},
 	output_clampedRGB: {value: output_clampedRGB},
-	illuminant_adaption_provider: {value: "Lindbloom"},  // ← CSS ‖ Lindbloom
+	illuminant_adaption_provider: {writable:true, value: "Lindbloom"},  // ← CSS ‖ Lindbloom
 	config: {writable:true, value: new ConfigStack(XYZA_Array.prototype,
 		{roundRGB:false, defaultAlpha:undefined, RGB_profile:'sRGB', RGB_bitDepth:255,
 			RGBA_Factory: RGBA_Array, LabA_Factory: LabA_Array, LuvA_Factory: LuvA_Array,
@@ -2946,7 +2951,7 @@ LabA_Color.ConfigStack.prototype.LChA_Factory=LChA_Color;
 Object.defineProperties(OKLabA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(OKLabA_Array.prototype,
 		{roundRGB:false, defaultAlpha:undefined, RGB_profile:'sRGB', RGB_bitDepth:255,
-		 RGBA_Factory: Array, XYZA_Factory: XYZA_Array, OKLChA_Factory: OKLChA_Array, OKHSVA_Factory: OKHSVA_Array, OKHSLA_Factory: OKHSLA_Array})} });
+		 RGBA_Factory: RGBA_Array, XYZA_Factory: XYZA_Array, OKLChA_Factory: OKLChA_Array, OKHSVA_Factory: OKHSVA_Array, OKHSLA_Factory: OKHSLA_Array})} });
 OKLabA_Color.ConfigStack.prototype.RGBA_Factory=RGBA_Color;
 OKLabA_Color.ConfigStack.prototype.XYZA_Factory=XYZA_Color;
 OKLabA_Color.ConfigStack.prototype.OKLChA_Factory=OKLChA_Color;
@@ -2980,7 +2985,7 @@ ColorWheel_Color.ConfigStack.prototype.ICᵀCᴾA_Factory=ICᵀCᴾA_Color;  // 
 Object.defineProperties(RGBA_Array.prototype, {
 	config: {writable:true, value: new ConfigStack(RGBA_Array.prototype, {XYZA_Factory:XYZA_Array, OKLabA_Factory: OKLabA_Array})} });
 
-//  You may want to use  Array  or create your own Class constructor for any of these 21 Factories below
+//  You may want to use  Array  or create your own Class constructor for any of these 22 Factories below
 // The …A_Color-classes below have simple (and thus quicker to construct) Array-based superclasses with the conversion functions prototyped in
 //  and you may want to use any of those for the factories below:
 RGBA_Color.ConfigStack.prototype.HSLA_Factory= HSLA_Color;
@@ -3011,7 +3016,8 @@ RGBA_Color.ConfigStack.prototype.XYZA_Factory=   XYZA_Color;
 
 
 // if only classes were hoisted…
-// the promise of “cleaner code” was shattered and this codebase organization scattered (it was already hard to organize without extensive scrolling to follow the code flow)
+// the promise of “cleaner code” was shattered and this codebase organization scattered
+// (it was already hard to organize without extensive scrolling to follow the code flow)
 // when we moved to “classes” to extend the Array interface.
 // Ideally, this would be declared a “static” function in the ColorWheel_Color class, but it references the child-classes that reference the parent…
 
@@ -3241,8 +3247,8 @@ RGB_Calc.prototype.output_clampedRGB= output_clampedRGB;
 
 RGB_Calc.install=
 RGB_Calc.prototype.install= function(cSpace, provider)  {
-	var meta;
-	if (!(meta=RGB_Calc[cSpace+"Providers"][provider]))  {
+	const meta=RGB_Calc[cSpace+"Providers"][provider];
+	if (!meta)  {
 		const message="Could not install "+cSpace+" provider: "+provider+" → not found.";
 		if (this.config.logErrors)  console.error(message);
 		if (this.config.throwErrors)  throw new Error(message);
@@ -3279,7 +3285,7 @@ function luminance(rgba)  {  // rgb from 0-255, a (alpha-opacity) from 0.0-1.0
 				 + 0.0722 * (B<0.04045 ? (B/12.92) : (((B+0.055)/1.055) ** 2.4)) );  }
 
 RGB_Calc.contrastRatio=
-RGB_Calc.prototype.conrastRatio=contrastRatio;
+RGB_Calc.prototype.contrastRatio=contrastRatio;
 //  https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
 function contrastRatio(fore, back)  {
 	const
@@ -3326,7 +3332,7 @@ const ACS_props={
  */
 	forbidAddOnAlpha: false,
 
-//  You may want to use  Array  or any of the  …A_Array  Classes above or create your own Class constructor for any of these 19 Factories below
+//  You may want to use  Array  or any of the  …A_Array  Classes above or create your own Class constructor for any of these 23 Factories below
 	RGBA_Factory: RGBA_Color,
 	HSLA_Factory: HSLA_Color,
 	HSBA_Factory: HSBA_Color,
@@ -3353,7 +3359,8 @@ const ACS_props={
 /*
  *The 23 factory pointers (above) control the output of the “auditing” RGB_Calc–functions and its instances.
  *
- * //this example provides an auditing calculator that returns RGB output as a simple array of values, instead of the default RGBA_Color object instance:
+ * //this example provides an auditing calculator that returns RGB output as a simple array of values,
+ * // instead of the default RGBA_Color object instance:
  * myCalc=new SoftMoon.WebWare.RGB_Calc({RGBA_Factory:Array});
  */
 }
@@ -3403,7 +3410,7 @@ RGB_Calc.definer.audit.to.shade={value: function() {return convertColor.call(thi
 function shadeRGB(rgb)  {
 	const bits= rgb.bitDepth || this.config.RGB_bitDepth;
 	var i, min=bits, max=0;
-	for (i=0; i<3; i++)  {min=(rgb[i]<min) ? rgb[i] : min;   max=(rgb[i]>max) ? rgb[i] : max;}
+	for (i=0; i<3; i++) {min=(rgb[i]<min) ? rgb[i] : min;   max=(rgb[i]>max) ? rgb[i] : max;}
 	const f= (bits-max > min) ? (bits/max) : (1/min);
 	return toHex.call(this, [rgb[0]*f, rgb[1]*f, rgb[2]*f]);  }
 
@@ -4212,32 +4219,6 @@ RGB_Calc.definer.quick.from.xyza={enumerable:true, value:fromXYZ};
 RGB_Calc.definer.audit.from.xyz=
 RGB_Calc.definer.audit.from.xyza={enumerable:true, value:function(XYZ) {return (XYZ=parseXYZ.call(this, XYZ))  &&  fromXYZ.call(this, XYZ.xyz, XYZ.profile);}};
 
-function parseXYZ(XYZ)  {
-	var xyz, profile=this.config.RGB_profile, illuminant;
-	if (typeof XYZ === 'string')
-		xyz=XYZ.trim().split( /(?:\s*,|\s)\s*/ ).map(v=>v.trim());
-	else if (this.config.preserveInputArrays)  xyz=Array.from(XYZ);
-	else xyz=XYZ;
-	const digital= /^[\d.-]/ ;
-	if (!digital.test(xyz[1]))  {profile=xyz.shift();  illuminant=xyz.shift();}  // XYZ('sRGB', 'D65_classic', …, …, …, …)
-	else if (!digital.test(xyz[0]))  {
-		const foo=xyz.shift();
-		if (fromXYZ_matrix[foo])  profile=foo;                                     // XYZ('sRGB', …, …, …, …)
-		else if (fromXYZ_matrix[profile]?.[foo])  illuminant=foo;  }               // XYZ('D65_classic', …, …, …, …)
-	if (!fromXYZ_matrix[profile])  return this.config.onError(XYZ, undefined, 'Unknown color-profile “',profile,'” for XYZ ');
-	if (illuminant  &&  !fromXYZ_matrix[profile][illuminant])  return this.config.onError(XYZ, undefined, 'Unknown illuminant “',illuminant,'” for XYZ ');
-	// const ranges=fromXYZ_inputRanges[illuminant];
-	for (var i=0, isNotPercent; i<3; i++)  { isNotPercent=true
-		if (typeof xyz[i] === 'string')  {
-			if (xyz[i].endsWith('%'))  {xyz[i]=(parseFloat(xyz[i])/100);  isNotPercent=false;}
-			else  xyz[i]=parseFloat(xyz[i]);  }
-		//if (!this.config.inputAsFactor  &&  isNotPercent)  xyz[i]/=ranges[i];
-		//if (xyz[i]<0  ||  xyz[i]>1)  return this.config.onError(XYZ, 'XYZ');
-		}
-	xyz[3]=this.getAlpha(xyz[3]);
-	xyz.illuminant=illuminant;
-	return {xyz:xyz, profile:profile};  }
-
 RGB_Calc.from.xyz=fromXYZ;
 
 const fromXYZ_matrix={
@@ -4315,6 +4296,32 @@ Object.deepFreeze(fromXYZ_matrix.p3.D65);
 
 Object.deepFreeze(toXYZ_matrix.sRGB.D65_2003);
 
+
+function parseXYZ(XYZ)  {
+	var xyz, profile=this.config.RGB_profile, illuminant;
+	if (typeof XYZ === 'string')
+		xyz=XYZ.trim().split( /(?:\s*,|\s)\s*/ ).map(v=>v.trim());
+	else if (this.config.preserveInputArrays)  xyz=Array.from(XYZ);
+	else xyz=XYZ;
+	const digital= /^[\d.-]/ ;
+	if (!digital.test(xyz[1]))  {profile=xyz.shift();  illuminant=xyz.shift();}  // XYZ('sRGB', 'D65_classic', …, …, …, …)
+	else if (!digital.test(xyz[0]))  {
+		const foo=xyz.shift();
+		if (fromXYZ_matrix[foo])  profile=foo;                                     // XYZ('sRGB', …, …, …, …)
+		else if (fromXYZ_matrix[profile]?.[foo])  illuminant=foo;  }               // XYZ('D65_classic', …, …, …, …)
+	if (!fromXYZ_matrix[profile])  return this.config.onError(XYZ, undefined, 'Unknown color-profile “',profile,'” for XYZ ');
+	if (illuminant  &&  !fromXYZ_matrix[profile][illuminant])  return this.config.onError(XYZ, undefined, 'Unknown illuminant “',illuminant,'” for XYZ ');
+	// const ranges=fromXYZ_inputRanges[illuminant];
+	for (var i=0, isNotPercent; i<3; i++)  { isNotPercent=true
+		if (typeof xyz[i] === 'string')  {
+			if (xyz[i].endsWith('%'))  {xyz[i]=(parseFloat(xyz[i])/100);  isNotPercent=false;}
+			else  xyz[i]=parseFloat(xyz[i]);  }
+		//if (!this.config.inputAsFactor  &&  isNotPercent)  xyz[i]/=ranges[i];
+		//if (xyz[i]<0  ||  xyz[i]>1)  return this.config.onError(XYZ, 'XYZ');
+		}
+	xyz[3]=this.getAlpha(xyz[3]);
+	xyz.illuminant=illuminant;
+	return {xyz:xyz, profile:profile};  }
 
 
 /*
