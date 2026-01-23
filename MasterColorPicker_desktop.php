@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 <head>
-<meta charset="UTF-8" />
-<meta name='author' content='Joe Golembieski, SoftMoon-WebWare' />
-<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2022 Joe Golembieski, SoftMoon-WebWare' />
+<meta charset="UTF-8">
+<meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
+<meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2022,2023,2024,2026 Joe Golembieski, SoftMoon-WebWare'>
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
+<link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection"
-			href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css' />
+			href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css'>
 <style type='text/css'>
 body, section, div {
 	margin: 0;
@@ -33,26 +34,25 @@ body > input {
 p img {
 	display: block; }
 </style>
-<!--  for MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2022 Joe Golembieski, SoftMoon-WebWare
-      release 2.2  Feb 22, 2022   -->
+<!--  for MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon-WebWare
+      release 2.6.11  Jan 22, 2026   -->
 
 <script>
-const SoftMoon={};
-Object.defineProperties(SoftMoon, {
+const SoftMoon=Object.defineProperties({}, {
 	WebWare: {value: {}, enumerable: true},
 	uploaded_palettes: {value: [], enumeralble: true}});
 </script>
 <script type='text/javascript' src='JS_toolbucket/+++JS/+++.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/+++JS/+++Math.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/+++input_type.js' defer></script><!--  supports RainbowMaestro & ColorSpaceLab  -->
-<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2020.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/UniDOM-2022.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/HTTP.js' defer></script><!--  ESSENTIAL for server version to auto-load/save palette files; NOT for  file://  use  -->
 <script type='text/javascript' src='JS_toolbucket/Björn_Ottosson.OK_color_space_models.js' defer></script><!--  !! ESSENTIAL !!  -->
+<script type='text/javascript' src='JS_toolbucket/Alexei_Boronine.HSLᵤᵥ_color_space_model.js' defer></script><!--  !! ESSENTIAL !!  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/RGB_Calc.js' defer></script><!--  !! ESSENTIAL !!  -->
-<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden_websafe_colorblindTable_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
-<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline_colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type="text/javascript" src="JS_toolbucket/SoftMoon-WebWare/Rigden-colorblind_websafe-table_interpolator.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
+<script type="text/javascript" src="JS_toolbucket/skratchdot.Wickline-colorblind_converter.js" defer></script><!--  supports RainbowMaestro & MyPalette & Color-Space Lab  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/Picker.js' defer></script><!--  !! ESSENTIAL !!  -->
-<!--  script type='text/javascript' src='JS_toolbucket/Log.js' defer></script><!--  only if you plan on logging to debug  -->
 <script type='text/javascript' src='JS_toolbucket/SoftMoon-WebWare/FormFieldGenie.js' defer></script><!--  supports MyPalette & ColorFilter  -->
 <script type="text/javascript" src="color-pickers/SoftMoon-WebWare/MasterColorPicker2.js" defer></script>
 
@@ -71,9 +71,9 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 
 <body>
 
-<input type='MasterColorPicker' id='color-picker_input' />
+<input type='MasterColorPicker' id='color-picker_input'>
 <p>created by:
-<img src='images/SoftMoonWebWare.gif' alt='SoftMoon WebWare' />
+<img src='images/SoftMoonWebWare.gif' alt='SoftMoon WebWare'>
 </p>
 
 <?php include "color-pickers/SoftMoon-WebWare/MasterColorPicker2.htm"; ?>
