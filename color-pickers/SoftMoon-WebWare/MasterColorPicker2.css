@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.11  November 6, 2024  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.12  January 22, 2026  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -2472,9 +2472,6 @@ table#Simple² tr:nth-child(2) td:nth-child(4) {  /* contains canvases */
 	vertical-align: bottom;
 	line-height: 100%; }
 table#Simple² tr:nth-child(2) td:nth-child(1) {
-/*with Chromium browsers, padding in this column seems incorrect
-(way too much - inspector says over 6px), but even when set to 0px,
-or something unknown is causing the column to widen.*/
 	padding: 0.382em; }
 table#Simple² tr:nth-child(2) td:nth-child(5),
 table#Simple² tr:nth-child(2) td:nth-child(6) {
@@ -2549,13 +2546,11 @@ table#Simple² tr:nth-child(2) td:nth-child(6) input[type="text"] {
 	right: auto; }
 
 table#Simple² tr:nth-child(3) td:first-child {  /*for “lock”*/
-/*with Chromium browsers, padding in this column seems incorrect
-(way too much - inspector says over 6px), but even when set to 0px,
-or something unknown is causing the column to widen.*/
 	padding: 0.382em;
 	vertical-align: middle; }
 table#Simple² tr:nth-child(3) td:first-child label {  /*for “lock”*/
-	transform: none; }
+	transform: none;
+	white-space: nowrap; }
 table#Simple² tr:nth-child(3) td:first-child input {  /*checkbox for “lock”*/
 	display: block;  /*for Chromium browsers*/
 	margin: 0 auto; }
