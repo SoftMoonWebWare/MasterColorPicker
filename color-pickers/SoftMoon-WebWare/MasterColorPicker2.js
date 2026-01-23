@@ -1,7 +1,7 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.11~BETA   November 15, 2024   by SoftMoon WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
+// MasterColorPicker2.js   ~release ~2.6.12~BETA   January 22, 2026   by SoftMoon WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
 		For qualified “humane entities”, this program is free software:
@@ -2128,7 +2128,7 @@ ColorSpaceLab.alignColor=function(event)  {
 		case 'hcg':  build[1]=parseFloat(settings.hCg_percent.value||0); build[2]=parseFloat(settings.hcG_percent.value||0);  break;  }  }  }
 
 	build.push(parseFloat(settings.opacity_percent.value||0)/100);
-	const isOK=settings.Lab_OK.checked ? "ok" : "";
+	const isOK=(this.closest("table.isOK")  &&  settings.Lab_OK.checked) ? "ok" : ""; //a bit redundant…
 	ColorSpaceLab.setColor({RGB: CSL_calc.from[isOK+space](build)}, space);  }
 
 
@@ -6175,6 +6175,7 @@ ColorThesaurus.matchColor=function matchColor(color)  { /* as an event-handler, 
 	const
 		plts=document.querySelectorAll('#MasterColorPicker_Thesaurus input'),
 		results=[];
+	color=color.to.hcg;
 	for (var i=1; i<plts.length; i++)  {if (plts[i].checked)  searchPalette(SoftMoon.palettes[plts[i].value], plts[i].value);}
 	if (results.length===0)   {
 		output.appendChild(document.createElement('p')).append(ColorThesaurus.HTML.SELECT);
@@ -6208,12 +6209,12 @@ ColorThesaurus.matchColor=function matchColor(color)  { /* as an event-handler, 
 			if (refMarks  /* do not consider “unnamed” colors */
 			&&  pClr.substr(0, refMarks[0].length)===refMarks[0]
 			&&  pClr.substr(-refMarks[1].length)===refMarks[1])  continue;
-			const pltClr=MasterColorPicker.RGB_calc(plt.palette[pClr]);
+			const pltClr=MasterColorPicker.RGB_calc(plt.palette[pClr].definition || plt.palette[pClr]);
 			if (pltClr==null)  continue;
 			results.push({
 				name: name+': '+pClr,
 				color: pltClr,
-				disparity: ColorThesaurus.compare(color.to.hcg, pltClr.to.hcg) });  }  }  }
+				disparity: ColorThesaurus.compare(color, pltClr.to.hcg) });  }  }  }
 
 /*
 	c1 & c2 should each be a SoftMoon.WebWare.HCGA_Color
