@@ -133,7 +133,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon-WebWare
-			release 2.6.12  January 22, 2026
+			release 2.6.13  January 27, 2026
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -269,8 +269,10 @@ but to retain the settings this file may be included inside an existing web <for
 		</tfoot>
 		</table>
 		<table><caption>Numeric values output format:</caption>
+			<tr><th>keyword</th><th>purpose</th></tr>
 			<tr><td class='clickable'>byte</td>
-				<th scope='row'>For the <abbr>sRGB</abbr> color-space only, values are shown as integer-bytes (0–255).</th></tr>
+				<th scope='row'>For the <abbr>sRGB</abbr> color-space only, values are shown as integer-bytes (0–255).&nbsp;
+					This overrides “percent” &amp; “factor” if they are found later in the formatting string.</th></tr>
 			<tr><td class='clickable'>percent</td>
 				<th scope='row'>Values are shown as percents (0%–100%)</th></tr>
 			<tr><td class='clickable'>factor</td>
@@ -288,6 +290,16 @@ but to retain the settings this file may be included inside an existing web <for
 				(Note that precision below the default will result in some colors not converting back properly.)&nbsp;
 				JavaScript™ limits the maximum precision internally.&nbsp;
 				For example:<br><code>precision: 10</code></th></tr>
+		</table>
+		<table><caption>Hue Angle Unit output</caption>
+			<tr><th colspan='10'>keywords</th></tr>
+			<tr><td>deg</td><td>°</td><td>rad</td><td>ᴿ</td><td>ᶜ</td><td>grad</td><td>ᵍ</td><td>%</td><td>turn</td><td>●</td></tr>
+			<tfoot>
+				<tr><td colspan='10'>Do not confuse the <code>%</code> keyword (for hue angles <strong>only</strong>)
+					with the <code>percent</code> keyword (for all <strong>other</strong> values – <strong>not</strong> hue angles).</td></tr>
+				<tr><td colspan='10'>The default hue-angle will be used if not specified here.&nbsp; See the main-options tab.</td></tr>
+				<tr><td colspan='10'>See also the keyboard shortcut section on the ☺Help☺ Panel.</td></tr>
+			</tfoot>
 		</table>
 	</popbox>
 	<label id='MasterColorPicker_keepPrecision'>¿<input type='checkbox' name='MasterColorPicker_keepPrecision' value='true' checked
@@ -388,7 +400,7 @@ or pin it to the window when it is pinned to the page.
 		class='note'>If a “trash” folder already exists, it will be used.</span></label -->
 	<input type='filename' size='62' name='MasterColorPicker_PaletteMngr_renamer' keep-focus='false'>
 	<button type='button' name='MasterColorPicker_PaletteMngr_deleteCurrentPalette'>Delete the current MasterColorPicker<footmark>™</footmark> Palette Table</button>
-	<fieldset><legend>Options▼</legend>
+	<fieldset><legend>▼Options</legend>
 		<label><input type='radio' name='MasterColorPicker_PaletteMngr_saveFileAs' value='.json' checked>Save files locally as type <filepath>.json</filepath></label>
 		<label><input type='radio' name='MasterColorPicker_PaletteMngr_saveFileAs' value='.js'>Save files locally as type <filepath>.js</filepath></label>
 	</fieldset>
