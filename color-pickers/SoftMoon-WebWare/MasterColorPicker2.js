@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.12~BETA   January 22, 2026   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.13~BETA   January 25, 2026   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -1888,7 +1888,29 @@ ColorSpaceLab.toggle_OK=function toggle_CSL_OK(isOK)  {
 		const hastxt= e.firstChild.data.startsWith("OK");
 		if (isOK  &&  !hastxt)  e.insertBefore(document.createTextNode('OK'+ (e.nodeName==="LABEL" ? '-' : "")), e.firstChild);
 		else if (!isOK  &&  hastxt)  e.removeChild(e.firstChild);  }
+	if (isOK)  ColorSpaceLab.make_OK_gradient();
+	else  settings.Hue_range.style.backgroundImage="";
 	ColorSpaceLab.setColor();  }
+
+ColorSpaceLab.make_OK_gradient=function()  {
+	const
+		track=settings.Hue_range.getBoundingClientRect(),
+		style=getComputedStyle(settings.Hue_range),
+		pl=parseInt(style.paddingLeft),
+		tw=track.width-pl-parseInt(style.paddingRight)-1,
+		canvas=document.createElement('canvas');
+	canvas.width=track.width;  canvas.height=track.height;
+	const
+		cntx=canvas.getContext('2d'),
+		hsv=[undefined,1,1];
+	RGB_Calc.config.stack({RGBA_Factory:{value:SoftMoon.WebWare.RGBA_Array}});
+	try  { for (let i=0; i<=tw; i++)  {
+		hsv[0]=i/tw;
+		cntx.fillStyle=RGB_Calc.from.okhsv(hsv).toString("#");
+		cntx.fillRect(i+pl,0,1,track.height);  }  }
+	finally {RGB_Calc.config.cull();}
+	settings.Hue_range.style.backgroundImage="url('" + canvas.toDataURL() + "')";  }
+
 
 const stackSpecs={
 		RGBA_Factory: {value: SoftMoon.WebWare.RGBA_Color},

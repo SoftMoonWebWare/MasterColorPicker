@@ -1,6 +1,6 @@
 ﻿/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.12  January 22, 2026  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.6.13  January 27, 2026  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -720,15 +720,18 @@ select#MasterColorPicker_palette_select {
 	left: auto; }
 #MasterColorPicker_options popbox p {
 	display: block;
-	text-align: justify; }
+	text-align: justify;
+	columns: 3;
+	column-gap: 1.62em; }
 #MasterColorPicker_options popbox table {
 	display: inline-block;
 	vertical-align: top;
 	width: 48%;
-	margin-right: 1%;
+	margin-right: 0;
 	border: 4px double; }
-#MasterColorPicker_options popbox table:last-of-type {
-	margin-right: 0; }
+#MasterColorPicker_options popbox table:first-of-type {
+	margin-right: 1%;
+	float: left; }
 #MasterColorPicker_options popbox td,
 #MasterColorPicker_options popbox th {
 	border: 1px solid; }
@@ -804,6 +807,8 @@ select#MasterColorPicker_palette_select {
 	top: 0.2em;
 	bottom: auto;
 	border-top: none; }
+#MasterColorPicker_PaletteManager .controls legend { /*options*/
+	padding-right: 1em; }
 #MasterColorPicker_PaletteManager fieldset.controls :is(fieldset:hover, fieldset.focus-within) { /*options*/
 	padding: 0 0.382em 0.382em 0.382em; }
 #MasterColorPicker_PaletteManager fieldset.controls fieldset label { /*options*/
@@ -1607,11 +1612,11 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 	height: .618em; }
 
 #MasterColorPicker_Lab table.isOK tr.hue input[type="range"]::-moz-range-track {
-	background: gray; }
+	background: white; }
 #MasterColorPicker_Lab table.isOK tr.hue input[type="range"]::-ms-track {
-	background: gray; }
+	background: transparent; } /* ← This is a guess. MS Edge with Trident is likely no longer supported by this software. */
 #MasterColorPicker_Lab table.isOK tr.hue input[type="range"]::-webkit-slider-runnable-track {
-	background: gray; }
+	background: transparent; }
 
 #MasterColorPicker_Lab tr.cyan input[type="range"]::-moz-range-thumb,
 #MasterColorPicker_Lab tr.cyan input[type="range"]::-moz-range-track {
@@ -1840,9 +1845,10 @@ indicator#MasterColorPicker_LabContrast.disabled {
 	width: 17em;
 	border: 1px solid;
 	margin-right: .382em; }
-#MasterColorPicker_Thesaurus fieldset {
+#MasterColorPicker_Thesaurus fieldset.palette-list {
 	max-height: 17em;
-	overflow-y: auto; }
+	overflow-y: auto;
+	column-count: 2; }
 #MasterColorPicker_Thesaurus p {
 	padding: 0;
 	margin: .382em 0; }
