@@ -1,7 +1,7 @@
 # MasterColorPicker™
 Advanced JavaScript™ desktop / web-page-plug-in tool delivering all the color you can handle, designed by and for professional digital media developers.
 
-Both desktop and server versions are cross-platform, and work with any modern browser that has up-to-date standards (FireFox®, Chrome®, Edge®, Safari®, Opera®, etc.) on any computer: just HTML, JavaScript™, and CSS.  No executable-programs to install in your computer!  The server version uses only one (1) short index.php file to manage upload and facilitate download of the color-table-palettes data (and it can easily be replaced with one in another programming language, or even a simple text-file).  (Also a few other optional PHP files deliver handy tools for the project).
+Both desktop and server versions are cross-platform, and work with any modern browser that has up-to-date standards (FireFox®, Chrome®, Edge®, <strike>Safari®,</strike> (bugs/design flaws in current Safari releases prevent "sliders" from working properly due to non-compliance with basic well-established web standards) Opera®, etc.) on any computer: just HTML, JavaScript™, and CSS.  No executable-programs to install in your computer!  The server version uses only one (1) short index.php file to manage upload and facilitate download of the color-table-palettes data (and it can easily be replaced with one in another programming language, or even a simple text-file).  (Also a few other optional PHP files deliver handy tools for the project).
 No external dependencies!  No package manager to worry with!  No bootstrapping!  Just unzip and go!
 
 Supports unique needs of digital media formats.
@@ -35,5 +35,4 @@ https://softmoon-webware.com/MasterColorPicker_instructions.php
 ...And if you like it please *star* it ☺
 
 **_Special note_**
-If you download the .zip file, you may need to use the 7-Zip application to unzip it with the correct file-names.  I need to with Windows 7.  ¿Perhaps more current OSs have no problem?
-See the “issues” tab on GitHub.
+If you download the .zip file using an older operating system (Windows 7 etc.), you may need to use the 7-Zip application to unzip it with the correct file-names.
