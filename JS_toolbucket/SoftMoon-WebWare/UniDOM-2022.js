@@ -677,7 +677,7 @@ function alwaysTrue() {return true}
 			if (typeof c === 'function')  return c(e)^c.not;
 			if (typeof c !== 'object'  ||  !(c instanceof RegExp))  {
 				if (typeof c === 'string'  &&  c.charAt(0)==='!')  {c=c.substr(1);  not=true;}
-				c=new RegExp('\\b'+RegExp.escape(c)+'\\b');  }
+				c=new RegExp('\\b'+RegExp.escape(""+c)+'\\b');  }
 			return (not  ||  c.not)  ?  !c.test(e.className) : e.className.match(c);  });  }
 
 
@@ -686,7 +686,7 @@ function alwaysTrue() {return true}
 	function aClass(cn, acs)  {  //private
 		if (!(acs instanceof Array))  acs=[acs];
 		for (const ac of acs)  {
-			if (!(typeof cn === 'string'  &&  ( new RegExp('\\b'+RegExp.escape(ac)+'\\b') ).test(cn)))
+			if (!(typeof cn === 'string'  &&  ( new RegExp('\\b'+RegExp.escape(""+ac)+'\\b') ).test(cn)))
 				cn+=(cn) ? (" "+ac) : ac;  }
 		cn=cleanClass(cn);
 		return cn;  }
@@ -697,7 +697,7 @@ function alwaysTrue() {return true}
 		if (typeof cn !== 'string')  return;
 		if (!(xcs instanceof Array))  xcs=[xcs];
 		for (const xc of xcs)  {
-			cn=cn.replace(xc instanceof RegExp ?  xc  :  new RegExp('\\b'+RegExp.escape(xc)+'\\b', 'g'),  "");
+			cn=cn.replace(xc instanceof RegExp ?  xc  :  new RegExp('\\b'+RegExp.escape(""+xc)+'\\b', 'g'),  "");
 			cn=cleanClass(cn);  }
 		return cn;  }
 
