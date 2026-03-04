@@ -1181,8 +1181,8 @@ MyPalette.prototype.fromJSON=function($JSON_palette, mergeMode)  {
 
 	function fill_tBody(palette, tbody, marks, chain)  {
 		if (marks)  {
-			marks.open=new RegExp('^'+RegExp.escape(marks[0]));
-			marks.close=new RegExp(RegExp.escape(marks[1])+'$');  }
+			marks.open=new RegExp('^'+RegExp.escape(""+marks[0]));
+			marks.close=new RegExp(RegExp.escape(""+marks[1])+'$');  }
 		tbody.querySelector("input[name$='addToHere']").checked=true;
 		for (const pRef in palette)  { let cName=pRef.trim();
 			if (palette[pRef].palette)  {
