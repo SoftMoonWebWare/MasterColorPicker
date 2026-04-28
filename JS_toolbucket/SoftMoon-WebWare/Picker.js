@@ -360,7 +360,6 @@ Picker.prototype.pick=function pick(chosen)  {
 	chosen=this.applyFilters(...arguments);
 	if (chosen===false)  return;
 	const currentTarget= this.currentTarget;
-console.log("Picker.pick() currentTarget:  ",currentTarget);
 	var isAdditive;
 	if (currentTarget.hasAttribute?.('additive'))  {
 		isAdditive=currentTarget.getAttribute('additive') || true;
