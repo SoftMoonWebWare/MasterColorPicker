@@ -1,6 +1,6 @@
 ﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.13~BETA   January 25, 2026   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.6.15~BETA   April 28, 2026   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -670,7 +670,8 @@ function MyPalette(HTML, PNAME)  {
 		this.style.top= xyPos.y+'px';
 		this.style.left=xyPos.x+'px';  });
 	UniDOM.addEventHandler(this.ColorGenie.HTML_clipMenu, new String('popDown'), function(event)  {
-		if (event.detail.opStatus==='removed')  thisPalette.ColorGenie.config.cull();
+		//  ↓↓ this fixes a bug, hopefully not creating another…
+		if (true || event.detail.opStatus==='removed')  thisPalette.ColorGenie.config.cull();
 		switch (event.detail.type)  {
 		case 'keydown':
 			event.detail.stopPropagation();
@@ -678,8 +679,8 @@ function MyPalette(HTML, PNAME)  {
 				MasterColorPicker.currentInterface?.focus();
 		break;
 		case 'focusout':
-			event.detail.stopPropagation();
-			thisPalette.ColorGenie.config.cull();  }  });
+			//thisPalette.ColorGenie.config.cull();
+			event.detail.stopPropagation();  }  });
 	this.SubPaletteGenie=new SoftMoon.WebWare.FormFieldGenie({
 		indxTier:0,
 		groupTag:"TBODY",
@@ -1409,16 +1410,17 @@ MyPalette.prototype.fromFileText=function(ft)  {
 //	return this.fromJSON(JSON.parse(ft.trim().replace( /^SoftMoon.loaded_palettes.push\(\s*{\s*filename:\s*document.currentScript.src\s*,\s*data:\s*/ , "").replace( /\s*\}\s*\)\s*;?$/ , "")));  }
 
 
-const HTTP=SoftMoon.WebWare.HTTP,
-			Connector= HTTP ? new HTTP() : null,
-			// ↓ these deliminate filenames in MESSAGES (not the index or the path of an uploaded file) returned from the server
-			SI=String.fromCharCode(15),  // ← ASCII “shift in”
-			SO=String.fromCharCode(14),  // ← ASCII “shift out”
-			// ↓ the server’s  color_palettes/  index returns info in “groups”
-			GS=String.fromCharCode(29),  // ← ASCII “group separator”
-			// ↓ sent by the server to indicate an error message
-			NAK=String.fromCharCode(21),  // ← ASCII “negative aknowledge”
-			ERROR=NAK+'¡Error! :';
+const
+	HTTP=SoftMoon.WebWare.HTTP,
+	Connector= HTTP ? new HTTP() : null,
+	// ↓ these deliminate filenames in MESSAGES (not the index or the path of an uploaded file) returned from the server
+	SI=String.fromCharCode(15),  // ← ASCII “shift in”
+	SO=String.fromCharCode(14),  // ← ASCII “shift out”
+	// ↓ the server’s  color_palettes/  index returns info in “groups”
+	GS=String.fromCharCode(29),  // ← ASCII “group separator”
+	// ↓ sent by the server to indicate an error message
+	NAK=String.fromCharCode(21),  // ← ASCII “negative aknowledge”
+	ERROR=NAK+'¡Error! :';
 
 function markup(text) {return text.replaceAll(SI, '<filepath>').replaceAll(SO, '</filepath>');}
 
