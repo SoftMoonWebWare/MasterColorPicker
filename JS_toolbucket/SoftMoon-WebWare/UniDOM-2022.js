@@ -1,5 +1,5 @@
 //  character-encoding: UTF-8 DOS   tab-spacing: 2   word-wrap: no   standard-line-length: 160   max-line-length: 2400
-/*  UniDOM-2022  version 1.6.1  July 16, 2024
+/*  UniDOM-2022  version 1.6.2  March 4, 2026
  *  copyright © 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
  *   except where otherwise noted
  *
@@ -77,7 +77,7 @@ const UniDOM=function(element, passData)  {  /* ALTERNATE ARGUMENTS:
 //  ☆☆☆                                         ☆☆☆
 //  ☆☆☆ ¡ if you call  UniDOM.globalize()       ☆☆☆
 //  ☆☆☆ UniDOM’s $ will overwrite window.$ !    ☆☆☆
-UniDOM.$=function() {
+UniDOM.$=function()  {
 	if (typeof UniDOM.CSSEngine === 'function')  CSSEngine=UniDOM.CSSEngine;
 	else
 	if (typeof window.Sizzle === 'function')  CSSEngine=function(s) {return Sizzle(s, this)};  // http://sizzlejs.com/   https://github.com/jquery/sizzle/wiki
@@ -201,7 +201,7 @@ function EventHandler(element, eventType, handler, options, wrapper, userArgs)  
 	this.element=element;
 	this.eventType=eventType;
 	this.handler=handler;  // this is an Array and it may be modified; or a single basic handler with no user-arguments to pass
-	this.options=options;  /*    ♪ ♫ ♪ I’m a capturah; soul adventurah… … … I’m a rebel; soul rebel… … … ♫ ♪ ♫  ¡But I’m not a Zionist!  I’m a soul lover.  */
+	this.options=options;
 	this.wrapper=wrapper;  // the wrapper function; or “undefined” for a single basic handler with no user-arguments to pass
 	this.userArgs=userArgs;  // this is an Array and it may be modified; or it may be “undefined” for a single basic handler with no user-arguments to pass
 //	Object.freeze(this);  }
@@ -693,7 +693,7 @@ function alwaysTrue() {return true}
 
 	// c may be the string name of the class or a RegExp  or an array of these
 	function removeClass(c) {this.className=xClass(this.className, c);}
-	function xClass(cn, xcs) {  //private
+	function xClass(cn, xcs)  {  //private
 		if (typeof cn !== 'string')  return;
 		if (!(xcs instanceof Array))  xcs=[xcs];
 		for (const xc of xcs)  {

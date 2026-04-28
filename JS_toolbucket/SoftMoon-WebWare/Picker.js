@@ -1,6 +1,6 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.3.01   November 6, 2024  by SoftMoon-WebWare.
+// Picker.js  Beta-4.3.02   March 4, 2026  by SoftMoon-WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -360,6 +360,7 @@ Picker.prototype.pick=function pick(chosen)  {
 	chosen=this.applyFilters(...arguments);
 	if (chosen===false)  return;
 	const currentTarget= this.currentTarget;
+console.log("Picker.pick() currentTarget:  ",currentTarget);
 	var isAdditive;
 	if (currentTarget.hasAttribute?.('additive'))  {
 		isAdditive=currentTarget.getAttribute('additive') || true;
