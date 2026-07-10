@@ -1,7 +1,7 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2 ¡important!   word-wrap: no   standard-line-length: 160
 
-// Picker.js  Beta-4.3.02   March 4, 2026  by SoftMoon-WebWare.
-/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare
+// Picker.js  Beta-4.4.00   July 5, 2026  by SoftMoon-WebWare.
+/*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2019, 2020, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon-WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
 		For qualified “humane entities”, this program is free software:
@@ -189,7 +189,7 @@ Picker.CLASSNAMES={
 	topPanel: 'topPickerPanel',                // ← applied to a panel when it is the top panel; see also “panel level” below.
 	panelLevel: 'pickerPanelZLevel' };    // ← panelZLevel will be post-fixed with a digital level (1 – ∞, 1 at the bottom)
 			// representing a CSS z-index level (like this:  div.pickerPanelZLevel1 {z-index: 1}   ← of course use your own z-index values as needed……and any element, not only <div>
-			//																							 div.pickerPanelZLevel2 {z-index: 2}   etc… … …)
+			//                                               div.pickerPanelZLevel2 {z-index: 2}   etc… … …)
 			// **when you have more than one panel (mainPanel + others)** clicking on a panel brings it to the top level.
 			// These ZLevel classNames are applied automatically to →→ all ←← panels when you:
 			//   • pass in a mainPanel with “opts.registerPanel!==false” as you create a new PickerInstance
@@ -407,7 +407,7 @@ Picker.prototype.pick=function pick(chosen)  {
 
 Picker.prototype.applyFilters=function applyFilters(chosen)  {
 	for (const filter of this.pickFilters)  {
-    if (typeof filter.onPick === 'function')
+		if (typeof filter.onPick === 'function')
 			arguments[0]=filter.onPick(...arguments);
 		else  arguments[0]=filter.apply(this, arguments);  }
 	return arguments[0];  }
@@ -637,6 +637,7 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 		enterKeyed=(event.key==='Enter');
 		selectPan=(event.target.nodeName==='SELECT'  &&  (event.key==='ArrowUp' || event.key==='ArrowDown'));
 		escaped=(event.key==='Escape');
+
 		if (tabbedOut)  {
 			if (actions?.onTabOut?.(event))  return;
 			let
@@ -654,48 +655,53 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 			goDeep.className=PickerInstance.classNames.picker;
 			goDeep.picker_select=PickerInstance.picker_select;
 			if (event.ctrlKey  //note browsers use CTRL-TAB to switch between open browser tabs - this key-combo is fully blocked to scripts and should be - too easy to spoof “PayPal” if your script opens paypal.com in a new window for a “payment” …
-/**/
 			&&  getAdjacentPanelTabStop())  {
 				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels: (shifted ? false : indx )});
 				UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabTo: tabTo});
 				return;  }
+			try {
 			if ((!shifted
 					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabTo)  ||  event.target[PickerInstance.ATTRIBUTE_NAMES.tabTo]  ||  actions?.tabTo)))
 			||  (shifted
-					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabTo)  ||  event.target[PickerInstance.ATTRIBUTE_NAMES.backtabTo]  ||  actions?.backtabTo))))
-				try {
-					let rotated;
-					if (typeof tabTo === 'string')  {
-						if (tabTo==='{none}')  return;
-						switch (tabTo.substring(0,1))  {
-							case '#': tabTo=event.target.ownerDocument.getElementById(tabTo.substring(1));
+					&&  (tabTo=(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabTo)  ||  event.target[PickerInstance.ATTRIBUTE_NAMES.backtabTo]  ||  actions?.backtabTo))))  {
+				let rotated;
+				if (typeof tabTo === 'string')  {
+					if (tabTo==='{none}')  return;
+					switch (tabTo.substring(0,1))  {
+						case '#': tabTo=event.target.ownerDocument.getElementById(tabTo.substring(1));
+						break;
+						case '@': switch (tabTo.substring(1))  {
+							case 'next-panel': rotated=shifted=false;  getAdjacentPanelTabStop();
 							break;
-							case '@': switch (tabTo.substring(1))  {
-								case 'next-panel': rotated=shifted=false;  getAdjacentPanelTabStop();
-								break;
-								case 'previous-panel': shifted=true;  getAdjacentPanelTabStop();  rotated=indx;
-								break;
-								case 'adjacent-panel': getAdjacentPanelTabStop();
-								break;
-								case 'target': tabTo= PickerInstance.dataTarget;
-								break;
-								default: tabTo=null;  }
+							case 'previous-panel': shifted=true;  getAdjacentPanelTabStop();  rotated=indx;
 							break;
-							default: tabTo=(new Function('event', 'PickerInstance', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions);  }
-							}
-/*
-						tabTo=( event.target.ownerDocument.getElementById(tabTo)
-								 || (new Function('event', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions) );  }
-*/
-					else if (typeof tabTo == 'function')  tabTo=tabTo(event, PickerInstance, actions);
-					if (UniDOM.isElement(tabTo))  {
-						UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels:rotated});
-						UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});
-						return;  }  }
-				catch(e) {console.error("Custom tab-expression or tab-event failed for:",event.target,"\n in Picker’s “keyDownOnInterfaceControl” handler:",e);};
+							case 'adjacent-panel': getAdjacentPanelTabStop();
+							break;
+							case 'target': tabTo= PickerInstance.dataTarget;
+							break;
+							default: tabTo=null;  }
+						break;
+						case "{": if (tabTo.substr(-1)!=="}")  break;
+							tabTo=(new Function('event', 'PickerInstance', 'actions', tabTo)).call(event.target, event, PickerInstance, actions);
+						break;
+						default: tabTo=(new Function('event', 'PickerInstance', 'actions', 'return ('+tabTo+');')).call(event.target, event, PickerInstance, actions);  }
+						}
+				else if (typeof tabTo == 'function')  tabTo=tabTo(event, PickerInstance, actions);
+				if (UniDOM.isElement(tabTo))  {
+					UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target, rotatePanels:rotated});
+					UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});
+					return;  }  }
+			function evalAttr(str, dfltBool)  {
+				return     (str?.match( /^{.+}$/ )) ?
+						(new Function('event', 'PickerInstance', 'actions', str)).call(event.target, event, PickerInstance, actions)
+					:        ( (str?.match( /^\(.+\)$/ )) ?
+						(new Function('event', 'PickerInstance', 'actions', 'return '+str)).call(event.target, event, PickerInstance, actions)
+					: Boolean.eval(str, dfltBool) )  }
 			const
-				tabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)),
-				backtabToTarget=Boolean.eval(event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget), event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget));
+				ttt=event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget),
+				tabToTarget= evalAttr(ttt, event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.tabToTarget)),
+				btt=event.target.getAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget),
+				backtabToTarget= evalAttr(btt, event.target.hasAttribute(PickerInstance.ATTRIBUTE_NAMES.backtabToTarget));
 			if ((!shifted  &&  (tabToTarget  ||  (actions?.tabToTarget  &&  tabToTarget!==false)))
 			||  (shifted  &&  (backtabToTarget  ||  (actions?.backtabToTarget  &&  backtabToTarget!==false))))  {
 				try {
@@ -705,9 +711,16 @@ function registerInterfaces(element, actions, isUserdataInputType)  {  //element
 						UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget:target, tabbedTo: target});  }  }
 				catch(e) {}
 				finally {return;}  }
-			if (tabTo=( shifted ? UniDOM.getElders(event.target, isTabStop, goDeep)[0] : UniDOM.getJuniors(event.target, isTabStop, goDeep)[0]))  {
+			let anchor=event.target;
+			if (event.target.type==='radio')  {
+				const fldst=event.target.closest("fieldset");
+				if (fldst?.hasAttribute("autoTabOut")  &&  evalAttr(fldst.getAttribute(PickerInstance.ATTRIBUTE_NAMES.autoTabOut), true))  {
+					anchor=fldst;  }  }
+			if (tabTo=( shifted ? UniDOM.getElders(anchor, isTabStop, goDeep)[0] : UniDOM.getJuniors(anchor, isTabStop, goDeep)[0]))  {
 				UniDOM.generateEvent(tabTo, 'tabIn', {bubbles:true}, {relatedTarget: event.target, tabbedFrom: event.target});
-				UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});  }  }
+				UniDOM.generateEvent(event.target, 'tabOut', {bubbles:true}, {relatedTarget: tabTo, tabbedTo: tabTo});  }
+			} catch(e) {console.error("Custom tab-expression or tab-event failed for:",event.target,"\n in Picker’s “keyDownOnInterfaceControl” handler:",e);};  }
+
 		if (enterKeyed)  {
 			enterKeyPressCount++;  clearTimeout(enterKeyPressRepeatTimeout);
 			enterKeyPressRepeatTimeout=setTimeout(function() {enterKeyPressCount=0;}, SoftMoon.keyPressRepeatTimeoutDelay);
@@ -817,4 +830,5 @@ SoftMoon.WebWare.Picker.ATTRIBUTE_NAMES={
 	tabTo: 'tabTo',
 	backtabTo: 'backtabTo',
 	tabToTarget: 'tabToTarget',
-	backtabToTarget: 'backtabToTarget' }
+	backtabToTarget: 'backtabToTarget',
+	autoTabOut: 'autoTabOut' }
