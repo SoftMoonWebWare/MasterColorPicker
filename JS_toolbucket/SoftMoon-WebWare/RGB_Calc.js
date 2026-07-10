@@ -1,9 +1,9 @@
 //  character encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// RGB_Calc.js  release 1.14.02  January 10, 2026  by SoftMoon WebWare.
+// RGB_Calc.js  release 1.14.1  July 7, 2026  by SoftMoon WebWare.
 // based on  rgb.js  Beta-1.0 release 1.0.3  August 1, 2015  by SoftMoon WebWare.
 // All color-space conversion algorithms and code herein are either: public-domain, MIT-licenced, or both.
-/*  Program written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024 Joe Golembieski, SoftMoon WebWare
+/*  Program written by and Copyright © 2011, 2012, 2013, 2016, 2018, 2020, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
 		For qualified “humane entities”, this program is free software:
@@ -2173,7 +2173,7 @@ LuvA_Color.ConfigStack.prototype.name='LuvA_Color.ConfigStack';
 // ↑ we add factories to the prototype below…
 
 
-class LChᵤᵥA_Array extends _base_$ch_array {
+class LChᵤᵥA_Array extends _base_$ch_array  {
 	get L() {return this[0]}  set L($) {this[0]=$}
 	get l() {return this[0]}  set l($) {this[0]=$}
 	get lightness() {return this[0]}  set lightness($) {this[0]=$}
@@ -2249,6 +2249,11 @@ class HSLᵤᵥA_Color extends HSLᵤᵥA_Array  {
 			2: {get: ()=>$L,  set: ($)=>$L=thisClr.getFactor($),  enumerable: true},
 			3: {get: ()=>$α,  set: ($)=>$α=thisClr.getAlpha($),  enumerable: true},
 			hslᵤᵥa: {get: ()=>[$H,$S,$L,$α],  set: readArr}  });  }  }
+
+Object.defineProperties(HSLᵤᵥA_Color.prototype, {
+		getHue: {value: getHueFactor},
+		getFactor: {value: getFactorValue},
+		getAlpha: {value: getAlphaFactor} });
 
 SoftMoon.WebWare.HSLᵤᵥA_Array=HSLᵤᵥA_Array;
 SoftMoon.WebWare.HSLᵤᵥA_Color=HSLᵤᵥA_Color;
