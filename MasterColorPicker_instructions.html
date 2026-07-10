@@ -5,8 +5,8 @@
 <meta name='description' content='MasterColorPicker: a JavaScript color-picker delivering all the color you can handle.'>
 <meta name='keywords' content='color picker, javascript color picker, master color picker, professional color picker, websafe color picker, harmonic color picker'>
 <meta name='author' content='Joe Golembieski, SoftMoon-WebWare'>
-<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2023, 2024 Joe Golembieski, SoftMoon-WebWare'>
-<meta name='page_last-udate' content='November 15, 2024'>
+<meta name='copyright' content='Copyright © 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon-WebWare'>
+<meta name='page_last-udate' content='July 8, 2026'>
 <title>MasterColorPicker Instructions from SoftMoon-WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
 <style type="text/css">
@@ -226,7 +226,8 @@ on this page:
 
 <main id='content'>
 <p>SoftMoon-WebWare’s MasterColorPicker package delivers five JavaScript<abbr tm>™</abbr> powered professional quality
-interactive graphical color-pickers, an EyeDropper color-picker, plus a named-color-table based color-picker framework with nine
+interactive graphical color-pickers, a graphical Gradientor color-picker, an EyeDropper color-picker,
+plus a named-color-table based color-picker framework with nine
 named-color database files included:
 <abbr>ANSI</abbr>, Brewer, common, Crayola, <abbr>CSS</abbr>, Material Design, OpenOffice, universal, &amp; X11,
 plus (!) a “Pantone® colors” database file generator that takes just a minute to use.&nbsp;
@@ -355,7 +356,7 @@ You can find info on doing such in MasterColorPicker’s ☺Help☺ panel while 
 Both <code>file://</code> and <code>http://</code> (&amp; <code>https://</code>) protocol usages
 allow you to easily save &amp; load MyPalette and other named-color-table-palette files
 to &amp; from your computer’s local filesystem,
-or the borwser’s private storage database,
+or the browser’s private storage database,
 so without a server you are not high-and-dry;
 the advantage of server usage is the simplified auto-load feature,
 and having a centralized project host center for multiple developers.&nbsp;
@@ -637,14 +638,21 @@ The important requirements to follow are listed below for each of the color-pick
 			<ul>
 			<li>4 <code>&lt;canvas&gt;</code> tags</li>
 			<li>all the corresponding <code>&lt;input /&gt;</code> tags found in the supplied files.</li>
-			<li>4 tags with <code>class='subpalette_swatch'</code>.&nbsp;
+			<li>Any element with the classname <code>graphicals</code> containing 4 <code>&lt;swatch&gt;</code> tags.&nbsp;
 					They will show the color of the hovered-over color for each individual <code>&lt;canvas&gt;</code>.&nbsp;</li>
 			</ul></li>
 	<li>Each <code>&lt;canvas&gt;</code> tag must be wrapped in its own “wrapper” tag.</li>
 	<li>The <code>&lt;input /&gt;</code> tags in your file must have the same names, types, &amp; values found in the supplied files.</li>
 	<li>There should be a tag with <code>id='RainbowMaestro_indicator'</code>.&nbsp;
 			It will show the text-output for the hovered-over color.&nbsp;
-			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.
+			Currently, the JavaScript <code>mouse…</code> handler supports the default <abbr>HTML</abbr> &amp; <abbr>CSS</abbr> files,
+			and automatically, on-the-fly, limits its display width to the width of its containing element.&nbsp;
+			You may want a more dynamic display; see the function <code>prepairTxtInd()</code> and note that:
+			•it is activated by <code>UniDOM.addEventHandler()</code>, so remove it from the array of handlers passed in that function call;
+			and •other color pickers use the same function name within
+			their private namespaces that does exactly the same thing,
+			so don’t get confused when searching the JavaScript<abbr tm>™</abbr> code file.</li>
 	<li>There should be a “wrapper” tag with <code>id='RainbowMaestro_hueIndicator'</code>.&nbsp;
 			The last tag within this wrapper will show the hovered-over hue as a value in degrees.&nbsp;</li>
 	<li>There should be a tag with <code>id='RainbowMaestro_swatch'</code>.&nbsp;
@@ -670,7 +678,14 @@ The important requirements to follow are listed below for each of the color-pick
 	<li>The <code>&lt;input /&gt;</code> tags in your file must have the same names, types, &amp; values found in the supplied files.</li>
 	<li>There should be a tag with <code>id='BeezEye_indicator'</code>.&nbsp;
 			It will show the text-output for the hovered-over color.&nbsp;
-			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.
+			Currently, the JavaScript <code>mouse…</code> handler supports the default <abbr>HTML</abbr> &amp; <abbr>CSS</abbr> files,
+			and automatically, on-the-fly, limits its display width to the width of its containing element.&nbsp;
+			You may want a more dynamic display; see the function <code>prepairTxtInd()</code> and note that:
+			•it is activated by <code>UniDOM.addEventHandler()</code>, so remove it from the array of handlers passed in that function call;
+			and •other color pickers use the same function name within
+			their private namespaces that does exactly the same thing,
+			so don’t get confused when searching the JavaScript<abbr tm>™</abbr> code file.</li>
 	<li>There should be a tag with <code>id='BeezEye_swatch'</code>.&nbsp;
 			It will show the color-output for the hovered-over color that matches the text-output.&nbsp;</li>
 	</ul>
@@ -702,7 +717,14 @@ The important requirements to follow are listed below for each of the color-pick
 			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
 	<li>There should be a tag with <code>id='Simple²_indicator'</code>.&nbsp;
 			It will show the text-output for the hovered-over color.&nbsp;
-			It should have text in it by default, if only a blank space, with no other tags, at the beginning.</li>
+			It should have text in it by default, if only a blank space, with no other tags, at the beginning.
+			Currently, the JavaScript <code>mouse…</code> handler supports the default <abbr>HTML</abbr> &amp; <abbr>CSS</abbr> files,
+			and automatically, on-the-fly, limits its display width to the width of its containing element.&nbsp;
+			You may want a more dynamic display; see the function <code>prepairTxtInd()</code> and note that:
+			•it is activated by <code>UniDOM.addEventHandler()</code>, so remove it from the array of handlers passed in that function call;
+			and •other color pickers use the same function name within
+			their private namespaces that does exactly the same thing,
+			so don’t get confused when searching the JavaScript<abbr tm>™</abbr> code file.</li>
 	<li>There should be a tag with <code>id='Simple²_swatch'</code>.&nbsp;
 			It will show the color-output for the hovered-over color that matches the text-output.&nbsp;</li>
 	</ul>
@@ -756,7 +778,7 @@ you can create your own <abbr>CSS</abbr> file to control the dynamic display of 
 To remove one or more of the included color-pickers, simply remove its <abbr>HTML</abbr>
 and JavaScript<abbr tm>™</abbr> from the given files.&nbsp;
 The sections are clearly deliminated with comments.&nbsp;
-The <code>x_ColorPicker</code> JavaScript<abbr tm>™</abbr> Class is universal to
+The <code>Color_Picker</code> JavaScript<abbr tm>™</abbr> Class is universal to
 all color-pickers in the MasterColorPicker framework, and should remain.&nbsp;
 Don’t forget to lighten the weight of the <abbr>CSS</abbr> file, but that is not a requirement.&nbsp;<p>
 
@@ -772,23 +794,23 @@ for example a choice of “YinYang NíHóng” corresponds to <abbr title='ident
 but as powerful things go, this process has details that must be understood to fully utilize.&nbsp;
 Most simply, when a color is selected, using JavaScript<abbr tm>™</abbr>,
 simply call <code>MasterColorPicker.pick(<var>……colorChoiceText……</var>)</code>;&nbsp;
-however this bypasses the central <code>x_ColorPicker</code> framework which can
+however this bypasses the central <code>Color_Picker</code> framework which can
 convert the choice to the user’s color-space preferences,
 and set the color of “color swatches”.&nbsp;</p>
 
-<p>Using the <code>x_ColorPicker</code> framework is a bit different, as it is “event” oriented.&nbsp;
-Please read the comments in the <code>MasterColorPicker.js</code> file regarding the <code>x_ColorPicker</code> framework,
+<p>Using the <code>Color_Picker</code> framework is a bit different, as it is “event” oriented.&nbsp;
+Please read the comments in the <code>MasterColorPicker.js</code> file regarding the <code>Color_Picker</code> framework,
 but here are some basic additional notes.&nbsp;
-The <code>x_ColorPicker</code> framework offers
+The <code>Color_Picker</code> framework offers
 a <code>handleMouse</code> method for onmouseover, onmousemove, and onmouseout events,
 and a <code>handleClick</code> method for onclick events.&nbsp;
 They require two arguments passed in, yet browsers only pass in the first by default: the <code>event</code> object.&nbsp;
-So you must either use your own event handler which calls these <code>x_ColorPicker</code> methods,
+So you must either use your own event handler which calls these <code>Color_Picker</code> methods,
 or, more conveniently, use the <code>UniDOM</code> framework that is included with this package to add these methods
 as event handlers.&nbsp;
 Take a close look (in the <code class='filename'>MasterColorPicker.js</code> file at the end of each color-picker’s section)
 at how the supplied color-pickers add their event handlers using the
-<code>UniDOM</code> framework, and how the <code>args</code> object is passed on to the <code>x_ColorPicker</code> methods
+<code>UniDOM</code> framework, and how the <code>args</code> object is passed on to the <code>Color_Picker</code> methods
 by adding it as a final argument passed to <code>UniDOM.addEventHandler(………)</code>.&nbsp;</p>
 
 <h3 id='building pickers'>Building your own color-pickers</h3>
@@ -819,7 +841,7 @@ This class has several flags that you can set
 (see the comments in the <code class='filename'>JS_toolbox/SoftMoon-WebWare/RGB_Calc.js</code> file),
 and simply remove the options from the <abbr>HTML</abbr> options panel.&nbsp;
 The <code>palette_mode</code> must remain in the <abbr>HTML</abbr> somewhere
-(to work with the <code>x_ColorPicker</code> framework),
+(to work with the <code>Color_Picker</code> framework),
 but it can be reduced to something like:
 <code>&lt;input type='hidden' id='palette_mode' value='hex' /&gt;</code>.&nbsp;
 If you do remove options from the options panel, you may remove some, most, or all of the file
@@ -841,7 +863,7 @@ No personal data is transferred to any other entity
 and said data is only transferred to SoftMoon-WebWare.com and is <em>not</em> saved).&nbsp;
 You are not being tracked, quantified, or mined for data when visiting our sites.&nbsp;
 We hope you enjoy the advertisement-free experience that shuns the growing worldwide corporate-fascism movement.</p>
-<p>All content found on this page &amp; site Copyright © 2010, 2012, 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2024  by SoftMoon-WebWare and its owner,
+<p>All content found on this page &amp; site Copyright © 2010, 2012, 2013, 2014, 2015, 2019, 2020, 2021, 2022, 2024, 2026 by SoftMoon-WebWare and its owner,
 all rights reserved, unless otherwise specifically noted.&nbsp;
 Trademarks and Service-Marks are property of SoftMoon-WebWare and its owner,
 all rights reserved, unless otherwise specifically noted.</p>
