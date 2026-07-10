@@ -6,14 +6,15 @@
 <meta name='copyright' content='Copyright © 2013,2014,2015,2019,2020,2021,2022,2023,2024,2026 Joe Golembieski, SoftMoon-WebWare'>
 <title>MasterColorPicker desktop from SoftMoon WebWare</title>
 <link rel="icon" type="image/x-icon" href="images/SoftMoonWebWare.gif">
-<link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection" href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css'>
+<link rel='stylesheet' id='MasterColorPicker_stylesheet' type='text/css' media="screen, projection"
+	href='color-pickers/SoftMoon-WebWare/MasterColorPicker2.css'>
 <style type='text/css' id='MasterColorPicker_desktop_stylesheet'>
 body, section, div {
 	margin: 0;
 	padding: 0; }
 body {
 	color: white;
-	background: #808080;
+	background-color: #808080;
 	position: absolute; /* This keeps the very small body sized to the full window.  We need this for the panel-drag 'mouseover' which is on the body.  */
 	width: 100%;
 	height: 100%;  }
@@ -50,11 +51,11 @@ p img {
 #MasterColorPicker_Lab tr.hue input[type="range"]::-moz-range-thumb {
 	background-color: white; }
 #MasterColorPicker_Lab fieldset input[type="range"]::-moz-range-thumb {
-	background-color: var(--back-text); }
+	background-color: white; }
 #MasterColorPicker_Lab fieldset input[type="range"]::-ms-thumb {
-	background-color: var(--back-text); }
+	background-color: white; }
 #MasterColorPicker_Lab fieldset input[type="range"]::-webkit-slider-thumb {
-	background-color: var(--back-text); }
+	background-color: white; }
 /*******/
 </style>
 
@@ -125,7 +126,8 @@ window.addEventListener('mastercolorpicker_ready', function()  {
 
 <script>
 window.addEventListener('mastercolorpicker_database_ready', function()  {
-	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);  //see files:  MasterColorPicker2.js → RGB_Calc.js
+	//see files:  MasterColorPicker2.js → RGB_Calc.js
+	SoftMoon.WebWare.initPaletteTables(/* path, whenLoaded, whenDone */);
 	} );
 </script>
 
@@ -133,7 +135,7 @@ window.addEventListener('mastercolorpicker_database_ready', function()  {
 <meta charset='UTF-8'><!-- ¡ the ENTIRE PAGE must be encoded in UTF-8 !  This will have NO EFFECT; it is a reminder.  -->
 
 <!--  MasterColorPicker 2  Copyright © 2012, 2013, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon-WebWare
-			release 2.6.13  January 27, 2026
+			release 2.7.00  July 7, 2026
 	Note that these color charts and palettes will work without an enclosing <form>,
 but to retain the settings this file may be included inside an existing web <form></form>
 -->
@@ -774,7 +776,7 @@ or pin it to the window when it is pinned to the page.
 		<td><input type='range' name='MasterColorPicker_cmyK_range' min='0' max='100' value='100' style="color:black" tabindex='-1'></td>
 </tr>
 </table>
-<div><indicator>average perceived relative Luminance: <span></span></indicator><indicator id='MasterColorPicker_LabContrast' class='disabled'>contrast ratio: <span></span></indicator></div>
+<div><label>average perceived relative Luminance: <indicator></indicator></label><label id='MasterColorPicker_LabContrast' class='disabled'>contrast ratio: <indicator></indicator></label></div>
 <fieldset>
 	<legend><label for='MasterColorPicker_opacity_range'>Alpha (opacity)</label></legend>
 	<label title='Opacity is applied when applicable to colors chosen from a color picker.'>¿<input type='checkbox' name='MasterColorPicker_applyOpacity'>apply?</label>
@@ -871,8 +873,9 @@ triadic</label>
 	<input type='text' name='MasterColorPicker_Gradientor_colorT3'
 		interfaceTarget='true' swatch='this.previousElementSibling' value=""></label>
 </fieldset>
+<swatch class='forMouse'></swatch>
 <label title='3 — 256'>steps: <input type='numeric-slider' name='MasterColorPicker_Gradientor_steps' min='3' max='256' step='1' value='16' tabToTarget></label>
-<indicator> <swatch></swatch></indicator>
+<div><indicator> </indicator></div>
 <div><canvas width='256' height='38'></canvas></div><!-- the width here also factors the height for triadic displays -->
 </div><!--  close  MasterColorPicker_Gradientor  -->
 
@@ -1826,7 +1829,7 @@ color(Pantonic Peridot)</code></li>
 
 	<hr>
 	<h5>MasterColorPicker™ by SoftMoon-WebWare</h5>
-	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024 by Joe Golembieski, SoftMoon-WebWare:&nbsp;
+	<p>Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 by Joe Golembieski, SoftMoon-WebWare:&nbsp;
 			All rights reserved.&nbsp;
 			Use subject to the SoftMoon Humane Use License (see: <kbd>https://SoftMoon-WebWare.com/</kbd> )</p>
 	<p>The Rigden Websafe Colorblind data was compiled by Christine Rigden, published circa 1997, updated 2010
@@ -1917,14 +1920,16 @@ color(Pantonic Peridot)</code></li>
 
 
 
-<table class='picker palette' id='BeezEye'>
-<caption><h6>BeezEye Color Picker™</h6>click to choose</caption>
-<tbody>
-<tr class='foobar'><!-- ROW 1 -->
-	<td><label>¿<input type='checkbox' name='BeezEye_twist' value='twist' backtabTo='#MasterColorPicker_palette_select'>Twist?
-		<input type='range' name='BeezEye_twist_value' value='50' min='0' max='100'></label></td>
-	<td><fieldset><legend>color space model</legend>
+<div class='picker palette' id='BeezEye'>
+<h6>BeezEye Color Picker™</h6>
+<note>click to choose</note>
+<figure>
+	<cell style="grid-area: brightness;"><label>Brightness <span>Value</span><input type='numeric-slider' name='BeezEye_value' value='50' min='0' max='100' step='any' bump='0.5' backtabTo='#MasterColorPicker_palette_select'></label></cell>
+	<label style="grid-area: variety;">Hue Variety<input type='numeric-slider' name='BeezEye_variety' value='15' min='5' max='89' step='2'></label>
+	<fieldset style="grid-area: model;" autoTabOut><legend>color space model</legend>
 		<table onchange='for (td of this.querySelectorAll("td")) {td.classList.toggle("checked", Boolean(td.querySelector("input")?.checked))}'>
+		<caption>use arrow keys <kbd><span>→</span><span>↓</span><span>←</span><span>↑</span></kbd> to navigate</caption>
+		<tbody>
 		<tr>
 			<td><label><input type='radio' name='BeezEye_model' value='CMYK'>CMYK</label></td>
 			<td><label><input type='radio' name='BeezEye_model' value='HSV'>HSV / HSB</label></td>
@@ -1950,6 +1955,7 @@ color(Pantonic Peridot)</code></li>
 			<td><label><input type='radio' name='BeezEye_model' value='HCT' disabled>HCT</label></td>
 			<td><label><input type='radio' name='BeezEye_model' value='IChᵀᴾ'>IChᵀᴾ</label></td>
 		</tr>
+		</tbody>
 		</table>
 		<dl>
 			<dt>CMYK</dt>
@@ -1962,68 +1968,63 @@ color(Pantonic Peridot)</code></li>
 				<dd>Hue, Chroma∝, Gray</dd>
 			<dt>LCh</dt>
 				<dd>Lightness, Chroma, hue</dd>
-			<dt>Curve</dt>
-				<dd>modulates the saturation/chromatic rate</dd>
-			<dt>Twist</dt>
-				<dd>twists the color-disk at its center to make it easier to find progressive color-series</dd>
 		</dl>
-		</fieldset>
-	</td>
-</tr>
-<tr><!-- ROW 2 -->
-	<td rowspan='2'><canvas width='360' height='360'></canvas></td>
-	<td><label>Brightness <span>Value</span><input type='numeric-slider' name='BeezEye_value' value='50' min='0' max='100' step='any' bump='0.5'></label></td>
-</tr>
-<tr><!-- ROW 3 -->
-	<td><fieldset>
+	</fieldset>
+	<fieldset style="grid-area: curve;">
 		<label>¿<input type='checkbox' name='BeezEye_curve' value='curve'>Curve?<input type='range' name='BeezEye_curve_value' value='50' min='1' max='100'></label>
 		<label><input type='checkbox' name='BeezEye_curve_midring' value='midring'> Mid–Ring</label>
-		</fieldset>
-	</td>
-</tr>
-<tr><!-- ROW 4 -->
-	<td><label>Hue Variety<input type='numeric-slider' name='BeezEye_variety' value='15' min='5' max='89' step='2' tabToTarget='true'></label></td>
-	<td rowspan='2' id='BeezEye_swatch'></td>
-</tr>
-<tr><td id='BeezEye_indicator'> </td></tr>
-</tbody>
-</table>
+		<note>modulates the saturation/chromatic rate</note>
+	</fieldset>
+	<label style="grid-area: twist">¿<input type='checkbox' name='BeezEye_twist' value='twist' tabToTarget="(!this.checked)">Twist?
+		<input type='range' name='BeezEye_twist_value' value='50' min='0' max='100' tabToTarget>
+		<note>twists the color-disk at its center to make it easier to find progressive color-series</note>
+	</label>
+	<cell style="grid-area: grafik;"><canvas width='360' height='360'></canvas></cell>
+	<swatch style="grid-area: swatch;" id='BeezEye_swatch'></swatch>
+	<indicator style="grid-area: indicator;" id='BeezEye_indicator'> </indicator>
+</figure>
+</div>
 
 
 
-<table class='picker palette' id='RainbowMaestro'><caption><h6>RainbowMaestro Harmonic Color Picker™</h6>click to choose</caption>
-<thead>
-	<tr><td colspan='2'>
+<div class='picker palette' id='RainbowMaestro'>
+<h6>RainbowMaestro Harmonic Color Picker™</h6>
+<note>click to choose</note>
+<fieldset>
 	<label><input type='checkbox' name='RainbowMaestro_websafe' value='true' checked backtabTo='#MasterColorPicker_palette_select'>websafe</label>
-	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true' onfocus="this.parentNode.className='focusWithin'" onblur="this.parentNode.className=''">split-compliments<note> and analogous</note></label>
+	<label><input type='checkbox' name='RainbowMaestro_splitComplement' value='true'>split-compliments<note> and analogous</note></label>
 	<label><input type='checkbox' name='RainbowMaestro_colorblind' value='true' checked>colorblind assist<footmark>‡</footmark></label>
 	<label><input type='checkbox' name='RainbowMaestro_lock' value='true'>lock focal hue</label>
-	</td></tr>
-	<tr><td colspan='2'>
+
 	<label>variety<input type='numeric-slider' name='RainbowMaestro_variety' value='6' min='6' max='32'></label>
 	<label><input type='checkbox' name='RainbowMaestro_focalsOnly' value='true'>focals only</label>
-	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue' value='0' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' tabToTarget='true'>
+	<label id='RainbowMaestro_hueIndicator'>focal hue:<input type='numeric' name='RainbowMaestro_focalHue'
+			value='0' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●'>
 		<span class='hueIndicator'>&nbsp;</span><note>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.&nbsp;
 		Hue is always an
 		<span referto='MasterColorPicker_helpFor_Hue'>“RGB-standard hue”</span>.</note></label>
-	</td></tr>
-	<tr><td colspan='2' id='RainbowMaestro_swatch'><span id='RainbowMaestro_indicator'>&nbsp;</span></td><tr>
-</thead>
-<tbody>
-<tr><th>full color<label title='Ottosson Krafted Colours'>¡<input type='checkbox' name='RainbowMaestro_OK' value='OK'>make it OK!</label></th>
-		<th class='colorblind'>Protan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></th></tr>
-<tr><td><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td>
-		<td class='colorblind'><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td></tr>
-<tr><th class='colorblind'>Deutan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></th>
-		<th class='colorblind'>Tritan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></th></tr>
-<tr><td class='colorblind'><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td>
-		<td class='colorblind'><div class='subpalette_swatch'></div><canvas width='360' height='360'></canvas></td></tr>
-</tbody>
-<tfoot>
-	<tr class='colorblind'><td colspan='2' id='RainbowMaestro_note1'><footmark>‡</footmark>simulations are approximate, and may vary between individuals and monitors</td></tr>
-	<tr class='colorblind'><td colspan='2' id='RainbowMaestro_note2'><footmark>‡</footmark><span class='thanks'></span></td></tr>
-</tfoot>
-</table>
+</fieldset>
+<swatch id='RainbowMaestro_swatch'><indicator id='RainbowMaestro_indicator'>&nbsp;</indicator></swatch>
+<div class='graphicals'>
+	<figure><figcaption>full color</figcaption>
+		<label title='Ottosson Krafted Colours'>¡<input type='checkbox' name='RainbowMaestro_OK' value='OK' tabToTarget>make it OK!</label>
+		<box><swatch></swatch><canvas width='360' height='360'></canvas></box>
+	</figure>
+	<figure><figcaption>Protan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></figcaption>
+		<box><swatch></swatch><canvas width='360' height='360'></canvas></box>
+	</figure>
+	<figure><figcaption>Deutan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></figcaption>
+		<box><swatch></swatch><canvas width='360' height='360'></canvas></box>
+	</figure>
+	<figure><figcaption>Tritan simulation<footmark aria-details='RainbowMaestro_note1 RainbowMaestro_note2'>‡</footmark></figcaption>
+		<box><swatch></swatch><canvas width='360' height='360'></canvas></box>
+	</figure>
+</div>
+<footer>
+	<note id='RainbowMaestro_note1'><footmark>‡</footmark>simulations are approximate, and may vary between individuals and monitors</note>
+	<note id='RainbowMaestro_note2'><footmark>‡</footmark><span class='thanks'></span></note>
+</footer>
+</div>
 
 
 
@@ -2059,7 +2060,7 @@ color(Pantonic Peridot)</code></li>
 <td style='border-left: 1px solid;'><div>HSV</div></td>
 <!-- note the width of the next two cells is dependent on the width of the main canvas hardcoded above and the two below … -->
 <td style='border: 1px solid; border-top: none; width: 180px;'>Gray=0%</td><td style='border: 1px solid; border-top: none; width: 180px;'>Gray=100%</td>
-<td id="Simple²swatch" colspan='2' rowspan='6' style='border: 1px solid white'></td>
+<td id="Simple²swatch" colspan='2' rowspan='5' style='border: 1px solid white'></td>
 </tr>
 <tr><!--  ROW 4  -->
 <td style='border-left: 1px solid'></td>
@@ -2084,40 +2085,38 @@ color(Pantonic Peridot)</code></li>
 		><span class='begin'>0%→</span>←←Lightness→→<span class='end'>←100%</span></td>
 </tr>
 <tr>
-<td id="Simple²indicator" colspan='5'>&nbsp;</td>
+<td id="Simple²indicator" colspan='7'>&nbsp;</td>
 </tr>
 </tbody>
 </table>
 
 
-<table class='picker palette' id='YinYangNíHóng'><caption><h6>YinYang NíHóng<span>the Tao of Color Pickers™</span></h6>click to choose</caption>
-<thead>
-<tr>
-	<td><label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='#MasterColorPicker_palette_select'>HSB / <ok>&ZeroWidthSpace;</ok>HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label></td>
-	<td><label><input type='radio' name='YinYang NíHóng' value='HSL' checked><ok>&ZeroWidthSpace;</ok>HSL<dfn>Hue, Saturation, Lightness</dfn></label></td>
-	<td><label><input type='radio' name='YinYang NíHóng' value='HCG'><ok>&ZeroWidthSpace;</ok>HCG<dfn>Hue, Chroma∝, Gray</dfn></label></td>
-</tr>
-<tr>
-	<td colspan='3'>
-		<label title='Ottosson Krafted Colours'>¡<input type='checkbox' name='YinYang NíHóng OK' value='OK'>make it OK!</label>
-		<label>Focal Hue:<input type='numeric' name='YinYang NíHóng focalHue' value='0' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' tabToTarget='true'>
+<div class='picker palette' id='YinYangNíHóng'>
+<h6>YinYang NíHóng <span>the Tao of Color Pickers™</span></h6>
+<note>click to choose</note>
+<fieldset>
+	<fieldset>
+		<label><input type='radio' name='YinYang NíHóng' value='HSV' backtabTo='#MasterColorPicker_palette_select'>HSB / <ok>&ZeroWidthSpace;</ok>HSV<dfn>Hue, Saturation, Brightness/Value</dfn></label>
+		<label><input type='radio' name='YinYang NíHóng' value='HSL' checked><ok>&ZeroWidthSpace;</ok>HSL<dfn>Hue, Saturation, Lightness</dfn></label>
+		<label><input type='radio' name='YinYang NíHóng' value='HCG'><ok>&ZeroWidthSpace;</ok>HCG<dfn>Hue, Chroma∝, Gray</dfn></label>
+	</fieldset>
+	<label title='Ottosson Krafted Colours'>¡<input type='checkbox' name='YinYang NíHóng OK' value='OK'>make it OK!</label>
+	<label>Focal Hue:<input type='numeric' name='YinYang NíHóng focalHue' value='0' units='deg,°,rad,ᶜ,ᴿ,grad,ᵍ,%,turn,●' tabToTarget='true'>
 		<span class='hueIndicator'>&nbsp;</span><dfn>Hue given in <span class='hueAngleUnit'>degrees (0.0°–360°)</span>.&nbsp;
 		Hue is always an
 		<span referto='MasterColorPicker_helpFor_Hue'>“RGB-standard hue”</span>.</dfn></label>
-	</td>
-</tr>
-</thead>
-<tbody>
-<tr><td colspan='3' id='YinYangNíHóng_swatch'><div><canvas width='421' height='421'></canvas></div></td></tr>
-<tr><td colspan='3' id='YinYangNíHóng_indicator'>&nbsp;</td></tr>
-</tbody>
-<tfoot>
-<tr><td colspan='3'><dfn>YinYang:</dfn> balance of interplay between opposites (here: light &amp; dark, color &amp; gray).</td></tr>
-<tr><td><dfn>NíHóng:</dfn> Neon.</td><td><dfn>Ní:</dfn> Rainbow; You.</td><td><dfn>Hóng:</dfn> Rainbow; Great.</td></tr>
-<tr><td colspan='3'><dfn>Tao:</dfn> all-encompassing unity with balance of the most simple way.</td></tr>
-<tr><td colspan='3'>All 16,777,216 different colors the modern computer can show within 2 clicks.</td></tr>
-</tfoot>
-</table>
+</fieldset>
+<div id='YinYangNíHóng_swatch'><!-- 3 canvases total; #2 & #3 dynamically added via JavaScript -->
+	<canvas width='421' height='421'></canvas>
+</div>
+<indicator id='YinYangNíHóng_indicator'>&nbsp;</indicator>
+<footer>
+	<note><dfn>YinYang:</dfn> balance of interplay between opposites (here: light &amp; dark, color &amp; gray).</note>
+	<note><span><dfn>NíHóng:</dfn> Neon.</span><span><dfn>Ní:</dfn> Rainbow; You.</span><span><dfn>Hóng:</dfn> Rainbow; Great.</span></note>
+	<note><dfn>Tao:</dfn> all-encompassing unity with balance of the most simple way.</note>
+	<note>All 16,777,216 different colors the modern computer can show within 2 clicks.</note>
+</footer>
+</div>
 
 
 <div class='picker palette' id='MasterColorPicker_EyeDropper'><h6>Eye-Dropper color picker</h6>
@@ -2133,7 +2132,7 @@ color(Pantonic Peridot)</code></li>
 	</fieldset>
 	<label>Background: <input type='range' name='MasterColorPicker_EyeDropper_background' value='128' min='0' max='255' tabToTarget>
 	<note>The background color will not be eye-dropped; it is only for visual contrast in images with transparency.</note></label>
-	<indicator> <swatch></swatch></indicator>
+	<div><swatch></swatch><indicator> </indicator></div>
 </tools>
 <playground></playground>
 </div>
