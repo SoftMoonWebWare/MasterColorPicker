@@ -1,6 +1,6 @@
-﻿/*  charset: UTF-8
+/*  charset: UTF-8
  *  tabspacing: 2 ¡preferred for reading comments!
- * for: MasterColorPicker release 2.6.13  January 27, 2026  by SoftMoon-WebWare
+ * for: MasterColorPicker release 2.7.00  July 7, 2026  by SoftMoon-WebWare
  */
 body.MCP_init {
 	cursor: wait; }
@@ -1216,6 +1216,23 @@ iframe#MasterColorPicker_local_filesaver {
 	display: none; }
 
 
+#MasterColorPicker indicator {  /* the max-width is often dynamically controlled via JavaScript */
+	display: block;
+	margin: 0;
+	padding: .162em 0;
+	min-height: 1.382em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-family: "consolas", monospace;
+	font-weight: bold;
+	font-size: 116.18%;
+	text-align: center; }
+#MasterColorPicker swatch {
+	display: inline-block;
+	width: 2.618em;
+	height: 1.382em; }
+
 
 #MasterColorPicker_Mixer {
 	margin-top: 2em;
@@ -1431,19 +1448,10 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 	color: transparent;
 	background-color: transparent;
 	z-index: 1000; }
-
-#MasterColorPicker indicator {
-	display: block;
-	margin: 0;
-	padding: .162em 0;
-	min-height: 1.382em;
-	text-align: center; }
-#MasterColorPicker swatch {
-	display: inline-block;
-	width: 2.618em;
-	height: 1.382em; }
-#MasterColorPicker indicator swatch {
+#MasterColorPicker_EyeDropper swatch {
 	float: right; }
+
+
 
 #MasterColorPicker_Gradientor {
 	margin-top: calc(2em + 2px);
@@ -1489,9 +1497,17 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_Gradientor_linear-colors input:last-child {
 	width: 7em; }
 #MasterColorPicker_Gradientor swatch {
-	vertical-align: middle; }
-#MasterColorPicker_Gradientor div { /* canvas container */
+	vertical-align: middle;
+	border: 1px solid transparent; }
+#MasterColorPicker_Gradientor swatch.forMouse {
+	float: right; }
+#MasterColorPicker_Gradientor div {
 	text-align: center;
+	clear: both; }
+#MasterColorPicker_Gradientor div indicator { /* the max-width is dynamically controlled via JavaScript */
+	height: 1.382em;
+	display: inline-block; }
+#MasterColorPicker_Gradientor div:last-child { /* canvas container */
 	padding: .618em;
 	color: var(--fore-palette);
 	background-color: var(--back-palette); }
@@ -1687,19 +1703,17 @@ body.MCP_we-be-a-cuttin #MasterColorPicker_EyeDropper playground * {
 #MasterColorPicker_Lab div {
 	margin: 0;
 	padding: 0; }
-#MasterColorPicker_Lab indicator {
+#MasterColorPicker_Lab > div label {
 	display: inline-block;
 	text-align: left;
 	white-space: nowrap;
 	margin: 0;
 	padding: 0; }
-#MasterColorPicker_Lab indicator span {
-	font-weight: bold;
-	font-family: monospace;
-	font-size: 116.18%; }
-indicator#MasterColorPicker_LabContrast {
+#MasterColorPicker_Lab > div indicator {
+	display: inline; }
+label#MasterColorPicker_LabContrast {
 	float: right; }
-indicator#MasterColorPicker_LabContrast.disabled {
+label#MasterColorPicker_LabContrast.disabled {
 	display: none; }
 
 #MasterColorPicker_Lab aside {
@@ -1811,23 +1825,6 @@ indicator#MasterColorPicker_LabContrast.disabled {
 #MasterColorPicker_Lab button:hover {
 	outline: 4px double;
 	outline-offset: 2px; }
-
-
-#MasterColorPicker p.underConstruction {
-	color: red !important;
-	text-align: center !important; }
-#MasterColorPicker p.underConstruction span {
-	display: block;
-	font-size: 1.162em; }
-#MasterColorPicker_Gradientor p.underConstruction {
-	position: absolute;
-	font-size: 1.618em;
-	background-color: #FFFFFFA0;
-	top: 2.618em;
-	left: 1em;
-	rotate: 337deg;
-	transform: rotate(337deg);
-	z-index: 20; }
 
 
 #MasterColorPicker_Thesaurus {
@@ -2174,125 +2171,106 @@ table#Spectral td {
 	white-space: noWrap; }
 
 
-table#BeezEye {
-	padding-left: 7px;
+#BeezEye {
+	text-align: center; }
+#BeezEye figure {
+	display: grid;
+	grid-template-columns: 362px 1fr;
+	grid-auto-rows: minmax(1px, auto);
+	grid-template-areas:
+		"variety model"
+		"grafik brightness"
+		"grafik curve"
+		"twist swatch"
+		"indicator indicator";
 	position: relative;
-	overflow: hidden; /*fix Opera*/
-	 }
-table#BeezEye caption {
-/* 	width: calc(100% - 7.618em); make space for the “twist” input-range */
-	margin-right: 3.618em;
-	padding-bottom: 1.618em; }
-table#BeezEye canvas {
-	width: 360px;
-	height: 360px;
+	margin: 0.618em 0 0 0;
+	padding: 0 0 0 7px; }
+#BeezEye cell {
+	display: block;
+	position: relative;
+	padding: 0;
 	margin: 0; }
-table#BeezEye td {
-	text-align: center;
-	vertical-align: middle;
-	padding: 0; }
-table#BeezEye label {
+#BeezEye label {
 	margin: 0;
 	padding: 0;
 	display: inline-block;  }
-table#BeezEye > tbody > tr:first-child fieldset {
-	padding-top: .382em;
-	padding-bottom: .382em;
-	border-bottom-left-radius: 1em 1.618em; }
-table#BeezEye fieldset input[type="radio"] {
+#BeezEye fieldset input[type="radio"] {
 	display: inline; }
-table#BeezEye input[type="range"] {
-	display: block; }
-table#BeezEye input[name='BeezEye_variety'] {
+#BeezEye input[type="range"] {
+	display: block;
+	margin: 0 auto; }
+#BeezEye input[name='BeezEye_variety'] {
 	display: inline; }
-table#BeezEye input[name='BeezEye_value'] {
+#BeezEye input[name='BeezEye_value'] {
 	background-color: transparent; }
-
-/*table#BeezEye tr:has(fieldset),  dispite promises that :has() works with FireFox since 2023, it does not in July 2024, and flubbers this ruleset*/
-table#BeezEye tr.foobar {
-	position: relative; }
-table#BeezEye fieldset {
+#BeezEye .disabled,
+#BeezEye :disabled {
+	visibility: hidden; }
+#BeezEye label[style*="variety"] {
+	padding-bottom: 0.618em; }
+#BeezEye fieldset legend {
+	white-space: nowrap; }
+#BeezEye fieldset[style*="model"] {
 	position: absolute;
-	top: -1.162em;
+	top: 1.162em;
 	right: 0;
 	bottom: auto;
 	left: auto;
 	margin: 0;
-	padding: .618em;
+	padding: .382em .618em;
+	border-bottom-left-radius: 1em 1.618em;
 	text-align: left;
 	overflow: visible;
-	z-index: 2;
-	color: var(--fore-palette);
-	background-color: rgba(0,0,0,0.7);
-	background-color: color(from black srgb r g b / 0.7); }
-table#BeezEye fieldset dl {
-	display: none; }
-table#BeezEye fieldset:focus-within dl,
-table#BeezEye fieldset:hover dl {
-	display: block;
-	/*
-	position: absolute;
-	top: .618em;
-	right: 100%;
-	bottom: auto;
-	left: auto;
-	*/
-	margin: 0;
-	padding: .618em;
-	width: 21em;
-	font-weight: bold; }
-table#BeezEye fieldset table {
+	z-index: 4;
+	color: white;  /*  var(--fore-palette);  */
+	background-color: rgba(0,0,0,0.7); }
+#BeezEye fieldset table {
 	color: var(--fore-palette);
 	background-color: var(--back-palette);
 	margin: 0;
 	padding: 0;
-	border-collapse: collapse; }
-table#BeezEye fieldset table td {
+	border-collapse: collapse;
+	caption-side: bottom; }
+#BeezEye fieldset td,
+#BeezEye fieldset dl,
+#BeezEye fieldset caption {
 	display: none; }
-table#BeezEye fieldset table td.checked,
-table#BeezEye fieldset table.focus-within td,
-table#BeezEye fieldset:hover table td {
+#BeezEye fieldset td.checked,
+#BeezEye fieldset:focus-within td,
+#BeezEye table.focus-within td,
+#BeezEye fieldset:hover td {
 	display: table-cell;
 	padding: 0 .618em 0 0;
 	text-align: left; }
-table#BeezEye fieldset:hover table td:last-child {
-	padding-right: 0; }
-table#BeezEye fieldset table label {
+#BeezEye fieldset table label {
 	display: block;
 	margin: 0;
 	padding: 0;
 	white-space: nowrap; }
-
-table#BeezEye .disabled,
-table#BeezEye :disabled {
-	visibility: hidden; }
-/*
-	position: absolute;
-	top: 3em;
-	left: 5px;
-	transform: rotate(330deg); }
-*/
-table#BeezEye > tbody > tr:first-child td:last-child label:nth-last-child(1),
-table#BeezEye > tbody > tr:first-child td:last-child label:last-child,
-table#BeezEye > tbody > tr:first-child label:has(input[type='checkbox']) {
-	display: inline;
-	padding-left: .382em; }
-
-table#BeezEye > tbody > tr:nth-child(2) label {
-	position: absolute;
-	top: 13.62em;
-	left: 327px;
-	color: white;
+#BeezEye fieldset:focus-within caption {
+	display: table-caption;
+	padding-bottom: 0.382em; }
+#BeezEye fieldset:focus-within dl,
+#BeezEye fieldset:hover dl {
+	display: block;
+	margin: 0;
+	padding: .618em;
+	width: 21em;
+	font-weight: bold; }
+#BeezEye cell[style*="brightness"] label {
+	position: absolute; /* relative to the cell */
+	top: 7.618em;
+	left: -2.382em;
+	transform: rotate(270deg);
 	margin: 0;
 	z-index: 2;
-	transform: rotate(270deg);
+	color: white;
 	background: linear-gradient(to right, #000000, #FFFFFF); }
-
-table#BeezEye > tbody > tr:nth-child(2) label span {
+#BeezEye cell[style*="brightness"] label span {
 	color: black;
-	padding-left: 1.618em;  }
-
-table#BeezEye > tbody > tr:nth-child(2) label input[type="text"] {
+	padding-left: 1.618em; }
+#BeezEye cell[style*="brightness"] label input[type="text"] {
 	display: block;
 	color: black;
 	background-color: white;
@@ -2300,16 +2278,38 @@ table#BeezEye > tbody > tr:nth-child(2) label input[type="text"] {
 	position: relative;
 	top: -2.618em;  /* since the containing <label> is rotated, this appears to be “left” not “top” */
 	bottom: auto; }
-
-table#BeezEye > tbody > tr:nth-child(3) td {
+#BeezEye figure note {
+	display: none; }
+#BeezEye label:hover note,
+#BeezEye label:focus-within note,
+#BeezEye fieldset:hover note,
+#BeezEye fieldset:focus-within note {
+	display: block;
+	position: absolute;
+	top: auto;
+	bottom: 100%;
+	left: calc(50% - 5em);
+	width: 10em;
+	border: 2px dotted;
+	color: var(--fore-palette);
+	background-color: var(--back-palette); }
+#BeezEye fieldset:hover note,
+#BeezEye fieldset:focus-within note {
+	left: auto;
+	right: calc(100% + 2em); }
+#BeezEye label[style*="twist"] {
 	position: relative;
-	vertical-align: bottom; }
-table#BeezEye > tbody > tr:nth-child(3) fieldset {
-	position: static;
+	z-index: 3; }
+#BeezEye fieldset[style*="curve"] {
+	position: relative;
 	margin: 0 0 0 0;
 	padding: 0;
-	border: none;  }
-table#BeezEye > tbody > tr:nth-child(3) fieldset label:first-child {
+	align-self: end;
+	border: none;
+	z-index: 3;  }
+#BeezEye fieldset[style*="curve"] > * {
+	line-height: 1.5em; }
+#BeezEye fieldset[style*="curve"] label:first-child {
 	position: absolute;
 	top: auto;
 	bottom: 1.618em;
@@ -2318,42 +2318,50 @@ table#BeezEye > tbody > tr:nth-child(3) fieldset label:first-child {
 	text-align: center;
 	transform: rotate(315deg);
 	z-index: 2; }
-table#BeezEye > tbody > tr:nth-child(3) fieldset label:last-child {
+#BeezEye fieldset[style*="curve"] label:last-of-type { /* this element gives this entire column a width-structure */
 	margin: .382em;
 	white-space: nowrap; }
-
-table#BeezEye > tbody > tr:nth-child(4) td:last-child {
+#BeezEye swatch {
+	width: 100%;
+	height: 100%;
 	color: black;
 	border: 1px solid;
-	border-bottom-color: inherit;  }
-table#BeezEye > tbody > tr:last-child td {
-	height: 1.618em;
-	white-space: pre;
-	font-family: "consolas", monospace;
-	font-weight: bold;
-	font-size: 1.27em; }
+	border-right: none;;  }
+#BeezEye indicator { /* the max-width is dynamically controlled via JavaScript */
+	font-size: 1.27em; }  /*not sure why this needs font-size boosting…<indicator> should already be up-sized*/
 
 
 
-table#RainbowMaestro {
+#RainbowMaestro {
+	text-align: center;
+	margin: 0;
 	margin-right: 0; /*
 	padding-right: 1.016em;   /* ←↓ band-aid fix for lame layout engines: Opera, Google Chrome, Firefox */
 }
-table#RainbowMaestro.no_colorblind {padding-right: 0;}
-table#RainbowMaestro thead {
-	text-align: center; }
-table#RainbowMaestro thead label {
+#RainbowMaestro.no_colorblind {padding-right: 0;}
+#RainbowMaestro > * {
+	display: block; }
+#RainbowMaestro fieldset {
+	display: inline-block;
+	margin: 0;
+	padding: 0 0.2em;
+	border: none; }
+#RainbowMaestro fieldset label {
 	margin-right: .618em;
 	position: relative; }
-table#RainbowMaestro thead label:last-child {
+#RainbowMaestro fieldset label:nth-child(4)::after {
+	content:"\a";
+	white-space: pre; }
+#RainbowMaestro fieldset label:nth-child(4),
+#RainbowMaestro fieldset label:last-child {
 	margin-right: 0; }
-table#RainbowMaestro thead note {
+#RainbowMaestro fieldset note {
 	display: none; }
-table#RainbowMaestro thead label:hover,
-table#RainbowMaestro thead label:focus-within {
+#RainbowMaestro fieldset label:hover,
+#RainbowMaestro fieldset label:focus-within {
 	z-index: 1000; }
-table#RainbowMaestro thead label:hover note,
-table#RainbowMaestro thead label:focus-within note {
+#RainbowMaestro fieldset label:hover note,
+#RainbowMaestro fieldset label:focus-within note {
 	display: block;
 	position: absolute;
 	top: 100%;
@@ -2365,36 +2373,56 @@ table#RainbowMaestro thead label:focus-within note {
 	padding: .16em;
 	border: 2px solid var(--fore-palette);
 	border-top: none; }
-table#RainbowMaestro tbody th {
+#RainbowMaestro > swatch {
+	display: block;
+	width: auto;
+	padding: .382em; }
+#RainbowMaestro_swatch  { /* the color fore/back is controlled by JavaScript */
+	position: relative;
+	text-align: center;
+	height: 2em; }
+indicator#RainbowMaestro_indicator { /* the •content is filled, and the •max-width is controlled via JavaScript */
+	display: inline-block;
+	vertical-align: middle;
+	padding: 0;
+	min-height: auto;
+	color: var(--fore-palette);
+	background-color: var(--back-palette); }
+#RainbowMaestro .graphicals {
+	display: grid;
+	grid-template-columns: 1fr 1fr; }
+#RainbowMaestro.no_colorblind .graphicals {
+	display: block; }
+#RainbowMaestro .graphicals figure {
+	margin: 0;
+	padding: 0 7px 7px 7px;
 	border-top: 1px solid;
 	border-left: 1px solid; }
-table#RainbowMaestro tbody tr:first-child th:first-child {
+#RainbowMaestro .graphicals figure:first-child {
 	position: relative; }
-table#RainbowMaestro tbody th label {  /* ¡OK! */
+#RainbowMaestro .graphicals figure figcaption {
+	font-weight: bold;
+	padding: 0 0 7px 0; }
+#RainbowMaestro .graphicals figure label {  /* ¡OK! */
 	position: absolute;
 	top: 0;
 	left: auto;
 	right: 0;
 	bottom: auto; }
-#MasterColorPicker_mainPanel table#RainbowMaestro > tbody td {
-	border-left: 1px solid;
-	text-align: center;
-	position: relative;
-	padding: 7px; }
-table#RainbowMaestro tbody th:first-child,
-table#RainbowMaestro tbody td:first-child {
-	border-left: none; }
-table#RainbowMaestro.no_colorblind .colorblind {
+#RainbowMaestro .graphicals figure box {
+	display: block; }
+#RainbowMaestro.no_colorblind .graphicals figure:not(:first-child),
+#RainbowMaestro.no_colorblind footer {
 	display: none; }
-table#RainbowMaestro canvas {
+#RainbowMaestro canvas {
 	display: block;
 	position: relative;
 	padding: 0;
 	margin: -106px auto 0 auto;
 	z-index: 2; }
-table#RainbowMaestro tr:nth-child(2) td:first-child canvas {
+#RainbowMaestro .graphicals figure:first-child canvas {
 	cursor: crosshair; }
-table#RainbowMaestro div.subpalette_swatch {
+#RainbowMaestro .graphicals swatch {
 	display: block;
 	position: relative;
 	top: 127px;
@@ -2444,16 +2472,13 @@ table#RainbowMaestro div.subpalette_swatch {
 	font-style: normal !important;
 	color: var(--fore-text-note-refer);
 	background-color: var(--back-text-note-refer); }
-td#RainbowMaestro_swatch  {
-	text-align: center;
-	height: 2em;  }
-span#RainbowMaestro_indicator {
-	color: var(--fore-palette);
-	background-color: var(--back-palette);
-	font-family: "consolas", monospace;
-	font-weight: bold;
-	font-size: 1.27em; }
-#RainbowMaestro tfoot span.thanks {
+#RainbowMaestro footer {
+	margin: 0;
+	padding: 0;
+	border-top: 1px solid; }
+#RainbowMaestro footer note {
+	display: block; }
+#RainbowMaestro footer span.thanks {
 	white-space: pre-wrap; }
 
 
@@ -2584,38 +2609,45 @@ td#Simple²indicator {
 	padding: .2em;
 	font-family: monospace;
 	font-weight: bold;
-	font-size: 116.18% }
+	font-size: 116.18%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis; }
 
 
 
-table#YinYangNíHóng {
+#YinYangNíHóng {
 /*	padding-right: 1em;  /* ←↓ band-aid fix for lame layout engines: Opera, Google Chrome, Firefox */
 	text-align: center;
 }
-table#YinYangNíHóng h6 span {
+#YinYangNíHóng > * {
+	display: block; }
+#YinYangNíHóng h6 span {
 	display: block;
 	padding-left: 4.618em;
-	font-size: 85.4%; }   /* ≈ Φ + (1-Φ)*Φ */
-table#YinYangNíHóng thead tr:hover,
-table#YinYangNíHóng thead tr:focus-within {
+	font-size: 85.4%; }   /* ≈ Φ + (1-Φ)×Φ */
+#YinYangNíHóng fieldset {
+	margin: 0;
+	padding: 0;
+	border: none; }
+#YinYangNíHóng label:hover,
+#YinYangNíHóng label:focus-within {
 	z-index: 618; }
-table#YinYangNíHóng thead tr {
+#YinYangNíHóng label {
+	display: inline-block;
 	position: relative; }
-table#YinYangNíHóng thead tr:first-child td {
-	width: 33.3% }
-table#YinYangNíHóng label {
-	display: inline-block; }
-table#YinYangNíHóng thead tr:nth-child(2) label:first-child {
+#YinYangNíHóng fieldset fieldset label {
+	width: 32.5%; }
+#YinYangNíHóng > fieldset > label:first-of-type {
 	float: left; }
-table#YinYangNíHóng thead tr:nth-child(2) label:last-child {
-	float: right;
-	position: relative; }
-table#YinYangNíHóng thead tr:nth-child(2) label:last-child input {
+#YinYangNíHóng > fieldset > label:last-of-type {
+	float: right; }
+#YinYangNíHóng input[units] {
 	width: 7em;
 	margin: 0; }
-table#YinYangNíHóng label .hueIndicator {
+#YinYangNíHóng label .hueIndicator {
 	display: none; }
-table#YinYangNíHóng label span.hueIndicator.active {
+#YinYangNíHóng label span.hueIndicator.active {
 	display: block;
 	position: absolute;
 	top: 0;
@@ -2627,10 +2659,10 @@ table#YinYangNíHóng label span.hueIndicator.active {
 	width: calc(7em + 4px);  /* where the extra pixel comes from? input’s width + border ← border should be 2px total  */
 	color: var(--fore-palette);
 	background-color: var(--back-palette); }
-table#YinYangNíHóng label dfn {
+#YinYangNíHóng label dfn {
 	display: none; }
-table#YinYangNíHóng label:hover dfn,
-table#YinYangNíHóng label:focus-within dfn {
+#YinYangNíHóng label:hover dfn,
+#YinYangNíHóng label:focus-within dfn {
 	display: block;
 	position: absolute;
 	top: 100%;
@@ -2641,45 +2673,43 @@ table#YinYangNíHóng label:focus-within dfn {
 	padding: .162em .38em;
 	border: 2px solid;
 	border-top: none; }
-table#YinYangNíHóng td:nth-child(2) label dfn {
-	left: 7.618em !important; }
-table#YinYangNíHóng td:last-child label dfn {
+#YinYangNíHóng fieldset fieldset label:last-child dfn {
 	left: auto !important;
 	right: .618em !important; }
-table#YinYangNíHóng dfn span[referto] {
+#YinYangNíHóng dfn span[referto] {
 	font-style: normal !important;
 	color: var(--fore-text-note-refer);
 	background-color: var(--back-text-note-refer); }
-table#YinYangNíHóng .hueAngleUnit {
+#YinYangNíHóng .hueAngleUnit {
 	font-weight: bold; }
-table#YinYangNíHóng tbody td {
-	position: relative;
-	text-align: center; }
-table#YinYangNíHóng tbody td div {
+#YinYangNíHóng > div {
 	position: relative;
 	display: inline-block; }
-table#YinYangNíHóng canvas:nth-child(2) {
+#YinYangNíHóng canvas:nth-child(2) { /* Dynamically created by JavaScript. The main canvas is 421 pixels wide */
 	display: block;
 	position: absolute;
 	top: 62px;
 	left: 167px; }
-table#YinYangNíHóng canvas:nth-child(3) {
+#YinYangNíHóng canvas:nth-child(3) { /* Dynamically created by JavaScript. The main canvas is 421 pixels wide */
 	display: block;
 	position: absolute;
 	top: 82px;
 	left: 82px; }
-td#YinYangNíHóng_indicator {
-	height: 2em;
+#YinYangNíHóng_indicator {
+	height: 1em;
 	padding: .2em;
-	font-family: "consolas", monospace;
-	font-weight: bold;
-	font-size: 116.18%;
+	max-width: calc(420px - .4em);  /* the main canvas is 421 pixels wide */
 	text-align: center; }
 
-table#YinYangNíHóng tfoot {
+#YinYangNíHóng footer {
 	font-size: .7em; }
-table#YinYangNíHóng tfoot dfn {
+#YinYangNíHóng footer note {
+	display: block; }
+#YinYangNíHóng footer dfn {
 	font-weight: bold; }
+#YinYangNíHóng footer span {
+	display: inline-block;
+	width: 32.5%; }
 
 
 /*

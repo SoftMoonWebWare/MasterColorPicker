@@ -1,6 +1,6 @@
-﻿//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
+//  character-encoding: UTF-8 UNIX   tab-spacing: 2   word-wrap: no   standard-line-length: 160
 
-// MasterColorPicker2.js   ~release ~2.6.15~BETA   April 28, 2026   by SoftMoon WebWare.
+// MasterColorPicker2.js   ~release ~2.7.00~BETA   July 7, 2026   by SoftMoon WebWare.
 /*   written by and Copyright © 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2026 Joe Golembieski, SoftMoon WebWare
 
 		This program is licensed under the SoftMoon Humane Use License ONLY to “humane entities” that qualify under the terms of said license.
@@ -1953,12 +1953,13 @@ ColorSpaceLab.setColor=function(CLR, space)  {
 	if (typeof CLR.RGB.alpha === 'number')  {
 		settings.opacity_percent.value=
 		settings.opacity_range.value=
-		(alpha= CLR.RGB.alpha)*100;
+				(alpha= CLR.RGB.alpha)*100;
 		ColorSpaceLab.update_Alpha_rangeHandle();  }
 	else if (settings.applyOpacity.checked
 			 &&  CLR.model !== 'text'
-			 &&  !(arguments[1] instanceof Event  &&  ( /key/ ).test(arguments[1].type)))
+			 &&  !(arguments[1] instanceof Event  &&  ( /key/ ).test(arguments[1].type)))  {
 		CLR.RGB.alpha= alpha= parseFloat(settings.opacity_percent.value)/100;
+		if (CLR.model  &&  CLR[CLR.model])  CLR[CLR.model].alpha= alpha;  }
 	else if (settings.applyOpacity.checked
 			 &&  CLR.model === 'text')  {
 		let m, alphaTxt=Math.roundTo(1, parseFloat(settings.opacity_percent.value)) + '%';
@@ -2213,8 +2214,8 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		swatch.color();
 		ColorSpaceLab.update_Alpha_rangeHandle();  });
 
-	ColorSpaceLab.luminanceIndicator=ColorSpaceLab.HTML.querySelector('indicator span');
-	ColorSpaceLab.contrastIndicator=contrastIndicator.querySelector('span');
+	ColorSpaceLab.luminanceIndicator=ColorSpaceLab.HTML.querySelector('indicator');
+	ColorSpaceLab.contrastIndicator=contrastIndicator.querySelector('indicator');
 	ColorSpaceLab.swatch=swatch;
 	swatch.color=function(CLR)  {
 		CLR=CLR||ColorSpaceLab.getColor(true);
@@ -2332,8 +2333,8 @@ BeezEye.buildPalette=function()  {
 			lineTo=canvas.lineTo.bind(canvas),
 			hexagon=SoftMoon.WebWare.canvas_graphics.shapes.regularPolygon.bind(null, canvas, lineTo, 6),
 			pStylz=getComputedStyle(palette),
-			w=parseInt(pStylz.width),
-			h=parseInt(pStylz.height),
+			w=palette.width,  // parseInt(pStylz.width),
+			h=palette.height, // parseInt(pStylz.height),
 //			size=settings.size.value-100,
 			variety=settings.variety.value,
 			center={x: Math.round(w/2), y: Math.round(h/2)},     //  w  h  ↔  size
@@ -2570,6 +2571,8 @@ console.log('max “lightness” for sRGB in IChᵀᴾ:',  RGB_Calc.to.ichtp([25
  /**/
 
 
+// this supports the default standard CSS layout
+function prepairTxtInd() {BeezEye.txtInd.style.maxWidth= "calc(" + BeezEye.txtInd.parentNode.clientWidth +"px - 0.618em)";}
 
 UniDOM.addEventHandler(window, 'onload', function()  {
 		const HTML=document.getElementById('BeezEye');
@@ -2596,9 +2599,9 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 		BeezEye.txtInd=document.getElementById('BeezEye_indicator');
 		BeezEye.swatch=document.getElementById('BeezEye_swatch');
 		const cnvsWrap=document.querySelector("#MasterColorPicker #BeezEye canvas").parentNode;
-		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut', 'onclick'], BeezEye);
-		UniDOM.addEventHandler(HTML.querySelector('fieldset table'), ['tabIn', 'tabOut'], function(event)  {
-			this.classList.toggle('focus-within', event.type==='tabin'  ||  event.tabbedTo.closest('table')===this);  });
+		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut', 'onclick'], [prepairTxtInd, BeezEye]);
+		UniDOM.addEventHandler(HTML.querySelector('fieldset table'), ['tabIn', 'focusout'], function(event)  {
+			this.classList.toggle('focus-within', event.type==='tabin'  ||  event.relatedTarget?.closest('table')===this);  });
 		UniDOM.generateEvent(HTML.querySelector('fieldset input:checked'), 'change', {bubbles:true});
 		BeezEye.buildPalette();
 
@@ -2619,6 +2622,36 @@ UniDOM.addEventHandler(window, 'onload', function()  {
 			case 'okhcg':
 			case 'hcg': lbl.firstChild.data='Gray';  lbl.childNodes[1].firstChild.data='';  break;  }
 			if (flag)  BeezEye.buildPalette();  }
+
+		UniDOM.addEventHandler(HTML.querySelector('fieldset table'), 'onkeydown', function(event)  {
+			if (event.shiftKey  ||  event.ctrlKey  ||  event.altKey)  return;
+			const radio=event.target;
+			let tr=radio.closest("tr"), td=radio.closest("td"), inp;
+			const i=Array.prototype.indexOf.call(tr.children, td);
+			switch (event.key)  {
+			case "ArrowUp":
+				event.preventDefault();  event.stopPropagation();
+				while (tr=tr.previousElementSibling)  {
+					if ((inp=tr.children[i].querySelector('input'))  &&  !inp.disabled)  break;  }
+			break;
+			case "ArrowDown":
+				event.preventDefault();  event.stopPropagation();
+				while (tr=tr.nextElementSibling)  {
+					if ((inp=tr.children[i].querySelector('input'))  &&  !inp.disabled)  break;  }
+			break;
+			case "ArrowLeft":
+				event.preventDefault();  event.stopPropagation();
+				while (td=td.previousElementSibling)  {
+					if ((inp=td.querySelector('input'))  &&  !inp.disabled)  break;  }
+			break;
+			case "ArrowRight":
+				event.preventDefault();  event.stopPropagation();
+				while (td=td.nextElementSibling)  {
+					if ((inp=td.querySelector('input'))  &&  !inp.disabled)  break;  }
+			break;
+			default: return;  }
+			if (inp)  UniDOM.generateEvent(inp, "tabIn", {bubbles: true}, {relatedTarget: radio, tabbedFrom: radio});  });
+
 		});  // close window onload
 
 }  // close BeezEye namespace
@@ -2956,7 +2989,8 @@ RainbowMaestro.handleMouse=function(event)  {
 											 (targetHue/π2)*RGB_Calc.hueAngleUnitFactors[RainbowMaestro.hueAngleUnit])
 					+ RainbowMaestro.hueAngleUnit);
 		UniDOM.useClass(hueIndicator.parentNode, 'active', targetHue!==null);  }
-	const spsw=document.getElementById('RainbowMaestro').getElementsByClassName('subpalette_swatch'),
+//const spsw=document.getElementById('RainbowMaestro').getElementsByClassName('subpalette_swatch'),
+	const spsw=document.querySelectorAll('#RainbowMaestro .graphicals swatch'),
 				count= settings.colorblind.checked  ?  spsw.length : 1;
 	RGB_Calc.config.stack({useHexSymbol: {value: true},  RGBA_Factory: {value: Array},  roundRGB: {value: false}});
 	try {for (var i=0; i<count; i++)  {
@@ -3036,6 +3070,9 @@ RainbowMaestro.setFocalHue=function(hueAngle, radianFlag)  {  hueAngle=parseFloa
 	if (hueAngle !== focalHue)
 		RainbowMaestro.buildPalette();  }
 
+// this supports the default standard CSS layout
+function prepairTxtInd() {RainbowMaestro.txtInd.style.maxWidth= "calc(" + RainbowMaestro.txtInd.parentNode.clientWidth +"px - 0.618em)";}
+
 UniDOM.addEventHandler( window, 'onload', function()  {
 		RainbowMaestro.hueAngleUnit=document.getElementsByName('MasterColorPicker_hue_angle_unit')[0].value;
 		//first we set the private global members                                               ↓  this defines property names (of the array-object: settings)
@@ -3069,7 +3106,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		RainbowMaestro.txtInd=document.getElementById('RainbowMaestro_indicator');
 		RainbowMaestro.swatch=document.getElementById('RainbowMaestro_swatch');
 		const cnvsWrap=document.getElementById('RainbowMaestro').getElementsByTagName('canvas')[0].parentNode;
-		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut'], [RainbowMaestro, RainbowMaestro.handleMouse]);
+		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut'], [prepairTxtInd, RainbowMaestro, RainbowMaestro.handleMouse]);
 		UniDOM.addEventHandler(cnvsWrap, ['onclick', 'oncontextmenu'], [RainbowMaestro, RainbowMaestro.handleClick]);
 
 	UniDOM.addEventHandler(document.getElementById('RainbowMaestro').querySelectorAll("span[referto]"), 'click', function()  {
@@ -3310,6 +3347,10 @@ function updateFocalHue()  {
 			hue=0;
 			this.value='0';  }  }
 
+
+// this supports the default standard CSS layout
+function prepairTxtInd() {SimpleSqColorPicker.txtInd.style.maxWidth= "calc(" + SimpleSqColorPicker.txtInd.parentNode.clientWidth +"px - 0.618em)";}
+
 UniDOM.addEventHandler( window, 'onload', function()  {
 	//first we set the private global members                                        ↓  this defines property names (of the array-object: settings)
 	settings=UniDOM.getElementsBy$Name(document.getElementById('Simple²'), "", true, function(n) {return n.name.match( /_(.+)$/ )[1];}); // grabs all the elements with a 'name' attribute (the <inputs>s) into an array, with corresponding properties
@@ -3337,7 +3378,7 @@ UniDOM.addEventHandler( window, 'onload', function()  {
 		{id: 'Simple²hsL', model: 'hsL'} ];
 	for (var i=0; i<wraps.length; i++)  {
 		const cnvsWrap=document.getElementById(wraps[i].id);
-		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut'], SimpleSqColorPicker, false, wraps[i].model);
+		UniDOM.addEventHandler(cnvsWrap, ['onMouseMove', 'onMouseOut'], [prepairTxtInd, SimpleSqColorPicker], false, wraps[i].model);
 		UniDOM.addEventHandler(cnvsWrap, 'onClick', [SimpleSqColorPicker, SimpleSqColorPicker.handleClick], false, wraps[i].model);  }
 
 	UniDOM.addEventHandler(window, 'mastercolorpicker_ready', SimpleSqColorPicker.buildPalette, {once:true});  } );
@@ -5751,11 +5792,14 @@ Gradientor.Color_SpecCache.prototype=Object.create(
 			 constructor: {value: Gradientor.Color_SpecCache}} );
 
 
+// this supports the default standard CSS layout
+function prepairTxtInd() {Gradientor.txtInd.style.maxWidth= "calc(" + Gradientor.txtInd.parentNode.clientWidth +"px - 1em)";}
+
 
 UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_onload()  {
 	Gradientor.HTML=document.getElementById('MasterColorPicker_Gradientor');
 	Gradientor.txtInd=Gradientor.HTML.querySelector('indicator');
-	Gradientor.swatch=Gradientor.txtInd.querySelector('swatch');
+	Gradientor.swatch=Gradientor.HTML.querySelector('swatch.forMouse');
 	steps=Gradientor.HTML.querySelector('input[name*="steps"]');
 	triads=Gradientor.HTML.querySelectorAll('input[name*="colorT"]');
 	colorSpace=Gradientor.HTML.querySelector('select[name*="colorSpace"]');
@@ -5799,7 +5843,8 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_Gradientor_o
 		case 'triadic': Gradientor.buildTriadicPalette();
 		break;
 		case 'linear':  Gradientor.buildLinearPalette();  }  }
-	UniDOM.addEventHandler(Gradientor.HTML.querySelector('div'), ['mouseOver', 'mouseMove', 'mouseOut', 'click'], Gradientor);
+	UniDOM.addEventHandler(Gradientor.HTML.querySelector('div:last-child'), ['mouseOver', 'mouseMove'], prepairTxtInd);
+	UniDOM.addEventHandler(Gradientor.HTML.querySelector('div:last-child'), ['mouseOver', 'mouseMove', 'mouseOut', 'click'], Gradientor);
 	UniDOM.addEventHandler(window, 'mastercolorpicker_ready', function()  {
 		MasterColorPicker.colorSwatch(triads[0]);
 		MasterColorPicker.colorSwatch(triads[1]);
@@ -6148,6 +6193,11 @@ UniDOM.addEventHandler(window, 'onload', function MasterColorPicker_EyeDropper_B
 		});
  	UniDOM.addEventHandler(playgrounds, 'mouseUp', function(event)  {
  			MasterColorPicker.HTML.classList.remove('stasis');  });
+
+	// this supports the default standard CSS layout
+	function prepairTxtInd() {EyeDropper.txtInd.style.maxWidth= "calc(" + EyeDropper.txtInd.parentNode.clientWidth +"px - 3.382em)";}
+
+	UniDOM.addEventHandler(playgrounds[0], ['mouseMove', 'mouseOver'], prepairTxtInd);  // Color_Picker prototype handles these
 	UniDOM.addEventHandler(playgrounds[0], ['mouseMove', 'mouseOut', 'click'], EyeDropper);  // Color_Picker prototype handles these
 	EyeDropper.size=dropzones[0].querySelector('input[name*="size"]');
 	Object.defineProperty(EyeDropper, 'radius', {get() {return parseInt(EyeDropper.size.value);}});
